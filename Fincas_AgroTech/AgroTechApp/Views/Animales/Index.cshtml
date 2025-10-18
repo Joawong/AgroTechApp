@@ -1,0 +1,95 @@
+﻿@model IEnumerable<AgroTechApp.Models.DB.Animal>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Arete)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Nombre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Sexo)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FechaNacimiento)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PesoNacimiento)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Estado)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Finca)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LoteAnimal)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Madre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Padre)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Raza)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Arete)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Nombre)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Sexo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FechaNacimiento)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PesoNacimiento)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Estado)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Finca.FincaId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.LoteAnimal.LoteAnimalId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Madre.AnimalId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Padre.AnimalId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Raza.RazaId)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.AnimalId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.AnimalId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.AnimalId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

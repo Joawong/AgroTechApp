@@ -1,0 +1,84 @@
+﻿@model AgroTechApp.Models.DB.Animal
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Animal</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Arete)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Arete)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Nombre)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Nombre)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Sexo)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Sexo)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.FechaNacimiento)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.FechaNacimiento)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.PesoNacimiento)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.PesoNacimiento)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Estado)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Estado)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Finca)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Finca.FincaId)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.LoteAnimal)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.LoteAnimal.LoteAnimalId)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Madre)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Madre.AnimalId)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Padre)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Padre.AnimalId)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Raza)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Raza.RazaId)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model?.AnimalId">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
