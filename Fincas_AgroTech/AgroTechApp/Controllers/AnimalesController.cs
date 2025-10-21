@@ -51,11 +51,11 @@ namespace AgroTechApp.Controllers
         // GET: Animales/Create
         public IActionResult Create()
         {
-            ViewData["FincaId"] = new SelectList(_context.Fincas, "FincaId", "FincaId");
-            ViewData["LoteAnimalId"] = new SelectList(_context.LoteAnimals, "LoteAnimalId", "LoteAnimalId");
-            ViewData["MadreId"] = new SelectList(_context.Animals, "AnimalId", "AnimalId");
-            ViewData["PadreId"] = new SelectList(_context.Animals, "AnimalId", "AnimalId");
-            ViewData["RazaId"] = new SelectList(_context.Razas, "RazaId", "RazaId");
+            ViewData["FincaId"] = new SelectList(_context.Fincas, "FincaId", "Nombre");
+            ViewData["LoteAnimalId"] = new SelectList(_context.LoteAnimals, "LoteAnimalId", "Nombre");
+            ViewData["MadreId"] = new SelectList(_context.Animals, "AnimalId", "Nombre");
+            ViewData["PadreId"] = new SelectList(_context.Animals, "AnimalId", "Nombre");
+            ViewData["RazaId"] = new SelectList(_context.Razas, "RazaId", "Nombre");
             return View();
         }
 
@@ -68,16 +68,24 @@ namespace AgroTechApp.Controllers
         {
             if (ModelState.IsValid)
             {
+                foreach (var entry in ModelState)
+                {
+                    foreach (var error in entry.Value.Errors)
+                    {
+                        Console.WriteLine($"Campo: {entry.Key} → Error: {error.ErrorMessage}");
+                    }
+                }
+
                 _context.Add(animal);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["FincaId"] = new SelectList(_context.Fincas, "FincaId", "FincaId", animal.FincaId);
-            ViewData["LoteAnimalId"] = new SelectList(_context.LoteAnimals, "LoteAnimalId", "LoteAnimalId", animal.LoteAnimalId);
-            ViewData["MadreId"] = new SelectList(_context.Animals, "AnimalId", "AnimalId", animal.MadreId);
-            ViewData["PadreId"] = new SelectList(_context.Animals, "AnimalId", "AnimalId", animal.PadreId);
-            ViewData["RazaId"] = new SelectList(_context.Razas, "RazaId", "RazaId", animal.RazaId);
-            return View(animal);
+            ViewData["FincaId"] = new SelectList(_context.Fincas, "FincaId", "Nombre");
+            ViewData["LoteAnimalId"] = new SelectList(_context.LoteAnimals, "LoteAnimalId", "Nombre");
+            ViewData["MadreId"] = new SelectList(_context.Animals, "AnimalId", "Nombre");
+            ViewData["PadreId"] = new SelectList(_context.Animals, "AnimalId", "Nombre");
+            ViewData["RazaId"] = new SelectList(_context.Razas, "RazaId", "Nombre");
+            return View();
         }
 
         // GET: Animales/Edit/5

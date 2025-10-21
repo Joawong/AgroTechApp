@@ -295,9 +295,19 @@
                             <select asp-for="Sexo" class="form-control select">
                                 <option value="">Seleccione el sexo</option>
                                 <option value="M">Macho</option>
-                                <option value="H">Hembra</option>
+                                <option value="F">Hembra</option>
                             </select>
                             <span asp-validation-for="Sexo" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Estado" class="form-label">Estado</label>
+                            <select asp-for="Estado" class="form-control">
+                                <option value="Activo">Activo</option>
+                                <option value="Muerto">Muerto</option>
+                                <option value="Vendido">Vendido</option>
+                                <option value="Trasladado">Trasladado</option>
+                            </select>
+                            <span asp-validation-for="Estado" class="text-danger"></span>
                         </div>
 
                         <div class="form-group">
@@ -365,6 +375,23 @@
                     </button>
                 </div>
             </form>
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="text-danger" style="margin-bottom: 1rem;">
+                    <strong>Errores de validación:</strong>
+                    <ul>
+                        @foreach (var modelState in ViewData.ModelState)
+                        {
+                            foreach (var error in modelState.Value.Errors)
+                            {
+                                <li><strong>@modelState.Key</strong>: @error.ErrorMessage</li>
+                            }
+                        }
+                    </ul>
+                </div>
+            }
+
+
         </div>
     </div>
 
