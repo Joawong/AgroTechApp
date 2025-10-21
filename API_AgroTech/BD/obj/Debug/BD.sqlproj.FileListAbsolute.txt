@@ -1,6 +1,0 @@
-C:\xampp\htdocs\AgroTech_API\API_AgroTech\BD\bin\Debug\BD.dacpac
-C:\xampp\htdocs\AgroTech_API\API_AgroTech\BD\bin\Debug\BD.dll
-C:\xampp\htdocs\AgroTech_API\API_AgroTech\BD\bin\Debug\BD.pdb
-C:\xampp\htdocs\AgroTech_API\API_AgroTech\BD\obj\Debug\BD.sqlproj.AssemblyReference.cache
-C:\xampp\htdocs\AgroTech_API\API_AgroTech\BD\obj\Debug\BD.dll
-C:\xampp\htdocs\AgroTech_API\API_AgroTech\BD\obj\Debug\BD.pdb
