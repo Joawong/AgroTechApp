@@ -1,84 +1,539 @@
 ﻿@model AgroTechApp.Models.DB.Animal
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar Animal";
+    var primaryColor = "#2E8B57";
+    var secondaryColor = "#F4A460";
+    var lightColor = "#f8f9fa";
 }
 
-<h1>Edit</h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <style>
+        :root {
+            --primary: @primaryColor;
+            --secondary: @secondaryColor;
+            --light: @lightColor;
+            --dark: #333;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+        }
 
-<h4>Animal</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="AnimalId" />
-            <div class="form-group">
-                <label asp-for="FincaId" class="control-label"></label>
-                <select asp-for="FincaId" class="form-control" asp-items="ViewBag.FincaId"></select>
-                <span asp-validation-for="FincaId" class="text-danger"></span>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .edit-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .edit-header {
+            background: linear-gradient(135deg, var(--primary), #3CB371);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+            .edit-header h1 {
+                margin: 0;
+                font-size: 2.2rem;
+                font-weight: 600;
+            }
+
+            .edit-header p {
+                margin: 0.5rem 0 0;
+                opacity: 0.9;
+                font-size: 1.1rem;
+            }
+
+        .edit-body {
+            padding: 2rem;
+        }
+
+        .animal-preview {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--light);
+            border-radius: 10px;
+            border: 2px dashed var(--primary);
+        }
+
+        .animal-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .animal-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .animal-id {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-section {
+            background: var(--light);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+        }
+
+            .form-section h3 {
+                color: var(--primary);
+                margin-top: 0;
+                margin-bottom: 1rem;
+                font-size: 1.2rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: white;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+            }
+
+            .form-control.select {
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+                background-position: right 0.5rem center;
+                background-repeat: no-repeat;
+                background-size: 1.5em 1.5em;
+                padding-right: 2.5rem;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+            }
+
+        .text-danger {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background-color: #26734d;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
+            }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+            .btn-secondary:hover {
+                background-color: #5a6268;
+                transform: translateY(-2px);
+            }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+
+            .btn-warning:hover {
+                background-color: #e0a800;
+                transform: translateY(-2px);
+            }
+
+        .current-value {
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            border: 1px solid #e1e5e9;
+            margin-top: 0.25rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+            .current-value strong {
+                color: var(--primary);
+            }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .edit-header {
+                padding: 1.5rem;
+            }
+
+                .edit-header h1 {
+                    font-size: 1.8rem;
+                }
+
+            .edit-body {
+                padding: 1.5rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-section {
+                padding: 1rem;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .edit-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .edit-body {
+                padding: 1rem;
+            }
+
+            .animal-preview {
+                padding: 1rem;
+            }
+
+            .animal-icon {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="edit-container">
+        <div class="edit-header">
+            <h1>✏️ Editar Animal</h1>
+            <p>Actualice la información del animal en el sistema</p>
+        </div>
+
+        <div class="edit-body">
+            <!-- Vista Previa del Animal -->
+            <div class="animal-preview">
+                <div class="animal-icon">
+                    @if (Model.Sexo == "M" || Model.Sexo == "Macho")
+                    {
+                        @:🐂
+                    }
+                    else
+                    {
+                        @:🐄
+                    }
+                </div>
+                <div class="animal-name">@Model.Nombre</div>
+                <div class="animal-id">ID: @Model.AnimalId - Arete: @Model.Arete</div>
             </div>
-            <div class="form-group">
-                <label asp-for="Arete" class="control-label"></label>
-                <input asp-for="Arete" class="form-control" />
-                <span asp-validation-for="Arete" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Nombre" class="control-label"></label>
-                <input asp-for="Nombre" class="form-control" />
-                <span asp-validation-for="Nombre" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Sexo" class="control-label"></label>
-                <input asp-for="Sexo" class="form-control" />
-                <span asp-validation-for="Sexo" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="RazaId" class="control-label"></label>
-                <select asp-for="RazaId" class="form-control" asp-items="ViewBag.RazaId"></select>
-                <span asp-validation-for="RazaId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FechaNacimiento" class="control-label"></label>
-                <input asp-for="FechaNacimiento" class="form-control" />
-                <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PesoNacimiento" class="control-label"></label>
-                <input asp-for="PesoNacimiento" class="form-control" />
-                <span asp-validation-for="PesoNacimiento" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Estado" class="control-label"></label>
-                <input asp-for="Estado" class="form-control" />
-                <span asp-validation-for="Estado" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="MadreId" class="control-label"></label>
-                <select asp-for="MadreId" class="form-control" asp-items="ViewBag.MadreId"></select>
-                <span asp-validation-for="MadreId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PadreId" class="control-label"></label>
-                <select asp-for="PadreId" class="form-control" asp-items="ViewBag.PadreId"></select>
-                <span asp-validation-for="PadreId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="LoteAnimalId" class="control-label"></label>
-                <select asp-for="LoteAnimalId" class="form-control" asp-items="ViewBag.LoteAnimalId"></select>
-                <span asp-validation-for="LoteAnimalId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+
+            <form asp-action="Edit" id="editForm">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="AnimalId" />
+
+                <div class="form-grid">
+                    <!-- Información Básica -->
+                    <div class="form-section">
+                        <h3>📝 Información Básica</h3>
+
+                        <div class="form-group">
+                            <label asp-for="FincaId" class="form-label">🏠 Finca</label>
+                            <select asp-for="FincaId" class="form-control select" asp-items="ViewBag.FincaId">
+                                <option value="">Seleccione una finca</option>
+                            </select>
+                            <span asp-validation-for="FincaId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Arete" class="form-label">🏷️ Número de Arete</label>
+                            <input asp-for="Arete" class="form-control" placeholder="Ingrese el número de arete" />
+                            <span asp-validation-for="Arete" class="text-danger"></span>
+                            <div class="current-value">
+                                Valor actual: <strong>@Model.Arete</strong>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Nombre" class="form-label">💬 Nombre del Animal</label>
+                            <input asp-for="Nombre" class="form-control" placeholder="Ingrese el nombre del animal" />
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                            <div class="current-value">
+                                Valor actual: <strong>@Model.Nombre</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Características -->
+                    <div class="form-section">
+                        <h3>🔬 Características</h3>
+
+                        <div class="form-group">
+                            <label asp-for="Sexo" class="form-label">⚥ Sexo</label>
+                            <select asp-for="Sexo" class="form-control select">
+                                <option value="">Seleccione el sexo</option>
+                                <option value="M">Macho</option>
+                                <option value="H">Hembra</option>
+                            </select>
+                            <span asp-validation-for="Sexo" class="text-danger"></span>
+                            <div class="current-value">
+                                Valor actual: <strong>
+                                    @if (Model.Sexo == "M")
+                                    {
+                                        @:Macho
+                                    }
+                                    else if (Model.Sexo == "H")
+                                    {
+                                        @:Hembra
+                                    }
+                                    else
+                                    {
+                                        @Model.Sexo
+                                    }
+                                </strong>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="RazaId" class="form-label">🐂 Raza</label>
+                            <select asp-for="RazaId" class="form-control select" asp-items="ViewBag.RazaId">
+                                <option value="">Seleccione la raza</option>
+                            </select>
+                            <span asp-validation-for="RazaId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="LoteAnimalId" class="form-label">📦 Lote</label>
+                            <select asp-for="LoteAnimalId" class="form-control select" asp-items="ViewBag.LoteAnimalId">
+                                <option value="">Seleccione el lote</option>
+                            </select>
+                            <span asp-validation-for="LoteAnimalId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Nacimiento y Peso -->
+                    <div class="form-section">
+                        <h3>🎂 Información de Nacimiento</h3>
+
+                        <div class="form-group">
+                            <label asp-for="FechaNacimiento" class="form-label">📅 Fecha de Nacimiento</label>
+                            <input asp-for="FechaNacimiento" type="date" class="form-control" />
+                            <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
+                            <div class="current-value">
+                                Valor actual: <strong>@Model.FechaNacimiento?.ToString("dd/MM/yyyy")</strong>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="PesoNacimiento" class="form-label">⚖️ Peso al Nacer (kg)</label>
+                            <input asp-for="PesoNacimiento" class="form-control" type="number" step="0.1" placeholder="Ej: 35.5" />
+                            <span asp-validation-for="PesoNacimiento" class="text-danger"></span>
+                            <div class="current-value">
+                                Valor actual: <strong>@Model.PesoNacimiento kg</strong>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Estado" class="form-label">📈 Estado</label>
+                            <select asp-for="Estado" class="form-control select">
+                                <option value="">Seleccione el estado</option>
+                                <option value="Activo">Activo</option>
+                                <option value="Inactivo">Inactivo</option>
+                                <option value="Vendido">Vendido</option>
+                                <option value="Muerto">Muerto</option>
+                            </select>
+                            <span asp-validation-for="Estado" class="text-danger"></span>
+                            <div class="current-value">
+                                Valor actual: <strong>@Model.Estado</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Parentesco -->
+                    <div class="form-section">
+                        <h3>👨‍👩‍👧‍👦 Parentesco</h3>
+
+                        <div class="form-group">
+                            <label asp-for="MadreId" class="form-label">👩 Madre</label>
+                            <select asp-for="MadreId" class="form-control select" asp-items="ViewBag.MadreId">
+                                <option value="">Seleccione la madre</option>
+                            </select>
+                            <span asp-validation-for="MadreId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="PadreId" class="form-label">👨 Padre</label>
+                            <select asp-for="PadreId" class="form-control select" asp-items="ViewBag.PadreId">
+                                <option value="">Seleccione el padre</option>
+                            </select>
+                            <span asp-validation-for="PadreId" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <a asp-action="Details" asp-route-id="@Model.AnimalId" class="btn btn-secondary">
+                        <span>👁️</span> Ver Detalles
+                    </a>
+                    <a asp-action="Index" class="btn btn-warning">
+                        <span>←</span> Volver al Listado
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <span>💾</span> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Establecer fecha máxima como hoy para fecha de nacimiento
+                const fechaNacimiento = document.getElementById('FechaNacimiento');
+                if (fechaNacimiento) {
+                    const today = new Date().toISOString().split('T')[0];
+                    fechaNacimiento.max = today;
+                }
+
+                // Preseleccionar valores actuales en los selects
+                const sexoSelect = document.querySelector('select[name="Sexo"]');
+                if (sexoSelect && '@Model.Sexo') {
+                    sexoSelect.value = '@Model.Sexo';
+                }
+
+                const estadoSelect = document.querySelector('select[name="Estado"]');
+                if (estadoSelect && '@Model.Estado') {
+                    estadoSelect.value = '@Model.Estado';
+                }
+
+                // Efectos de focus mejorados
+                const inputs = document.querySelectorAll('.form-control');
+                inputs.forEach(input => {
+                    input.addEventListener('focus', function() {
+                        this.style.borderColor = 'var(--primary)';
+                        this.style.boxShadow = '0 0 0 3px rgba(46, 139, 87, 0.1)';
+                    });
+
+                    input.addEventListener('blur', function() {
+                        this.style.borderColor = '#e1e5e9';
+                        this.style.boxShadow = 'none';
+                    });
+                });
+
+                // Validación en tiempo real
+                const form = document.getElementById('editForm');
+                form.addEventListener('submit', function(e) {
+                    const requiredFields = form.querySelectorAll('[required]');
+                    let isValid = true;
+
+                    requiredFields.forEach(field => {
+                        if (!field.value.trim()) {
+                            isValid = false;
+                            field.style.borderColor = 'var(--danger)';
+                        }
+                    });
+
+                    if (!isValid) {
+                        e.preventDefault();
+                        alert('Por favor, complete todos los campos requeridos.');
+                    }
+                });
+            });
+        </script>
+    }
+</body>
+</html>
