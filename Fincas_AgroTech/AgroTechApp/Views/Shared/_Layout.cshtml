@@ -1,0 +1,203 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AgroTechApp</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/AgroTechApp.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* ====== NAVBAR ====== */
+        .navbar-brand {
+            background: linear-gradient(135deg, #2A6BBF, #3CB371);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-link {
+            position: relative;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+            .nav-link:hover {
+                color: #2A6BBF !important;
+                background-color: #f8f9fa;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(42, 107, 191, 0.2);
+            }
+
+        .dropdown-item {
+            position: relative;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            margin: 0.1rem 0.3rem;
+            transition: all 0.3s ease;
+            width: calc(100% - 0.6rem);
+        }
+
+            .dropdown-item:hover {
+                background-color: #6CA6D9 !important;
+                color: white !important;
+                transform: translateX(5px);
+                box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            }
+
+        .navbar {
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+            padding: 0.5rem 1rem;
+        }
+
+        .dropdown-menu {
+            border: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        /* ====== FOOTER REDUCIDO ====== */
+        .footer {
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d) !important;
+            border-top: 2px solid #2E8B57;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            padding: 1.2rem 0; /* antes era más alto */
+        }
+
+            .footer h5 {
+                font-size: 1rem;
+                margin-bottom: 0.6rem;
+            }
+
+            .footer p {
+                margin-bottom: 0.4rem;
+            }
+
+            .footer .list-unstyled {
+                margin-bottom: 0.4rem;
+            }
+
+                .footer .list-unstyled li a {
+                    transition: all 0.3s ease;
+                    padding: 2px 0;
+                    font-size: 0.88rem;
+                }
+
+                    .footer .list-unstyled li a:hover {
+                        padding-left: 5px;
+                    }
+
+        .text-light-50 {
+            color: rgba(255, 255, 255, 0.7) !important;
+            transition: color 0.3s ease;
+        }
+
+            .text-light-50:hover {
+                color: #2E8B57 !important;
+            }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px; /* antes 35px */
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+        }
+
+            .social-links a:hover {
+                background: #2E8B57;
+                transform: translateY(-2px);
+            }
+
+        .footer .container {
+            max-width: 1100px;
+        }
+
+        .footer small {
+            font-size: 0.8rem;
+        }
+    </style>
+            
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold fs-3" asp-area="" asp-controller="Home" asp-action="Index">
+                    ⛰️ AgroTechApp
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
+                        aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarMain">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-semibold" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-home me-1"></i>Inicio
+                            </a>
+                        </li>
+
+                        <!-- Gestión Animal -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark fw-semibold" href="#" id="animalDropdown"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-cow me-1"></i>Gestión Animal
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="animalDropdown">
+                                <li><a class="dropdown-item" asp-controller="Animales" asp-action="Index"><i class="fas fa-list me-2"></i>Registro de Animales</a></li>
+                                <li><a class="dropdown-item" asp-controller="Animales" asp-action="Create"><i class="fas fa-plus-circle me-2"></i>Nuevo Animal</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link text-dark fw-semibold" asp-controller="Home" asp-action="Privacy">
+                                <i class="fas fa-lock me-1"></i>Privacidad
+                            </a>
+                        </li>
+                    </ul>
+
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Contenido principal -->
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer text-light pt-4 pb-3">
+        <div class="container">
+            <div class="row">
+ 
+            <hr class="my-4 border-light-50">
+
+            <div class="text-center small text-light-50">
+                &copy; 2025 AgroTechApp - Todos los derechos reservados.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
