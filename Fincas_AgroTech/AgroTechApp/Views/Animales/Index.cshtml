@@ -1,95 +1,580 @@
 ﻿@model IEnumerable<AgroTechApp.Models.DB.Animal>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Gestión de Animales";
+    var primaryColor = "#2E8B57";
+    var secondaryColor = "#F4A460";
+    var lightColor = "#f8f9fa";
 }
 
-<h1>Index</h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <style>
+        :root {
+            --primary: @primaryColor;
+            --secondary: @secondaryColor;
+            --light: @lightColor;
+            --dark: #333;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+        }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Arete)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Nombre)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Sexo)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FechaNacimiento)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PesoNacimiento)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Estado)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Finca)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LoteAnimal)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Madre)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Padre)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Raza)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Arete)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nombre)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Sexo)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FechaNacimiento)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PesoNacimiento)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Estado)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Finca.FincaId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LoteAnimal.LoteAnimalId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Madre.AnimalId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Padre.AnimalId)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Raza.RazaId)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.AnimalId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.AnimalId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.AnimalId">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .animals-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .animals-header {
+            background: linear-gradient(135deg, var(--primary), #3CB371);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+            .animals-header h1 {
+                margin: 0;
+                font-size: 2.2rem;
+                font-weight: 600;
+            }
+
+            .animals-header p {
+                margin: 0.5rem 0 0;
+                opacity: 0.9;
+                font-size: 1.1rem;
+            }
+
+        .animals-body {
+            padding: 2rem;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--dark);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background-color: #26734d;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
+            }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+        }
+
+        .animals-table-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+        }
+
+            .table thead {
+                background: linear-gradient(135deg, var(--primary), #3CB371);
+                color: white;
+            }
+
+            .table th {
+                padding: 1rem;
+                text-align: left;
+                font-weight: 600;
+                font-size: 0.9rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .table td {
+                padding: 1rem;
+                border-bottom: 1px solid #e1e5e9;
+                vertical-align: middle;
+            }
+
+            .table tbody tr {
+                transition: all 0.3s ease;
+            }
+
+                .table tbody tr:hover {
+                    background-color: #f8f9fa;
+                    transform: translateY(-1px);
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                }
+
+        .animal-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), #3CB371);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-active {
+            background-color: #d4edda;
+            color: var(--success);
+        }
+
+        .status-inactive {
+            background-color: #f8d7da;
+            color: var(--danger);
+        }
+
+        .sex-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .sex-male {
+            background-color: #d1ecf1;
+            color: var(--info);
+        }
+
+        .sex-female {
+            background-color: #f8d7da;
+            color: #e83e8c;
+        }
+
+        .actions-column {
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        .actions-group {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+
+            .empty-state .icon {
+                font-size: 4rem;
+                margin-bottom: 1rem;
+                opacity: 0.5;
+            }
+
+        .search-filter {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+            .search-box:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+            }
+
+        .filter-select {
+            padding: 0.75rem 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            background: white;
+            font-size: 1rem;
+            min-width: 150px;
+        }
+
+        /* Responsive */
+        @@media (max-width: 1200px) {
+            .animals-table-container {
+                overflow-x: auto;
+            }
+
+            .table {
+                min-width: 1000px;
+            }
+        }
+
+        @@media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .animals-header {
+                padding: 1.5rem;
+            }
+
+                .animals-header h1 {
+                    font-size: 1.8rem;
+                }
+
+            .animals-body {
+                padding: 1.5rem;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .stats-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .search-filter {
+                flex-direction: column;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .animals-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .animals-body {
+                padding: 1rem;
+            }
+
+            .stats-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .actions-group {
+                flex-direction: column;
+            }
+
+            .btn-sm {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="animals-container">
+        <div class="animals-header">
+            <h1>🐄 Gestión de Animales</h1>
+            <p>Administre y visualice todos los animales registrados en el sistema</p>
+        </div>
+
+        <div class="animals-body">
+            <div class="header-actions">
+                <div>
+                    <h2 style="margin: 0; color: var(--dark);">Lista de Animales</h2>
+                    <p style="margin: 0.5rem 0 0; color: #6c757d;">Total de animales registrados: @Model.Count()</p>
+                </div>
+                <a asp-action="Create" class="btn btn-primary">
+                    <span>➕</span> Registrar Nuevo Animal
+                </a>
+            </div>
+
+            <!-- Tarjetas de Estadísticas -->
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-number">@Model.Count()</div>
+                    <div class="stat-label">Total Animales</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">@Model.Count(a => a.Sexo == "M" || a.Sexo == "Macho")</div>
+                    <div class="stat-label">Machos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">@Model.Count(a => a.Sexo == "H" || a.Sexo == "Hembra")</div>
+                    <div class="stat-label">Hembras</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">@Model.Count(a => a.Estado == "Activo" || a.Estado == "1")</div>
+                    <div class="stat-label">Activos</div>
+                </div>
+            </div>
+
+            <!-- Buscador y Filtros -->
+            <div class="search-filter">
+                <input type="text" class="search-box" placeholder="🔍 Buscar animales por nombre o arete..." id="searchInput">
+                <select class="filter-select" id="statusFilter">
+                    <option value="">Todos los estados</option>
+                    <option value="Activo">Activos</option>
+                    <option value="Inactivo">Inactivos</option>
+                </select>
+                <select class="filter-select" id="sexFilter">
+                    <option value="">Todos los sexos</option>
+                    <option value="M">Machos</option>
+                    <option value="H">Hembras</option>
+                </select>
+            </div>
+
+            <div class="animals-table-container">
+                @if (Model.Any())
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Animal</th>
+                                <th>Arete</th>
+                                <th>Nombre</th>
+                                <th>Sexo</th>
+                                <th>Nacimiento</th>
+                                <th>Peso (kg)</th>
+                                <th>Estado</th>
+                                <th>Finca</th>
+                                <th>Lote</th>
+                                <th>Raza</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <div class="animal-avatar">
+                                            @if (item.Sexo == "M" || item.Sexo == "Macho")
+                                            {
+                                                <span>🐂</span>
+                                            }
+                                            else
+                                            {
+                                                <span>🐄</span>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <strong>@Html.DisplayFor(modelItem => item.Arete)</strong>
+                                    </td>
+                                    <td>
+                                        <strong>@Html.DisplayFor(modelItem => item.Nombre)</strong>
+                                    </td>
+                                    <td>
+                                        @{
+                                            var sexoClass = (item.Sexo == "M" || item.Sexo == "Macho") ? "sex-male" : "sex-female";
+                                            var sexoText = (item.Sexo == "M" || item.Sexo == "Macho") ? "Macho" : "Hembra";
+                                        }
+                                        <span class="sex-badge @sexoClass">@sexoText</span>
+                                    </td>
+                                    <td>
+                                        @item.FechaNacimiento?.ToString("dd/MM/yyyy")
+                                    </td>
+                                    <td>
+                                        <strong>@Html.DisplayFor(modelItem => item.PesoNacimiento)</strong>
+                                    </td>
+                                    <td>
+                                        @{
+                                            var estadoClass = (item.Estado == "Activo" || item.Estado == "1") ? "status-active" : "status-inactive";
+                                            var estadoText = (item.Estado == "Activo" || item.Estado == "1") ? "Activo" : "Inactivo";
+                                        }
+                                        <span class="status-badge @estadoClass">@estadoText</span>
+                                    </td>
+                                    <td>
+                                        <small>@Html.DisplayFor(modelItem => item.Finca.FincaId)</small>
+                                    </td>
+                                    <td>
+                                        <small>@Html.DisplayFor(modelItem => item.LoteAnimal.LoteAnimalId)</small>
+                                    </td>
+                                    <td>
+                                        <small>@Html.DisplayFor(modelItem => item.Raza.RazaId)</small>
+                                    </td>
+                                    <td class="actions-column">
+                                        <div class="actions-group">
+                                            <a asp-action="Edit" asp-route-id="@item.AnimalId" class="btn btn-warning btn-sm" title="Editar">
+                                                ✏️ Editar
+                                            </a>
+                                            <a asp-action="Details" asp-route-id="@item.AnimalId" class="btn btn-success btn-sm" title="Detalles">
+                                                👁️ Ver
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.AnimalId" class="btn btn-danger btn-sm" title="Eliminar">
+                                                🗑️ Eliminar
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <div class="icon">🐄</div>
+                        <h3>No hay animales registrados</h3>
+                        <p>Comience registrando el primer animal en el sistema.</p>
+                        <a asp-action="Create" class="btn btn-primary">
+                            <span>➕</span> Registrar Primer Animal
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Funcionalidad de búsqueda y filtros
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
+            const sexFilter = document.getElementById('sexFilter');
+            const tableRows = document.querySelectorAll('.table tbody tr');
+
+            function filterTable() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const statusValue = statusFilter.value;
+                const sexValue = sexFilter.value;
+
+                tableRows.forEach(row => {
+                    const nombre = row.cells[2].textContent.toLowerCase();
+                    const arete = row.cells[1].textContent.toLowerCase();
+                    const estado = row.cells[6].textContent;
+                    const sexo = row.cells[3].textContent;
+
+                    const matchesSearch = nombre.includes(searchTerm) || arete.includes(searchTerm);
+                    const matchesStatus = !statusValue || estado.includes(statusValue);
+                    const matchesSex = !sexValue ||
+                        (sexValue === 'M' && sexo.includes('Macho')) ||
+                        (sexValue === 'H' && sexo.includes('Hembra'));
+
+                    if (matchesSearch && matchesStatus && matchesSex) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            searchInput.addEventListener('input', filterTable);
+            statusFilter.addEventListener('change', filterTable);
+            sexFilter.addEventListener('change', filterTable);
+
+            // Efectos hover mejorados
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+
+                row.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

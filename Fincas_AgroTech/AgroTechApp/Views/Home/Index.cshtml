@@ -1,8 +1,449 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Inicio - AgroTech";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --secondary: #F4A460;
+            --light: #F5F5F5;
+            --dark: #333;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--primary), #3CB371);
+            color: white;
+            padding: 4rem 1rem;
+            text-align: center;
+        }
+
+            .hero h1 {
+                font-size: 2.5rem;
+                margin-bottom: 1rem;
+            }
+
+            .hero p {
+                font-size: 1.2rem;
+                margin-bottom: 2rem;
+                max-width: 800px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+        .btn-primary {
+            background-color: var(--secondary);
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 50px;
+            color: white;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background 0.3s, transform 0.2s;
+            display: inline-block;
+        }
+
+            .btn-primary:hover {
+                background-color: #e5943c;
+                transform: translateY(-2px);
+            }
+
+        .features {
+            padding: 4rem 1rem;
+            text-align: center;
+        }
+
+            .features h2 {
+                color: var(--dark);
+                margin-bottom: 2rem;
+                font-size: 2rem;
+            }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+            .feature-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            color: var(--dark);
+            margin-top: 0;
+        }
+
+        .feature-card p {
+            color: #666;
+        }
+
+        /* Fincas Section */
+        .farms {
+            padding: 4rem 1rem;
+            background-color: #f0f8f0;
+        }
+
+        .section-title {
+            text-align: center;
+            color: var(--dark);
+            margin-bottom: 3rem;
+            font-size: 2rem;
+        }
+
+        .farms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .farm-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+            .farm-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            }
+
+        .farm-img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .farm-content {
+            padding: 1.5rem;
+        }
+
+            .farm-content h3 {
+                color: var(--primary);
+                margin-top: 0;
+            }
+
+            .farm-content p {
+                color: #666;
+                margin-bottom: 1rem;
+            }
+
+        .farm-features {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+            .farm-features li {
+                padding: 0.5rem 0;
+                border-bottom: 1px solid #eee;
+                color: #555;
+            }
+
+                .farm-features li:last-child {
+                    border-bottom: none;
+                }
+
+        /* Stats Section */
+        .stats {
+            padding: 4rem 1rem;
+            background: linear-gradient(135deg, var(--primary), #3CB371);
+            color: white;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stat-item h3 {
+            font-size: 2.5rem;
+            margin: 0;
+        }
+
+        .stat-item p {
+            margin: 0.5rem 0 0;
+            font-size: 1.1rem;
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 4rem 1rem;
+            text-align: center;
+            background-color: var(--light);
+        }
+
+            .cta h2 {
+                color: var(--dark);
+                margin-bottom: 1rem;
+            }
+
+            .cta p {
+                color: #666;
+                max-width: 600px;
+                margin: 0 auto 2rem;
+            }
+
+        .footer {
+            background-color: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+
+        /* Responsive adjustments */
+        @@media (max-width: 768px) {
+            .hero h1
+
+        {
+            font-size: 2rem;
+        }
+
+        .hero p {
+            font-size: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+        }
+
+        .feature-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .farms-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        }
+
+        /* Media query adicional para pantallas más pequeñas */
+        @@media (max-width: 480px) {
+            .hero
+
+        {
+            padding: 2rem 1rem;
+        }
+
+        .hero h1 {
+            font-size: 1.5rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .btn-primary {
+            padding: 0.6rem 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container">
+            <h2 style="color: var(--primary); margin: 0;">AgroTech</h2>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Gestión Ganadera Inteligente</h1>
+            <p>Controla tu finca de manera eficiente con AgroTech: registro de animales, salud, reproducción, alimentación y más.</p>
+            <a href="/Login" class="btn-primary">Comenzar ahora</a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+        <div class="container">
+            <h2>Funcionalidades Principales</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🐄</div>
+                    <h3>Registro de Animales</h3>
+                    <p>Gestiona razas, pesos, identificación y más.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💉</div>
+                    <h3>Control Sanitario</h3>
+                    <p>Registro de vacunas, tratamientos y enfermedades.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔬</div>
+                    <h3>Reproducción</h3>
+                    <p>Seguimiento de celos, montas y partos.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🌱</div>
+                    <h3>Alimentación</h3>
+                    <p>Control de raciones y costos de alimentación.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Informes de Producción</h3>
+                    <p>Reportes de leche, peso y natalidad.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3>Gestión Financiera</h3>
+                    <p>Control de ingresos y egresos de la finca.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Fincas Section -->
+    <section class="farms">
+        <div class="container">
+            <h2 class="section-title">Gestión Integral de Fincas</h2>
+            <div class="farms-grid">
+                <div class="farm-card">
+                    <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Finca ganadera" class="farm-img">
+                    <div class="farm-content">
+                        <h3>Fincas Ganaderas</h3>
+                        <p>Gestión especializada para fincas dedicadas a la producción de carne y leche.</p>
+                        <ul class="farm-features">
+                            <li>Control de pasturas y rotación</li>
+                            <li>Gestión de inventario ganadero</li>
+                            <li>Planificación de alimentación</li>
+                            <li>Monitoreo de producción</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="farm-card">
+                    <img src="https://images.unsplash.com/photo-1500595046743-cd271d694d30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Finca agrícola" class="farm-img">
+                    <div class="farm-content">
+                        <h3>Fincas Agrícolas</h3>
+                        <p>Herramientas para optimizar la producción agrícola y su integración con la ganadería.</p>
+                        <ul class="farm-features">
+                            <li>Planificación de cultivos</li>
+                            <li>Control de insumos agrícolas</li>
+                            <li>Gestión de cosechas</li>
+                            <li>Integración agro-ganadera</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="farm-card">
+                    <img src="https://images.unsplash.com/photo-1574943320219-553eb213f72d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Finca mixta" class="farm-img">
+                    <div class="farm-content">
+                        <h3>Fincas Mixtas</h3>
+                        <p>Solución completa para fincas que combinan agricultura y ganadería.</p>
+                        <ul class="farm-features">
+                            <li>Gestión integrada de recursos</li>
+                            <li>Optimización de sinergias</li>
+                            <li>Análisis de rentabilidad</li>
+                            <li>Planificación sostenible</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <h3>500+</h3>
+                    <p>Fincas gestionadas</p>
+                </div>
+                <div class="stat-item">
+                    <h3>50K+</h3>
+                    <p>Animales registrados</p>
+                </div>
+                <div class="stat-item">
+                    <h3>98%</h3>
+                    <p>Clientes satisfechos</p>
+                </div>
+                <div class="stat-item">
+                    <h3>24/7</h3>
+                    <p>Soporte disponible</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <h2>¿Listo para transformar la gestión de tu finca?</h2>
+            <p>Únete a cientos de productores que ya están optimizando sus operaciones con AgroTech.</p>
+            <a href="/Login" class="btn-primary">Comenzar ahora</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2025 AgroTech - Sistema de Gestión Ganadera</p>
+        </div>
+    </footer>
+
+</body>
+</html>
