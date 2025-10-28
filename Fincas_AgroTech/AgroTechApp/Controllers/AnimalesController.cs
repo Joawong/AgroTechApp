@@ -12,10 +12,11 @@ namespace AgroTechApp.Controllers
     public class AnimalesController : Controller
     {
         private readonly AgroTechDbContext _context;
-
-        public AnimalesController(AgroTechDbContext context)
+        private readonly ILogger<AnimalesController> _logger;
+        public AnimalesController(AgroTechDbContext context, ILogger<AnimalesController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: Animales
@@ -62,12 +63,24 @@ namespace AgroTechApp.Controllers
         // POST: Animales/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("AnimalId,FincaId,Arete,Nombre,Sexo,RazaId,FechaNacimiento,PesoNacimiento,Estado,MadreId,PadreId,LoteAnimalId")] Animal animal)
         {
-            if (ModelState.IsValid)
+
+            ModelState.Remove("Finca");
+            ModelState.Remove("LoteAnimal");
+            ModelState.Remove("Madre");
+            ModelState.Remove("Padre");
+            ModelState.Remove("Raza");
+            var fincaRaw = Request.HasFormContentType ? Request.Form["FincaId"].ToString() : "(no form)";
+            _logger.LogInformation("[DEBUG] FincaId en form: '{FincaId}'", fincaRaw);
+            _logger.LogInformation("[DEBUG] ModelState.IsValid antes de chequeo: {IsValid}", ModelState.IsValid);
+
+            if (!ModelState.IsValid)
             {
+                // Logueo de errores cuando SÍ hay errores
                 foreach (var entry in ModelState)
                 {
                     foreach (var error in entry.Value.Errors)
@@ -76,16 +89,19 @@ namespace AgroTechApp.Controllers
                     }
                 }
 
-                _context.Add(animal);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                // Repoblar selects Y mantener selección actual
+                ViewData["FincaId"] = new SelectList(_context.Fincas, "FincaId", "Nombre", animal.FincaId);
+                ViewData["LoteAnimalId"] = new SelectList(_context.LoteAnimals, "LoteAnimalId", "Nombre", animal.LoteAnimalId);
+                ViewData["MadreId"] = new SelectList(_context.Animals, "AnimalId", "Nombre", animal.MadreId);
+                ViewData["PadreId"] = new SelectList(_context.Animals, "AnimalId", "Nombre", animal.PadreId);
+                ViewData["RazaId"] = new SelectList(_context.Razas, "RazaId", "Nombre", animal.RazaId);
+
+                return View(animal); // <- ¡regresa el modelo para no perder datos!
             }
-            ViewData["FincaId"] = new SelectList(_context.Fincas, "FincaId", "Nombre");
-            ViewData["LoteAnimalId"] = new SelectList(_context.LoteAnimals, "LoteAnimalId", "Nombre");
-            ViewData["MadreId"] = new SelectList(_context.Animals, "AnimalId", "Nombre");
-            ViewData["PadreId"] = new SelectList(_context.Animals, "AnimalId", "Nombre");
-            ViewData["RazaId"] = new SelectList(_context.Razas, "RazaId", "Nombre");
-            return View();
+
+            _context.Add(animal);
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Animales/Edit/5
@@ -178,6 +194,8 @@ namespace AgroTechApp.Controllers
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
             var animal = await _context.Animals.FindAsync(id);
+            var fincaRaw = Request.HasFormContentType ? Request.Form["FincaId"].ToString() : "(no form)";
+            Console.WriteLine($"[DEBUG] FincaId recibido: '{fincaRaw}'");
             if (animal != null)
             {
                 _context.Animals.Remove(animal);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace AgroTechApp.Models.DB;
 
@@ -7,7 +8,9 @@ public partial class Animal
 {
     public long AnimalId { get; set; }
 
-    public long FincaId { get; set; }
+    [Required(ErrorMessage = "La finca es obligatoria.")]
+    public long? FincaId { get; set; }   // <-- nullable en el modelo para el binder aca
+
 
     public string Arete { get; set; } = null!;
 

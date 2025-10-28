@@ -257,7 +257,8 @@
                 <div class="animal-icon">🐮</div>
             </div>
 
-            <form asp-action="Create" id="animalForm">
+            <form asp-controller="Animales" asp-action="Create" method="post" id="animalForm">
+                @Html.AntiForgeryToken()
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                 <div class="form-grid">
@@ -267,15 +268,15 @@
 
                         <div class="form-group">
                             <label asp-for="FincaId" class="form-label">🏠 Finca</label>
-                            <select asp-for="FincaId" class="form-control select" asp-items="ViewBag.FincaId">
-                                <option value="">Seleccione una finca</option>
+                            <select asp-for="FincaId" class="form-control select" asp-items="ViewBag.FincaId" required>
+                                <option value="" selected disabled>Seleccione una finca</option>
                             </select>
                             <span asp-validation-for="FincaId" class="text-danger"></span>
                         </div>
 
                         <div class="form-group">
                             <label asp-for="Arete" class="form-label">🏷️ Número de Arete</label>
-                            <input asp-for="Arete" class="form-control" placeholder="Ingrese el número de arete" />
+                            <input asp-for="Arete" class="form-control" placeholder="Ingrese el número de arete" required />
                             <span asp-validation-for="Arete" class="text-danger"></span>
                         </div>
 
@@ -292,7 +293,7 @@
 
                         <div class="form-group">
                             <label asp-for="Sexo" class="form-label">⚥ Sexo</label>
-                            <select asp-for="Sexo" class="form-control select">
+                            <select asp-for="Sexo" class="form-control select" required>
                                 <option value="">Seleccione el sexo</option>
                                 <option value="M">Macho</option>
                                 <option value="F">Hembra</option>
@@ -301,7 +302,7 @@
                         </div>
                         <div class="form-group">
                             <label asp-for="Estado" class="form-label">Estado</label>
-                            <select asp-for="Estado" class="form-control">
+                            <select asp-for="Estado" class="form-control" required>
                                 <option value="Activo">Activo</option>
                                 <option value="Muerto">Muerto</option>
                                 <option value="Vendido">Vendido</option>
