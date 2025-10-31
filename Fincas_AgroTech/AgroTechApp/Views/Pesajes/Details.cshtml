@@ -1,0 +1,770 @@
+﻿@model AgroTechApp.Models.DB.Pesaje
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interfaz de Detalles Interactiva</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #4361ee;
+            --secondary: #3a0ca3;
+            --accent: #4cc9f0;
+            --success: #4ade80;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--dark);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header-content p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .back-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+            .back-btn:hover {
+                background-color: rgba(255, 255, 255, 0.3);
+                transform: translateX(-5px);
+            }
+
+        .content {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .item-header {
+            display: flex;
+            padding: 25px;
+            background-color: var(--light);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .item-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 20px;
+            color: white;
+            font-size: 32px;
+        }
+
+        .item-title {
+            flex: 1;
+        }
+
+            .item-title h2 {
+                font-size: 24px;
+                margin-bottom: 5px;
+                color: var(--dark);
+            }
+
+            .item-title p {
+                color: var(--gray);
+                margin-bottom: 10px;
+            }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .item-details {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 25px;
+            gap: 25px;
+        }
+
+        .detail-section {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .section-title i {
+                color: var(--primary);
+            }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .detail-item {
+            margin-bottom: 15px;
+        }
+
+        .detail-label {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .progress-section {
+            margin-top: 10px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            border-radius: 4px;
+        }
+
+        .description-box {
+            background-color: var(--light);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .tag {
+            background-color: #e0e7ff;
+            color: var(--primary);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .actions-section {
+            padding: 25px;
+            background-color: var(--light);
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background-color: var(--secondary);
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+            }
+
+        .btn-secondary {
+            background-color: white;
+            color: var(--dark);
+            border: 1px solid #cbd5e1;
+        }
+
+            .btn-secondary:hover {
+                background-color: #f1f5f9;
+                transform: translateY(-2px);
+            }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+            .btn-danger:hover {
+                background-color: #dc2626;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+            }
+
+        .metadata {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .tab-container {
+            margin: 0 25px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+
+            .tab.active {
+                color: var(--primary);
+                border-bottom: 3px solid var(--primary);
+            }
+
+        .tab-content {
+            padding: 25px 0;
+            display: none;
+        }
+
+            .tab-content.active {
+                display: block;
+                animation: fadeIn 0.5s ease-out;
+            }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 15px;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #e0e7ff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .activity-desc {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .activity-time {
+            color: var(--gray);
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .file-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px;
+            transition: all 0.3s;
+        }
+
+            .file-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            }
+
+        .file-icon {
+            font-size: 32px;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .file-name {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .file-meta {
+            color: var(--gray);
+            font-size: 12px;
+        }
+
+        @@media (max-width: 768px) {
+            .item-header
+
+        {
+            flex-direction: column;
+        }
+
+        .item-icon {
+            margin-bottom: 15px;
+        }
+
+        .detail-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .actions-section {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .action-buttons {
+            width: 100%;
+        }
+
+        .btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--gray);
+            font-size: 14px;
+            border-top: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>Detalles del Elemento</h1>
+                <p>Información completa y acciones disponibles</p>
+            </div>
+            <button class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Volver
+            </button>
+        </header>
+
+        <div class="content">
+            <div class="item-header">
+                <div class="item-icon">
+                    <i class="fas fa-project-diagram"></i>
+                </div>
+                <div class="item-title">
+                    <h2>Proyecto Alpha</h2>
+                    <p>Sistema de gestión empresarial integral</p>
+                    <span class="status-badge status-active">
+                        <i class="fas fa-circle"></i> Activo
+                    </span>
+                </div>
+            </div>
+
+            <div class="tab-container">
+                <div class="tabs">
+                    <div class="tab active" data-tab="overview">Resumen</div>
+                    <div class="tab" data-tab="activity">Actividad</div>
+                    <div class="tab" data-tab="files">Archivos</div>
+                    <div class="tab" data-tab="settings">Configuración</div>
+                </div>
+
+                <div class="tab-content active" id="overview">
+                    <div class="item-details">
+                        <div class="detail-section">
+                            <div class="section-title">
+                                <i class="fas fa-info-circle"></i>
+                                Información General
+                            </div>
+
+                            <div class="detail-grid">
+                                <div class="detail-item">
+                                    <div class="detail-label">ID del Proyecto</div>
+                                    <div class="detail-value">PRJ-2023-001</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Fecha de Creación</div>
+                                    <div class="detail-value">15 Mar, 2023</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Responsable</div>
+                                    <div class="detail-value">María González</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Departamento</div>
+                                    <div class="detail-value">TI</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Prioridad</div>
+                                    <div class="detail-value">Alta</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Fecha Límite</div>
+                                    <div class="detail-value">30 Nov, 2023</div>
+                                </div>
+                            </div>
+
+                            <div class="progress-section">
+                                <div class="detail-label">Progreso General</div>
+                                <div class="detail-value">75% Completado</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 75%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="detail-section">
+                            <div class="section-title">
+                                <i class="fas fa-align-left"></i>
+                                Descripción
+                            </div>
+
+                            <div class="description-box">
+                                <p>El Proyecto Alpha es una iniciativa para desarrollar un sistema de gestión empresarial que integre todos los departamentos de la organización. Incluye módulos de recursos humanos, finanzas, inventario y relaciones con clientes.</p>
+                                <p>El objetivo es mejorar la eficiencia operativa en un 40% y reducir los costos de administración en un 25% durante el primer año de implementación.</p>
+                            </div>
+
+                            <div class="section-title" style="margin-top: 25px;">
+                                <i class="fas fa-tags"></i>
+                                Etiquetas
+                            </div>
+
+                            <div class="tags-container">
+                                <span class="tag">Sistema ERP</span>
+                                <span class="tag">Desarrollo</span>
+                                <span class="tag">Integración</span>
+                                <span class="tag">TI</span>
+                                <span class="tag">Prioridad Alta</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="activity">
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Proyecto creado</div>
+                                <div class="activity-desc">El proyecto fue creado por María González</div>
+                                <div class="activity-time">Hace 2 horas</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Equipo asignado</div>
+                                <div class="activity-desc">Se asignaron 5 miembros al equipo de desarrollo</div>
+                                <div class="activity-time">Hace 5 horas</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Tareas definidas</div>
+                                <div class="activity-desc">Se crearon 12 tareas iniciales para el proyecto</div>
+                                <div class="activity-time">Ayer a las 14:30</div>
+                            </div>
+                        </div>
+
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">Documentación actualizada</div>
+                                <div class="activity-desc">Se completó la documentación de requisitos</div>
+                                <div class="activity-time">15 Oct, 2023</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="files">
+                    <div class="files-grid">
+                        <div class="file-card">
+                            <div class="file-icon">
+                                <i class="fas fa-file-pdf"></i>
+                            </div>
+                            <div class="file-name">Requisitos.pdf</div>
+                            <div class="file-meta">2.4 MB · Hace 2 días</div>
+                        </div>
+
+                        <div class="file-card">
+                            <div class="file-icon">
+                                <i class="fas fa-file-excel"></i>
+                            </div>
+                            <div class="file-name">Presupuesto.xlsx</div>
+                            <div class="file-meta">1.1 MB · Hace 1 semana</div>
+                        </div>
+
+                        <div class="file-card">
+                            <div class="file-icon">
+                                <i class="fas fa-file-word"></i>
+                            </div>
+                            <div class="file-name">Cronograma.docx</div>
+                            <div class="file-meta">845 KB · Hace 3 días</div>
+                        </div>
+
+                        <div class="file-card">
+                            <div class="file-icon">
+                                <i class="fas fa-file-image"></i>
+                            </div>
+                            <div class="file-name">Diagramas.png</div>
+                            <div class="file-meta">3.2 MB · Hace 5 días</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="settings">
+                    <div class="detail-section">
+                        <div class="section-title">
+                            <i class="fas fa-cog"></i>
+                            Configuración del Proyecto
+                        </div>
+
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <div class="detail-label">Notificaciones</div>
+                                <div class="detail-value">Activadas</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Acceso Público</div>
+                                <div class="detail-value">No</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Backup Automático</div>
+                                <div class="detail-value">Diario</div>
+                            </div>
+                            <div class="detail-item">
+                                <div class="detail-label">Integración API</div>
+                                <div class="detail-value">Habilitada</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions-section">
+                <div class="action-buttons">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-edit"></i>
+                        Editar
+                    </button>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-copy"></i>
+                        Duplicar
+                    </button>
+                    <button class="btn btn-danger">
+                        <i class="fas fa-trash"></i>
+                        Eliminar
+                    </button>
+                </div>
+
+                <div class="metadata">
+                    <i class="fas fa-history"></i> Actualizado hace 2 horas
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Interfaz de Detalles Interactiva &copy; 2023</p>
+        </footer>
+    </div>
+
+    <script>
+        // Funcionalidad de las pestañas
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remover clase active de todas las pestañas y contenidos
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                // Agregar clase active a la pestaña clickeada
+                tab.classList.add('active');
+
+                // Mostrar el contenido correspondiente
+                const tabId = tab.getAttribute('data-tab');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // Funcionalidad del botón volver
+        document.querySelector('.back-btn').addEventListener('click', () => {
+            alert('Redirigiendo a la página anterior...');
+            // En una aplicación real, aquí iría window.history.back() o similar
+        });
+
+        // Funcionalidad de los botones de acción
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const buttonText = this.textContent.trim();
+
+                if (buttonText.includes('Editar')) {
+                    alert('Modo edición activado');
+                } else if (buttonText.includes('Duplicar')) {
+                    alert('Elemento duplicado correctamente');
+                } else if (buttonText.includes('Eliminar')) {
+                    if (confirm('¿Estás seguro de que deseas eliminar este elemento?')) {
+                        alert('Elemento eliminado correctamente');
+                    }
+                }
+            });
+        });
+
+        // Efecto de carga inicial
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector('.container').style.opacity = '0';
+            document.querySelector('.container').style.transform = 'translateY(20px)';
+
+            setTimeout(() => {
+                document.querySelector('.container').style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                document.querySelector('.container').style.opacity = '1';
+                document.querySelector('.container').style.transform = 'translateY(0)';
+            }, 100);
+        });
+    </script>
+</body>
+</html>

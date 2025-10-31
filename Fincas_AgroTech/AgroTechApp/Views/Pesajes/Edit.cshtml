@@ -1,0 +1,611 @@
+﻿@model AgroTechApp.Models.DB.Pesaje
+
+
+@{
+    ViewData["Title"] = "Editar Animal";
+    var primaryColor = "#2E8B57";
+    var secondaryColor = "#F4A460";
+    var lightColor = "#f8f9fa";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Pesaje de Animales</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b8cbc;
+            --accent-color: #ff7e5f;
+            --light-color: #f5f7fa;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f0f2f5;
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 0;
+            border-radius: var(--border-radius);
+            margin-bottom: 30px;
+            box-shadow: var(--box-shadow);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+        }
+
+        @@media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .form-section, .data-section {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .section-title {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--light-color);
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: border 0.3s, box-shadow 0.3s;
+        }
+
+            input:focus, textarea:focus, select:focus {
+                outline: none;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+            }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background-color: var(--secondary-color);
+            }
+
+        .btn-secondary {
+            background-color: #e0e0e0;
+            color: var(--dark-color);
+        }
+
+            .btn-secondary:hover {
+                background-color: #d0d0d0;
+            }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+            .btn-danger:hover {
+                background-color: #c0392b;
+            }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .search-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: var(--light-color);
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 6px 10px;
+            font-size: 0.85rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #777;
+        }
+
+            .empty-state i {
+                font-size: 3rem;
+                margin-bottom: 15px;
+                opacity: 0.5;
+            }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: var(--border-radius);
+            color: white;
+            font-weight: 600;
+            box-shadow: var(--box-shadow);
+            transform: translateX(150%);
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+
+            .notification.show {
+                transform: translateX(0);
+            }
+
+            .notification.success {
+                background-color: var(--success-color);
+            }
+
+            .notification.error {
+                background-color: var(--danger-color);
+            }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background-color: var(--light-color);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #777;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Sistema de Pesaje de Animales</h1>
+            <p class="subtitle">Registro y seguimiento de pesos de animales</p>
+        </header>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalPesajes">0</div>
+                <div class="stat-label">Total de Pesajes</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="promedioPeso">0</div>
+                <div class="stat-label">Peso Promedio (kg)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="animalesRegistrados">0</div>
+                <div class="stat-label">Animales Registrados</div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <section class="form-section">
+                <h2 class="section-title">Registrar Nuevo Pesaje</h2>
+                <form id="pesajeForm">
+                    <div class="form-group">
+                        <label for="animalId">ID del Animal</label>
+                        <input type="number" id="animalId" name="animalId" min="1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="fecha">Fecha de Pesaje</label>
+                        <input type="date" id="fecha" name="fecha" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pesoKg">Peso (kg)</label>
+                        <input type="number" id="pesoKg" name="pesoKg" step="0.01" min="0.1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="observacion">Observaciones</label>
+                        <textarea id="observacion" name="observacion" placeholder="Ingrese observaciones sobre el pesaje..."></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Guardar Pesaje</button>
+                        <button type="reset" class="btn btn-secondary">Limpiar</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="data-section">
+                <h2 class="section-title">Registros de Pesaje</h2>
+
+                <div class="search-section">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Buscar por ID de animal...">
+                    <button id="searchBtn" class="btn btn-primary">Buscar</button>
+                    <button id="clearSearch" class="btn btn-secondary">Limpiar</button>
+                </div>
+
+                <div class="table-container">
+                    <table id="pesajesTable">
+                        <thead>
+                            <tr>
+                                <th>ID Pesaje</th>
+                                <th>ID Animal</th>
+                                <th>Fecha</th>
+                                <th>Peso (kg)</th>
+                                <th>Observaciones</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pesajesTableBody">
+                            <!-- Los datos se cargarán aquí dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="emptyState" class="empty-state">
+                    <i>📊</i>
+                    <h3>No hay registros de pesaje</h3>
+                    <p>Agregue un nuevo pesaje usando el formulario a la izquierda</p>
+                </div>
+            </section>
+        </div>
+
+        <footer>
+            <p>Sistema de Pesaje de Animales &copy; 2023</p>
+        </footer>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Datos de ejemplo para simular una base de datos
+        let pesajes = [
+            {
+                PesajeId: 1,
+                AnimalId: 101,
+                Fecha: '2023-10-15',
+                PesoKg: 245.5,
+                Observacion: 'Peso normal para la edad'
+            },
+            {
+                PesajeId: 2,
+                AnimalId: 102,
+                Fecha: '2023-10-16',
+                PesoKg: 320.0,
+                Observacion: 'Ganancia de peso adecuada'
+            },
+            {
+                PesajeId: 3,
+                AnimalId: 103,
+                Fecha: '2023-10-17',
+                PesoKg: 180.3,
+                Observacion: 'Necesita seguimiento'
+            }
+        ];
+
+        // Referencias a elementos DOM
+        const pesajeForm = document.getElementById('pesajeForm');
+        const pesajesTableBody = document.getElementById('pesajesTableBody');
+        const emptyState = document.getElementById('emptyState');
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const clearSearch = document.getElementById('clearSearch');
+        const notification = document.getElementById('notification');
+        const totalPesajes = document.getElementById('totalPesajes');
+        const promedioPeso = document.getElementById('promedioPeso');
+        const animalesRegistrados = document.getElementById('animalesRegistrados');
+
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            // Establecer fecha actual como valor predeterminado
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('fecha').value = today;
+
+            // Cargar datos iniciales
+            renderPesajes();
+            updateStats();
+
+            // Configurar eventos
+            pesajeForm.addEventListener('submit', handleFormSubmit);
+            searchBtn.addEventListener('click', handleSearch);
+            clearSearch.addEventListener('click', clearSearchResults);
+        });
+
+        // Manejar el envío del formulario
+        function handleFormSubmit(e) {
+            e.preventDefault();
+
+            // Obtener valores del formulario
+            const animalId = parseInt(document.getElementById('animalId').value);
+            const fecha = document.getElementById('fecha').value;
+            const pesoKg = parseFloat(document.getElementById('pesoKg').value);
+            const observacion = document.getElementById('observacion').value;
+
+            // Crear nuevo objeto de pesaje
+            const nuevoPesaje = {
+                PesajeId: generateId(),
+                AnimalId: animalId,
+                Fecha: fecha,
+                PesoKg: pesoKg,
+                Observacion: observacion || null
+            };
+
+            // Agregar a la lista
+            pesajes.push(nuevoPesaje);
+
+            // Actualizar la interfaz
+            renderPesajes();
+            updateStats();
+
+            // Mostrar notificación
+            showNotification('Pesaje registrado exitosamente', 'success');
+
+            // Limpiar formulario
+            pesajeForm.reset();
+
+            // Restablecer fecha actual
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('fecha').value = today;
+        }
+
+        // Generar ID único
+        function generateId() {
+            return pesajes.length > 0 ? Math.max(...pesajes.map(p => p.PesajeId)) + 1 : 1;
+        }
+
+        // Renderizar la tabla de pesajes
+        function renderPesajes(data = pesajes) {
+            if (data.length === 0) {
+                pesajesTableBody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            // Limpiar tabla
+            pesajesTableBody.innerHTML = '';
+
+            // Ordenar por fecha (más reciente primero)
+            const sortedData = [...data].sort((a, b) => new Date(b.Fecha) - new Date(a.Fecha));
+
+            // Agregar filas
+            sortedData.forEach(pesaje => {
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${pesaje.PesajeId}</td>
+                    <td>${pesaje.AnimalId}</td>
+                    <td>${formatDate(pesaje.Fecha)}</td>
+                    <td>${pesaje.PesoKg.toFixed(1)}</td>
+                    <td>${pesaje.Observacion || '-'}</td>
+                    <td class="actions-cell">
+                        <button class="btn btn-small btn-secondary" onclick="editPesaje(${pesaje.PesajeId})">Editar</button>
+                        <button class="btn btn-small btn-danger" onclick="deletePesaje(${pesaje.PesajeId})">Eliminar</button>
+                    </td>
+                `;
+
+                pesajesTableBody.appendChild(row);
+            });
+        }
+
+        // Formatear fecha para mostrar
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString('es-ES', options);
+        }
+
+        // Manejar búsqueda
+        function handleSearch() {
+            const searchTerm = searchInput.value.trim();
+
+            if (!searchTerm) {
+                renderPesajes();
+                return;
+            }
+
+            const filteredPesajes = pesajes.filter(pesaje =>
+                pesaje.AnimalId.toString().includes(searchTerm)
+            );
+
+            renderPesajes(filteredPesajes);
+
+            if (filteredPesajes.length === 0) {
+                showNotification('No se encontraron resultados para la búsqueda', 'error');
+            }
+        }
+
+        // Limpiar búsqueda
+        function clearSearchResults() {
+            searchInput.value = '';
+            renderPesajes();
+        }
+
+        // Editar pesaje
+        function editPesaje(pesajeId) {
+            const pesaje = pesajes.find(p => p.PesajeId === pesajeId);
+
+            if (pesaje) {
+                // Llenar formulario con datos existentes
+                document.getElementById('animalId').value = pesaje.AnimalId;
+                document.getElementById('fecha').value = pesaje.Fecha;
+                document.getElementById('pesoKg').value = pesaje.PesoKg;
+                document.getElementById('observacion').value = pesaje.Observacion || '';
+
+                // Eliminar el registro actual
+                deletePesaje(pesajeId, false);
+
+                // Desplazarse al formulario
+                document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+
+                showNotification('Pesaje cargado para edición', 'success');
+            }
+        }
+
+        // Eliminar pesaje
+        function deletePesaje(pesajeId, showNotification = true) {
+            if (confirm('¿Está seguro de que desea eliminar este registro de pesaje?')) {
+                pesajes = pesajes.filter(p => p.PesajeId !== pesajeId);
+                renderPesajes();
+                updateStats();
+
+                if (showNotification) {
+                    showNotification('Pesaje eliminado exitosamente', 'success');
+                }
+            }
+        }
+
+        // Actualizar estadísticas
+        function updateStats() {
+            totalPesajes.textContent = pesajes.length;
+
+            if (pesajes.length > 0) {
+                const totalPeso = pesajes.reduce((sum, pesaje) => sum + pesaje.PesoKg, 0);
+                const avgPeso = totalPeso / pesajes.length;
+                promedioPeso.textContent = avgPeso.toFixed(1);
+
+                const uniqueAnimals = new Set(pesajes.map(p => p.AnimalId)).size;
+                animalesRegistrados.textContent = uniqueAnimals;
+            } else {
+                promedioPeso.textContent = '0';
+                animalesRegistrados.textContent = '0';
+            }
+        }
+
+        // Mostrar notificación
+        function showNotification(message, type) {
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
