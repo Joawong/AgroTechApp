@@ -4,54 +4,717 @@
     ViewData["Title"] = "Delete";
 }
 
-<h1>Delete</h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminar Insumo - AgroTech</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --primary-dark: #26734d;
+            --primary-light: #3CB371;
+            --secondary: #F4A460;
+            --danger: #dc3545;
+            --danger-dark: #c82333;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #333;
+            --gray: #6c757d;
+            --border: #e1e5e9;
+            --shadow: rgba(0, 0, 0, 0.1);
+            --success: #28a745;
+        }
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Insumo</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nombre)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nombre)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.StockMinimo)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.StockMinimo)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Activo)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Activo)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Categoria)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Categoria.CategoriaId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Finca)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Finca.FincaId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Unidad)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Unidad.UnidadId)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="InsumoId" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
-</div>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--dark);
+        }
+
+        .delete-container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            animation: containerAppear 0.6s ease-out;
+        }
+
+        @@keyframes containerAppear {
+            from
+
+        {
+            opacity: 0;
+            transform: scale(0.9) translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+
+        }
+
+        /* Header */
+        .modal-header {
+            background: linear-gradient(135deg, var(--danger), #e74c3c);
+            color: white;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.1;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><g fill="white"><circle cx="20" cy="20" r="5"/><circle cx="50" cy="30" r="7"/><circle cx="80" cy="20" r="4"/><circle cx="30" cy="70" r="6"/><circle cx="70" cy="80" r="5"/><circle cx="90" cy="60" r="8"/></g></svg>');
+        }
+
+        .warning-icon {
+            font-size: 4.5rem;
+            margin-bottom: 1.5rem;
+            display: block;
+            animation: pulse 2s infinite;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        }
+
+        @@keyframes pulse {
+            0%, 100%
+
+        {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.1);
+        }
+
+        }
+
+        .modal-header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .modal-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 500px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        /* Body */
+        .modal-body {
+            padding: 2.5rem;
+        }
+
+        .insumo-card {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            background: linear-gradient(135deg, #fff5f5, #ffe6e6);
+            border-radius: 15px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-left: 6px solid var(--danger);
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.15);
+            transition: transform 0.3s ease;
+        }
+
+            .insumo-card:hover {
+                transform: translateY(-5px);
+            }
+
+        .insumo-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--danger), #e74c3c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            flex-shrink: 0;
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);
+        }
+
+        .insumo-info {
+            flex: 1;
+        }
+
+        .insumo-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .insumo-id {
+            display: inline-block;
+            background: var(--danger);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .insumo-description {
+            color: var(--gray);
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        /* Details Grid */
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .detail-card {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+
+            .detail-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 5px 15px var(--shadow);
+            }
+
+        .detail-icon {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .detail-value {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+
+        .highlight {
+            color: var(--danger);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        /* Warning Section */
+        .warning-section {
+            background: #fff3cd;
+            border: 2px solid #ffeaa7;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @@keyframes shake {
+            0%, 100%
+
+        {
+            transform: translateX(0);
+        }
+
+        25% {
+            transform: translateX(-5px);
+        }
+
+        75% {
+            transform: translateX(5px);
+        }
+
+        }
+
+        .warning-section i {
+            font-size: 2rem;
+            color: #856404;
+            flex-shrink: 0;
+        }
+
+        .warning-content h3 {
+            color: #856404;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .warning-content p {
+            color: #856404;
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        /* Action Buttons */
+        .action-section {
+            text-align: center;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            min-width: 160px;
+            justify-content: center;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), var(--danger-dark));
+            color: white;
+        }
+
+            .btn-danger:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
+            }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--gray), #5a6268);
+            color: white;
+        }
+
+            .btn-secondary:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px rgba(108, 117, 125, 0.4);
+            }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+            .btn-outline:hover {
+                background: var(--primary);
+                color: white;
+                transform: translateY(-3px);
+            }
+
+        /* Footer */
+        .modal-footer {
+            background: var(--light);
+            padding: 1.5rem;
+            text-align: center;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-text {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .delete-container
+
+        {
+            max-width: 95%;
+        }
+
+        .modal-header {
+            padding: 2rem 1.5rem;
+        }
+
+            .modal-header h1 {
+                font-size: 1.8rem;
+            }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .insumo-card {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .btn-group {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+
+        }
+
+        @@media (max-width: 480px) {
+            .modal-header h1
+
+        {
+            font-size: 1.5rem;
+        }
+
+        .warning-icon {
+            font-size: 3.5rem;
+        }
+
+        .insumo-icon {
+            width: 80px;
+            height: 80px;
+            font-size: 2.5rem;
+        }
+
+        .insumo-name {
+            font-size: 1.5rem;
+        }
+
+        }
+
+        /* Confirmation Animation */
+        .confirmation-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+
+            .confirmation-overlay.active {
+                display: flex;
+                animation: fadeIn 0.3s ease;
+            }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+
+        }
+
+        .confirmation-box {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            animation: scaleIn 0.3s ease;
+        }
+
+        @@keyframes scaleIn {
+            from
+
+        {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        }
+
+        .confirmation-icon {
+            font-size: 4rem;
+            color: var(--success);
+            margin-bottom: 1.5rem;
+            animation: bounce 0.6s ease;
+        }
+
+        @@keyframes bounce {
+            0%, 20%, 50%, 80%, 100%
+
+        {
+            transform: translateY(0);
+        }
+
+        40% {
+            transform: translateY(-20px);
+        }
+
+        60% {
+            transform: translateY(-10px);
+        }
+
+        }
+
+        .confirmation-box h2 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .confirmation-box p {
+            color: var(--gray);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="delete-container">
+        <!-- Header -->
+        <div class="modal-header">
+            <div class="header-bg"></div>
+            <div class="warning-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h1>Eliminar Insumo</h1>
+            <p>Está a punto de eliminar permanentemente un insumo del sistema</p>
+        </div>
+
+        <!-- Body -->
+        <div class="modal-body">
+            <!-- Insumo Card -->
+            <div class="insumo-card">
+                <div class="insumo-icon">
+                    <i class="fas fa-seedling"></i>
+                </div>
+                <div class="insumo-info">
+                    <h2 class="insumo-name">Fertilizante NPK 15-15-15</h2>
+                    <span class="insumo-id">ID: INS-2023-045</span>
+                    <p class="insumo-description">
+                        Fertilizante completo de liberación controlada para cultivos extensivos.
+                        Formulación balanceada que promueve el crecimiento vegetativo y la producción.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Details Grid -->
+            <div class="details-grid">
+                <div class="detail-card">
+                    <div class="detail-icon">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <div class="detail-label">Stock Actual</div>
+                    <div class="detail-value highlight">125 unidades</div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-icon">
+                        <i class="fas fa-warehouse"></i>
+                    </div>
+                    <div class="detail-label">Ubicación</div>
+                    <div class="detail-value">Almacén Principal - Estante B4</div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-icon">
+                        <i class="fas fa-tag"></i>
+                    </div>
+                    <div class="detail-label">Categoría</div>
+                    <div class="detail-value">Fertilizantes</div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-icon">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div class="detail-label">Fecha de Ingreso</div>
+                    <div class="detail-value">15/10/2023</div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-icon">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    <div class="detail-label">Valor Unitario</div>
+                    <div class="detail-value">$45.500 COP</div>
+                </div>
+
+                <div class="detail-card">
+                    <div class="detail-icon">
+                        <i class="fas fa-weight-hanging"></i>
+                    </div>
+                    <div class="detail-label">Unidad de Medida</div>
+                    <div class="detail-value">Saco 25kg</div>
+                </div>
+            </div>
+
+            <!-- Warning Section -->
+            <div class="warning-section">
+                <i class="fas fa-radiation-alt"></i>
+                <div class="warning-content">
+                    <h3>ADVERTENCIA CRÍTICA</h3>
+                    <p>
+                        Esta acción eliminará permanentemente el insumo y toda su información asociada.
+                        No podrá recuperar los datos una vez confirmada la eliminación.
+                        Verifique que este no sea un insumo en uso activo.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-section">
+                <div class="btn-group">
+                    <a href="#" class="btn btn-outline">
+                        <i class="fas fa-edit"></i>
+                        Editar Insumo
+                    </a>
+                    <a href="#" class="btn btn-secondary" id="cancelBtn">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </a>
+                    <button class="btn btn-danger" id="deleteBtn">
+                        <i class="fas fa-trash"></i>
+                        Eliminar Permanentemente
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer">
+            <p class="footer-text">
+                <i class="fas fa-shield-alt"></i>
+                Sistema Seguro - AgroTech © 2023 - Todos los derechos reservados
+            </p>
+        </div>
+    </div>
+
+    <!-- Confirmation Overlay -->
+    <div class="confirmation-overlay" id="confirmationOverlay">
+        <div class="confirmation-box">
+            <div class="confirmation-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2>¡Eliminación Exitosa!</h2>
+            <p>El insumo <strong>"Fertilizante NPK 15-15-15"</strong> ha sido eliminado correctamente del sistema.</p>
+            <button class="btn btn-outline" id="closeConfirmation">
+                <i class="fas fa-check"></i>
+                Aceptar
+            </button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteBtn = document.getElementById('deleteBtn');
+            const cancelBtn = document.getElementById('cancelBtn');
+            const confirmationOverlay = document.getElementById('confirmationOverlay');
+            const closeConfirmation = document.getElementById('closeConfirmation');
+            const warningSection = document.querySelector('.warning-section');
+
+            // Efecto de eliminación
+            deleteBtn.addEventListener('click', function() {
+                // Confirmación antes de eliminar
+                const confirmed = confirm('¿ESTÁ ABSOLUTAMENTE SEGURO?\n\nEsta acción eliminará permanentemente:\n\n• Fertilizante NPK 15-15-15\n• 125 unidades en inventario\n• Todo el historial asociado\n\n¿Continuar con la eliminación?');
+
+                if (confirmed) {
+                    // Animación de eliminación
+                    this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
+                    this.disabled = true;
+
+                    // Simular proceso de eliminación
+                    setTimeout(() => {
+                        // Mostrar confirmación
+                        confirmationOverlay.classList.add('active');
+                    }, 1500);
+                }
+            });
+
+            // Cancelar acción
+            cancelBtn.addEventListener('click', function() {
+                // Animación de cancelación
+                warningSection.style.animation = 'shake 0.5s ease-in-out';
+                setTimeout(() => {
+                    warningSection.style.animation = '';
+                }, 500);
+
+                // Redirigir después de un breve delay
+                setTimeout(() => {
+                    alert('Eliminación cancelada. Redirigiendo...');
+                    // En una aplicación real: window.location.href = 'insumos.html';
+                }, 800);
+            });
+
+            // Cerrar confirmación
+            closeConfirmation.addEventListener('click', function() {
+                confirmationOverlay.classList.remove('active');
+                // En una aplicación real: window.location.href = 'insumos.html';
+            });
+
+            // Efectos hover en botones
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-3px)';
+                });
+
+                button.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Efecto de parpadeo en la advertencia
+            setInterval(() => {
+                warningSection.style.borderColor = warningSection.style.borderColor === '#ffeaa7' ? '#ffc107' : '#ffeaa7';
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -25,7 +25,7 @@ namespace AgroTechApp.Controllers
             return View(await agroTechDbContext.ToListAsync());
         }
 
-        // GET: Pesajes/Details/5
+        // GET: Pesajes/Details
         public async Task<IActionResult> Details(long? id)
         {
             if (id == null)
@@ -68,8 +68,9 @@ namespace AgroTechApp.Controllers
             return View(pesaje);
         }
 
-        // GET: Pesajes/Edit/5
-        public async Task<IActionResult> Edit(long? id)
+        // GET: Pesajes/Edit
+        public async Task<IActionResult> Edit
+            (long? id)
         {
             if (id == null)
             {
@@ -85,12 +86,13 @@ namespace AgroTechApp.Controllers
             return View(pesaje);
         }
 
-        // POST: Pesajes/Edit/5
+        // POST: Pesajes/Edit
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, [Bind("PesajeId,AnimalId,Fecha,PesoKg,Observacion")] Pesaje pesaje)
+        public async Task<IActionResult> Edit
+            (long id, [Bind("PesajeId,AnimalId,Fecha,PesoKg,Observacion")] Pesaje pesaje)
         {
             if (id != pesaje.PesajeId)
             {
@@ -121,7 +123,7 @@ namespace AgroTechApp.Controllers
             return View(pesaje);
         }
 
-        // GET: Pesajes/Delete/5
+        // GET: Pesajes/Delete
         public async Task<IActionResult> Delete(long? id)
         {
             if (id == null)
@@ -140,7 +142,7 @@ namespace AgroTechApp.Controllers
             return View(pesaje);
         }
 
-        // POST: Pesajes/Delete/5
+        // POST: Pesajes/Delete
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)

@@ -16,4 +16,5 @@ public partial class Pesaje
     public string? Observacion { get; set; }
 
     public virtual Animal Animal { get; set; } = null!;
+    
 }
