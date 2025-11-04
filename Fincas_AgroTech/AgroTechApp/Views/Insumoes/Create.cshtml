@@ -1,0 +1,891 @@
+﻿@model AgroTechApp.Models.DB.Insumo
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Insumo - Sistema de Gestión</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --primary-dark: #26734d;
+            --primary-light: #3CB371;
+            --secondary: #F4A460;
+            --light: #f8f9fa;
+            --dark: #333;
+            --gray: #6c757d;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --border: #e1e5e9;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+        }
+
+        .logo-text h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .logo-text p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+            .breadcrumb a {
+                color: var(--primary);
+                text-decoration: none;
+                transition: color 0.2s;
+            }
+
+                .breadcrumb a:hover {
+                    color: var(--primary-dark);
+                }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+
+        @@media (max-width: 900px) {
+            .main-content
+
+        {
+            grid-template-columns: 1fr;
+        }
+
+        }
+
+        /* Form Card */
+        .form-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px var(--shadow);
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            .form-title i {
+                color: var(--primary);
+            }
+
+        .form-body {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        @@media (max-width: 768px) {
+            .form-body
+
+        {
+            grid-template-columns: 1fr;
+        }
+
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+            .form-group.full-width {
+                grid-column: 1 / -1;
+            }
+
+        label {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+
+        .required::after {
+            content: " *";
+            color: var(--danger);
+        }
+
+        input, select, textarea {
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+            input:focus, select:focus, textarea:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+            }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .form-hint {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background: var(--primary-dark);
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(46, 139, 87, 0.3);
+            }
+
+        .btn-secondary {
+            background: var(--gray);
+            color: white;
+        }
+
+            .btn-secondary:hover {
+                background: #5a6268;
+                transform: translateY(-2px);
+            }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+            .btn-outline:hover {
+                background: var(--primary);
+                color: white;
+            }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px var(--shadow);
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            .sidebar-title i {
+                color: var(--primary);
+            }
+
+        /* Recent Activity */
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+            .activity-item:last-child {
+                border-bottom: none;
+                padding-bottom: 0;
+            }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .activity-info h4 {
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-info p {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        /* Validation Styles */
+        .error-message {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            display: none;
+        }
+
+        .form-group.error input,
+        .form-group.error select,
+        .form-group.error textarea {
+            border-color: var(--danger);
+            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+        }
+
+        .form-group.error .error-message {
+            display: block;
+        }
+
+        .form-group.success input,
+        .form-group.success select,
+        .form-group.success textarea {
+            border-color: var(--success);
+            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 5px 15px var(--shadow);
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+            .notification.show {
+                transform: translateX(0);
+            }
+
+            .notification.success {
+                background: var(--success);
+            }
+
+            .notification.error {
+                background: var(--danger);
+            }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        @@keyframes pulse {
+            0%
+
+        {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.05);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+
+        }
+
+        .pulse {
+            animation: pulse 0.5s ease;
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .header
+
+        {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-boxes"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>AgroTech Insumos</h1>
+                    <p>Sistema de gestión de insumos agropecuarios</p>
+                </div>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <div class="user-details">
+                    <div class="user-name">Juan Díaz</div>
+                    <div class="user-role">Administrador</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="index.html"><i class="fas fa-home"></i> Inicio</a>
+            <i class="fas fa-chevron-right"></i>
+            <a href="insumos.html">Insumos</a>
+            <i class="fas fa-chevron-right"></i>
+            <span>Nuevo Insumo</span>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Form Section -->
+            <div class="form-card">
+                <div class="form-header">
+                    <h2 class="form-title">
+                        <i class="fas fa-plus-circle"></i>
+                        Registrar Nuevo Insumo
+                    </h2>
+                    <div class="form-badge">
+                        <span style="background: var(--primary-light); color: white; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600;">
+                            <i class="fas fa-hashtag"></i> ID: AUTO-GENERADO
+                        </span>
+                    </div>
+                </div>
+
+                <form id="insumoForm">
+                    <div class="form-body">
+                        <div class="form-group">
+                            <label for="nombre" class="required">Nombre del Insumo</label>
+                            <input type="text" id="nombre" name="nombre" placeholder="Ej: Fertilizante NPK 10-10-10">
+                            <div class="error-message">El nombre del insumo es requerido</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="categoria" class="required">Categoría</label>
+                            <select id="categoria" name="categoria">
+                                <option value="">Seleccione una categoría</option>
+                                <option value="fertilizante">Fertilizante</option>
+                                <option value="semilla">Semilla</option>
+                                <option value="plaguicida">Plaguicida</option>
+                                <option value="herbicida">Herbicida</option>
+                                <option value="medicamento">Medicamento Veterinario</option>
+                                <option value="alimento">Alimento Animal</option>
+                                <option value="equipo">Equipo y Herramientas</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                            <div class="error-message">Debe seleccionar una categoría</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="marca">Marca</label>
+                            <input type="text" id="marca" name="marca" placeholder="Ej: AgroMax">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="proveedor">Proveedor</label>
+                            <input type="text" id="proveedor" name="proveedor" placeholder="Ej: Distribuidora Agrícola S.A.">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cantidad" class="required">Cantidad</label>
+                            <input type="number" id="cantidad" name="cantidad" min="0" step="0.01" placeholder="0.00">
+                            <div class="error-message">La cantidad debe ser un número válido</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="unidad" class="required">Unidad de Medida</label>
+                            <select id="unidad" name="unidad">
+                                <option value="">Seleccione unidad</option>
+                                <option value="kg">Kilogramos (kg)</option>
+                                <option value="g">Gramos (g)</option>
+                                <option value="l">Litros (l)</option>
+                                <option value="ml">Mililitros (ml)</option>
+                                <option value="unidad">Unidades</option>
+                                <option value="caja">Cajas</option>
+                                <option value="saco">Sacos</option>
+                                <option value="botella">Botellas</option>
+                            </select>
+                            <div class="error-message">Debe seleccionar una unidad de medida</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="precio" class="required">Precio Unitario</label>
+                            <input type="number" id="precio" name="precio" min="0" step="0.01" placeholder="0.00">
+                            <div class="error-message">El precio debe ser un número válido</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="moneda">Moneda</label>
+                            <select id="moneda" name="moneda">
+                                <option value="USD">USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                                <option value="MXN" selected>MXN ($)</option>
+                                <option value="COP">COP ($)</option>
+                                <option value="PEN">PEN (S/)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fecha_ingreso" class="required">Fecha de Ingreso</label>
+                            <input type="date" id="fecha_ingreso" name="fecha_ingreso">
+                            <div class="error-message">La fecha de ingreso es requerida</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fecha_vencimiento">Fecha de Vencimiento</label>
+                            <input type="date" id="fecha_vencimiento" name="fecha_vencimiento">
+                            <div class="form-hint">Opcional - Solo para productos perecederos</div>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="descripcion">Descripción</label>
+                            <textarea id="descripcion" name="descripcion" placeholder="Describa las características, usos y precauciones del insumo..."></textarea>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="instrucciones">Instrucciones de Uso</label>
+                            <textarea id="instrucciones" name="instrucciones" placeholder="Indique las instrucciones para el uso correcto del insumo..."></textarea>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label for="observaciones">Observaciones</label>
+                            <textarea id="observaciones" name="observaciones" placeholder="Observaciones adicionales..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Guardar Insumo
+                        </button>
+                        <button type="button" id="btnLimpiar" class="btn btn-outline">
+                            <i class="fas fa-broom"></i>
+                            Limpiar Formulario
+                        </button>
+                        <a href="insumos.html" class="btn btn-secondary">
+                            <i class="fas fa-times"></i>
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Help Card -->
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title">
+                        <i class="fas fa-info-circle"></i>
+                        Información Importante
+                    </h3>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: var(--primary);">
+                                <i class="fas fa-exclamation"></i>
+                            </div>
+                            <div class="activity-info">
+                                <h4>Campos Obligatorios</h4>
+                                <p>Los campos marcados con * son obligatorios para registrar el insumo.</p>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: var(--info);">
+                                <i class="fas fa-calendar"></i>
+                            </div>
+                            <div class="activity-info">
+                                <h4>Fechas de Vencimiento</h4>
+                                <p>Complete este campo solo para productos con fecha de caducidad.</p>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon" style="background: var(--warning);">
+                                <i class="fas fa-tags"></i>
+                            </div>
+                            <div class="activity-info">
+                                <h4>Categorización</h4>
+                                <p>Seleccione la categoría que mejor describa el tipo de insumo.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title">
+                        <i class="fas fa-chart-bar"></i>
+                        Estadísticas Rápidas
+                    </h3>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-info">
+                                <h4>Total de Insumos</h4>
+                                <p>147 productos registrados</p>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-info">
+                                <h4>Por Vencer</h4>
+                                <p>8 productos este mes</p>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-info">
+                                <h4>Stock Bajo</h4>
+                                <p>12 productos necesitan reposición</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2023 AgroTech - Sistema de Gestión de Insumos. Todos los derechos reservados.</p>
+        </footer>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notification-message"></span>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('insumoForm');
+            const btnLimpiar = document.getElementById('btnLimpiar');
+            const notification = document.getElementById('notification');
+            const notificationMessage = document.getElementById('notification-message');
+
+            // Establecer fecha actual como valor predeterminado
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('fecha_ingreso').value = today;
+
+            // Validación en tiempo real
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('blur', function() {
+                    validateField(this);
+                });
+
+                input.addEventListener('input', function() {
+                    // Remover estado de error mientras el usuario escribe
+                    if (this.parentElement.classList.contains('error')) {
+                        this.parentElement.classList.remove('error');
+                    }
+                });
+            });
+
+            // Función de validación de campo
+            function validateField(field) {
+                const formGroup = field.parentElement;
+                const value = field.value.trim();
+                let isValid = true;
+
+                // Validar campos requeridos
+                if (field.hasAttribute('required') && !value) {
+                    isValid = false;
+                }
+
+                // Validaciones específicas por tipo de campo
+                if (field.type === 'number' && value) {
+                    if (parseFloat(value) < 0) {
+                        isValid = false;
+                    }
+                }
+
+                if (field.id === 'fecha_vencimiento' && value) {
+                    const fechaIngreso = new Date(document.getElementById('fecha_ingreso').value);
+                    const fechaVencimiento = new Date(value);
+
+                    if (fechaVencimiento < fechaIngreso) {
+                        isValid = false;
+                        formGroup.querySelector('.error-message').textContent = 'La fecha de vencimiento no puede ser anterior a la fecha de ingreso';
+                    }
+                }
+
+                // Aplicar clases de validación
+                if (!isValid) {
+                    formGroup.classList.add('error');
+                    formGroup.classList.remove('success');
+                } else if (value) {
+                    formGroup.classList.remove('error');
+                    formGroup.classList.add('success');
+                } else {
+                    formGroup.classList.remove('error', 'success');
+                }
+
+                return isValid;
+            }
+
+            // Validar todo el formulario
+            function validateForm() {
+                let isValid = true;
+                const requiredFields = form.querySelectorAll('[required]');
+
+                requiredFields.forEach(field => {
+                    if (!validateField(field)) {
+                        isValid = false;
+                    }
+                });
+
+                return isValid;
+            }
+
+            // Envío del formulario
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                if (validateForm()) {
+                    // Simular envío de datos
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+                    submitBtn.disabled = true;
+
+                    // Simular delay de guardado
+                    setTimeout(() => {
+                        // Mostrar notificación de éxito
+                        showNotification('Insumo registrado exitosamente', 'success');
+
+                        // Resetear formulario
+                        form.reset();
+                        document.getElementById('fecha_ingreso').value = today;
+
+                        // Remover clases de validación
+                        document.querySelectorAll('.form-group').forEach(group => {
+                            group.classList.remove('success', 'error');
+                        });
+
+                        // Restaurar botón
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+
+                        // Efecto visual
+                        form.classList.add('pulse');
+                        setTimeout(() => form.classList.remove('pulse'), 500);
+
+                    }, 1500);
+                } else {
+                    showNotification('Por favor, complete todos los campos requeridos correctamente', 'error');
+
+                    // Desplazarse al primer error
+                    const firstError = form.querySelector('.error');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }
+            });
+
+            // Limpiar formulario
+            btnLimpiar.addEventListener('click', function() {
+                if (confirm('¿Está seguro de que desea limpiar todos los campos del formulario?')) {
+                    form.reset();
+                    document.getElementById('fecha_ingreso').value = today;
+
+                    // Remover clases de validación
+                    document.querySelectorAll('.form-group').forEach(group => {
+                        group.classList.remove('success', 'error');
+                    });
+
+                    showNotification('Formulario limpiado correctamente', 'success');
+                }
+            });
+
+            // Mostrar notificación
+            function showNotification(message, type) {
+                notificationMessage.textContent = message;
+                notification.className = `notification ${type}`;
+                notification.classList.add('show');
+
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 4000);
+            }
+
+            // Efectos visuales en los campos
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    this.parentElement.style.transform = 'translateY(-2px)';
+                    this.parentElement.style.transition = 'transform 0.2s ease';
+                });
+
+                input.addEventListener('blur', function() {
+                    this.parentElement.style.transform = 'translateY(0)';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

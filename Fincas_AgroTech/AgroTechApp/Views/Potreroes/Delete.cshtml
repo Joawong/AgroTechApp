@@ -1,0 +1,677 @@
+﻿@model AgroTechApp.Models.DB.Potrero
+
+@{
+    ViewData["Title"] = "Eliminar Potrero";
+}
+
+<div class="delete-modal-overlay" id="deleteModal">
+    <div class="delete-modal-container">
+        <!-- Header del Modal -->
+        <div class="modal-header">
+            <div class="header-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="header-content">
+                <h2>Confirmar Eliminación</h2>
+                <p>¿Está seguro que desea eliminar este potrero?</p>
+            </div>
+        </div>
+
+        <!-- Información del Potrero -->
+        <div class="potrero-info-section">
+            <div class="info-card">
+                <div class="card-header">
+                    <i class="fas fa-map-marked-alt"></i>
+                    <h3>Información del Potrero</h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-signature"></i>
+                                Nombre:
+                            </div>
+                            <div class="info-value">
+                                @Html.DisplayFor(model => model.Nombre)
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-ruler-combined"></i>
+                                Hectáreas:
+                            </div>
+                            <div class="info-value">
+                                @Html.DisplayFor(model => model.Hectareas) ha
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-power-off"></i>
+                                Estado:
+                            </div>
+                            <div class="info-value">
+                                <span class="status-badge @(Model.Activo ? "active" : "inactive")">
+                                    <i class="fas @(Model.Activo ? "fa-check-circle" : "fa-times-circle")"></i>
+                                    @(Model.Activo ? "Activo" : "Inactivo")
+                                </span>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-tractor"></i>
+                                Finca:
+                            </div>
+                            <div class="info-value">
+                                Finca #@Html.DisplayFor(model => model.Finca.FincaId)
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-fingerprint"></i>
+                                ID:
+                            </div>
+                            <div class="info-value">
+                                @Model.PotreroId
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advertencia -->
+        <div class="warning-section">
+            <div class="warning-content">
+                <i class="fas fa-exclamation-circle"></i>
+                <div class="warning-text">
+                    <strong>Advertencia:</strong> Esta acción no se puede deshacer. El potrero será eliminado permanentemente del sistema.
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulario de Eliminación -->
+        <form asp-action="Delete" class="delete-form" id="deleteForm">
+            <input type="hidden" asp-for="PotreroId" />
+
+            <div class="form-actions">
+                <a asp-action="Index" class="btn btn-secondary cancel-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    Cancelar
+                </a>
+                <button type="submit" class="btn btn-danger delete-btn" id="deleteButton">
+                    <i class="fas fa-trash"></i>
+                    <span class="btn-text">Eliminar Potrero</span>
+                    <span class="btn-loading" id="btnLoading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        Eliminando...
+                    </span>
+                </button>
+            </div>
+        </form>
+
+        <!-- Efecto de confirmación -->
+        <div class="confirmation-overlay" id="confirmationOverlay">
+            <div class="confirmation-content">
+                <i class="fas fa-check-circle"></i>
+                <h3>¿Está completamente seguro?</h3>
+                <p>Esta acción eliminará permanentemente el potrero "<strong>@Model.Nombre</strong>"</p>
+                <div class="confirmation-actions">
+                    <button class="btn btn-outline" id="cancelConfirm">Cancelar</button>
+                    <button class="btn btn-danger" id="confirmDelete">Sí, Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteForm = document.getElementById('deleteForm');
+            const deleteButton = document.getElementById('deleteButton');
+            const btnLoading = document.getElementById('btnLoading');
+            const confirmationOverlay = document.getElementById('confirmationOverlay');
+            const cancelConfirm = document.getElementById('cancelConfirm');
+            const confirmDelete = document.getElementById('confirmDelete');
+            let isSubmitting = false;
+
+            // Prevenir envío directo del formulario
+            deleteForm.addEventListener('submit', function(e) {
+                if (!isSubmitting) {
+                    e.preventDefault();
+                    showConfirmation();
+                }
+            });
+
+            // Mostrar confirmación adicional
+            function showConfirmation() {
+                confirmationOverlay.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            }
+
+            // Ocultar confirmación
+            function hideConfirmation() {
+                confirmationOverlay.classList.remove('show');
+                document.body.style.overflow = '';
+            }
+
+            // Cancelar eliminación
+            cancelConfirm.addEventListener('click', function() {
+                hideConfirmation();
+            });
+
+            // Confirmar eliminación
+            confirmDelete.addEventListener('click', function() {
+                isSubmitting = true;
+
+                // Mostrar estado de loading
+                deleteButton.disabled = true;
+                btnLoading.style.display = 'inline-flex';
+                deleteButton.querySelector('.btn-text').style.display = 'none';
+
+                // Agregar efecto visual de eliminación
+                const modal = document.querySelector('.delete-modal-container');
+                modal.style.transform = 'scale(0.95)';
+                modal.style.opacity = '0.7';
+
+                // Enviar formulario después de un breve delay para el efecto
+                setTimeout(() => {
+                    deleteForm.submit();
+                }, 800);
+            });
+
+            // Efectos hover en botones
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    if (!this.disabled) {
+                        this.style.transform = 'translateY(-2px)';
+                    }
+                });
+
+                btn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Efecto de entrada del modal
+            const modal = document.querySelector('.delete-modal-container');
+            setTimeout(() => {
+                modal.classList.add('show');
+            }, 100);
+
+            // Cerrar modal al hacer clic fuera
+            const overlay = document.querySelector('.delete-modal-overlay');
+            overlay.addEventListener('click', function(e) {
+                if (e.target === this && !isSubmitting) {
+                    window.location.href = '@Url.Action("Index")';
+                }
+            });
+
+            // Cerrar con tecla Escape
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && !isSubmitting) {
+                    window.location.href = '@Url.Action("Index")';
+                }
+            });
+        });
+    </script>
+}
+
+<style>
+    /* Variables */
+    :root {
+        --primary: #2E8B57;
+        --primary-dark: #26734d;
+        --danger: #dc3545;
+        --danger-dark: #c82333;
+        --warning: #ffc107;
+        --warning-dark: #e0a800;
+        --secondary: #6c757d;
+        --light: #f8f9fa;
+        --dark: #343a40;
+        --border: #e1e5e9;
+        --shadow: rgba(0, 0, 0, 0.1);
+        --text: #495057;
+        --text-light: #6c757d;
+    }
+
+    /* Base Styles */
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    /* Overlay del Modal */
+    .delete-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    /* Contenedor del Modal */
+    .delete-modal-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        max-width: 500px;
+        width: 90%;
+        max-height: 90vh;
+        overflow-y: auto;
+        transform: scale(0.9);
+        opacity: 0;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+        .delete-modal-container.show {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+    /* Header del Modal */
+    .modal-header {
+        background: linear-gradient(135deg, var(--danger), #e74c3c);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+        border-radius: 20px 20px 0 0;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .modal-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1%, transparent 1%);
+            background-size: 20px 20px;
+            transform: rotate(30deg);
+        }
+
+    .header-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.9;
+    }
+
+    .header-content h2 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .header-content p {
+        opacity: 0.9;
+        font-size: 1.1rem;
+    }
+
+    /* Sección de Información */
+    .potrero-info-section {
+        padding: 2rem;
+    }
+
+    .info-card {
+        background: var(--light);
+        border-radius: 15px;
+        overflow: hidden;
+        border-left: 4px solid var(--danger);
+    }
+
+    .card-header {
+        background: rgba(220, 53, 69, 0.1);
+        padding: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+        .card-header i {
+            color: var(--danger);
+            font-size: 1.25rem;
+        }
+
+        .card-header h3 {
+            color: var(--danger);
+            font-size: 1.2rem;
+            margin: 0;
+            font-weight: 600;
+        }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .info-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+    .info-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        color: var(--text);
+        flex: 1;
+    }
+
+        .info-label i {
+            color: var(--danger);
+            width: 20px;
+            text-align: center;
+        }
+
+    .info-value {
+        font-weight: 500;
+        color: var(--dark);
+        text-align: right;
+        flex: 1;
+    }
+
+    /* Badges de Estado */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+        .status-badge.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+    /* Sección de Advertencia */
+    .warning-section {
+        padding: 0 2rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .warning-content {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 12px;
+        padding: 1.25rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+        .warning-content i {
+            color: var(--warning-dark);
+            font-size: 1.5rem;
+            margin-top: 0.125rem;
+            flex-shrink: 0;
+        }
+
+    .warning-text {
+        color: #856404;
+        line-height: 1.5;
+    }
+
+    /* Formulario y Botones */
+    .delete-form {
+        padding: 0 2rem 2rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 0.875rem 1.5rem;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        position: relative;
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, var(--danger), var(--danger-dark));
+        color: white;
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+    }
+
+        .btn-danger:hover:not(:disabled) {
+            background: linear-gradient(135deg, var(--danger-dark), #bd2130);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
+        }
+
+    .btn-secondary {
+        background: var(--secondary);
+        color: white;
+    }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+    .btn-outline {
+        background: transparent;
+        border: 2px solid var(--secondary);
+        color: var(--secondary);
+    }
+
+        .btn-outline:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+    .btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none !important;
+    }
+
+    .btn-loading {
+        display: none;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Overlay de Confirmación */
+    .confirmation-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 20px;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s ease;
+        z-index: 10;
+    }
+
+        .confirmation-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+    .confirmation-content {
+        text-align: center;
+        padding: 2rem;
+        max-width: 400px;
+    }
+
+        .confirmation-content i {
+            font-size: 4rem;
+            color: var(--danger);
+            margin-bottom: 1.5rem;
+        }
+
+        .confirmation-content h3 {
+            color: var(--danger);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .confirmation-content p {
+            color: var(--text);
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+    .confirmation-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    /* Animaciones */
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+
+    }
+
+    @@keyframes shake {
+        0%, 100%
+
+    {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    75% {
+        transform: translateX(5px);
+    }
+
+    }
+
+    .shake {
+        animation: shake 0.5s ease-in-out;
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .delete-modal-container {
+            width: 95%;
+            margin: 10px;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+        }
+
+        .header-content h2 {
+            font-size: 1.5rem;
+        }
+
+        .potrero-info-section,
+        .warning-section,
+        .delete-form {
+            padding: 1.5rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .confirmation-actions {
+            flex-direction: column;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        body {
+            padding: 10px;
+        }
+
+        .info-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .info-value {
+            text-align: left;
+            width: 100%;
+        }
+
+        .card-body {
+            padding: 1rem;
+        }
+    }
+</style>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">

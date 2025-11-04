@@ -1,0 +1,519 @@
+﻿@model AgroTechApp.Models.DB.Animal
+
+@{
+    ViewData["Title"] = "Detalles del Animal";
+    var primaryColor = "#2E8B57";
+    var secondaryColor = "#F4A460";
+    var lightColor = "#f8f9fa";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <style>
+        :root {
+            --primary: @primaryColor;
+            --secondary: @secondaryColor;
+            --light: @lightColor;
+            --dark: #333;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .details-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .details-header {
+            background: linear-gradient(135deg, var(--primary), #3CB371);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+        }
+
+            .details-header h1 {
+                margin: 0;
+                font-size: 2.2rem;
+                font-weight: 600;
+            }
+
+            .details-header p {
+                margin: 0.5rem 0 0;
+                opacity: 0.9;
+                font-size: 1.1rem;
+            }
+
+        .animal-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .details-body {
+            padding: 2rem;
+        }
+
+        .animal-profile {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            align-items: start;
+        }
+
+        .profile-avatar {
+            text-align: center;
+        }
+
+        .avatar-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), #3CB371);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 4rem;
+            margin: 0 auto 1rem;
+            border: 5px solid white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-id {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-section {
+            background: var(--light);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+        }
+
+            .info-section h3 {
+                color: var(--primary);
+                margin-top: 0;
+                margin-bottom: 1rem;
+                font-size: 1.2rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e1e5e9;
+        }
+
+            .info-item:last-child {
+                border-bottom: none;
+            }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-value {
+            color: #555;
+            text-align: right;
+        }
+
+        .badge {
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-success {
+            background-color: #d4edda;
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-danger {
+            background-color: #f8d7da;
+            color: var(--danger);
+        }
+
+        .badge-info {
+            background-color: #d1ecf1;
+            color: var(--info);
+        }
+
+        .badge-primary {
+            background-color: #d1e7dd;
+            color: var(--primary);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background-color: #26734d;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
+            }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+            .btn-secondary:hover {
+                background-color: #5a6268;
+                transform: translateY(-2px);
+            }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: var(--dark);
+        }
+
+            .btn-warning:hover {
+                background-color: #e0a800;
+                transform: translateY(-2px);
+            }
+
+        .age-calculator {
+            background: linear-gradient(135deg, var(--primary), #3CB371);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        .age-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+
+        .age-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            body
+
+        {
+            padding: 10px;
+        }
+
+        .details-header {
+            padding: 1.5rem;
+        }
+
+            .details-header h1 {
+                font-size: 1.8rem;
+            }
+
+        .details-body {
+            padding: 1.5rem;
+        }
+
+        .animal-profile {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+
+        .avatar-circle {
+            width: 120px;
+            height: 120px;
+            font-size: 3rem;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .btn-group {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        }
+
+        @@media (max-width: 480px) {
+            .details-header h1
+
+        {
+            font-size: 1.5rem;
+        }
+
+        .details-body {
+            padding: 1rem;
+        }
+
+        .info-section {
+            padding: 1rem;
+        }
+
+        .info-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.25rem;
+        }
+
+        .info-value {
+            text-align: left;
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <div class="details-container">
+        <div class="details-header">
+            <span class="animal-icon">
+                @if (Model.Sexo == "M" || Model.Sexo == "Macho")
+                {
+                    @:🐂
+                }
+                else
+                {
+                    @:🐄
+                }
+            </span>
+            <h1>Detalles del Animal</h1>
+            <p>Información completa del animal registrado en el sistema</p>
+        </div>
+
+        <div class="details-body">
+            <!-- Perfil del Animal -->
+            <div class="animal-profile">
+                <div class="profile-avatar">
+                    <div class="avatar-circle">
+                        @if (Model.Sexo == "M" || Model.Sexo == "Macho")
+                        {
+                            @:🐂
+                        }
+                        else
+                        {
+                            @:🐄
+                        }
+                    </div>
+                    <div class="profile-name">@Model.Nombre</div>
+                    <div class="profile-id">ID: @Model.AnimalId</div>
+
+                    <!-- Calculadora de Edad -->
+                    @if (Model.FechaNacimiento.HasValue)
+                    {
+                        var fechaNacimiento = Model.FechaNacimiento.Value;
+                        var hoy = DateOnly.FromDateTime(DateTime.Today);
+                        var edad = hoy.Year - fechaNacimiento.Year;
+
+                        // Ajustar si aún no ha llegado el cumpleaños este año
+                        if (fechaNacimiento > hoy.AddYears(-edad))
+                        {
+                            edad--;
+                        }
+
+                        <div class="age-calculator">
+                            <div class="age-number">@edad</div>
+                            <div class="age-label">Años de edad</div>
+                        </div>
+                    }
+                </div>
+
+                <div class="info-grid">
+                    <!-- Información Básica -->
+                    <div class="info-section">
+                        <h3>📝 Información Básica</h3>
+                        <div class="info-item">
+                            <span class="info-label">🏷️ Número de Arete</span>
+                            <span class="info-value">@Model.Arete</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">💬 Nombre</span>
+                            <span class="info-value">@Model.Nombre</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">⚥ Sexo</span>
+                            <span class="info-value">
+                                @{
+                                    var sexoBadgeClass = (Model.Sexo == "M" || Model.Sexo == "Macho") ? "badge-info" : "badge-warning";
+                                    var sexoText = (Model.Sexo == "M" || Model.Sexo == "Macho") ? "Macho" : "Hembra";
+                                }
+                                <span class="badge @sexoBadgeClass">@sexoText</span>
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">🎂 Fecha de Nacimiento</span>
+                            <span class="info-value">@Model.FechaNacimiento?.ToString("dd/MM/yyyy")</span>
+                        </div>
+                    </div>
+
+                    <!-- Características Físicas -->
+                    <div class="info-section">
+                        <h3>⚖️ Características Físicas</h3>
+                        <div class="info-item">
+                            <span class="info-label">📊 Peso al Nacer</span>
+                            <span class="info-value">@Model.PesoNacimiento kg</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">🔬 Raza</span>
+                            <span class="info-value">
+                                <span class="badge badge-primary">@Model.Raza?.RazaId</span>
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">📦 Lote</span>
+                            <span class="info-value">
+                                <span class="badge badge-primary">@Model.LoteAnimal?.LoteAnimalId</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Ubicación y Estado -->
+                    <div class="info-section">
+                        <h3>🏠 Ubicación y Estado</h3>
+                        <div class="info-item">
+                            <span class="info-label">🏡 Finca</span>
+                            <span class="info-value">
+                                <span class="badge badge-success">@Model.Finca?.FincaId</span>
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">📈 Estado</span>
+                            <span class="info-value">
+                                @{
+                                    var estadoBadgeClass = (Model.Estado == "Activo" || Model.Estado == "1") ? "badge-success" : "badge-danger";
+                                    var estadoText = (Model.Estado == "Activo" || Model.Estado == "1") ? "Activo" : "Inactivo";
+                                }
+                                <span class="badge @estadoBadgeClass">@estadoText</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Parentesco -->
+                    <div class="info-section">
+                        <h3>👨‍👩‍👧‍👦 Parentesco</h3>
+                        <div class="info-item">
+                            <span class="info-label">👩 Madre</span>
+                            <span class="info-value">
+                                @if (Model.Madre != null)
+                                {
+                                    <span class="badge badge-primary">@Model.Madre.AnimalId</span>
+                                }
+                                else
+                                {
+                                    <span style="color: #6c757d;">No registrada</span>
+                                }
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">👨 Padre</span>
+                            <span class="info-value">
+                                @if (Model.Padre != null)
+                                {
+                                    <span class="badge badge-primary">@Model.Padre.AnimalId</span>
+                                }
+                                else
+                                {
+                                    <span style="color: #6c757d;">No registrado</span>
+                                }
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botones de Acción -->
+            <div class="btn-group">
+                <a asp-action="Edit" asp-route-id="@Model.AnimalId" class="btn btn-warning">
+                    <span>✏️</span> Editar Animal
+                </a>
+                <a asp-action="Index" class="btn btn-secondary">
+                    <span>←</span> Volver al Listado
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

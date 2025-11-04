@@ -1,0 +1,909 @@
+﻿@model IEnumerable<AgroTechApp.Models.DB.Potrero>
+
+@{
+    ViewData["Title"] = "Gestión de Potreros";
+}
+
+<div class="dashboard-container">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <div class="header-icon">
+                <i class="fas fa-tractor"></i>
+            </div>
+            <div class="header-text">
+                <h1>Gestión de Potreros</h1>
+                <p>Administre y visualice todos los potreros del sistema</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <a asp-action="Create" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Nuevo Potrero
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-map-marked-alt"></i>
+            </div>
+            <div class="stat-info">
+                <h3>@Model.Count()</h3>
+                <p>Total Potreros</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-info">
+                <h3>@Model.Count(p => p.Activo)</h3>
+                <p>Activos</p>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-ruler-combined"></i>
+            </div>
+            <div class="stat-info">
+                <h3>@Model.Sum(p => p.Hectareas).ToString("F1")</h3>
+                <p>Hectáreas Totales</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search and Filters -->
+    <div class="filters-section">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="Buscar potreros...">
+        </div>
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">Todos</button>
+            <button class="filter-btn" data-filter="active">Activos</button>
+            <button class="filter-btn" data-filter="inactive">Inactivos</button>
+        </div>
+    </div>
+
+    <!-- Potreros Table -->
+    <div class="table-container">
+        <div class="table-responsive">
+            <table class="modern-table" id="potrerosTable">
+                <thead>
+                    <tr>
+                        <th data-sort="nombre">
+                            <div class="th-content">
+                                <span>Nombre</span>
+                                <i class="fas fa-sort"></i>
+                            </div>
+                        </th>
+                        <th data-sort="hectareas">
+                            <div class="th-content">
+                                <span>Hectáreas</span>
+                                <i class="fas fa-sort"></i>
+                            </div>
+                        </th>
+                        <th data-sort="activo">
+                            <div class="th-content">
+                                <span>Estado</span>
+                                <i class="fas fa-sort"></i>
+                            </div>
+                        </th>
+                        <th data-sort="finca">
+                            <div class="th-content">
+                                <span>Finca</span>
+                                <i class="fas fa-sort"></i>
+                            </div>
+                        </th>
+                        <th class="actions-header">
+                            <span>Acciones</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr class="potrero-row" data-status="@(item.Activo ? "active" : "inactive")">
+                            <td class="potrero-name">
+                                <div class="name-content">
+                                    <div class="name-icon">
+                                        <i class="fas fa-map"></i>
+                                    </div>
+                                    <div>
+                                        <strong>@Html.DisplayFor(modelItem => item.Nombre)</strong>
+                                        <small>ID: @item.PotreroId</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="hectareas">
+                                <div class="hectares-badge">
+                                    <i class="fas fa-ruler"></i>
+                                    @Html.DisplayFor(modelItem => item.Hectareas) ha
+                                </div>
+                            </td>
+                            <td class="status">
+                                <span class="status-badge @(item.Activo ? "active" : "inactive")">
+                                    <i class="fas @(item.Activo ? "fa-check-circle" : "fa-times-circle")"></i>
+                                    @(item.Activo ? "Activo" : "Inactivo")
+                                </span>
+                            </td>
+                            <td class="finca">
+                                <div class="finca-info">
+                                    <i class="fas fa-farm"></i>
+                                    Finca #@Html.DisplayFor(modelItem => item.Finca.FincaId)
+                                </div>
+                            </td>
+                            <td class="actions">
+                                <div class="action-buttons">
+                                    <a asp-action="Edit" asp-route-id="@item.PotreroId" class="btn-action btn-edit" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.PotreroId" class="btn-action btn-details" title="Detalles">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.PotreroId" class="btn-action btn-delete" title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Empty State -->
+        @if (!Model.Any())
+        {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-tractor"></i>
+                </div>
+                <h3>No hay potreros registrados</h3>
+                <p>Comience agregando el primer potrero al sistema</p>
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Crear Primer Potrero
+                </a>
+            </div>
+        }
+    </div>
+
+    <!-- Mobile Cards View -->
+    <div class="mobile-cards" id="mobileCards">
+        @foreach (var item in Model)
+        {
+            <div class="potrero-card" data-status="@(item.Activo ? "active" : "inactive")">
+                <div class="card-header">
+                    <div class="card-title">
+                        <i class="fas fa-map"></i>
+                        <h4>@Html.DisplayFor(modelItem => item.Nombre)</h4>
+                    </div>
+                    <span class="status-badge @(item.Activo ? "active" : "inactive")">
+                        @(item.Activo ? "Activo" : "Inactivo")
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="card-info">
+                        <div class="info-item">
+                            <i class="fas fa-ruler-combined"></i>
+                            <span>@Html.DisplayFor(modelItem => item.Hectareas) hectáreas</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-farm"></i>
+                            <span>Finca #@Html.DisplayFor(modelItem => item.Finca.FincaId)</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <a asp-action="Edit" asp-route-id="@item.PotreroId" class="btn-action btn-edit">
+                        <i class="fas fa-edit"></i>
+                        Editar
+                    </a>
+                    <a asp-action="Details" asp-route-id="@item.PotreroId" class="btn-action btn-details">
+                        <i class="fas fa-eye"></i>
+                        Ver
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@item.PotreroId" class="btn-action btn-delete">
+                        <i class="fas fa-trash"></i>
+                        Eliminar
+                    </a>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            const potreroRows = document.querySelectorAll('.potrero-row');
+            const potreroCards = document.querySelectorAll('.potrero-card');
+
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+
+                potreroRows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+
+                potreroCards.forEach(card => {
+                    const text = card.textContent.toLowerCase();
+                    card.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+
+            // Filter functionality
+            const filterButtons = document.querySelectorAll('.filter-btn');
+
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    // Add active class to clicked button
+                    this.classList.add('active');
+
+                    const filter = this.dataset.filter;
+
+                    potreroRows.forEach(row => {
+                        if (filter === 'all' || row.dataset.status === filter) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+
+                    potreroCards.forEach(card => {
+                        if (filter === 'all' || card.dataset.status === filter) {
+                            card.style.display = '';
+                        } else {
+                            card.style.display = 'none';
+                        }
+                    });
+                });
+            });
+
+            // Sort functionality
+            const sortHeaders = document.querySelectorAll('th[data-sort]');
+            let currentSort = { column: null, direction: 'asc' };
+
+            sortHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    const column = this.dataset.sort;
+                    const rows = Array.from(potreroRows);
+                    const cards = Array.from(potreroCards);
+
+                    // Determine sort direction
+                    if (currentSort.column === column) {
+                        currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                    } else {
+                        currentSort.column = column;
+                        currentSort.direction = 'asc';
+                    }
+
+                    // Sort rows and cards
+                    rows.sort((a, b) => {
+                        let aValue, bValue;
+
+                        switch(column) {
+                            case 'nombre':
+                                aValue = a.querySelector('.potrero-name strong').textContent;
+                                bValue = b.querySelector('.potrero-name strong').textContent;
+                                break;
+                            case 'hectareas':
+                                aValue = parseFloat(a.querySelector('.hectareas').textContent);
+                                bValue = parseFloat(b.querySelector('.hectareas').textContent);
+                                break;
+                            case 'activo':
+                                aValue = a.dataset.status;
+                                bValue = b.dataset.status;
+                                break;
+                            case 'finca':
+                                aValue = a.querySelector('.finca').textContent;
+                                bValue = b.querySelector('.finca').textContent;
+                                break;
+                        }
+
+                        if (currentSort.direction === 'asc') {
+                            return aValue > bValue ? 1 : -1;
+                        } else {
+                            return aValue < bValue ? 1 : -1;
+                        }
+                    });
+
+                    // Reorder table rows
+                    const tbody = document.querySelector('tbody');
+                    rows.forEach(row => tbody.appendChild(row));
+
+                    // Update sort indicators
+                    sortHeaders.forEach(h => {
+                        const icon = h.querySelector('i');
+                        icon.className = 'fas fa-sort';
+                    });
+
+                    const currentIcon = this.querySelector('i');
+                    currentIcon.className = currentSort.direction === 'asc' ?
+                        'fas fa-sort-up' : 'fas fa-sort-down';
+                });
+            });
+
+            // Hover effects
+            const actionButtons = document.querySelectorAll('.btn-action');
+            actionButtons.forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.1)';
+                });
+
+                btn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+
+            // Responsive table/cards toggle
+            function checkScreenSize() {
+                const table = document.querySelector('.table-responsive');
+                const mobileCards = document.getElementById('mobileCards');
+
+                if (window.innerWidth < 768) {
+                    table.style.display = 'none';
+                    mobileCards.style.display = 'grid';
+                } else {
+                    table.style.display = 'block';
+                    mobileCards.style.display = 'none';
+                }
+            }
+
+            checkScreenSize();
+            window.addEventListener('resize', checkScreenSize);
+        });
+    </script>
+}
+
+<style>
+    /* Variables */
+    :root {
+        --primary: #2E8B57;
+        --primary-dark: #26734d;
+        --primary-light: #3CB371;
+        --secondary: #6c757d;
+        --success: #28a745;
+        --danger: #dc3545;
+        --warning: #ffc107;
+        --info: #17a2b8;
+        --light: #f8f9fa;
+        --dark: #343a40;
+        --border: #e1e5e9;
+        --shadow: rgba(0, 0, 0, 0.1);
+        --text: #495057;
+        --text-light: #6c757d;
+    }
+
+    /* Base Styles */
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        padding: 20px;
+        color: var(--text);
+    }
+
+    /* Dashboard Container */
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        animation: slideUp 0.6s ease-out;
+    }
+
+    /* Header */
+    .dashboard-header {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px var(--shadow);
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex: 1;
+    }
+
+    .header-icon {
+        font-size: 3rem;
+        color: var(--primary);
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .header-text h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.25rem;
+    }
+
+    .header-text p {
+        color: var(--text-light);
+        font-size: 1.1rem;
+        margin: 0;
+    }
+
+    .header-actions {
+        flex-shrink: 0;
+    }
+
+    /* Buttons */
+    .btn {
+        padding: 0.875rem 1.5rem;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color: white;
+        box-shadow: 0 4px 15px rgba(46, 139, 87, 0.3);
+    }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46, 139, 87, 0.4);
+        }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px var(--shadow);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: transform 0.3s ease;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .stat-info h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-info p {
+        color: var(--text-light);
+        margin: 0;
+    }
+
+    /* Filters Section */
+    .filters-section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px var(--shadow);
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        position: relative;
+        flex: 1;
+        min-width: 250px;
+    }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.875rem 1rem 0.875rem 2.5rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+            .search-box input:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+            }
+
+    .filter-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        padding: 0.5rem 1rem;
+        border: 2px solid var(--border);
+        background: white;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+    /* Table Styles */
+    .table-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px var(--shadow);
+        overflow: hidden;
+    }
+
+    .modern-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+        .modern-table thead {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        }
+
+        .modern-table th {
+            padding: 1.25rem 1rem;
+            text-align: left;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+            .modern-table th:hover {
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+    .th-content {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .actions-header {
+        cursor: default !important;
+    }
+
+        .actions-header:hover {
+            background: transparent !important;
+        }
+
+    .modern-table tbody tr {
+        border-bottom: 1px solid var(--border);
+        transition: all 0.3s ease;
+    }
+
+        .modern-table tbody tr:hover {
+            background: #f8f9fa;
+            transform: scale(1.01);
+        }
+
+    .modern-table td {
+        padding: 1.25rem 1rem;
+        vertical-align: middle;
+    }
+
+    /* Table Cell Styles */
+    .potrero-name .name-content {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .name-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: var(--light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+    }
+
+    .potrero-name small {
+        display: block;
+        color: var(--text-light);
+        font-size: 0.8rem;
+        margin-top: 0.25rem;
+    }
+
+    .hectares-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        background: var(--light);
+        border-radius: 20px;
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+        .status-badge.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+    .finca-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-light);
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-action {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        color: white;
+    }
+
+    .btn-edit {
+        background: var(--info);
+    }
+
+    .btn-details {
+        background: var(--primary);
+    }
+
+    .btn-delete {
+        background: var(--danger);
+    }
+
+    .btn-action:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Mobile Cards */
+    .mobile-cards {
+        display: none;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .potrero-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 20px var(--shadow);
+        border-left: 4px solid var(--primary);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+
+    .card-title {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex: 1;
+    }
+
+        .card-title i {
+            color: var(--primary);
+            font-size: 1.25rem;
+        }
+
+        .card-title h4 {
+            margin: 0;
+            color: var(--dark);
+        }
+
+    .card-body {
+        margin-bottom: 1.5rem;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-light);
+    }
+
+    .card-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+        .card-actions .btn-action {
+            flex: 1;
+            min-width: 80px;
+            padding: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--text-light);
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: var(--border);
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-state h3 {
+        margin-bottom: 0.5rem;
+        color: var(--dark);
+    }
+
+    /* Animations */
+    @@keyframes slideUp {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        body {
+            padding: 10px;
+        }
+
+        .dashboard-header {
+            padding: 1.5rem;
+            text-align: center;
+            flex-direction: column;
+        }
+
+        .header-content {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .filters-section {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-box {
+            min-width: auto;
+        }
+
+        .table-responsive {
+            display: none;
+        }
+
+        .mobile-cards {
+            display: grid;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .header-text h1 {
+            font-size: 1.8rem;
+        }
+
+        .stat-card {
+            padding: 1rem;
+        }
+
+        .card-actions {
+            flex-direction: column;
+        }
+
+            .card-actions .btn-action {
+                width: 100%;
+            }
+    }
+</style>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">

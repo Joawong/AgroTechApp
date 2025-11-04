@@ -1,0 +1,53 @@
+﻿@model IEnumerable<AgroTechApp.Models.DB.Pesaje>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Fecha)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PesoKg)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Observacion)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Animal)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Fecha)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PesoKg)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Observacion)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Animal.AnimalId)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.PesajeId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.PesajeId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.PesajeId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,0 +1,940 @@
+﻿@model AgroTechApp.Models.DB.Insumo
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Insumo - AgroTech</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --primary-dark: #26734d;
+            --primary-light: #3CB371;
+            --secondary: #F4A460;
+            --light: #f8f9fa;
+            --dark: #333;
+            --gray: #6c757d;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --border: #e1e5e9;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+        }
+
+        .logo-text h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .logo-text p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+
+        @@media (max-width: 992px) {
+            .main-content
+
+        {
+            grid-template-columns: 1fr;
+        }
+
+        }
+
+        /* Form Card */
+        .form-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px var(--shadow);
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .form-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .form-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+        }
+
+        .form-title h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .form-title p {
+            color: var(--gray);
+            font-size: 1rem;
+        }
+
+        /* Form Grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        @@media (max-width: 768px) {
+            .form-grid
+
+        {
+            grid-template-columns: 1fr;
+        }
+
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+            .form-group.full-width {
+                grid-column: 1 / -1;
+            }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            label i {
+                color: var(--primary);
+            }
+
+        .required::after {
+            content: " *";
+            color: var(--danger);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+            }
+
+            .form-control:disabled {
+                background: #f8f9fa;
+                color: var(--gray);
+                cursor: not-allowed;
+            }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+            .select-wrapper::after {
+                content: "▼";
+                position: absolute;
+                right: 1rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--gray);
+                pointer-events: none;
+            }
+
+        .form-help {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Switch Toggle */
+        .switch-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--light);
+            border-radius: 8px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+            .switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+            .slider:before {
+                position: absolute;
+                content: "";
+                height: 26px;
+                width: 26px;
+                left: 4px;
+                bottom: 4px;
+                background-color: white;
+                transition: .4s;
+                border-radius: 50%;
+            }
+
+        input:checked + .slider {
+            background-color: var(--success);
+        }
+
+            input:checked + .slider:before {
+                transform: translateX(26px);
+            }
+
+        .switch-label {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 2px solid var(--border);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            min-width: 120px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background: var(--primary-dark);
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(46, 139, 87, 0.3);
+            }
+
+        .btn-secondary {
+            background: var(--gray);
+            color: white;
+        }
+
+            .btn-secondary:hover {
+                background: #5a6268;
+                transform: translateY(-2px);
+            }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+            .btn-outline:hover {
+                background: var(--primary);
+                color: white;
+            }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px var(--shadow);
+        }
+
+        .info-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .info-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, var(--info), #5bc0de);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .info-title {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .info-content {
+            color: var(--gray);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: var(--success);
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: var(--danger);
+        }
+
+        /* Quick Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: var(--light);
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        @@keyframes pulse {
+            0%
+
+        {
+            transform: scale(1);
+        }
+
+        50% {
+            transform: scale(1.05);
+        }
+
+        100% {
+            transform: scale(1);
+        }
+
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+
+            .toast.show {
+                transform: translateX(0);
+            }
+
+        .toast-error {
+            background: var(--danger);
+        }
+
+        /* Responsive */
+        @@media (max-width: 576px) {
+            .form-card
+
+        {
+            padding: 1.5rem;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-seedling"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>AgroTech Insumos</h1>
+                    <p>Sistema de gestión de insumos agrícolas</p>
+                </div>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <div class="user-details">
+                    <div class="user-name">Juan Díaz</div>
+                    <div class="user-role">Administrador</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Form Section -->
+            <div class="form-section">
+                <div class="form-card">
+                    <div class="form-header">
+                        <div class="form-icon">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <div class="form-title">
+                            <h2>Editar Insumo</h2>
+                            <p>Actualice la información del insumo agrícola</p>
+                        </div>
+                    </div>
+
+                    <form id="insumoForm">
+                        <div class="form-grid">
+                            <!-- ID del Insumo (solo lectura) -->
+                            <div class="form-group">
+                                <label for="insumoId" class="required">
+                                    <i class="fas fa-fingerprint"></i>
+                                    ID del Insumo
+                                </label>
+                                <input type="text" id="insumoId" class="form-control" value="INS-2024-001" disabled>
+                                <div class="form-help">
+                                    <i class="fas fa-info-circle"></i>
+                                    Identificador único del insumo (no editable)
+                                </div>
+                            </div>
+
+                            <!-- Finca -->
+                            <div class="form-group">
+                                <label for="fincaId" class="required">
+                                    <i class="fas fa-tractor"></i>
+                                    Finca
+                                </label>
+                                <div class="select-wrapper">
+                                    <select id="fincaId" class="form-control" required>
+                                        <option value="">Seleccione una finca</option>
+                                        <option value="1" selected>Finca La Esperanza</option>
+                                        <option value="2">Finca El Progreso</option>
+                                        <option value="3">Finca San José</option>
+                                        <option value="4">Finca Santa María</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Categoría -->
+                            <div class="form-group">
+                                <label for="categoriaId" class="required">
+                                    <i class="fas fa-tags"></i>
+                                    Categoría
+                                </label>
+                                <div class="select-wrapper">
+                                    <select id="categoriaId" class="form-control" required>
+                                        <option value="">Seleccione una categoría</option>
+                                        <option value="1" selected>Fertilizantes</option>
+                                        <option value="2">Plaguicidas</option>
+                                        <option value="3">Semillas</option>
+                                        <option value="4">Herbicidas</option>
+                                        <option value="5">Equipos</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Unidad -->
+                            <div class="form-group">
+                                <label for="unidadId" class="required">
+                                    <i class="fas fa-balance-scale"></i>
+                                    Unidad de Medida
+                                </label>
+                                <div class="select-wrapper">
+                                    <select id="unidadId" class="form-control" required>
+                                        <option value="">Seleccione una unidad</option>
+                                        <option value="1">Kilogramos (kg)</option>
+                                        <option value="2" selected>Litros (L)</option>
+                                        <option value="3">Gramos (g)</option>
+                                        <option value="4">Unidades (ud)</option>
+                                        <option value="5">Metros (m)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Nombre -->
+                            <div class="form-group full-width">
+                                <label for="nombre" class="required">
+                                    <i class="fas fa-tag"></i>
+                                    Nombre del Insumo
+                                </label>
+                                <input type="text" id="nombre" class="form-control" value="Fertilizante NPK 15-15-15" required>
+                                <div class="form-help">
+                                    <i class="fas fa-lightbulb"></i>
+                                    Ingrese un nombre descriptivo para el insumo
+                                </div>
+                            </div>
+
+                            <!-- Stock Mínimo -->
+                            <div class="form-group">
+                                <label for="stockMinimo" class="required">
+                                    <i class="fas fa-boxes"></i>
+                                    Stock Mínimo
+                                </label>
+                                <input type="number" id="stockMinimo" class="form-control" value="50" min="0" step="0.01" required>
+                                <div class="form-help">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    Cantidad mínima antes de generar alerta
+                                </div>
+                            </div>
+
+                            <!-- Estado -->
+                            <div class="form-group full-width">
+                                <div class="switch-group">
+                                    <label class="switch">
+                                        <input type="checkbox" id="activo" checked>
+                                        <span class="slider"></span>
+                                    </label>
+                                    <span class="switch-label">Insumo Activo</span>
+                                </div>
+                                <div class="form-help">
+                                    <i class="fas fa-power-off"></i>
+                                    Desactive para dar de baja temporalmente el insumo
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="action-buttons">
+                            <a href="#" class="btn btn-outline">
+                                <i class="fas fa-times"></i>
+                                Cancelar
+                            </a>
+                            <button type="button" id="resetBtn" class="btn btn-secondary">
+                                <i class="fas fa-undo"></i>
+                                Restablecer
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i>
+                                Guardar Cambios
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Información del Insumo -->
+                <div class="info-card">
+                    <div class="info-header">
+                        <div class="info-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="info-title">Información del Insumo</div>
+                    </div>
+                    <div class="info-content">
+                        <p><strong>ID:</strong> INS-2024-001</p>
+                        <p><strong>Creado:</strong> 15/01/2024</p>
+                        <p><strong>Última actualización:</strong> Hoy</p>
+                        <p>
+                            <strong>Estado:</strong>
+                            <span class="status-badge status-active">
+                                <i class="fas fa-check-circle"></i>
+                                Activo
+                            </span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Estadísticas Rápidas -->
+                <div class="info-card">
+                    <div class="info-header">
+                        <div class="info-icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="info-title">Estadísticas</div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value">85%</div>
+                            <div class="stat-label">Stock Actual</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">Movimientos</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">3</div>
+                            <div class="stat-label">Alertas</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">95%</div>
+                            <div class="stat-label">Disponibilidad</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Acciones Rápidas -->
+                <div class="info-card">
+                    <div class="info-header">
+                        <div class="info-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="info-title">Acciones Rápidas</div>
+                    </div>
+                    <div class="info-content">
+                        <button class="btn btn-outline" style="width: 100%; margin-bottom: 0.5rem;">
+                            <i class="fas fa-history"></i>
+                            Ver Historial
+                        </button>
+                        <button class="btn btn-outline" style="width: 100%; margin-bottom: 0.5rem;">
+                            <i class="fas fa-chart-line"></i>
+                            Ver Reportes
+                        </button>
+                        <button class="btn btn-outline" style="width: 100%;">
+                            <i class="fas fa-file-export"></i>
+                            Exportar Datos
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2024 AgroTech - Sistema de Gestión de Insumos. Todos los derechos reservados.</p>
+        </footer>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toastMessage">Cambios guardados exitosamente</span>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('insumoForm');
+            const resetBtn = document.getElementById('resetBtn');
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+
+            // Datos originales del formulario
+            const originalData = {
+                fincaId: '1',
+                categoriaId: '1',
+                unidadId: '2',
+                nombre: 'Fertilizante NPK 15-15-15',
+                stockMinimo: '50',
+                activo: true
+            };
+
+            // Mostrar toast
+            function showToast(message, isError = false) {
+                toastMessage.textContent = message;
+                if (isError) {
+                    toast.classList.add('toast-error');
+                } else {
+                    toast.classList.remove('toast-error');
+                }
+                toast.classList.add('show');
+
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }
+
+            // Validación del formulario
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Validar campos requeridos
+                const nombre = document.getElementById('nombre').value.trim();
+                const stockMinimo = document.getElementById('stockMinimo').value;
+
+                if (!nombre) {
+                    showToast('El nombre del insumo es requerido', true);
+                    document.getElementById('nombre').focus();
+                    return;
+                }
+
+                if (!stockMinimo || parseFloat(stockMinimo) < 0) {
+                    showToast('El stock mínimo debe ser un valor positivo', true);
+                    document.getElementById('stockMinimo').focus();
+                    return;
+                }
+
+                // Simular guardado
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+                submitBtn.disabled = true;
+
+                setTimeout(() => {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    showToast('Insumo actualizado exitosamente');
+
+                    // Aquí iría la lógica real de guardado
+                    console.log('Datos guardados:', {
+                        insumoId: document.getElementById('insumoId').value,
+                        fincaId: document.getElementById('fincaId').value,
+                        categoriaId: document.getElementById('categoriaId').value,
+                        unidadId: document.getElementById('unidadId').value,
+                        nombre: nombre,
+                        stockMinimo: stockMinimo,
+                        activo: document.getElementById('activo').checked
+                    });
+                }, 1500);
+            });
+
+            // Restablecer formulario
+            resetBtn.addEventListener('click', function() {
+                if (confirm('¿Está seguro de que desea restablecer todos los cambios?')) {
+                    document.getElementById('fincaId').value = originalData.fincaId;
+                    document.getElementById('categoriaId').value = originalData.categoriaId;
+                    document.getElementById('unidadId').value = originalData.unidadId;
+                    document.getElementById('nombre').value = originalData.nombre;
+                    document.getElementById('stockMinimo').value = originalData.stockMinimo;
+                    document.getElementById('activo').checked = originalData.activo;
+
+                    showToast('Formulario restablecido a los valores originales');
+                }
+            });
+
+            // Validación en tiempo real
+            document.getElementById('stockMinimo').addEventListener('input', function() {
+                const value = parseFloat(this.value);
+                if (value < 0) {
+                    this.style.borderColor = 'var(--danger)';
+                } else {
+                    this.style.borderColor = '';
+                }
+            });
+
+            // Efectos visuales en botones
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+
+                button.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Actualizar estado en tiempo real
+            document.getElementById('activo').addEventListener('change', function() {
+                const statusBadge = document.querySelector('.status-badge');
+                if (this.checked) {
+                    statusBadge.className = 'status-badge status-active';
+                    statusBadge.innerHTML = '<i class="fas fa-check-circle"></i> Activo';
+                } else {
+                    statusBadge.className = 'status-badge status-inactive';
+                    statusBadge.innerHTML = '<i class="fas fa-times-circle"></i> Inactivo';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
