@@ -1,0 +1,511 @@
+﻿@model AgroTechApp.Models.DB.Tratamiento
+
+@{
+    ViewData["Title"] = "Detalles del Tratamiento";
+    var primaryColor = "#2E8B57";
+    var secondaryColor = "#F4A460";
+    var lightColor = "#f8f9fa";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <style>
+        :root {
+            --primary: @primaryColor;
+            --secondary: @secondaryColor;
+            --light: @lightColor;
+            --dark: #333;
+            --success: #28a745;
+            --danger: #dc3545;
+            --info: #17a2b8;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .details-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .details-header {
+            background: linear-gradient(135deg, var(--primary), #3CB371);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+            .details-header h1 {
+                margin: 0;
+                font-size: 2.2rem;
+                font-weight: 600;
+            }
+
+            .details-header p {
+                margin: 0.5rem 0 0;
+                opacity: 0.9;
+                font-size: 1.1rem;
+            }
+
+        .details-body {
+            padding: 2rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-section {
+            background: var(--light);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+        }
+
+            .info-section h3 {
+                color: var(--primary);
+                margin-top: 0;
+                margin-bottom: 1rem;
+                font-size: 1.2rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+        .info-group {
+            margin-bottom: 1.2rem;
+            padding: 0.8rem;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e1e5e9;
+        }
+
+        .info-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+            color: var(--primary);
+        }
+
+        .info-value {
+            font-size: 1rem;
+            color: var(--dark);
+            line-height: 1.5;
+        }
+
+            .info-value.empty {
+                color: #6c757d;
+                font-style: italic;
+            }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .status-completed {
+            background-color: var(--info);
+            color: white;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background-color: #26734d;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
+            }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+            .btn-secondary:hover {
+                background-color: #5a6268;
+                transform: translateY(-2px);
+            }
+
+        .btn-warning {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+            .btn-warning:hover {
+                background-color: #e5945a;
+                transform: translateY(-2px);
+            }
+
+        .icon {
+            font-size: 1.2rem;
+        }
+
+        .treatment-illustration {
+            text-align: center;
+            margin: 1rem 0 2rem;
+        }
+
+        .treatment-icon {
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .periodos-retiro {
+            margin-top: 2rem;
+        }
+
+        .periodos-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+            .periodos-table th {
+                background-color: var(--primary);
+                color: white;
+                padding: 1rem;
+                text-align: left;
+                font-weight: 600;
+            }
+
+            .periodos-table td {
+                padding: 1rem;
+                border-bottom: 1px solid #e1e5e9;
+            }
+
+            .periodos-table tr:last-child td {
+                border-bottom: none;
+            }
+
+            .periodos-table tr:hover {
+                background-color: #f8f9fa;
+            }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .details-header {
+                padding: 1.5rem;
+            }
+
+                .details-header h1 {
+                    font-size: 1.8rem;
+                }
+
+            .details-body {
+                padding: 1.5rem;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .periodos-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .details-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .details-body {
+                padding: 1rem;
+            }
+
+            .info-section {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="details-container">
+        <div class="details-header">
+            <h1>💊 Detalles del Tratamiento</h1>
+            <p>Información completa del tratamiento aplicado</p>
+        </div>
+
+        <div class="details-body">
+            <div class="treatment-illustration">
+                <div class="treatment-icon">🩺</div>
+            </div>
+
+            <div class="info-grid">
+                <!-- Información Básica -->
+                <div class="info-section">
+                    <h3>📝 Información Básica</h3>
+
+                    <div class="info-group">
+                        <label class="info-label">🏠 Finca</label>
+                        <div class="info-value">@Model.Finca?.Nombre</div>
+                    </div>
+
+                    <div class="info-group">
+                        <label class="info-label">💊 Tipo de Tratamiento</label>
+                        <div class="info-value">@Model.TipoTrat?.Nombre</div>
+                    </div>
+
+                    <div class="info-group">
+                        <label class="info-label">📅 Fecha de Aplicación</label>
+                        <div class="info-value">@Model.Fecha.ToString("dd/MM/yyyy")</div>
+                    </div>
+
+                    <div class="info-group">
+                        <label class="info-label">👨‍⚕️ Responsable</label>
+                        <div class="info-value @(string.IsNullOrEmpty(Model.Responsable) ? "empty" : "")">
+                            @(string.IsNullOrEmpty(Model.Responsable) ? "No especificado" : Model.Responsable)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Aplicación -->
+                <div class="info-section">
+                    <h3>🔬 Detalles de Aplicación</h3>
+
+                    <div class="info-group">
+                        <label class="info-label">💉 Vía de Administración</label>
+                        <div class="info-value @(string.IsNullOrEmpty(Model.Via) ? "empty" : "")">
+                            @(string.IsNullOrEmpty(Model.Via) ? "No especificada" : Model.Via)
+                        </div>
+                    </div>
+
+                    <div class="info-group">
+                        <label class="info-label">📊 Dosis</label>
+                        <div class="info-value @(string.IsNullOrEmpty(Model.Dosis) ? "empty" : "")">
+                            @(string.IsNullOrEmpty(Model.Dosis) ? "No especificada" : Model.Dosis)
+                        </div>
+                    </div>
+
+                    <div class="info-group">
+                        <label class="info-label">🧪 Insumo Utilizado</label>
+                        <div class="info-value">
+                            @if (Model.Insumo != null)
+                            {
+                                @Model.Insumo.Nombre
+                                @if (Model.Lote != null)
+                                {
+                                    <br />
+
+                                    // <small>Lote: @Model.Lote.NumeroLote</small>
+                                }
+                            }
+                            else
+                            {
+                                <span class="empty">No especificado</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Destinatario -->
+                <div class="info-section">
+                    <h3>🎯 Destinatario del Tratamiento</h3>
+
+                    <div class="info-group">
+                        <label class="info-label">🎯 Aplicado a</label>
+                        <div class="info-value">
+                            @if (Model.AnimalId.HasValue)
+                            {
+                                <span>🐄 Animal Individual</span>
+                            }
+                            else if (Model.LoteAnimalId.HasValue)
+                            {
+                                <span>📦 Lote de Animales</span>
+                            }
+                            else
+                            {
+                                <span class="empty">No especificado</span>
+                            }
+                        </div>
+                    </div>
+
+                    @if (Model.AnimalId.HasValue)
+                    {
+                        <div class="info-group">
+                            <label class="info-label">🐄 Animal</label>
+                            <div class="info-value">
+                                @Model.Animal?.Nombre
+                                @if (!string.IsNullOrEmpty(Model.Animal?.Arete))
+                                {
+                                    <br />
+
+                                    <small>Arete: @Model.Animal.Arete</small>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.LoteAnimalId.HasValue)
+                    {
+                        <div class="info-group">
+                            <label class="info-label">📦 Lote</label>
+                            <div class="info-value">@Model.LoteAnimal?.Nombre</div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Observaciones -->
+                <div class="info-section">
+                    <h3>📋 Observaciones</h3>
+
+                    <div class="info-group">
+                        <label class="info-label">📝 Observaciones</label>
+                        <div class="info-value @(string.IsNullOrEmpty(Model.Observacion) ? "empty" : "")">
+                            @(string.IsNullOrEmpty(Model.Observacion) ? "No hay observaciones registradas" : Model.Observacion)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Periodos de Retiro -->
+            @if (Model.PeriodoRetiros != null && Model.PeriodoRetiros.Any())
+            {
+                <div class="periodos-retiro">
+                    <div class="info-section">
+                        <h3>⏰ Periodos de Retiro</h3>
+
+                        <table class="periodos-table">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Fecha Desde</th>
+                                    <th>Fecha Hasta</th>
+                                    <th>Observaciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var periodo in Model.PeriodoRetiros)
+                                {
+                                    <tr>
+                                        <td>@periodo.Producto</td>
+                                        <td>@periodo.FechaDesde días</td>
+                                        <td>@periodo.FechaHasta días</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+
+            <div class="btn-group">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <span class="icon">←</span> Volver al Listado
+                </a>
+                <a asp-action="Edit" asp-route-id="@Model.TratamientoId" class="btn btn-warning">
+                    <span class="icon">✏️</span> Editar Tratamiento
+                </a>
+                <a asp-action="Delete" asp-route-id="@Model.TratamientoId" class="btn btn-primary" style="background-color: var(--danger);">
+                    <span class="icon">🗑️</span> Eliminar
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Agregar efectos de hover a las secciones
+            const infoSections = document.querySelectorAll('.info-section');
+            infoSections.forEach(section => {
+                section.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+                });
+                section.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+
+            // Confirmación para eliminar
+            const deleteBtn = document.querySelector('a[asp-action="Delete"]');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', function(e) {
+                    if (!confirm('¿Está seguro de que desea eliminar este tratamiento? Esta acción no se puede deshacer.')) {
+                        e.preventDefault();
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,554 @@
+﻿@model AgroTechApp.Models.DB.Tratamiento
+
+@{
+    ViewData["Title"] = "Editar Tratamiento";
+    var primaryColor = "#2E8B57";
+    var secondaryColor = "#F4A460";
+    var lightColor = "#f8f9fa";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <style>
+        :root {
+            --primary: @primaryColor;
+            --secondary: @secondaryColor;
+            --light: @lightColor;
+            --dark: #333;
+            --success: #28a745;
+            --danger: #dc3545;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .create-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .create-header {
+            background: linear-gradient(135deg, var(--primary), #3CB371);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+            .create-header h1 {
+                margin: 0;
+                font-size: 2.2rem;
+                font-weight: 600;
+            }
+
+            .create-header p {
+                margin: 0.5rem 0 0;
+                opacity: 0.9;
+                font-size: 1.1rem;
+            }
+
+        .create-body {
+            padding: 2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-section {
+            background: var(--light);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+        }
+
+            .form-section h3 {
+                color: var(--primary);
+                margin-top: 0;
+                margin-bottom: 1rem;
+                font-size: 1.2rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: white;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+            }
+
+            .form-control.select {
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+                background-position: right 0.5rem center;
+                background-repeat: no-repeat;
+                background-size: 1.5em 1.5em;
+                padding-right: 2.5rem;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+            }
+
+        .text-danger {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background-color: #26734d;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
+            }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+            .btn-secondary:hover {
+                background-color: #5a6268;
+                transform: translateY(-2px);
+            }
+
+        .icon {
+            font-size: 1.2rem;
+        }
+
+        .animal-illustration {
+            text-align: center;
+            margin: 1rem 0 2rem;
+        }
+
+        .animal-icon {
+            font-size: 4rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .create-header {
+                padding: 1.5rem;
+            }
+
+                .create-header h1 {
+                    font-size: 1.8rem;
+                }
+
+            .create-body {
+                padding: 1.5rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .create-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .create-body {
+                padding: 1rem;
+            }
+
+            .form-section {
+                padding: 1rem;
+            }
+        }
+
+        /* Estilos específicos para tratamiento */
+        .treatment-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .animal-lote-toggle {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid #e1e5e9;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+            .toggle-btn.active {
+                background: var(--primary);
+                color: white;
+                border-color: var(--primary);
+            }
+    </style>
+</head>
+<body>
+    <div class="create-container">
+        <div class="create-header">
+            <h1>💊 Editar Tratamiento</h1>
+            <p>Modifique la información del tratamiento aplicado</p>
+        </div>
+
+        <div class="create-body">
+            <div class="animal-illustration">
+                <div class="animal-icon">💉</div>
+            </div>
+
+            <form asp-controller="Tratamientos" asp-action="Edit" method="post" id="tratamientoForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="TratamientoId" />
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-grid">
+                    <!-- Información Básica -->
+                    <div class="form-section">
+                        <h3>🏠 Información General</h3>
+
+                        <div class="form-group">
+                            <label asp-for="FincaId" class="form-label">Finca</label>
+                            <select asp-for="FincaId" class="form-control select" asp-items="ViewBag.FincaId" required>
+                                <option value="" disabled>Seleccione una finca</option>
+                            </select>
+                            <span asp-validation-for="FincaId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="TipoTratId" class="form-label">🔬 Tipo de Tratamiento</label>
+                            <select asp-for="TipoTratId" class="form-control select" asp-items="ViewBag.TipoTratId" required>
+                                <option value="" disabled>Seleccione el tipo</option>
+                            </select>
+                            <span asp-validation-for="TipoTratId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Fecha" class="form-label">📅 Fecha del Tratamiento</label>
+                            <input asp-for="Fecha" type="datetime-local" class="form-control" required />
+                            <span asp-validation-for="Fecha" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Destino del Tratamiento -->
+                    <div class="form-section">
+                        <h3>🎯 Destino del Tratamiento</h3>
+
+                        <div class="animal-lote-toggle">
+                            <div class="toggle-btn" id="toggleAnimal">Animal Individual</div>
+                            <div class="toggle-btn" id="toggleLote">Lote de Animales</div>
+                        </div>
+
+                        <div class="form-group" id="animalGroup">
+                            <label asp-for="AnimalId" class="form-label">🐄 Animal</label>
+                            <select asp-for="AnimalId" class="form-control select" asp-items="ViewBag.AnimalId">
+                                <option value="">Seleccione un animal</option>
+                            </select>
+                            <span asp-validation-for="AnimalId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group" id="loteGroup" style="display: none;">
+                            <label asp-for="LoteAnimalId" class="form-label">📦 Lote de Animales</label>
+                            <select asp-for="LoteAnimalId" class="form-control select" asp-items="ViewBag.LoteAnimalId">
+                                <option value="">Seleccione un lote</option>
+                            </select>
+                            <span asp-validation-for="LoteAnimalId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <!-- Insumo y Aplicación -->
+                    <div class="form-section">
+                        <h3>💊 Insumo y Aplicación</h3>
+
+                        <div class="form-group">
+                            <label asp-for="InsumoId" class="form-label">🧪 Insumo</label>
+                            <select asp-for="InsumoId" class="form-control select" asp-items="ViewBag.InsumoId">
+                                <option value="">Seleccione un insumo</option>
+                            </select>
+                            <span asp-validation-for="InsumoId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="LoteId" class="form-label">📋 Lote del Insumo</label>
+                            <select asp-for="LoteId" class="form-control select" asp-items="ViewBag.LoteId">
+                                <option value="">Seleccione el lote</option>
+                            </select>
+                            <span asp-validation-for="LoteId" class="text-danger"></span>
+                        </div>
+
+                        <div class="treatment-info">
+                            <div class="form-group">
+                                <label asp-for="Dosis" class="form-label">⚖️ Dosis</label>
+                                <input asp-for="Dosis" class="form-control" placeholder="Ej: 10 ml" />
+                                <span asp-validation-for="Dosis" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="Via" class="form-label">🔄 Vía de Aplicación</label>
+                                <select asp-for="Via" class="form-control select">
+                                    <option value="">Seleccione vía</option>
+                                    <option value="Intramuscular">Intramuscular</option>
+                                    <option value="Subcutánea">Subcutánea</option>
+                                    <option value="Oral">Oral</option>
+                                    <option value="Tópica">Tópica</option>
+                                    <option value="Intravenosa">Intravenosa</option>
+                                </select>
+                                <span asp-validation-for="Via" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información Adicional -->
+                    <div class="form-section">
+                        <h3>📝 Información Adicional</h3>
+
+                        <div class="form-group">
+                            <label asp-for="Responsable" class="form-label">👨‍⚕️ Responsable</label>
+                            <input asp-for="Responsable" class="form-control" placeholder="Nombre del responsable" />
+                            <span asp-validation-for="Responsable" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Observacion" class="form-label">📋 Observaciones</label>
+                            <textarea asp-for="Observacion" class="form-control" rows="4" placeholder="Observaciones adicionales..."></textarea>
+                            <span asp-validation-for="Observacion" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <span class="icon">←</span> Volver al Listado
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="icon">💾</span> Guardar Cambios
+                    </button>
+                </div>
+            </form>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="text-danger" style="margin-bottom: 1rem;">
+                    <strong>Errores de validación:</strong>
+                    <ul>
+                        @foreach (var modelState in ViewData.ModelState)
+                        {
+                            foreach (var error in modelState.Value.Errors)
+                            {
+                                <li><strong>@modelState.Key</strong>: @error.ErrorMessage</li>
+                            }
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    </div>
+
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Toggle entre Animal y Lote
+                const toggleAnimal = document.getElementById('toggleAnimal');
+                const toggleLote = document.getElementById('toggleLote');
+                const animalGroup = document.getElementById('animalGroup');
+                const loteGroup = document.getElementById('loteGroup');
+                const animalSelect = document.getElementById('AnimalId');
+                const loteSelect = document.getElementById('LoteAnimalId');
+
+                // Inicializar estado basado en valores existentes
+                function initializeToggle() {
+                    if (animalSelect.value && animalSelect.value !== '') {
+                        setActiveToggle('animal');
+                    } else if (loteSelect.value && loteSelect.value !== '') {
+                        setActiveToggle('lote');
+                    } else {
+                        setActiveToggle('animal'); // Por defecto
+                    }
+                }
+
+                function setActiveToggle(type) {
+                    if (type === 'animal') {
+                        toggleAnimal.classList.add('active');
+                        toggleLote.classList.remove('active');
+                        animalGroup.style.display = 'block';
+                        loteGroup.style.display = 'none';
+                        loteSelect.value = ''; // Limpiar el otro campo
+                    } else {
+                        toggleAnimal.classList.remove('active');
+                        toggleLote.classList.add('active');
+                        animalGroup.style.display = 'none';
+                        loteGroup.style.display = 'block';
+                        animalSelect.value = ''; // Limpiar el otro campo
+                    }
+                }
+
+                toggleAnimal.addEventListener('click', () => setActiveToggle('animal'));
+                toggleLote.addEventListener('click', () => setActiveToggle('lote'));
+
+                initializeToggle();
+
+                // Establecer fecha y hora actual como máximo
+                const fechaInput = document.getElementById('Fecha');
+                if (fechaInput) {
+                    const now = new Date();
+                    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                    fechaInput.max = now.toISOString().slice(0, 16);
+                }
+
+                // Agregar efectos de focus mejorados
+                const inputs = document.querySelectorAll('.form-control');
+                inputs.forEach(input => {
+                    input.addEventListener('focus', function() {
+                        this.parentElement.classList.add('focused');
+                    });
+                    input.addEventListener('blur', function() {
+                        this.parentElement.classList.remove('focused');
+                    });
+                });
+
+                // Validación en tiempo real
+                const form = document.getElementById('tratamientoForm');
+                form.addEventListener('submit', function(e) {
+                    const requiredFields = form.querySelectorAll('[required]');
+                    let isValid = true;
+
+                    requiredFields.forEach(field => {
+                        if (!field.value.trim()) {
+                            isValid = false;
+                            field.style.borderColor = 'var(--danger)';
+                        }
+                    });
+
+                    // Validar que se seleccione Animal o Lote
+                    const animalValue = animalSelect.value;
+                    const loteValue = loteSelect.value;
+                    if (!animalValue && !loteValue) {
+                        isValid = false;
+                        alert('Debe seleccionar un Animal o un Lote de animales.');
+                    }
+
+                    if (!isValid) {
+                        e.preventDefault();
+                        alert('Por favor, complete todos los campos requeridos.');
+                    }
+                });
+
+                // Actualizar lotes de insumos cuando cambie el insumo
+                const insumoSelect = document.getElementById('InsumoId');
+                const loteInsumoSelect = document.getElementById('LoteId');
+
+                if (insumoSelect && loteInsumoSelect) {
+                    insumoSelect.addEventListener('change', function() {
+                        // Aquí iría la lógica para cargar los lotes del insumo seleccionado
+                        console.log('Insumo seleccionado:', this.value);
+                        // Simulación: limpiar y deshabilitar temporalmente
+                        loteInsumoSelect.innerHTML = '<option value="">Cargando lotes...</option>';
+                        loteInsumoSelect.disabled = true;
+
+                        setTimeout(() => {
+                            // En una implementación real, esto haría una llamada AJAX
+                            loteInsumoSelect.disabled = false;
+                            // Por ahora, simplemente restauramos las opciones
+                            loteInsumoSelect.innerHTML = '@Html.Raw(ViewBag.LoteId != null ? string.Join("", ((IEnumerable<SelectListItem>)ViewBag.LoteId).Select(item => $"<option value=\"{item.Value}\">{item.Text}</option>")) : "")';
+                        }, 500);
+                    });
+                }
+            });
+        </script>
+    }
+</body>
+</html>
