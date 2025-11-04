@@ -1,0 +1,321 @@
+﻿@model AgroTechApp.Models.DB.Potrero
+
+@{
+    ViewData["Title"] = "Registrar Nuevo Potrero";
+    var primaryColor = "#2E8B57";
+    var secondaryColor = "#F4A460";
+    var lightColor = "#f8f9fa";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <style>
+        :root {
+            --primary: @primaryColor;
+            --secondary: @secondaryColor;
+            --light: @lightColor;
+            --dark: #333;
+            --success: #28a745;
+            --danger: #dc3545;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .create-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .create-header {
+            background: linear-gradient(135deg, var(--primary), #3CB371);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+            .create-header h1 {
+                margin: 0;
+                font-size: 2.2rem;
+                font-weight: 600;
+            }
+
+            .create-header p {
+                margin: 0.5rem 0 0;
+                opacity: 0.9;
+                font-size: 1.1rem;
+            }
+
+        .create-body {
+            padding: 2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-section {
+            background: var(--light);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+        }
+
+            .form-section h3 {
+                color: var(--primary);
+                margin-top: 0;
+                margin-bottom: 1rem;
+                font-size: 1.2rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: white;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+            }
+
+            .form-control.select {
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+                background-position: right 0.5rem center;
+                background-repeat: no-repeat;
+                background-size: 1.5em 1.5em;
+                padding-right: 2.5rem;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                appearance: none;
+            }
+
+        .text-danger {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background-color: #26734d;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
+            }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+            .btn-secondary:hover {
+                background-color: #5a6268;
+                transform: translateY(-2px);
+            }
+
+        .icon {
+            font-size: 1.2rem;
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .create-body {
+                padding: 1rem;
+            }
+
+            .form-section {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="create-container">
+        <div class="create-header">
+            <h1>🌾 Registrar Nuevo Potrero</h1>
+            <p>Registre la información del potrero en el sistema</p>
+        </div>
+
+        <div class="create-body">
+            <form asp-action="Create" id="potreroForm">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-grid">
+                    <!-- Información del Potrero -->
+                    <div class="form-section">
+                        <h3>🏡 Información Básica</h3>
+
+                        <div class="form-group">
+                            <label asp-for="FincaId" class="form-label">🌱 Finca</label>
+                            <select asp-for="FincaId" class="form-control select" asp-items="ViewBag.FincaId" id="fincaSelect">
+                                <option value="">-- Seleccionar Finca --</option>
+                            </select>
+                            <span asp-validation-for="FincaId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Nombre" class="form-label">📝 Nombre del Potrero</label>
+                            <input asp-for="Nombre" class="form-control" placeholder="Ingrese el nombre del potrero" />
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Hectareas" class="form-label">📏 Hectáreas</label>
+                            <input asp-for="Hectareas" type="number" step="0.01" min="0" class="form-control" placeholder="Ingrese el tamaño del potrero en hectáreas" />
+                            <span asp-validation-for="Hectareas" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Activo" class="form-label">✅ Activo</label>
+                            <select asp-for="Activo" class="form-control select">
+                                <option value="true">Sí</option>
+                                <option value="false">No</option>
+                            </select>
+                            <span asp-validation-for="Activo" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <span class="icon">←</span> Volver al Listado
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="icon">💾</span> Registrar Potrero
+                    </button>
+                </div>
+            </form>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="text-danger" style="margin-top: 1rem; padding: 1rem; background-color: #f8d7da; border-radius: 8px;">
+                    <strong>Errores de validación:</strong>
+                    <ul style="margin: 0.5rem 0 0 1rem;">
+                        @foreach (var modelState in ViewData.ModelState)
+                        {
+                            foreach (var error in modelState.Value.Errors)
+                            {
+                                <li><strong>@modelState.Key</strong>: @error.ErrorMessage</li>
+                            }
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    </div>
+
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const form = document.getElementById('potreroForm');
+                const fincaSelect = document.getElementById('fincaSelect');
+
+                form.addEventListener('submit', function(e) {
+                    let isValid = true;
+                    let errorMessage = '';
+
+                    if (!fincaSelect.value) {
+                        isValid = false;
+                        errorMessage += '• Debe seleccionar una finca\n';
+                        fincaSelect.style.borderColor = 'var(--danger)';
+                    }
+
+                    if (!isValid) {
+                        e.preventDefault();
+                        alert('Por favor corrija los siguientes errores:\n\n' + errorMessage);
+                    }
+                });
+            });
+        </script>
+    }
+</body>
+</html>

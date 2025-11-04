@@ -1,0 +1,90 @@
+﻿@model AgroTechApp.Models.DB.Potrero
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eliminar Potrero</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            width: 420px;
+            text-align: center;
+            box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+        }
+
+        .info-box {
+            background: #ffdddd;
+            border-left: 5px solid #ff4d4d;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        button {
+            padding: 10px 18px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .btn-delete {
+            background: #e63946;
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #bdbdbd;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Eliminar Potrero</h2>
+        <div class="info-box">
+            ⚠️ ¿Está seguro que desea eliminar este potrero? <br>
+            Esta acción no se puede deshacer.
+        </div>
+
+        <p><strong>Nombre del Potrero:</strong> <span id="nombrePotrero">Potrero Norte</span></p>
+        <p><strong>Área:</strong> <span id="areaPotrero">5 hectáreas</span></p>
+
+        <button class="btn-delete" onclick="eliminarPotrero()">Eliminar</button>
+        <button class="btn-cancel" onclick="cancelar()">Cancelar</button>
+    </div>
+
+    <script>
+        function eliminarPotrero() {
+            alert("✅ Potrero eliminado correctamente.");
+            window.location.href = "index_potreros.html"; // Cambiar según ruta real
+        }
+        function cancelar() {
+            window.location.href = "index_potreros.html"; // Cambiar según ruta real
+        }
+    </script>
+</body>
+</html>

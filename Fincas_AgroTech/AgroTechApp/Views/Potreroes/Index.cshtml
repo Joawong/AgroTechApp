@@ -1,0 +1,576 @@
+﻿@model IEnumerable<AgroTechApp.Models.DB.Potrero>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Potreros - Panel Interactivo</title>
+    <meta name="description" content="Gestión de potreros, animales y pesajes - interfaz interactiva" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f4f7fb;
+            --card: #fff;
+            --muted: #6b7280;
+            --accent: #2E8B57;
+            --accent-2: #06b6d4;
+            --danger: #dc2626;
+            --glass: rgba(255,255,255,0.6);
+            --shadow: 0 8px 30px rgba(20,30,50,0.06)
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        html, body {
+            height: 100%
+        }
+
+        body {
+            font-family: Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+            margin: 0;
+            background: linear-gradient(180deg,var(--bg),#e9eef6);
+            color: #0b1220
+        }
+
+        .wrap {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 16px
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+
+        .logo {
+            width: 56px;
+            height: 56px;
+            border-radius: 10px;
+            background: linear-gradient(135deg,var(--accent),var(--accent-2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700
+        }
+
+        h1 {
+            font-size: 1.25rem;
+            margin: 0
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 0.95rem
+        }
+
+        nav {
+            display: flex;
+            gap: 8px
+        }
+
+            nav button {
+                background: transparent;
+                border: 2px solid transparent;
+                padding: 8px 10px;
+                border-radius: 8px;
+                cursor: pointer
+            }
+
+                nav button.active {
+                    background: var(--accent);
+                    color: white;
+                    border-color: transparent
+                }
+
+        main {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 18px;
+            margin-top: 18px
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 14px;
+            box-shadow: var(--shadow)
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 12px
+        }
+
+        /* Dashboard */
+        .metrics {
+            display: flex;
+            gap: 12px
+        }
+
+        .metric {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            background: linear-gradient(180deg,#fff,#fbfdfc);
+            box-shadow: 0 6px 18px rgba(15,23,42,0.04)
+        }
+
+            .metric h3 {
+                margin: 0;
+                font-size: 1.4rem
+            }
+
+            .metric p {
+                margin: 4px 0 0;
+                color: var(--muted);
+                font-size: 0.9rem
+            }
+
+        /* tables */
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #eef3f7;
+            text-align: left
+        }
+
+        th {
+            background: #fbfdfe;
+            font-weight: 600
+        }
+
+        .tiny {
+            font-size: 0.85rem;
+            color: var(--muted)
+        }
+
+        /* forms */
+        .form-row {
+            display: flex;
+            gap: 8px
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #e6eef6;
+            border-radius: 8px
+        }
+
+        .btn {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 0;
+            cursor: pointer
+        }
+
+            .btn.primary {
+                background: var(--accent);
+                color: white
+            }
+
+            .btn.ghost {
+                background: transparent;
+                border: 1px solid #e6eef6
+            }
+
+            .btn.warn {
+                background: #f59e0b;
+                color: white
+            }
+
+        /* sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 12px
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        /* responsive */
+        @@media (max-width:1000px) {
+            main
+
+        {
+            grid-template-columns: 1fr
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(2,1fr)
+        }
+
+        }
+        @@media (max-width:600px) {
+            .grid-3
+
+        {
+            grid-template-columns: 1fr
+        }
+
+        header {
+            flex-direction: column;
+            align-items: flex-start
+        }
+
+        }
+
+        /* small helpers */
+        .muted {
+            color: var(--muted);
+            font-size: 0.9rem
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-weight: 600
+        }
+
+            .badge.green {
+                background: rgba(34,197,94,0.12);
+                color: #16a34a
+            }
+
+            .badge.red {
+                background: rgba(220,38,38,0.08);
+                color: var(--danger)
+            }
+
+        .table-actions {
+            display: flex;
+            gap: 8px
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <header>
+            <div class="brand">
+                <div class="logo">PN</div>
+                <div>
+                    <h1>Potreros - Panel de Gestión</h1>
+                    <div class="subtitle">Administra potreros, asigna animales y registra pesajes</div>
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+                <nav aria-label="Navegación principal">
+                    <button id="nav-dashboard" class="active" onclick="show('dashboard')">Inicio</button>
+                    <button id="nav-potreros" onclick="show('potreros')">Potreros</button>
+                    <button id="nav-animales" onclick="show('animales')">Animales</button>
+                    <button id="nav-pesajes" onclick="show('pesajes')">Pesajes</button>
+                </nav>
+                <button class="btn ghost" id="exportAllBtn">Exportar todo</button>
+            </div>
+        </header>
+
+        <main>
+            <!-- Left: contenido principal -->
+            <section>
+                <!-- DASHBOARD -->
+                <div id="dashboard" class="card">
+                    <div class="metrics">
+                        <div class="metric">
+                            <h3 id="totalPotreros">0</h3>
+                            <p>Potreros</p>
+                        </div>
+                        <div class="metric">
+                            <h3 id="totalAnimales">0</h3>
+                            <p>Animales</p>
+                        </div>
+                        <div class="metric">
+                            <h3 id="totalPesajes">0</h3>
+                            <p>Pesajes registrados</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top:12px" class="grid-3">
+                        <div class="card">
+                            <h4 style="margin:0 0 8px">Crear Potrero</h4>
+                            <form id="formPotrero" onsubmit="return addPotrero(event)">
+                                <div class="form-row">
+                                    <input id="potreroNombre" placeholder="Nombre del potrero" required />
+                                    <input id="potreroArea" placeholder="Área (ha)" type="number" step="0.01" />
+                                </div>
+                                <div style="margin-top:8px" class="form-row">
+                                    <input id="potreroUbicacion" placeholder="Ubicación / Referencia" />
+                                </div>
+                                <div style="margin-top:8px;display:flex;gap:8px">
+                                    <button class="btn primary" type="submit">Agregar</button>
+                                    <button class="btn ghost" type="button" onclick="clearPotreroForm()">Limpiar</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="card">
+                            <h4 style="margin:0 0 8px">Panel rápido</h4>
+                            <p class="muted">Selecciona un potrero para ver detalle, animales asignados y pesajes.</p>
+                            <div style="margin-top:8px">
+                                <select id="quickSelectPotrero"></select>
+                                <div style="margin-top:8px;display:flex;gap:8px">
+                                    <button class="btn primary" onclick="openPotreroDetail()">Abrir</button>
+                                    <button class="btn ghost" onclick="exportCSV('potreros')">Exportar</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h4 style="margin:0 0 8px">Indicadores</h4>
+                            <p class="muted">Peso promedio por potrero y última medición.</p>
+                            <div id="indicadores" style="margin-top:8px"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- POTREROS LIST -->
+                <div id="potreros" class="card" style="display:none;margin-top:14px">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                        <h3 style="margin:0">Lista de Potreros</h3>
+                        <div class="table-actions">
+                            <input id="searchPotrero" placeholder="Buscar potrero..." oninput="renderPotrerosTable()" />
+                            <button class="btn ghost" onclick="renderPotrerosTable()">Buscar</button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr><th>#</th><th>Nombre</th><th>Área (ha)</th><th>Ubicación</th><th>Animales</th><th>Acciones</th></tr>
+                            </thead>
+                            <tbody id="tablaPotreros"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ANIMALES -->
+                <div id="animales" class="card" style="display:none;margin-top:14px">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                        <h3 style="margin:0">Animales</h3>
+                        <div style="display:flex;gap:8px">
+                            <button class="btn primary" onclick="showAssignForm()">Asignar a potrero</button>
+                            <button class="btn ghost" onclick="renderAnimalesTable()">Refrescar</button>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom:12px" id="assignForm" style="display:none">
+                        <div style="display:flex;gap:8px">
+                            <input id="animalNombre" placeholder="Nombre o código" />
+                            <select id="assignPotrero"></select>
+                            <button class="btn primary" onclick="assignAnimal()">Asignar</button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>#</th><th>Nombre / Código</th><th>Potrero</th><th>Último peso</th><th>Acciones</th></tr></thead>
+                            <tbody id="tablaAnimales"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- PESAJES -->
+                <div id="pesajes" class="card" style="display:none;margin-top:14px">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                        <h3 style="margin:0">Pesajes</h3>
+                        <div style="display:flex;gap:8px">
+                            <button class="btn primary" onclick="showPesajeForm()">Nuevo Pesaje</button>
+                            <button class="btn ghost" onclick="renderPesajesTable()">Refrescar</button>
+                        </div>
+                    </div>
+
+                    <div id="pesajeForm" style="display:none;margin-bottom:12px">
+                        <div style="display:flex;gap:8px">
+                            <select id="pesajeAnimalSelect"></select>
+                            <input id="pesoInput" placeholder="Peso (kg)" type="number" step="0.1" />
+                            <input id="fechaPesaje" type="date" />
+                            <button class="btn primary" onclick="addPesaje()">Guardar</button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>Fecha</th><th>Animal</th><th>Potrero</th><th>Peso (kg)</th><th>Acciones</th></tr></thead>
+                            <tbody id="tablaPesajes"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- Right: sidebar -->
+            <aside class="sidebar">
+                <div class="card">
+                    <h4 style="margin:0 0 8px">Filtros rápidos</h4>
+                    <div class="filter-group">
+                        <label for="filterPotrero">Potrero</label>
+                        <select id="filterPotrero" onchange="applyFilters()"></select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="filterEstado">Estado peso</label>
+                        <select id="filterEstado" onchange="applyFilters()">
+                            <option value="">Todos</option>
+                            <option value="gain">Gana peso</option>
+                            <option value="loss">Pierde peso</option>
+                        </select>
+                    </div>
+                    <div style="margin-top:8px;display:flex;gap:8px">
+                        <button class="btn primary" onclick="applyFilters()">Aplicar</button>
+                        <button class="btn ghost" onclick="resetFilters()">Reset</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h4 style="margin:0 0 8px">Actividad reciente</h4>
+                    <div id="recentActivity" class="tiny muted">Sin actividad</div>
+                </div>
+
+                <div class="card">
+                    <h4 style="margin:0 0 8px">Ayuda</h4>
+                    <div class="tiny muted">Los datos se guardan localmente. Para producción integra una API/DB. Puedo ayudarte a convertir esto a Razor/ASP.NET si lo deseas.</div>
+                </div>
+            </aside>
+        </main>
+
+        <footer style="text-align:center;margin-top:18px;color:var(--muted)">Potreros - Panel interactivo • Creado: <span id="createdAt"></span></footer>
+    </div>
+
+    <script>
+        // LocalStorage keys
+        const KEYS = { POTREROS: 'potreros_v1', ANIMALES: 'potreros_animales_v1', PESAJES: 'potreros_pesajes_v1' };
+
+        // util
+        const uid = ()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+        const escapeHtml = s=>s?String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[m])):'';
+
+        // init
+        document.addEventListener('DOMContentLoaded', ()=>{
+          if(!localStorage.getItem(KEYS.POTREROS)) localStorage.setItem(KEYS.POTREROS, JSON.stringify([]));
+          if(!localStorage.getItem(KEYS.ANIMALES)) localStorage.setItem(KEYS.ANIMALES, JSON.stringify([]));
+          if(!localStorage.getItem(KEYS.PESAJES)) localStorage.setItem(KEYS.PESAJES, JSON.stringify([]));
+          document.getElementById('createdAt').textContent = new Date().toLocaleString();
+          loadAll();
+          bindUI();
+        });
+
+        function loadAll(){ renderCounts(); renderPotrerosTable(); renderAnimalesTable(); renderPesajesTable(); populateSelects(); updateRecent('Cargado'); }
+
+        function bindUI(){
+          document.getElementById('exportAllBtn').addEventListener('click', ()=>exportAll());
+        }
+
+        // show sections
+        function show(id){ ['dashboard','potreros','animales','pesajes'].forEach(s=>document.getElementById(s).style.display=(s===id|| (s==='dashboard'&&id==='dashboard'))? 'block':'none');
+          // nav active
+          ['nav-dashboard','nav-potreros','nav-animales','nav-pesajes'].forEach(n=>document.getElementById(n).classList.remove('active'));
+          document.getElementById('nav-'+id).classList.add('active');
+          if(id==='potreros') renderPotrerosTable(); if(id==='animales') renderAnimalesTable(); if(id==='pesajes') renderPesajesTable();
+        }
+
+        // POTREROS
+        function getPotreros(){return JSON.parse(localStorage.getItem(KEYS.POTREROS)||'[]')}
+        function savePotreros(a){localStorage.setItem(KEYS.POTREROS, JSON.stringify(a))}
+
+        function addPotrero(e){ e.preventDefault(); const nombre=document.getElementById('potreroNombre').value.trim(); if(!nombre) return alert('Nombre requerido'); const area=parseFloat(document.getElementById('potreroArea').value)||0; const ubi=document.getElementById('potreroUbicacion').value.trim(); const arr=getPotreros(); const nuevo={id:uid(),nombre,area,ubi,created:new Date().toISOString()}; arr.push(nuevo); savePotreros(arr); clearPotreroForm(); renderPotrerosTable(); populateSelects(); renderCounts(); updateRecent('Nuevo potrero: '+nombre); return false }
+        function clearPotreroForm(){ document.getElementById('formPotrero').reset(); }
+
+        function renderPotrerosTable(){ const q=document.getElementById('searchPotrero')?document.getElementById('searchPotrero').value.trim().toLowerCase():''; const tbody=document.getElementById('tablaPotreros'); tbody.innerHTML=''; const potreros=getPotreros(); potreros.filter(p=>!q||p.nombre.toLowerCase().includes(q)|| (p.ubi||'').toLowerCase().includes(q)).forEach((p,i)=>{
+          const animales=getAnimales().filter(a=>a.potreroId===p.id); const tr=document.createElement('tr'); tr.innerHTML=`<td>${i+1}</td><td>${escapeHtml(p.nombre)}</td><td>${p.area||''}</td><td>${escapeHtml(p.ubi)}</td><td>${animales.length}</td><td><div style="display:flex;gap:6px"><button class="btn ghost" onclick="openPotrero('${p.id}')">Ver</button><button class="btn" onclick="editPotrero('${p.id}')">Editar</button><button class="btn" style="background:var(--danger);color:#fff" onclick="deletePotrero('${p.id}')">Eliminar</button></div></td>`; tbody.appendChild(tr);
+        }); }
+
+        function openPotrero(id){ const p=getPotreros().find(x=>x.id===id); if(!p) return alert('Potrero no encontrado'); show('potreros'); alert(`Potrero: ${p.nombre}\nÁrea: ${p.area} ha\nUbicación: ${p.ubi}`) }
+        function openPotreroDetail(){ const sel=document.getElementById('quickSelectPotrero'); if(!sel.value) return alert('Selecciona un potrero'); openPotrero(sel.value) }
+
+        function editPotrero(id){ const p=getPotreros().find(x=>x.id===id); if(!p) return; const nuevo=prompt('Cambiar nombre del potrero', p.nombre); if(nuevo){ p.nombre=nuevo; savePotreros(getPotreros().map(x=>x.id===id?p:x)); renderPotrerosTable(); populateSelects(); updateRecent('Editó potrero: '+nuevo) } }
+        function deletePotrero(id){ if(!confirm('Eliminar potrero? (se conservarán animales sin potrero)')) return; const potreros=getPotreros().filter(x=>x.id!==id); savePotreros(potreros); // quitar asignación
+          const animales=getAnimales().map(a=> a.potreroId===id? {...a,potreroId:''}:a); saveAnimales(animales); renderPotrerosTable(); renderAnimalesTable(); populateSelects(); renderCounts(); updateRecent('Eliminó potrero') }
+
+        // ANIMALES
+        function getAnimales(){return JSON.parse(localStorage.getItem(KEYS.ANIMALES)||'[]')}
+        function saveAnimales(a){localStorage.setItem(KEYS.ANIMALES, JSON.stringify(a))}
+
+        function showAssignForm(){ const div=document.getElementById('assignForm'); div.style.display = (div.style.display==='block')? 'none':'block'; populateSelects(); }
+        function assignAnimal(){ const nombre=document.getElementById('animalNombre').value.trim(); const potreroId=document.getElementById('assignPotrero').value; if(!nombre) return alert('Nombre o código requerido'); const arr=getAnimales(); const nuevo={id:uid(),nombre,potreroId,created:new Date().toISOString()}; arr.push(nuevo); saveAnimales(arr); document.getElementById('animalNombre').value=''; renderAnimalesTable(); renderPotrerosTable(); renderCounts(); updateRecent('Animal asignado: '+nombre); }
+
+        function renderAnimalesTable(){ const tbody=document.getElementById('tablaAnimales'); tbody.innerHTML=''; const animales=getAnimales(); animales.forEach((a,i)=>{ const pot=getPotreros().find(p=>p.id===a.potreroId); const last=getLastPesajeByAnimal(a.id); const tr=document.createElement('tr'); tr.innerHTML=`<td>${i+1}</td><td>${escapeHtml(a.nombre)}</td><td>${pot?escapeHtml(pot.nombre):'<span class="tiny muted">Sin potrero</span>'}</td><td>${last?last.peso+' kg':'—'}</td><td><div style="display:flex;gap:6px"><button class="btn ghost" onclick="viewAnimal('${a.id}')">Ver</button><button class="btn" onclick="removeAnimal('${a.id}')">Eliminar</button></div></td>`; tbody.appendChild(tr); }); populateSelects(); }
+
+        function viewAnimal(id){ const a=getAnimales().find(x=>x.id===id); if(!a) return; alert(`Animal: ${a.nombre}\nPotrero: ${ (getPotreros().find(p=>p.id===a.potreroId)||{}).nombre || '—' }`); }
+        function removeAnimal(id){ if(!confirm('Eliminar animal?')) return; saveAnimales(getAnimales().filter(x=>x.id!==id)); renderAnimalesTable(); renderPotrerosTable(); renderCounts(); updateRecent('Eliminó animal') }
+
+        // PESAJES
+        function getPesajes(){return JSON.parse(localStorage.getItem(KEYS.PESAJES)||'[]')}
+        function savePesajes(a){localStorage.setItem(KEYS.PESAJES, JSON.stringify(a))}
+
+        function showPesajeForm(){ const el=document.getElementById('pesajeForm'); el.style.display = (el.style.display==='block')? 'none':'block'; populateSelects(); }
+        function populateSelects(){ // potrero quickselect + filters
+          const ps=getPotreros(); const qs=document.getElementById('quickSelectPotrero'); if(qs){ qs.innerHTML=''; const opt=document.createElement('option'); opt.value=''; opt.text='— Seleccionar —'; qs.add(opt); ps.forEach(p=>{ const o=document.createElement('option'); o.value=p.id; o.text=p.nombre; qs.add(o)}); }
+          const fp=document.getElementById('filterPotrero'); if(fp){ fp.innerHTML=''; const opt2=document.createElement('option'); opt2.value=''; opt2.text='Todos'; fp.add(opt2); ps.forEach(p=>{ const o=document.createElement('option'); o.value=p.id; o.text=p.nombre; fp.add(o) }); }
+          const ap=document.getElementById('assignPotrero'); if(ap){ ap.innerHTML=''; const def=document.createElement('option'); def.value=''; def.text='— Sin potrero —'; ap.add(def); ps.forEach(p=>{ const o=document.createElement('option'); o.value=p.id; o.text=p.nombre; ap.add(o) }); }
+          const aan=document.getElementById('pesajeAnimalSelect'); if(aan){ aan.innerHTML=''; const animals=getAnimales(); const def2=document.createElement('option'); def2.value=''; def2.text='— Seleccionar animal —'; aan.add(def2); animals.forEach(a=>{ const o=document.createElement('option'); o.value=a.id; o.text=a.nombre + (a.potreroId? ' — ' + ((getPotreros().find(p=>p.id===a.potreroId)||{}).nombre||'') : ''); aan.add(o) }); }
+        }
+
+        function addPesaje(){ const aid=document.getElementById('pesajeAnimalSelect').value; const peso=document.getElementById('pesoInput').value; const fecha=document.getElementById('fechaPesaje').value || new Date().toISOString().slice(0,10); if(!aid||!peso) return alert('Selecciona animal y peso'); const arr=getPesajes(); const nuevo={id:uid(),animalId:aid,peso:parseFloat(peso),fecha:fecha}; arr.push(nuevo); savePesajes(arr); document.getElementById('pesoInput').value=''; renderPesajesTable(); renderAnimalesTable(); renderCounts(); updateRecent('Nuevo pesaje'); }
+
+        function renderPesajesTable(){ const tbody=document.getElementById('tablaPesajes'); tbody.innerHTML=''; const pes=getPesajes().slice().sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)); pes.forEach(p=>{ const an=getAnimales().find(a=>a.id===p.animalId) || {}; const pot=getPotreros().find(x=>x.id===an.potreroId) || {}; const tr=document.createElement('tr'); tr.innerHTML=`<td>${new Date(p.fecha).toLocaleDateString()}</td><td>${escapeHtml(an.nombre||'—')}</td><td>${escapeHtml(pot.nombre||'—')}</td><td>${p.peso.toFixed(1)}</td><td><div style="display:flex;gap:6px"><button class="btn ghost" onclick="viewPesaje('${p.id}')">Ver</button><button class="btn" onclick="deletePesaje('${p.id}')">Eliminar</button></div></td>`; tbody.appendChild(tr); }); }
+
+        function viewPesaje(id){ const p=getPesajes().find(x=>x.id===id); if(!p) return; const an=getAnimales().find(a=>a.id===p.animalId) || {}; alert(`Pesaje\nAnimal: ${an.nombre||'—'}\nPeso: ${p.peso} kg\nFecha: ${new Date(p.fecha).toLocaleString()}`) }
+        function deletePesaje(id){ if(!confirm('Eliminar pesaje?')) return; savePesajes(getPesajes().filter(x=>x.id!==id)); renderPesajesTable(); renderCounts(); updateRecent('Eliminó pesaje') }
+
+        function getLastPesajeByAnimal(animalId){ const ps=getPesajes().filter(p=>p.animalId===animalId); if(!ps.length) return null; const last = ps.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha))[0]; return last }
+
+        // filters
+        function applyFilters(){ const potId=document.getElementById('filterPotrero').value; const estado=document.getElementById('filterEstado').value; // simple: filter pesajes
+          let pes=getPesajes(); if(potId){ const animales=getAnimales().filter(a=>a.potreroId===potId).map(a=>a.id); pes=pes.filter(p=>animales.includes(p.animalId)); }
+          if(estado){ // compare last two pesajes to determine gain/loss
+            pes = pes.filter(p=>{ const all = getPesajes().filter(x=>x.animalId===p.animalId).sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)); if(all.length<2) return true; const last=all[0].peso; const prev=all[1].peso; return estado==='gain'? last>prev : last<prev; }); }
+          // display filtered
+          const tbody=document.getElementById('tablaPesajes'); tbody.innerHTML=''; pes.slice().sort((a,b)=>new Date(b.fecha)-new Date(a.fecha)).forEach(p=>{ const an=getAnimales().find(a=>a.id===p.animalId)||{}; const pot=getPotreros().find(x=>x.id===an.potreroId)||{}; const tr=document.createElement('tr'); tr.innerHTML=`<td>${new Date(p.fecha).toLocaleDateString()}</td><td>${escapeHtml(an.nombre||'—')}</td><td>${escapeHtml(pot.nombre||'—')}</td><td>${p.peso.toFixed(1)}</td><td><div style="display:flex;gap:6px"><button class="btn ghost" onclick="viewPesaje('${p.id}')">Ver</button></div></td>`; tbody.appendChild(tr); }); }
+        function resetFilters(){ document.getElementById('filterPotrero').value=''; document.getElementById('filterEstado').value=''; renderPesajesTable(); }
+
+        // counts & indicators
+        function renderCounts(){ document.getElementById('totalPotreros').textContent = getPotreros().length; document.getElementById('totalAnimales').textContent = getAnimales().length; document.getElementById('totalPesajes').textContent = getPesajes().length; renderIndicadores(); }
+        function renderIndicadores(){ const potreros=getPotreros(); const cont=document.getElementById('indicadores'); cont.innerHTML=''; potreros.forEach(p=>{ const animales=getAnimales().filter(a=>a.potreroId===p.id).map(a=>a.id); const pes = getPesajes().filter(x=>animales.includes(x.animalId)); const avg = pes.length? (pes.reduce((s,x)=>s+x.peso,0)/pes.length).toFixed(1):'—'; const last = pes.length? pes.sort((a,b)=>new Date(b.fecha)-new Date(a.fecha))[0].peso.toFixed(1):'—'; const el = document.createElement('div'); el.innerHTML = `<strong>${escapeHtml(p.nombre)}</strong> <div class="tiny muted">Prom: ${avg} kg • Últ: ${last} kg</div>`; el.style.marginBottom='8px'; cont.appendChild(el); }); }
+
+        // export / import
+        function rowsToCSV(rows){ return rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n'); }
+        function exportCSV(kind){ if(kind==='potreros'){ const rows=[['id','nombre','area','ubi','created'], ...getPotreros().map(p=>[p.id,p.nombre,p.area,p.ubi,p.created])]; downloadBlob(rowsToCSV(rows), 'potreros.csv'); }
+          if(kind==='animales'){ const rows=[['id','nombre','potreroId','created'], ...getAnimales().map(a=>[a.id,a.nombre,a.potreroId,a.created])]; downloadBlob(rowsToCSV(rows),'animales.csv'); }
+          if(kind==='pesajes'){ const rows=[['id','animalId','peso','fecha'], ...getPesajes().map(p=>[p.id,p.animalId,p.peso,p.fecha])]; downloadBlob(rowsToCSV(rows),'pesajes.csv'); }
+        }
+        function exportAll(){ exportCSV('potreros'); exportCSV('animales'); exportCSV('pesajes'); updateRecent('Exportó datos'); }
+        function downloadBlob(text, filename){ const b=new Blob([text],{type:'text/csv'}); const url=URL.createObjectURL(b); const a=document.createElement('a'); a.href=url; a.download=filename; a.click(); URL.revokeObjectURL(url); }
+
+        // utilities
+        function updateRecent(msg){ const d=document.getElementById('recentActivity'); d.textContent = `${msg} • ${new Date().toLocaleString()}`; }
+
+    </script>
+</body>
+</html>

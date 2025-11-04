@@ -1,0 +1,139 @@
+﻿@model AgroTechApp.Models.DB.Finca
+
+
+
+@{
+    ViewData["Title"] = "Editar Finca";
+    var primaryColor = "#2E8B57";
+    var secondaryColor = "#F4A460";
+    var lightColor = "#f8f9fa";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Finca</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 450px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 12px;
+            width: 48%;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn-save {
+            background: #2a9d8f;
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #bdbdbd;
+            color: black;
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+            .checkbox-container input {
+                width: auto;
+                margin-right: 10px;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Editar Finca</h2>
+        <form onsubmit="guardarCambios(event)">
+            <label>Nombre de la Finca:</label>
+            <input type="text" id="nombreFinca" value="Finca La Esperanza" required>
+
+            <label>Ubicación:</label>
+            <input type="text" id="ubicacionFinca" value="Vereda San José, Municipio de Santander">
+
+            <div class="checkbox-container">
+                <input type="checkbox" id="activaFinca" checked>
+                <label for="activaFinca">Finca activa</label>
+            </div>
+
+            <div class="form-row">
+                <button type="submit" class="btn-save">Guardar</button>
+                <button type="button" class="btn-cancel" onclick="cancelar()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function guardarCambios(event) {
+            event.preventDefault();
+
+            // Obtener valores del formulario
+            const nombre = document.getElementById('nombreFinca').value;
+            const ubicacion = document.getElementById('ubicacionFinca').value;
+            const activa = document.getElementById('activaFinca').checked;
+
+            // Aquí iría la lógica para enviar los datos al servidor
+            console.log({
+                nombre: nombre,
+                ubicacion: ubicacion,
+                activa: activa
+            });
+
+            alert("✅ Cambios guardados correctamente.");
+            window.location.href = "index_fincas.html"; // Cambiar a ruta real
+        }
+
+        function cancelar() {
+            window.location.href = "index_fincas.html"; // Cambiar a ruta real
+        }
+    </script>
+</body>
+</html>

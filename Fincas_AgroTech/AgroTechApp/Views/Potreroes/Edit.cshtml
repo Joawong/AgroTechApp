@@ -1,0 +1,115 @@
+﻿@model AgroTechApp.Models.DB.Potrero
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Potrero</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 450px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 12px;
+            width: 48%;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .btn-save {
+            background: #2a9d8f;
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #bdbdbd;
+            color: black;
+        }
+
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Editar Potrero</h2>
+        <form onsubmit="guardarCambios(event)">
+            <label>Nombre del Potrero:</label>
+            <input type="text" id="nombrePotrero" value="Potrero Norte" required>
+
+            <label>Área (hectáreas):</label>
+            <input type="number" id="areaPotrero" value="5" min="1" step="0.1" required>
+
+            <label>Estado:</label>
+            <select id="estadoPotrero">
+                <option value="Disponible">Disponible</option>
+                <option value="En uso">En uso</option>
+                <option value="En descanso">En descanso</option>
+            </select>
+
+            <label>Descripción:</label>
+            <textarea id="descripcionPotrero" rows="4">Potrero para ganado lechero</textarea>
+
+            <div class="form-row">
+                <button type="submit" class="btn-save">Guardar</button>
+                <button type="button" class="btn-cancel" onclick="cancelar()">Cancelar</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function guardarCambios(event) {
+            event.preventDefault();
+            alert("✅ Cambios guardados correctamente.");
+            window.location.href = "index_potreros.html"; // Cambiar a ruta real
+        }
+
+        function cancelar() {
+            window.location.href = "index_potreros.html"; // Cambiar a ruta real
+        }
+    </script>
+</body>
+</html>

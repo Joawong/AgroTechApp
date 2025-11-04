@@ -1,0 +1,335 @@
+﻿@model AgroTechApp.Models.DB.Finca
+
+@{
+    ViewData["Title"] = "Registrar Nueva Finca";
+    var primaryColor = "#2E8B57";
+    var secondaryColor = "#F4A460";
+    var lightColor = "#f8f9fa";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <style>
+        :root {
+            --primary: @primaryColor;
+            --secondary: @secondaryColor;
+            --light: @lightColor;
+            --dark: #333;
+            --success: #28a745;
+            --danger: #dc3545;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .create-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .create-header {
+            background: linear-gradient(135deg, var(--primary), #3CB371);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+            .create-header h1 {
+                margin: 0;
+                font-size: 2.2rem;
+                font-weight: 600;
+            }
+
+            .create-header p {
+                margin: 0.5rem 0 0;
+                opacity: 0.9;
+                font-size: 1.1rem;
+            }
+
+        .create-body {
+            padding: 2rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-section {
+            background: var(--light);
+            padding: 1.5rem;
+            border-radius: 10px;
+            border-left: 4px solid var(--primary);
+        }
+
+            .form-section h3 {
+                color: var(--primary);
+                margin-top: 0;
+                margin-bottom: 1rem;
+                font-size: 1.2rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background-color: white;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+            }
+
+        .text-danger {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 0.25rem;
+            display: block;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e1e5e9;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background-color: #26734d;
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
+            }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+            .btn-secondary:hover {
+                background-color: #5a6268;
+                transform: translateY(-2px);
+            }
+
+        .icon {
+            font-size: 1.2rem;
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .create-header {
+                padding: 1.5rem;
+            }
+
+                .create-header h1 {
+                    font-size: 1.8rem;
+                }
+
+            .create-body {
+                padding: 1.5rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .create-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .create-body {
+                padding: 1rem;
+            }
+
+            .form-section {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="create-container">
+        <div class="create-header">
+            <h1>🏡 Registrar Nueva Finca</h1>
+            <p>Ingrese los datos de la finca en el sistema</p>
+        </div>
+
+        <div class="create-body">
+            <form asp-action="Create" id="fincaForm">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="form-grid">
+                    <!-- Información de la Finca -->
+                    <div class="form-section">
+                        <h3>📍 Información General</h3>
+
+                        <div class="form-group">
+                            <label asp-for="Nombre" class="form-label">🏷️ Nombre de la Finca</label>
+                            <input asp-for="Nombre" type="text" class="form-control" placeholder="Ingrese el nombre de la finca" />
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Ubicacion" class="form-label">📌 Ubicación</label>
+                            <input asp-for="Ubicacion" type="text" class="form-control" placeholder="Ingrese la ubicación de la finca" />
+                            <span asp-validation-for="Ubicacion" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Activa" class="form-label">✅ Activa</label>
+                            <select asp-for="Activa" class="form-control select">
+                                <option value="">-- Seleccione estado --</option>
+                                <option value="true">Sí</option>
+                                <option value="false">No</option>
+                            </select>
+                            <span asp-validation-for="Activa" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <span class="icon">←</span> Volver al Listado
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="icon">💾</span> Registrar Finca
+                    </button>
+                </div>
+            </form>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="text-danger" style="margin-top: 1rem; padding: 1rem; background-color: #f8d7da; border-radius: 8px;">
+                    <strong>Errores de validación:</strong>
+                    <ul style="margin: 0.5rem 0 0 1rem;">
+                        @foreach (var modelState in ViewData.ModelState)
+                        {
+                            foreach (var error in modelState.Value.Errors)
+                            {
+                                <li><strong>@modelState.Key</strong>: @error.ErrorMessage</li>
+                            }
+                        }
+                    </ul>
+                </div>
+            }
+        </div>
+    </div>
+
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const nombreInput = document.getElementById('Nombre');
+                const form = document.getElementById('fincaForm');
+
+                // Validación en tiempo real
+                if (nombreInput) {
+                    nombreInput.addEventListener('input', function() {
+                        if (this.value.trim() === '') {
+                            this.style.borderColor = 'var(--danger)';
+                        } else {
+                            this.style.borderColor = '';
+                        }
+                    });
+                }
+
+                // Validación antes del envío
+                form.addEventListener('submit', function(e) {
+                    let isValid = true;
+                    let errorMessage = '';
+
+                    if (!nombreInput.value.trim()) {
+                        isValid = false;
+                        errorMessage += '• El nombre de la finca es requerido\n';
+                        nombreInput.style.borderColor = 'var(--danger)';
+                    }
+
+                    if (!isValid) {
+                        e.preventDefault();
+                        alert('Por favor corrija los siguientes errores:\n\n' + errorMessage);
+                    }
+                });
+            });
+        </script>
+    }
+</body>
+</html>

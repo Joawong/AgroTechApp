@@ -1,0 +1,345 @@
+﻿@model AgroTechApp.Models.DB.Finca
+
+@{
+    ViewData["Title"] = "Detalles de Finca";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles de Finca Interactiva</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary: #2E8B57;
+            --secondary: #3CB371;
+            --accent: #A9DFBF;
+            --success: #28a745;
+            --warning: #f59e0b;
+            --danger: #dc3545;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+        }
+
+        body {
+            background: linear-gradient(135deg, #c3e6cb 0%, #eafaf1 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--dark);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        header {
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            color: white;
+            padding: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header-content p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .back-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            transform: translateX(-5px);
+        }
+
+        .content {
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .item-header {
+            display: flex;
+            padding: 25px;
+            background-color: var(--light);
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .item-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 20px;
+            color: white;
+            font-size: 32px;
+        }
+
+        .item-title {
+            flex: 1;
+        }
+
+        .item-title h2 {
+            font-size: 24px;
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+
+        .item-title p {
+            color: var(--gray);
+            margin-bottom: 10px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-inactive {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .item-details {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 25px;
+            gap: 25px;
+        }
+
+        .detail-section {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: var(--primary);
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .detail-item {
+            margin-bottom: 15px;
+        }
+
+        .detail-label {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .actions-section {
+            padding: 25px;
+            background-color: var(--light);
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s;
+            border: none;
+        }
+
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover { background-color: var(--secondary); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 139, 87, 0.3); }
+        .btn-secondary { background-color: white; color: var(--dark); border: 1px solid #cbd5e1; }
+        .btn-secondary:hover { background-color: #f1f5f9; transform: translateY(-2px); }
+        .btn-danger { background-color: var(--danger); color: white; }
+        .btn-danger:hover { background-color: #dc2626; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3); }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--gray);
+            font-size: 14px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @@media (max-width: 768px) {
+            .item-header { flex-direction: column; }
+            .item-icon { margin-bottom: 15px; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .actions-section { flex-direction: column; align-items: flex-start; }
+            .action-buttons { width: 100%; }
+            .btn { flex: 1; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h1>Detalles de Finca</h1>
+                <p>Información completa y acciones disponibles</p>
+            </div>
+            <button class="back-btn">
+                <i class="fas fa-arrow-left"></i> Volver
+            </button>
+        </header>
+
+        <div class="content">
+            <div class="item-header">
+                <div class="item-icon">
+                    <i class="fas fa-tree"></i>
+                </div>
+                <div class="item-title">
+                    <h2>@Model.Nombre</h2>
+                    <p>@(string.IsNullOrEmpty(Model.Ubicacion) ? "Ubicación no definida" : Model.Ubicacion)</p>
+                    <span class="status-badge @(Model.Activa ? "status-active" : "status-inactive")">
+                        <i class="fas fa-circle"></i> @(Model.Activa ? "Activa" : "Inactiva")
+                    </span>
+                </div>
+            </div>
+
+            <div class="item-details">
+                <div class="detail-section">
+                    <div class="section-title">
+                        <i class="fas fa-info-circle"></i>
+                        Información General
+                    </div>
+                    <div class="detail-grid">
+                        <div class="detail-item">
+                            <div class="detail-label">ID de la Finca</div>
+                            <div class="detail-value">@Model.FincaId</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Nombre</div>
+                            <div class="detail-value">@Model.Nombre</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Ubicación</div>
+                            <div class="detail-value">@Model.Ubicacion ?? "No definida"</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Estado</div>
+                            <div class="detail-value">@((Model.Activa) ? "Activa" : "Inactiva")</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions-section">
+                <div class="action-buttons">
+                    <button class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Editar
+                    </button>
+                    <button class="btn btn-secondary">
+                        <i class="fas fa-copy"></i> Duplicar
+                    </button>
+                    <button class="btn btn-danger">
+                        <i class="fas fa-trash"></i> Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>Detalles de Finca Interactiva &copy; 2025</p>
+        </footer>
+    </div>
+
+    <script>
+        document.querySelector('.back-btn').addEventListener('click', () => {
+            window.history.back();
+        });
+
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const text = this.textContent.trim();
+                if(text.includes('Editar')) alert('Modo edición activado');
+                else if(text.includes('Duplicar')) alert('Elemento duplicado');
+                else if(text.includes('Eliminar') && confirm('¿Seguro que desea eliminar?')) alert('Elemento eliminado');
+            });
+        });
+    </script>
+</body>
+</html>

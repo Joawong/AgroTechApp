@@ -1,0 +1,98 @@
+﻿@model AgroTechApp.Models.DB.Potrero
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalles del Potrero</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f6fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            width: 400px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .detail-item {
+            margin-bottom: 15px;
+        }
+
+            .detail-item span {
+                font-weight: bold;
+            }
+
+        .btn-back {
+            display: block;
+            margin: 20px auto 0;
+            padding: 12px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            text-align: center;
+            text-decoration: none;
+        }
+
+            .btn-back:hover {
+                background: #2980b9;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Detalles del Potrero</h2>
+
+        <div class="detail-item">
+            <span>Nombre:</span> Potrero Norte
+        </div>
+        <div class="detail-item">
+            <span>Ubicación:</span> Sector A, Rancho Central
+        </div>
+        <div class="detail-item">
+            <span>Extensión:</span> 5 hectáreas
+        </div>
+        <div class="detail-item">
+            <span>Tipo de Pasto:</span> Bermuda Grass
+        </div>
+        <div class="detail-item">
+            <span>Estado:</span> Disponible
+        </div>
+        <div class="detail-item">
+            <span>Observaciones:</span> Potrero utilizado para ganado lechero.
+        </div>
+
+        <button class="btn-back" onclick="volver()">← Volver</button>
+    </div>
+
+    <script>
+        function volver() {
+            window.location.href = 'index_potreros.html'; // Cambiar según la ruta real
+        }
+    </script>
+</body>
+</html>
