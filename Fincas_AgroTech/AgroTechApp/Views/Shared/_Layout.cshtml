@@ -396,6 +396,18 @@
                                 <li><a class="dropdown-item" asp-controller="Insumos" asp-action="Create"><i class="fas fa-plus-circle me-2"></i>Nuevo Insumo</a></li>
                             </ul>
                         </li>
+
+                        <!-- Potreros -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark fw-semibold" href="#" id="potrerosDropdown"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-map-marked-alt me-1"></i>Potreros
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="potrerosDropdown">
+                                <li><a class="dropdown-item" asp-controller="Potreros" asp-action="Index"><i class="fas fa-list me-2"></i>Registro de Potreros</a></li>
+                                <li><a class="dropdown-item" asp-controller="Potreros" asp-action="Create"><i class="fas fa-plus-circle me-2"></i>Nuevo Potrero</a></li>
+                            </ul>
+                        </li>
                     </ul>
 
                     <partial name="_LoginPartial" />

@@ -1,0 +1,937 @@
+﻿@model AgroTechApp.Models.DB.Potrero
+
+@{
+    ViewData["Title"] = "Detalles del Potrero";
+}
+
+<div class="details-container">
+    <!-- Header -->
+    <div class="details-header">
+        <div class="header-background">
+            <div class="header-content">
+                <div class="header-icon">
+                    <i class="fas fa-map-marked-alt"></i>
+                </div>
+                <div class="header-text">
+                    <h1>Detalles del Potrero</h1>
+                    <p>Información completa del potrero agrícola</p>
+                </div>
+                <div class="header-badge">
+                    <span class="status-badge @(Model.Activo ? "active" : "inactive")">
+                        <i class="fas @(Model.Activo ? "fa-check-circle" : "fa-times-circle")"></i>
+                        @(Model.Activo ? "Activo" : "Inactivo")
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="details-content">
+        <!-- Información Principal -->
+        <div class="main-info-grid">
+            <!-- Tarjeta de Información Básica -->
+            <div class="info-card basic-info">
+                <div class="card-header">
+                    <i class="fas fa-info-circle"></i>
+                    <h3>Información Básica</h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-signature"></i>
+                        </div>
+                        <div class="info-content">
+                            <label>Nombre del Potrero</label>
+                            <span class="info-value">@Html.DisplayFor(model => model.Nombre)</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-fingerprint"></i>
+                        </div>
+                        <div class="info-content">
+                            <label>ID del Potrero</label>
+                            <span class="info-value">@Model.PotreroId</span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-calendar-alt"></i>
+                        </div>
+                        <div class="info-content">
+                            <label>Estado</label>
+                            <span class="info-value status-display @(Model.Activo ? "active" : "inactive")">
+                                <i class="fas @(Model.Activo ? "fa-check" : "fa-times")"></i>
+                                @(Model.Activo ? "Activo" : "Inactivo")
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta de Medidas -->
+            <div class="info-card measurements">
+                <div class="card-header">
+                    <i class="fas fa-ruler-combined"></i>
+                    <h3>Medidas y Dimensiones</h3>
+                </div>
+                <div class="card-body">
+                    <div class="measurement-display">
+                        <div class="measurement-icon">
+                            <i class="fas fa-ruler"></i>
+                        </div>
+                        <div class="measurement-content">
+                            <div class="measurement-value">@Html.DisplayFor(model => model.Hectareas)</div>
+                            <div class="measurement-label">Hectáreas</div>
+                        </div>
+                    </div>
+                    <div class="measurement-conversion">
+                        <div class="conversion-item">
+                            <span class="conversion-value">@(Model.Hectareas * 10000)m²</span>
+                            <span class="conversion-label">Metros cuadrados</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Información de Relación -->
+        <div class="relationship-info">
+            <div class="info-card finca-info">
+                <div class="card-header">
+                    <i class="fas fa-tractor"></i>
+                    <h3>Información de la Finca</h3>
+                </div>
+                <div class="card-body">
+                    <div class="finca-display">
+                        <div class="finca-icon">
+                            <i class="fas fa-farm"></i>
+                        </div>
+                        <div class="finca-content">
+                            <div class="finca-id">Finca #@Html.DisplayFor(model => model.Finca.FincaId)</div>
+                            <div class="finca-relationship">Este potrero pertenece a esta finca</div>
+                        </div>
+                    </div>
+                    <div class="finca-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-link"></i>
+                            <span>Relación establecida</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resumen Visual -->
+        <div class="visual-summary">
+            <div class="summary-card">
+                <div class="summary-header">
+                    <i class="fas fa-chart-pie"></i>
+                    <h3>Resumen Visual</h3>
+                </div>
+                <div class="summary-body">
+                    <div class="visualization">
+                        <div class="size-indicator">
+                            <div class="indicator-track">
+                                <div class="indicator-progress" style="width: @(Math.Min(Model.Hectareas * 10, 100))%"></div>
+                            </div>
+                            <div class="indicator-labels">
+                                <span>0 ha</span>
+                                <span>@(Math.Ceiling(Model.Hectareas)) ha</span>
+                                <span>10+ ha</span>
+                            </div>
+                        </div>
+                        <div class="visual-stats">
+                            <div class="visual-stat">
+                                <div class="stat-icon">
+                                    <i class="fas fa-expand-arrows-alt"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <div class="stat-value">@Model.Hectareas ha</div>
+                                    <div class="stat-label">Tamaño total</div>
+                                </div>
+                            </div>
+                            <div class="visual-stat">
+                                <div class="stat-icon">
+                                    <i class="fas fa-map"></i>
+                                </div>
+                                <div class="stat-info">
+                                    <div class="stat-value">1</div>
+                                    <div class="stat-label">Potrero único</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-section">
+        <div class="action-buttons">
+            <a asp-action="Edit" asp-route-id="@Model.PotreroId" class="btn btn-primary edit-btn">
+                <i class="fas fa-edit"></i>
+                Editar Potrero
+            </a>
+            <a asp-action="Index" class="btn btn-secondary back-btn">
+                <i class="fas fa-arrow-left"></i>
+                Volver al Listado
+            </a>
+            <a asp-action="Delete" asp-route-id="@Model.PotreroId" class="btn btn-danger delete-btn">
+                <i class="fas fa-trash"></i>
+                Eliminar
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="quick-stats">
+        <div class="stat-cards">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">Reciente</div>
+                    <div class="stat-label">Última actualización</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-database"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">Completo</div>
+                    <div class="stat-label">Registro de datos</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-check-double"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value">Verificado</div>
+                    <div class="stat-label">Estado del sistema</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animaciones de entrada
+            const cards = document.querySelectorAll('.info-card, .summary-card, .stat-card');
+            cards.forEach((card, index) => {
+                card.style.animationDelay = `${index * 0.1}s`;
+                card.classList.add('animate-in');
+            });
+
+            // Efectos hover en botones
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+
+                btn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Efecto de progreso animado
+            const progressBar = document.querySelector('.indicator-progress');
+            if (progressBar) {
+                setTimeout(() => {
+                    progressBar.style.transition = 'width 1.5s ease-in-out';
+                }, 500);
+            }
+
+            // Interactividad con las tarjetas
+            const infoCards = document.querySelectorAll('.info-card');
+            infoCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    this.style.transform = 'scale(1.02)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 150);
+                });
+            });
+
+            // Efecto de parpadeo para elementos importantes
+            const statusBadge = document.querySelector('.status-badge');
+            if (statusBadge) {
+                setTimeout(() => {
+                    statusBadge.style.boxShadow = '0 0 20px rgba(46, 139, 87, 0.5)';
+                    setTimeout(() => {
+                        statusBadge.style.boxShadow = 'none';
+                    }, 1000);
+                }, 1000);
+            }
+
+            // Mostrar tooltips en hover
+            const infoItems = document.querySelectorAll('.info-item');
+            infoItems.forEach(item => {
+                item.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = 'rgba(46, 139, 87, 0.05)';
+                });
+
+                item.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = 'transparent';
+                });
+            });
+        });
+    </script>
+}
+
+<style>
+    /* Variables */
+    :root {
+        --primary: #2E8B57;
+        --primary-dark: #26734d;
+        --primary-light: #3CB371;
+        --secondary: #6c757d;
+        --success: #28a745;
+        --danger: #dc3545;
+        --warning: #ffc107;
+        --info: #17a2b8;
+        --light: #f8f9fa;
+        --dark: #343a40;
+        --border: #e1e5e9;
+        --shadow: rgba(0, 0, 0, 0.1);
+        --text: #495057;
+        --text-light: #6c757d;
+    }
+
+    /* Base Styles */
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        color: var(--text);
+    }
+
+    /* Container Principal */
+    .details-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        animation: fadeIn 0.8s ease-out;
+    }
+
+    /* Header */
+    .details-header {
+        margin-bottom: 2rem;
+    }
+
+    .header-background {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        border-radius: 20px;
+        padding: 2.5rem;
+        color: white;
+        box-shadow: 0 15px 35px rgba(46, 139, 87, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+        .header-background::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1%, transparent 1%);
+            background-size: 20px 20px;
+            transform: rotate(30deg);
+        }
+
+    .header-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        z-index: 2;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
+
+    .header-icon {
+        font-size: 4rem;
+        opacity: 0.9;
+    }
+
+    .header-text {
+        flex: 1;
+    }
+
+        .header-text h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header-text p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+
+    .header-badge {
+        flex-shrink: 0;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 1rem;
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+        .status-badge.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .status-badge.inactive {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+    /* Main Content */
+    .details-content {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    /* Grid Principal */
+    .main-info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    /* Tarjetas de Información */
+    .info-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px var(--shadow);
+        overflow: hidden;
+        transition: all 0.3s ease;
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+        .info-card.animate-in {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+    .card-header {
+        background: linear-gradient(135deg, var(--light), #f1f3f4);
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+        .card-header i {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .card-header h3 {
+            color: var(--dark);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    /* Items de Información */
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--border);
+        transition: background-color 0.3s ease;
+    }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+    .info-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: var(--light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+
+    .info-content {
+        flex: 1;
+    }
+
+        .info-content label {
+            display: block;
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+    .info-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    /* Display de Estado */
+    .status-display {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+        .status-display.active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-display.inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+    /* Medidas */
+    .measurement-display {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .measurement-icon {
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+
+    .measurement-value {
+        font-size: 3rem;
+        font-weight: 700;
+        color: var(--primary);
+        line-height: 1;
+    }
+
+    .measurement-label {
+        font-size: 1.1rem;
+        color: var(--text-light);
+        font-weight: 600;
+    }
+
+    .measurement-conversion {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .conversion-item {
+        text-align: center;
+        padding: 1rem;
+        background: var(--light);
+        border-radius: 12px;
+    }
+
+    .conversion-value {
+        display: block;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0.25rem;
+    }
+
+    .conversion-label {
+        font-size: 0.85rem;
+        color: var(--text-light);
+    }
+
+    /* Información de Finca */
+    .finca-display {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .finca-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 15px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.8rem;
+    }
+
+    .finca-id {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .finca-relationship {
+        color: var(--text-light);
+    }
+
+    .finca-stats {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        background: var(--light);
+        border-radius: 10px;
+        color: var(--text-light);
+    }
+
+    /* Resumen Visual */
+    .visual-summary {
+        grid-column: 1 / -1;
+    }
+
+    .summary-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px var(--shadow);
+        overflow: hidden;
+    }
+
+    .summary-header {
+        background: linear-gradient(135deg, var(--light), #f1f3f4);
+        padding: 1.5rem 2rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+        .summary-header i {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .summary-header h3 {
+            color: var(--dark);
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+    .summary-body {
+        padding: 2rem;
+    }
+
+    .size-indicator {
+        margin-bottom: 2rem;
+    }
+
+    .indicator-track {
+        height: 12px;
+        background: var(--light);
+        border-radius: 6px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+
+    .indicator-progress {
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary), var(--primary-light));
+        border-radius: 6px;
+        width: 0;
+    }
+
+    .indicator-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        color: var(--text-light);
+    }
+
+    .visual-stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .visual-stat {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.5rem;
+        background: var(--light);
+        border-radius: 15px;
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: var(--text-light);
+    }
+
+    /* Action Buttons */
+    .action-section {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px var(--shadow);
+        margin-bottom: 2rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 1rem 2rem;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color: white;
+        box-shadow: 0 4px 15px rgba(46, 139, 87, 0.3);
+    }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46, 139, 87, 0.4);
+        }
+
+    .btn-secondary {
+        background: var(--secondary);
+        color: white;
+    }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+        }
+
+    .btn-danger {
+        background: linear-gradient(135deg, var(--danger), #e74c3c);
+        color: white;
+    }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #c82333, var(--danger));
+            transform: translateY(-2px);
+        }
+
+    /* Quick Stats */
+    .quick-stats {
+        margin-bottom: 2rem;
+    }
+
+    .stat-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+        .stat-cards .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+            .stat-cards .stat-card:hover {
+                transform: translateY(-3px);
+            }
+
+        .stat-cards .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-size: 1.3rem;
+        }
+
+        .stat-cards .stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-cards .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+    /* Animations */
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        .details-container {
+            padding: 10px;
+        }
+
+        .header-content {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .main-info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .visual-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .measurement-conversion {
+            grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .finca-display {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .finca-stats {
+            justify-content: center;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .header-background {
+            padding: 1.5rem;
+        }
+
+        .header-text h1 {
+            font-size: 2rem;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .measurement-value {
+            font-size: 2.5rem;
+        }
+
+        .stat-cards {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">

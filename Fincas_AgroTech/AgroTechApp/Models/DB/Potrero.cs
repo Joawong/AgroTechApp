@@ -11,7 +11,7 @@ public partial class Potrero
 
     public string Nombre { get; set; } = null!;
 
-    public decimal? Hectareas { get; set; }
+    public decimal Hectareas { get; set; }
 
     public bool Activo { get; set; }
 
