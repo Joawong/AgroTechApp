@@ -10,12 +10,24 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
+        /* ====== VARIABLES DE COLOR ====== */
+        :root {
+            --primary-blue: #2A6BBF;
+            --secondary-blue: #6CA6D9;
+            --light-blue: #BACBD9;
+            --primary-green: #077408;
+            --secondary-green: #64A85F;
+            --light-bg: #f8f9fa;
+        }
+
         /* ====== NAVBAR ====== */
         .navbar-brand {
-            background: linear-gradient(135deg, #2A6BBF, #3CB371);
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-green));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            font-weight: 700;
+            font-size: 1.8rem;
         }
 
         .nav-link {
@@ -23,11 +35,12 @@
             padding: 0.5rem 1rem;
             border-radius: 5px;
             transition: all 0.3s ease;
+            font-weight: 500;
         }
 
             .nav-link:hover {
-                color: #2A6BBF !important;
-                background-color: #f8f9fa;
+                color: var(--primary-blue) !important;
+                background-color: var(--light-blue);
                 transform: translateY(-2px);
                 box-shadow: 0 4px 8px rgba(42, 107, 191, 0.2);
             }
@@ -42,7 +55,7 @@
         }
 
             .dropdown-item:hover {
-                background-color: #6CA6D9 !important;
+                background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue)) !important;
                 color: white !important;
                 transform: translateX(5px);
                 box-shadow: 0 3px 6px rgba(0,0,0,0.1);
@@ -51,6 +64,7 @@
         .navbar {
             box-shadow: 0 2px 15px rgba(0,0,0,0.1);
             padding: 0.5rem 1rem;
+            background: white !important;
         }
 
         .dropdown-menu {
@@ -58,82 +72,280 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             border-radius: 10px;
             margin-top: 10px;
-        }
-        /* ====== FOOTER REDUCIDO ====== */
-        .footer {
-            background: linear-gradient(135deg, #1a1a1a, #2d2d2d) !important;
-            border-top: 2px solid #2E8B57;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 0.9rem;
-            padding: 1.2rem 0; /* antes era más alto */
+            border: 1px solid var(--light-blue);
         }
 
-            .footer h5 {
-                font-size: 1rem;
-                margin-bottom: 0.6rem;
+        /* ====== FOOTER MEJORADO ====== */
+        .footer-enhanced {
+            background: linear-gradient(135deg, #1a2a3a 0%, #2d4a5f 50%, #1a2a3a 100%);
+            border-top: 4px solid #2E8B57;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .footer-enhanced::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: 1px;
+                background: linear-gradient(90deg, transparent, #2E8B57, transparent);
             }
 
-            .footer p {
-                margin-bottom: 0.4rem;
+        .footer-main {
+            padding: 3rem 0 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Brand */
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+            .footer-brand i {
+                font-size: 2rem;
+                color: #2E8B57;
+                background: rgba(46, 139, 87, 0.1);
+                padding: 0.5rem;
+                border-radius: 10px;
             }
 
-            .footer .list-unstyled {
-                margin-bottom: 0.4rem;
+        .brand-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #2E8B57, #64A85F);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-left: 0.5rem;
+        }
+
+        .footer-description {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+        }
+
+        /* Social Links */
+        .social-links {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+            .social-link:hover {
+                background: #2E8B57;
+                transform: translateY(-3px);
+                box-shadow: 0 5px 15px rgba(46, 139, 87, 0.4);
+                color: white;
             }
 
-                .footer .list-unstyled li a {
-                    transition: all 0.3s ease;
-                    padding: 2px 0;
-                    font-size: 0.88rem;
+        /* Titles */
+        .footer-title {
+            color: #2E8B57;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+
+            .footer-title::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                width: 40px;
+                height: 2px;
+                background: linear-gradient(90deg, #2E8B57, transparent);
+            }
+
+        /* Links */
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+            .footer-links li {
+                margin-bottom: 0.7rem;
+            }
+
+            .footer-links a {
+                color: rgba(255, 255, 255, 0.8);
+                text-decoration: none;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                font-size: 0.9rem;
+            }
+
+                .footer-links a:hover {
+                    color: #2E8B57;
+                    transform: translateX(5px);
                 }
 
-                    .footer .list-unstyled li a:hover {
-                        padding-left: 5px;
-                    }
+            .footer-links i {
+                width: 16px;
+                text-align: center;
+            }
 
-        .text-light-50 {
-            color: rgba(255, 255, 255, 0.7) !important;
+        /* Contact Info */
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+
+            .contact-item i {
+                color: #2E8B57;
+                width: 16px;
+                text-align: center;
+            }
+
+        /* Footer Bottom */
+        .footer-bottom {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1.2rem 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-bottom-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .copyright {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-legal {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legal-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 0.8rem;
             transition: color 0.3s ease;
         }
 
-            .text-light-50:hover {
-                color: #2E8B57 !important;
+            .legal-link:hover {
+                color: #2E8B57;
             }
 
-        .social-links a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 30px;
-            height: 30px; /* antes 35px */
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-            font-size: 0.85rem;
-        }
-
-            .social-links a:hover {
-                background: #2E8B57;
-                transform: translateY(-2px);
-            }
-
-        .footer .container {
-            max-width: 500px;
-        }
-
-        .footer small {
+        .separator {
+            color: rgba(255, 255, 255, 0.4);
             font-size: 0.8rem;
         }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .footer-main {
+                padding: 2rem 0 1.5rem;
+            }
+
+            .footer-bottom-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-brand {
+                justify-content: center;
+            }
+
+            .social-links {
+                justify-content: center;
+            }
+
+            .footer-title {
+                text-align: center;
+            }
+
+                .footer-title::after {
+                    left: 50%;
+                    transform: translateX(-50%);
+                }
+        }
+
+        @@media (max-width: 576px) {
+            .brand-text {
+                font-size: 1.5rem;
+            }
+
+            .footer-links a,
+            .contact-item {
+                font-size: 0.85rem;
+            }
+
+            .social-link {
+                width: 35px;
+                height: 35px;
+            }
+        }
+
+        /* ====== MAIN CONTENT ====== */
+        .container {
+            max-width: 1400px;
+        }
+
+        main {
+            min-height: calc(100vh - 200px);
+        }
+
+        /* ====== RESPONSIVE ====== */
+        @@media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.5rem;
+            }
+
+            .nav-link {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.9rem;
+            }
+        }
     </style>
-            
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
     <header>
         <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand fw-bold fs-3" asp-area="" asp-controller="Home" asp-action="Index">
-                    ⛰️ AgroTechApp
+                    AgroTech
                 </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
@@ -161,10 +373,28 @@
                             </ul>
                         </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark fw-semibold" asp-controller="Home" asp-action="Privacy">
-                                <i class="fas fa-lock me-1"></i>Privacidad
+                        <!-- Pesajes -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark fw-semibold" href="#" id="pesajesDropdown"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-weight-scale me-1"></i>Pesajes
                             </a>
+                            <ul class="dropdown-menu" aria-labelledby="pesajesDropdown">
+                                <li><a class="dropdown-item" asp-controller="Pesajes" asp-action="Index"><i class="fas fa-list me-2"></i>Registro de Pesajes</a></li>
+                                <li><a class="dropdown-item" asp-controller="Pesajes" asp-action="Create"><i class="fas fa-plus-circle me-2"></i>Nuevo Pesaje</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- Insumos -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark fw-semibold" href="#" id="insumosDropdown"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-seedling me-1"></i>Insumos
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="insumosDropdown">
+                                <li><a class="dropdown-item" asp-controller="Insumos" asp-action="Index"><i class="fas fa-list me-2"></i>Registro de Insumos</a></li>
+                                <li><a class="dropdown-item" asp-controller="Insumos" asp-action="Create"><i class="fas fa-plus-circle me-2"></i>Nuevo Insumo</a></li>
+                            </ul>
                         </li>
                     </ul>
 
@@ -175,12 +405,13 @@
     </header>
 
     <!-- Contenido principal -->
-    <div class="container">
+    <div class="container-fluid px-0">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
+<<<<<<< Updated upstream
     
     <!-- FOOTER -->
     <footer class="footer text-light py-2">
@@ -189,9 +420,105 @@
             <small class="d-block text-white-50">
                 &copy; 2025 AgroTechApp - Todos los derechos reservados.
             </small>
+=======
+    <!-- FOOTER MEJORADO -->
+    <footer class="footer-enhanced text-light mt-auto">
+        <div class="footer-main">
+            <div class="container">
+                <div class="row g-4">
+                    <!-- Columna 1: Logo y descripción -->
+                    <div class="col-lg-4 col-md-6">
+                        <div class="footer-brand">
+                            <i class="fas fa-tractor me-2"></i>
+                            <span class="brand-text">AgroTech</span>
+                        </div>
+                        <p class="footer-description">
+                            Sistema integral de gestión ganadera que optimiza la administración de tu finca con tecnología de punta.
+                        </p>
+                        <div class="social-links">
+                            <a href="#" class="social-link" title="Facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a href="#" class="social-link" title="Instagram">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a href="#" class="social-link" title="Twitter">
+                                <i class="fab fa-twitter"></i>
+                            </a>
+                            <a href="#" class="social-link" title="LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Columna 2: Enlaces rápidos -->
+                    <div class="col-lg-2 col-md-6">
+                        <h5 class="footer-title">Navegación</h5>
+                        <ul class="footer-links">
+                            <li><a href="/"><i class="fas fa-home me-2"></i>Inicio</a></li>
+                            <li><a href="/Identity/Account/Login"><i class="fas fa-sign-in-alt me-2"></i>Ingresar</a></li>
+                            <li><a href="/Identity/Account/Register"><i class="fas fa-user-plus me-2"></i>Registrarse</a></li>
+                            <li><a href="#"><i class="fas fa-info-circle me-2"></i>Acerca de</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Columna 3: Módulos -->
+                    <div class="col-lg-3 col-md-6">
+                        <h5 class="footer-title">Módulos</h5>
+                        <ul class="footer-links">
+                            <li><a href="/Animales"><i class="fas fa-cow me-2"></i>Gestión Animal</a></li>
+                            <li><a href="/Pesajes"><i class="fas fa-weight-scale me-2"></i>Control de Pesajes</a></li>
+                            <li><a href="/Insumos"><i class="fas fa-seedling me-2"></i>Gestión de Insumos</a></li>
+                            <li><a href="#"><i class="fas fa-chart-line me-2"></i>Reportes</a></li>
+                        </ul>
+                    </div>
+
+                    <!-- Columna 4: Contacto -->
+                    <div class="col-lg-3 col-md-6">
+                        <h5 class="footer-title">Contacto</h5>
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <i class="fas fa-envelope me-2"></i>
+                                <span>info@agrotech.com</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-phone me-2"></i>
+                                <span>+1 (555) 123-4567</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-map-marker-alt me-2"></i>
+                                <span>Bogotá, Colombia</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-clock me-2"></i>
+                                <span>Lun - Vie: 8:00 - 18:00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer inferior -->
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="footer-bottom-content">
+                    <div class="copyright">
+                        <i class="fas fa-copyright me-2"></i>
+                        2024 AgroTech - Gestión Ganadera Inteligente. Todos los derechos reservados.
+                    </div>
+                    <div class="footer-legal">
+                        <a href="#" class="legal-link">Términos de Servicio</a>
+                        <span class="separator">|</span>
+                        <a href="#" class="legal-link">Política de Privacidad</a>
+                        <span class="separator">|</span>
+                        <a href="#" class="legal-link">Cookies</a>
+                    </div>
+                </div>
+            </div>
+>>>>>>> Stashed changes
         </div>
     </footer>
-
 
     <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
