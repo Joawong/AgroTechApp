@@ -1,53 +1,943 @@
 ﻿@model IEnumerable<AgroTechApp.Models.DB.Pesaje>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Lista de Pesajes";
+    var primaryColor = "#2E8B57";
+    var secondaryColor = "#F4A460";
+    var lightColor = "#F8F9FA";
 }
 
-<h1>Index</h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Pesajes - AgroTech</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --primary-dark: #26734d;
+            --primary-light: #3CB371;
+            --secondary: #F4A460;
+            --light: #f8f9fa;
+            --dark: #333;
+            --gray: #6c757d;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --border: #e1e5e9;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Fecha)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PesoKg)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Observacion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Animal)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Fecha)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PesoKg)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Observacion)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Animal.AnimalId)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.PesajeId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.PesajeId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.PesajeId">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+        }
+
+        .logo-text h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .logo-text p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px var(--shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px var(--shadow);
+            }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .card-info h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .card-info p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .card-1 .card-icon {
+            background: rgba(46, 139, 87, 0.15);
+            color: var(--primary);
+        }
+
+        .card-2 .card-icon {
+            background: rgba(244, 164, 96, 0.15);
+            color: var(--secondary);
+        }
+
+        .card-3 .card-icon {
+            background: rgba(40, 167, 69, 0.15);
+            color: var(--success);
+        }
+
+        .card-4 .card-icon {
+            background: rgba(23, 162, 184, 0.15);
+            color: var(--info);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+
+        @@media (max-width: 1100px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Actions Bar */
+        .actions-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            .section-title i {
+                color: var(--primary);
+            }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background: var(--primary-dark);
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(46, 139, 87, 0.3);
+            }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: white;
+        }
+
+            .btn-secondary:hover {
+                background: #e59450;
+                transform: translateY(-2px);
+            }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+            .btn-outline:hover {
+                background: var(--primary);
+                color: white;
+            }
+
+        /* Table Styles */
+        .table-container {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px var(--shadow);
+            margin-bottom: 2rem;
+        }
+
+        .table-header {
+            padding: 1.5rem;
+            background: var(--light);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .table-action-btn {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+            .table-action-btn:hover {
+                background: var(--light);
+            }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+            .table th {
+                background: var(--light);
+                padding: 1rem;
+                text-align: left;
+                font-weight: 600;
+                color: var(--dark);
+                border-bottom: 1px solid var(--border);
+            }
+
+            .table td {
+                padding: 1rem;
+                border-bottom: 1px solid var(--border);
+                transition: background 0.2s ease;
+            }
+
+            .table tbody tr:hover td {
+                background: rgba(46, 139, 87, 0.05);
+            }
+
+            .table tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+        .animal-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .animal-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: rgba(40, 167, 69, 0.15);
+            color: var(--success);
+        }
+
+        .status-inactive {
+            background: rgba(108, 117, 125, 0.15);
+            color: var(--gray);
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            color: white;
+            font-size: 0.9rem;
+            text-decoration: none;
+        }
+
+        .action-view {
+            background: var(--info);
+        }
+
+        .action-edit {
+            background: var(--warning);
+        }
+
+        .action-delete {
+            background: var(--danger);
+        }
+
+        .action-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px var(--shadow);
+        }
+
+        .sidebar-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            .sidebar-title i {
+                color: var(--primary);
+            }
+
+        /* Recent Activity */
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+            .activity-item:last-child {
+                border-bottom: none;
+                padding-bottom: 0;
+            }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+        }
+
+        .activity-info h4 {
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-info p {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        /* Filter Section */
+        .filter-group {
+            margin-bottom: 1rem;
+        }
+
+            .filter-group label {
+                display: block;
+                margin-bottom: 0.5rem;
+                font-weight: 600;
+                font-size: 0.9rem;
+                color: var(--dark);
+            }
+
+        .filter-select, .filter-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            background: white;
+        }
+
+            .filter-select:focus, .filter-input:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+            }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .pagination-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+            .pagination-btn.active {
+                background: var(--primary);
+                color: white;
+                border-color: var(--primary);
+            }
+
+            .pagination-btn:hover:not(.active) {
+                background: var(--light);
+            }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .dashboard-cards {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .actions-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .action-buttons {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .btn {
+                flex: 1;
+                justify-content: center;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            .table {
+                min-width: 800px;
+            }
+        }
+
+        @@media (max-width: 576px) {
+            .dashboard-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* Animations */
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        /* Data display styles */
+        .data-cell {
+            font-weight: 500;
+        }
+
+        .weight-cell {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .date-cell {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header fade-in">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-weight-hanging"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>AgroTech Pesajes</h1>
+                    <p>Sistema de gestión de pesaje de ganado</p>
+                </div>
+            </div>
+            <div class="user-info">
+                <div class="user-avatar">JD</div>
+                <div class="user-details">
+                    <div class="user-name">Juan Díaz</div>
+                    <div class="user-role">Administrador</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Cards -->
+        <section class="dashboard-cards fade-in">
+            <div class="card card-1">
+                <div class="card-icon">
+                    <i class="fas fa-cow"></i>
+                </div>
+                <div class="card-info">
+                    <h3>@Model.Count()</h3>
+                    <p>Total de Pesajes</p>
+                </div>
+            </div>
+            <div class="card card-2">
+                <div class="card-icon">
+                    <i class="fas fa-weight-hanging"></i>
+                </div>
+                <div class="card-info">
+                    <h3>@Model.Count()</h3>
+                    <p>Pesajes Registrados</p>
+                </div>
+            </div>
+            <div class="card card-3">
+                <div class="card-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="card-info">
+                    <h3>@(Model.Any() ? Model.Average(p => p.PesoKg).ToString("F1") : "0")</h3>
+                    <p>Promedio de Peso (kg)</p>
+                </div>
+            </div>
+            <div class="card card-4">
+                <div class="card-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="card-info">
+                    <h3>@Model.Count(p => p.Fecha.Date == DateTime.Today)</h3>
+                    <p>Pesajes Hoy</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Left Column -->
+            <div class="left-column">
+                <!-- Actions Bar -->
+                <div class="actions-bar fade-in">
+                    <h2 class="section-title">
+                        <i class="fas fa-list"></i>
+                        Registros de Pesajes
+                    </h2>
+                    <div class="action-buttons">
+                        <a asp-action="Create" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Nuevo Pesaje
+                        </a>
+                        <button class="btn btn-outline" id="filterBtn">
+                            <i class="fas fa-filter"></i>
+                            Filtrar
+                        </button>
+                        <button class="btn btn-outline" id="exportBtn">
+                            <i class="fas fa-download"></i>
+                            Exportar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-container fade-in">
+                    <div class="table-header">
+                        <div class="table-title">Lista de Pesajes</div>
+                        <div class="table-actions">
+                            <button class="table-action-btn" id="refreshBtn">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Peso (kg)</th>
+                                <th>Observaciones</th>
+                                <th>Animal</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="date-cell">
+                                        @Html.DisplayFor(modelItem => item.Fecha)
+                                    </td>
+                                    <td class="weight-cell">
+                                        @Html.DisplayFor(modelItem => item.PesoKg) kg
+                                    </td>
+                                    <td class="data-cell">
+                                        @if (!string.IsNullOrEmpty(item.Observacion))
+                                        {
+                                            @Html.DisplayFor(modelItem => item.Observacion)
+                                        }
+                                        else
+                                        {
+                                            <span style="color: var(--gray); font-style: italic;">Sin observaciones</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="animal-info">
+                                            <div class="animal-avatar">
+                                                @item.Animal.AnimalId.ToString().Substring(0, Math.Min(3, item.Animal.AnimalId.ToString().Length))
+                                            </div>
+                                            <div>
+                                                <div class="animal-name">Animal #@Html.DisplayFor(modelItem => item.Animal.AnimalId)</div>
+                                                <div class="animal-id">ID: @Html.DisplayFor(modelItem => item.Animal.AnimalId)</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="actions">
+                                            <a asp-action="Details" asp-route-id="@item.PesajeId" class="action-btn action-view" title="Ver detalles">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a asp-action="Edit" asp-route-id="@item.PesajeId" class="action-btn action-edit" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@item.PesajeId" class="action-btn action-delete" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                @if (!Model.Any())
+                {
+                    <div class="table-container fade-in" style="text-align: center; padding: 3rem;">
+                        <i class="fas fa-weight-hanging" style="font-size: 3rem; color: var(--gray); margin-bottom: 1rem;"></i>
+                        <h3 style="color: var(--gray); margin-bottom: 1rem;">No hay pesajes registrados</h3>
+                        <p style="color: var(--gray); margin-bottom: 2rem;">Comience agregando el primer pesaje al sistema</p>
+                        <a asp-action="Create" class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Crear Primer Pesaje
+                        </a>
+                    </div>
+                }
+            </div>
+
+            <!-- Right Column -->
+            <div class="sidebar">
+                <!-- Filters -->
+                <div class="sidebar-card fade-in">
+                    <h3 class="sidebar-title">
+                        <i class="fas fa-filter"></i>
+                        Filtros
+                    </h3>
+                    <div class="filter-group">
+                        <label for="date-filter">Fecha</label>
+                        <select id="date-filter" class="filter-select">
+                            <option value="">Todos los tiempos</option>
+                            <option value="today">Hoy</option>
+                            <option value="week">Esta semana</option>
+                            <option value="month">Este mes</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="weight-filter">Peso</label>
+                        <select id="weight-filter" class="filter-select">
+                            <option value="">Todos los pesos</option>
+                            <option value="light">Menos de 300 kg</option>
+                            <option value="medium">300 - 500 kg</option>
+                            <option value="heavy">Más de 500 kg</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" id="applyFilters">
+                        <i class="fas fa-search"></i>
+                        Aplicar Filtros
+                    </button>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="sidebar-card fade-in">
+                    <h3 class="sidebar-title">
+                        <i class="fas fa-history"></i>
+                        Actividad Reciente
+                    </h3>
+                    <div class="activity-list">
+                        @{
+                            var recentPesajes = Model.OrderByDescending(p => p.Fecha).Take(4);
+                        }
+                        @foreach (var item in recentPesajes)
+                        {
+                            <div class="activity-item">
+                                <div class="activity-icon" style="background: var(--primary);">
+                                    <i class="fas fa-weight-hanging"></i>
+                                </div>
+                                <div class="activity-info">
+                                    <h4>Pesaje registrado</h4>
+                                    <p>Animal #@item.Animal.AnimalId - @item.PesoKg kg</p>
+                                    <p>@item.Fecha.ToString("dd MMM, yyyy")</p>
+                                </div>
+                            </div>
+                        }
+                        @if (!recentPesajes.Any())
+                        {
+                            <div style="text-align: center; color: var(--gray); font-style: italic; padding: 1rem;">
+                                No hay actividad reciente
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer fade-in">
+            <p>© 2023 AgroTech - Sistema de Gestión de Pesajes. Todos los derechos reservados.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to table rows
+            const tableRows = document.querySelectorAll('.table tbody tr');
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateX(5px)';
+                    this.style.transition = 'transform 0.2s ease';
+                });
+
+                row.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateX(0)';
+                });
+            });
+
+            // Add click effects to action buttons
+            const actionButtons = document.querySelectorAll('.action-btn');
+            actionButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    // Visual feedback
+                    this.style.transform = 'scale(0.9)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 150);
+                });
+            });
+
+            // Dashboard cards animation on hover
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    const icon = this.querySelector('.card-icon');
+                    icon.style.transform = 'scale(1.1) rotate(5deg)';
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    const icon = this.querySelector('.card-icon');
+                    icon.style.transform = 'scale(1) rotate(0)';
+                });
+            });
+
+            // Filter application
+            const applyFiltersBtn = document.getElementById('applyFilters');
+            applyFiltersBtn.addEventListener('click', function() {
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Aplicando...';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-check"></i> Filtros Aplicados';
+                    setTimeout(() => {
+                        this.innerHTML = '<i class="fas fa-search"></i> Aplicar Filtros';
+                    }, 1500);
+                }, 1000);
+            });
+
+            // Refresh button
+            const refreshBtn = document.getElementById('refreshBtn');
+            refreshBtn.addEventListener('click', function() {
+                this.style.transform = 'rotate(360deg)';
+                this.style.transition = 'transform 0.5s ease';
+                setTimeout(() => {
+                    location.reload();
+                }, 500);
+            });
+
+            // Export button
+            const exportBtn = document.getElementById('exportBtn');
+            exportBtn.addEventListener('click', function() {
+                this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exportando...';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-check"></i> Exportado';
+                    setTimeout(() => {
+                        this.innerHTML = '<i class="fas fa-download"></i> Exportar';
+                    }, 1500);
+                }, 2000);
+            });
+        });
+    </script>
+</body>
+</html>

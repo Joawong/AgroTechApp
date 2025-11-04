@@ -1,7 +1,10 @@
 ﻿@model AgroTechApp.Models.DB.Pesaje
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalles del Pesaje";
+    var primaryColor = "#2E8B57";
+    var secondaryColor = "#F4A460";
+    var accentColor = "#4cc9f0";
 }
 
 <!DOCTYPE html>
@@ -9,7 +12,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interfaz de Detalles Interactiva</title>
+    <title>Detalles del Pesaje - AgroTech</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -20,35 +23,34 @@
         }
 
         :root {
-            --primary: #4361ee;
-            --secondary: #3a0ca3;
-            --accent: #4cc9f0;
-            --success: #4ade80;
+            --primary: @primaryColor;
+            --primary-dark: #26734d;
+            --secondary: @secondaryColor;
+            --accent: @accentColor;
+            --success: #28a745;
             --warning: #f59e0b;
             --danger: #ef4444;
             --dark: #1e293b;
             --light: #f8fafc;
             --gray: #64748b;
+            --border: #e2e8f0;
         }
 
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             padding: 20px;
             color: var(--dark);
         }
 
         .container {
-            width: 100%;
-            max-width: 1000px;
-            background-color: white;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            animation: fadeIn 0.5s ease-out;
+            animation: fadeIn 0.6s ease-out;
         }
 
         @@keyframes fadeIn {
@@ -63,388 +65,504 @@
             }
         }
 
-        header {
-            background: linear-gradient(to right, var(--primary), var(--secondary));
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
-            padding: 25px;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                left: -50%;
+                width: 200%;
+                height: 200%;
+                background: radial-gradient(circle, rgba(255,255,255,0.1) 1%, transparent 1%);
+                background-size: 20px 20px;
+                transform: rotate(30deg);
+            }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
         }
 
-        .header-content h1 {
-            font-size: 28px;
-            margin-bottom: 5px;
+        .header-text h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        .header-content p {
+        .header-text p {
+            font-size: 1.1rem;
             opacity: 0.9;
-            font-size: 16px;
+            margin: 0;
         }
 
         .back-btn {
-            background-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.2);
             color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 50px;
-            cursor: pointer;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 0.875rem 1.5rem;
+            border-radius: 12px;
+            text-decoration: none;
             font-weight: 600;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
 
             .back-btn:hover {
-                background-color: rgba(255, 255, 255, 0.3);
+                background: rgba(255, 255, 255, 0.3);
                 transform: translateX(-5px);
             }
 
-        .content {
+        /* Main Content */
+        .main-content {
             padding: 0;
-            display: flex;
-            flex-direction: column;
         }
 
-        .item-header {
-            display: flex;
-            padding: 25px;
-            background-color: var(--light);
-            border-bottom: 1px solid #e2e8f0;
+        /* Weight Display */
+        .weight-hero {
+            background: linear-gradient(135deg, var(--light), #f1f5f9);
+            padding: 3rem 2.5rem;
+            text-align: center;
+            border-bottom: 1px solid var(--border);
         }
 
-        .item-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            border-radius: 16px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-right: 20px;
-            color: white;
-            font-size: 32px;
-        }
-
-        .item-title {
-            flex: 1;
-        }
-
-            .item-title h2 {
-                font-size: 24px;
-                margin-bottom: 5px;
-                color: var(--dark);
-            }
-
-            .item-title p {
-                color: var(--gray);
-                margin-bottom: 10px;
-            }
-
-        .status-badge {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .status-active {
-            background-color: #dcfce7;
-            color: #166534;
-        }
-
-        .status-pending {
-            background-color: #fef3c7;
-            color: #92400e;
-        }
-
-        .item-details {
-            display: flex;
-            flex-wrap: wrap;
-            padding: 25px;
-            gap: 25px;
-        }
-
-        .detail-section {
-            flex: 1;
-            min-width: 300px;
-        }
-
-        .section-title {
-            font-size: 18px;
-            margin-bottom: 15px;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-            .section-title i {
-                color: var(--primary);
-            }
-
-        .detail-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .detail-item {
-            margin-bottom: 15px;
-        }
-
-        .detail-label {
-            font-size: 14px;
-            color: var(--gray);
-            margin-bottom: 5px;
-        }
-
-        .detail-value {
-            font-size: 16px;
-            font-weight: 500;
-            color: var(--dark);
-        }
-
-        .progress-section {
-            margin-top: 10px;
-        }
-
-        .progress-bar {
-            height: 8px;
-            background-color: #e2e8f0;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 5px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(to right, var(--primary), var(--accent));
-            border-radius: 4px;
-        }
-
-        .description-box {
-            background-color: var(--light);
-            padding: 20px;
-            border-radius: 12px;
-            margin-top: 10px;
-            line-height: 1.6;
-        }
-
-        .tags-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .tag {
-            background-color: #e0e7ff;
+        .weight-icon {
+            font-size: 4rem;
             color: var(--primary);
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 500;
+            margin-bottom: 1.5rem;
         }
 
-        .actions-section {
-            padding: 25px;
-            background-color: var(--light);
-            border-top: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
+        .weight-value {
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1;
+            margin-bottom: 0.5rem;
         }
 
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s;
-            border: none;
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-
-            .btn-primary:hover {
-                background-color: var(--secondary);
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
-            }
-
-        .btn-secondary {
-            background-color: white;
-            color: var(--dark);
-            border: 1px solid #cbd5e1;
-        }
-
-            .btn-secondary:hover {
-                background-color: #f1f5f9;
-                transform: translateY(-2px);
-            }
-
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-        }
-
-            .btn-danger:hover {
-                background-color: #dc2626;
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
-            }
-
-        .metadata {
+        .weight-label {
+            font-size: 1.3rem;
             color: var(--gray);
-            font-size: 14px;
+            font-weight: 600;
         }
 
-        .tab-container {
-            margin: 0 25px;
+        /* Tabs Navigation */
+        .tabs-container {
+            border-bottom: 1px solid var(--border);
         }
 
         .tabs {
             display: flex;
-            border-bottom: 1px solid #e2e8f0;
+            gap: 0;
+            flex-wrap: wrap;
         }
 
         .tab {
-            padding: 15px 20px;
+            padding: 1.25rem 2rem;
             cursor: pointer;
-            font-weight: 500;
+            font-weight: 600;
+            color: var(--gray);
             border-bottom: 3px solid transparent;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
             .tab.active {
                 color: var(--primary);
                 border-bottom: 3px solid var(--primary);
+                background: rgba(46, 139, 87, 0.05);
             }
 
+            .tab:hover:not(.active) {
+                color: var(--dark);
+                background: var(--light);
+            }
+
+        /* Tab Content */
         .tab-content {
-            padding: 25px 0;
             display: none;
+            padding: 2.5rem;
+            animation: fadeIn 0.4s ease-out;
         }
 
             .tab-content.active {
                 display: block;
-                animation: fadeIn 0.5s ease-out;
             }
 
-        .activity-list {
+        /* Information Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-card {
+            background: var(--light);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .detail-list {
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 1rem;
         }
 
-        .activity-item {
+        .detail-item {
             display: flex;
-            gap: 15px;
-        }
-
-        .activity-icon {
-            width: 40px;
-            height: 40px;
-            background-color: #e0e7ff;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .detail-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            color: var(--gray);
+        }
+
+        .detail-value {
+            font-weight: 500;
+            color: var(--dark);
+            text-align: right;
+        }
+
+            .detail-value.highlight {
+                color: var(--primary);
+                font-weight: 700;
+                font-size: 1.1rem;
+            }
+
+        /* Animal Info */
+        .animal-card {
+            background: linear-gradient(135deg, var(--light), #f1f5f9);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 2px solid var(--primary);
+            text-align: center;
+        }
+
+        .animal-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0 auto 1.5rem;
+        }
+
+        .animal-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .animal-id {
+            color: var(--gray);
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .animal-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background: white;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
             color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        /* Observations */
+        .observations-card {
+            background: var(--light);
+            border-radius: 15px;
+            padding: 2rem;
+            border-left: 4px solid var(--accent);
+        }
+
+        .observations-content {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            line-height: 1.6;
+            color: var(--dark);
+        }
+
+        .no-observations {
+            text-align: center;
+            color: var(--gray);
+            font-style: italic;
+            padding: 2rem;
+        }
+
+            .no-observations i {
+                font-size: 3rem;
+                margin-bottom: 1rem;
+                opacity: 0.5;
+            }
+
+        /* History Timeline */
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: var(--light);
+            border-radius: 12px;
+            border-left: 4px solid var(--primary);
+            transition: transform 0.2s ease;
+        }
+
+            .timeline-item:hover {
+                transform: translateX(5px);
+            }
+
+        .timeline-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
             flex-shrink: 0;
         }
 
-        .activity-content {
+        .timeline-content {
             flex: 1;
         }
 
-        .activity-title {
+        .timeline-title {
+            font-weight: 600;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .timeline-desc {
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .timeline-time {
+            color: var(--gray);
+            font-size: 0.85rem;
             font-weight: 500;
-            margin-bottom: 5px;
         }
 
-        .activity-desc {
-            color: var(--gray);
-            font-size: 14px;
+        /* Actions Section */
+        .actions-section {
+            background: var(--light);
+            padding: 2rem 2.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
         }
 
-        .activity-time {
-            color: var(--gray);
-            font-size: 12px;
-            margin-top: 5px;
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
         }
 
-        .files-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 20px;
+        .btn {
+            padding: 0.875rem 1.5rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 1rem;
         }
 
-        .file-card {
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 15px;
-            transition: all 0.3s;
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(46, 139, 87, 0.3);
         }
 
-            .file-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(46, 139, 87, 0.4);
             }
 
-        .file-icon {
-            font-size: 32px;
-            color: var(--primary);
-            margin-bottom: 10px;
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
         }
 
-        .file-name {
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
+            .btn-danger:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+            }
 
-        .file-meta {
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--gray);
             color: var(--gray);
-            font-size: 12px;
         }
 
+            .btn-outline:hover {
+                background: var(--gray);
+                color: white;
+                transform: translateY(-2px);
+            }
+
+        .metadata {
+            color: var(--gray);
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Responsive */
         @@media (max-width: 768px) {
-            .item-header {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 1.5rem;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-text h1 {
+                font-size: 1.8rem;
+            }
+
+            .weight-hero {
+                padding: 2rem 1.5rem;
+            }
+
+            .weight-value {
+                font-size: 3rem;
+            }
+
+            .tabs {
                 flex-direction: column;
             }
 
-            .item-icon {
-                margin-bottom: 15px;
+            .tab {
+                justify-content: center;
             }
 
-            .detail-grid {
+            .tab-content {
+                padding: 1.5rem;
+            }
+
+            .info-grid {
                 grid-template-columns: 1fr;
             }
 
             .actions-section {
                 flex-direction: column;
-                align-items: flex-start;
+                align-items: stretch;
             }
 
             .action-buttons {
-                width: 100%;
+                justify-content: center;
             }
 
             .btn {
@@ -453,310 +571,352 @@
             }
         }
 
-        footer {
-            text-align: center;
-            padding: 20px;
-            color: var(--gray);
-            font-size: 14px;
-            border-top: 1px solid #e2e8f0;
+        @@media (max-width: 480px) {
+            .weight-value {
+                font-size: 2.5rem;
+            }
+
+            .animal-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline-item {
+                flex-direction: column;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <header>
+        <!-- Header -->
+        <div class="header">
             <div class="header-content">
-                <h1>Detalles del Elemento</h1>
-                <p>Información completa y acciones disponibles</p>
-            </div>
-            <button class="back-btn">
-                <i class="fas fa-arrow-left"></i>
-                Volver
-            </button>
-        </header>
-
-        <div class="content">
-            <div class="item-header">
-                <div class="item-icon">
-                    <i class="fas fa-project-diagram"></i>
+                <div class="header-text">
+                    <h1>Detalles del Pesaje</h1>
+                    <p>Información completa del registro de pesaje #@Model.PesajeId</p>
                 </div>
-                <div class="item-title">
-                    <h2>Proyecto Alpha</h2>
-                    <p>Sistema de gestión empresarial integral</p>
-                    <span class="status-badge status-active">
-                        <i class="fas fa-circle"></i> Activo
-                    </span>
+                <a asp-action="Index" class="back-btn">
+                    <i class="fas fa-arrow-left"></i>
+                    Volver al Listado
+                </a>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Weight Hero Section -->
+            <div class="weight-hero">
+                <div class="weight-icon">
+                    <i class="fas fa-weight-hanging"></i>
                 </div>
+                <div class="weight-value">@Model.PesoKg kg</div>
+                <div class="weight-label">Peso Registrado del Animal</div>
             </div>
 
-            <div class="tab-container">
+            <!-- Tabs Navigation -->
+            <div class="tabs-container">
                 <div class="tabs">
-                    <div class="tab active" data-tab="overview">Resumen</div>
-                    <div class="tab" data-tab="activity">Actividad</div>
-                    <div class="tab" data-tab="files">Archivos</div>
-                    <div class="tab" data-tab="settings">Configuración</div>
+                    <div class="tab active" data-tab="general">
+                        <i class="fas fa-info-circle"></i>
+                        Información General
+                    </div>
+                    <div class="tab" data-tab="animal">
+                        <i class="fas fa-cow"></i>
+                        Información del Animal
+                    </div>
+                    <div class="tab" data-tab="history">
+                        <i class="fas fa-history"></i>
+                        Historial
+                    </div>
                 </div>
+            </div>
 
-                <div class="tab-content active" id="overview">
-                    <div class="item-details">
-                        <div class="detail-section">
-                            <div class="section-title">
-                                <i class="fas fa-info-circle"></i>
-                                Información General
+            <!-- Tab Contents -->
+            <!-- General Information Tab -->
+            <div class="tab-content active" id="general">
+                <div class="info-grid">
+                    <!-- Basic Information -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-clipboard-list"></i>
                             </div>
-
-                            <div class="detail-grid">
-                                <div class="detail-item">
-                                    <div class="detail-label">ID del Proyecto</div>
-                                    <div class="detail-value">PRJ-2023-001</div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="detail-label">Fecha de Creación</div>
-                                    <div class="detail-value">15 Mar, 2023</div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="detail-label">Responsable</div>
-                                    <div class="detail-value">María González</div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="detail-label">Departamento</div>
-                                    <div class="detail-value">TI</div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="detail-label">Prioridad</div>
-                                    <div class="detail-value">Alta</div>
-                                </div>
-                                <div class="detail-item">
-                                    <div class="detail-label">Fecha Límite</div>
-                                    <div class="detail-value">30 Nov, 2023</div>
-                                </div>
-                            </div>
-
-                            <div class="progress-section">
-                                <div class="detail-label">Progreso General</div>
-                                <div class="detail-value">75% Completado</div>
-                                <div class="progress-bar">
-                                    <div class="progress-fill" style="width: 75%"></div>
-                                </div>
-                            </div>
+                            <div class="card-title">Datos del Pesaje</div>
                         </div>
-
-                        <div class="detail-section">
-                            <div class="section-title">
-                                <i class="fas fa-align-left"></i>
-                                Descripción
+                        <div class="detail-list">
+                            <div class="detail-item">
+                                <div class="detail-label">
+                                    <i class="fas fa-fingerprint"></i>
+                                    ID del Pesaje
+                                </div>
+                                <div class="detail-value">#@Model.PesajeId</div>
                             </div>
-
-                            <div class="description-box">
-                                <p>El Proyecto Alpha es una iniciativa para desarrollar un sistema de gestión empresarial que integre todos los departamentos de la organización. Incluye módulos de recursos humanos, finanzas, inventario y relaciones con clientes.</p>
-                                <p>El objetivo es mejorar la eficiencia operativa en un 40% y reducir los costos de administración en un 25% durante el primer año de implementación.</p>
+                            <div class="detail-item">
+                                <div class="detail-label">
+                                    <i class="fas fa-calendar-day"></i>
+                                    Fecha
+                                </div>
+                                <div class="detail-value">@Model.Fecha.ToString("dd/MM/yyyy")</div>
                             </div>
-
-                            <div class="section-title" style="margin-top: 25px;">
-                                <i class="fas fa-tags"></i>
-                                Etiquetas
+                            <div class="detail-item">
+                                <div class="detail-label">
+                                    <i class="fas fa-clock"></i>
+                                    Hora
+                                </div>
+                                <div class="detail-value">@Model.Fecha.ToString("hh:mm tt")</div>
                             </div>
-
-                            <div class="tags-container">
-                                <span class="tag">Sistema ERP</span>
-                                <span class="tag">Desarrollo</span>
-                                <span class="tag">Integración</span>
-                                <span class="tag">TI</span>
-                                <span class="tag">Prioridad Alta</span>
+                            <div class="detail-item">
+                                <div class="detail-label">
+                                    <i class="fas fa-weight-hanging"></i>
+                                    Peso Registrado
+                                </div>
+                                <div class="detail-value highlight">@Model.PesoKg kg</div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Observations -->
+                    <div class="info-card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-comment-medical"></i>
+                            </div>
+                            <div class="card-title">Observaciones</div>
+                        </div>
+                        @if (!string.IsNullOrEmpty(Model.Observacion))
+                        {
+                            <div class="observations-content">
+                                <p>@Model.Observacion</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="no-observations">
+                                <i class="fas fa-comment-slash"></i>
+                                <p>No hay observaciones registradas para este pesaje</p>
+                            </div>
+                        }
+                    </div>
                 </div>
+            </div>
 
-                <div class="tab-content" id="activity">
-                    <div class="activity-list">
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-plus"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">Proyecto creado</div>
-                                <div class="activity-desc">El proyecto fue creado por María González</div>
-                                <div class="activity-time">Hace 2 horas</div>
-                            </div>
+            <!-- Animal Information Tab -->
+            <div class="tab-content" id="animal">
+                <div class="info-grid">
+                    <div class="animal-card">
+                        <div class="animal-avatar">
+                            @Model.Animal.AnimalId.ToString().Substring(0, Math.Min(3, Model.Animal.AnimalId.ToString().Length))
                         </div>
+                        <div class="animal-name">@(Model.Animal.Arete ?? "Sin arete")</div>
+                        <div class="animal-id">ID: @Model.Animal.AnimalId</div>
+                        @if (!string.IsNullOrEmpty(Model.Animal.Nombre))
+                        {
+                            <div class="animal-name" style="font-size: 1.2rem; color: var(--primary);">
+                                @Model.Animal.Nombre
+                            </div>
+                        }
 
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-user-plus"></i>
+                        <div class="animal-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">@Model.PesoKg</div>
+                                <div class="stat-label">Peso Actual</div>
                             </div>
-                            <div class="activity-content">
-                                <div class="activity-title">Equipo asignado</div>
-                                <div class="activity-desc">Se asignaron 5 miembros al equipo de desarrollo</div>
-                                <div class="activity-time">Hace 5 horas</div>
+                            <div class="stat-item">
+                                <div class="stat-value">@Model.Fecha.ToString("MMM")</div>
+                                <div class="stat-label">Mes</div>
                             </div>
-                        </div>
-
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-tasks"></i>
+                            <div class="stat-item">
+                                <div class="stat-value">@Model.Fecha.Day</div>
+                                <div class="stat-label">Día</div>
                             </div>
-                            <div class="activity-content">
-                                <div class="activity-title">Tareas definidas</div>
-                                <div class="activity-desc">Se crearon 12 tareas iniciales para el proyecto</div>
-                                <div class="activity-time">Ayer a las 14:30</div>
-                            </div>
-                        </div>
-
-                        <div class="activity-item">
-                            <div class="activity-icon">
-                                <i class="fas fa-file-alt"></i>
-                            </div>
-                            <div class="activity-content">
-                                <div class="activity-title">Documentación actualizada</div>
-                                <div class="activity-desc">Se completó la documentación de requisitos</div>
-                                <div class="activity-time">15 Oct, 2023</div>
+                            <div class="stat-item">
+                                <div class="stat-value">1</div>
+                                <div class="stat-label">Pesajes</div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="tab-content" id="files">
-                    <div class="files-grid">
-                        <div class="file-card">
-                            <div class="file-icon">
-                                <i class="fas fa-file-pdf"></i>
+                    <div class="info-card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-chart-line"></i>
                             </div>
-                            <div class="file-name">Requisitos.pdf</div>
-                            <div class="file-meta">2.4 MB · Hace 2 días</div>
+                            <div class="card-title">Estadísticas</div>
                         </div>
-
-                        <div class="file-card">
-                            <div class="file-icon">
-                                <i class="fas fa-file-excel"></i>
-                            </div>
-                            <div class="file-name">Presupuesto.xlsx</div>
-                            <div class="file-meta">1.1 MB · Hace 1 semana</div>
-                        </div>
-
-                        <div class="file-card">
-                            <div class="file-icon">
-                                <i class="fas fa-file-word"></i>
-                            </div>
-                            <div class="file-name">Cronograma.docx</div>
-                            <div class="file-meta">845 KB · Hace 3 días</div>
-                        </div>
-
-                        <div class="file-card">
-                            <div class="file-icon">
-                                <i class="fas fa-file-image"></i>
-                            </div>
-                            <div class="file-name">Diagramas.png</div>
-                            <div class="file-meta">3.2 MB · Hace 5 días</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tab-content" id="settings">
-                    <div class="detail-section">
-                        <div class="section-title">
-                            <i class="fas fa-cog"></i>
-                            Configuración del Proyecto
-                        </div>
-
-                        <div class="detail-grid">
+                        <div class="detail-list">
                             <div class="detail-item">
-                                <div class="detail-label">Notificaciones</div>
-                                <div class="detail-value">Activadas</div>
+                                <div class="detail-label">
+                                    <i class="fas fa-ruler"></i>
+                                    Peso Registrado
+                                </div>
+                                <div class="detail-value highlight">@Model.PesoKg kg</div>
                             </div>
                             <div class="detail-item">
-                                <div class="detail-label">Acceso Público</div>
-                                <div class="detail-value">No</div>
+                                <div class="detail-label">
+                                    <i class="fas fa-calendar-check"></i>
+                                    Fecha de Pesaje
+                                </div>
+                                <div class="detail-value">@Model.Fecha.ToString("dd MMM, yyyy")</div>
                             </div>
                             <div class="detail-item">
-                                <div class="detail-label">Backup Automático</div>
-                                <div class="detail-value">Diario</div>
+                                <div class="detail-label">
+                                    <i class="fas fa-id-card"></i>
+                                    ID Animal
+                                </div>
+                                <div class="detail-value">@Model.Animal.AnimalId</div>
                             </div>
                             <div class="detail-item">
-                                <div class="detail-label">Integración API</div>
-                                <div class="detail-value">Habilitada</div>
+                                <div class="detail-label">
+                                    <i class="fas fa-tag"></i>
+                                    Arete
+                                </div>
+                                <div class="detail-value">@(Model.Animal.Arete ?? "No asignado")</div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="actions-section">
-                <div class="action-buttons">
-                    <button class="btn btn-primary">
-                        <i class="fas fa-edit"></i>
-                        Editar
-                    </button>
-                    <button class="btn btn-secondary">
-                        <i class="fas fa-copy"></i>
-                        Duplicar
-                    </button>
-                    <button class="btn btn-danger">
-                        <i class="fas fa-trash"></i>
-                        Eliminar
-                    </button>
-                </div>
+            <!-- History Tab -->
+            <div class="tab-content" id="history">
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-icon">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Registro Creado</div>
+                            <div class="timeline-desc">Se creó el registro de pesaje #@Model.PesajeId para el animal @Model.Animal.AnimalId</div>
+                            <div class="timeline-time">@Model.Fecha.ToString("dd MMM, yyyy 'a las' hh:mm tt")</div>
+                        </div>
+                    </div>
 
-                <div class="metadata">
-                    <i class="fas fa-history"></i> Actualizado hace 2 horas
+                    <div class="timeline-item">
+                        <div class="timeline-icon">
+                            <i class="fas fa-weight-hanging"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Peso Capturado</div>
+                            <div class="timeline-desc">Se registró un peso de @Model.PesoKg kg para el animal</div>
+                            <div class="timeline-time">@Model.Fecha.ToString("dd MMM, yyyy 'a las' hh:mm tt")</div>
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.Observacion))
+                    {
+                        <div class="timeline-item">
+                            <div class="timeline-icon">
+                                <i class="fas fa-comment"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Observaciones Agregadas</div>
+                                <div class="timeline-desc">@Model.Observacion</div>
+                                <div class="timeline-time">@Model.Fecha.ToString("dd MMM, yyyy 'a las' hh:mm tt")</div>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="timeline-item">
+                        <div class="timeline-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Proceso Completado</div>
+                            <div class="timeline-desc">El registro de pesaje fue completado y guardado en el sistema</div>
+                            <div class="timeline-time">@Model.Fecha.ToString("dd MMM, yyyy 'a las' hh:mm tt")</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <footer>
-            <p>Interfaz de Detalles Interactiva &copy; 2023</p>
-        </footer>
+        <!-- Actions Section -->
+        <div class="actions-section">
+            <div class="action-buttons">
+                <a asp-action="Edit" asp-route-id="@Model.PesajeId" class="btn btn-primary">
+                    <i class="fas fa-edit"></i>
+                    Editar Pesaje
+                </a>
+                <a asp-action="Delete" asp-route-id="@Model.PesajeId" class="btn btn-danger">
+                    <i class="fas fa-trash"></i>
+                    Eliminar Pesaje
+                </a>
+            </div>
+            <div class="metadata">
+                <i class="fas fa-clock"></i>
+                Registrado el @Model.Fecha.ToString("dd/MM/yyyy 'a las' hh:mm tt")
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>AgroTech - Sistema de Gestión de Pesajes &copy; 2023</p>
+        </div>
     </div>
 
     <script>
-        // Funcionalidad de las pestañas
+        // Tab functionality
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
-                // Remover clase active de todas las pestañas y contenidos
+                // Remove active class from all tabs and contents
                 document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
-                // Agregar clase active a la pestaña clickeada
+                // Add active class to clicked tab
                 tab.classList.add('active');
 
-                // Mostrar el contenido correspondiente
+                // Show corresponding content
                 const tabId = tab.getAttribute('data-tab');
                 document.getElementById(tabId).classList.add('active');
             });
         });
 
-        // Funcionalidad del botón volver
-        document.querySelector('.back-btn').addEventListener('click', () => {
-            alert('Redirigiendo a la página anterior...');
-            // En una aplicación real, aquí iría window.history.back() o similar
-        });
-
-        // Funcionalidad de los botones de acción
+        // Hover effects for buttons
         document.querySelectorAll('.btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const buttonText = this.textContent.trim();
+            button.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+            });
 
-                if (buttonText.includes('Editar')) {
-                    alert('Modo edición activado');
-                } else if (buttonText.includes('Duplicar')) {
-                    alert('Elemento duplicado correctamente');
-                } else if (buttonText.includes('Eliminar')) {
-                    if (confirm('¿Estás seguro de que deseas eliminar este elemento?')) {
-                        alert('Elemento eliminado correctamente');
-                    }
-                }
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
             });
         });
 
-        // Efecto de carga inicial
+        // Weight display animation
+        const weightDisplay = document.querySelector('.weight-hero');
+        if (weightDisplay) {
+            weightDisplay.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.02)';
+                this.style.transition = 'transform 0.3s ease';
+            });
+
+            weightDisplay.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        }
+
+        // Timeline item animations
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateX(10px)';
+            });
+
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateX(0)';
+            });
+        });
+
+        // Page load animation
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelector('.container').style.opacity = '0';
-            document.querySelector('.container').style.transform = 'translateY(20px)';
+            const container = document.querySelector('.container');
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(20px)';
 
             setTimeout(() => {
-                document.querySelector('.container').style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                document.querySelector('.container').style.opacity = '1';
-                document.querySelector('.container').style.transform = 'translateY(0)';
+                container.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
             }, 100);
         });
     </script>

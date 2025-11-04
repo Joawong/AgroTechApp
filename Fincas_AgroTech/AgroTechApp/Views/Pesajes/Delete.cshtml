@@ -1,45 +1,484 @@
 ﻿@model AgroTechApp.Models.DB.Pesaje
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Eliminar Pesaje";
+    var primaryColor = "#2E8B57";
+    var secondaryColor = "#F4A460";
+    var dangerColor = "#dc3545";
 }
 
-<h1>Delete</h1>
+<div class="modal-overlay">
+    <div class="delete-modal">
+        <div class="modal-header">
+            <span class="warning-icon">⚠️</span>
+            <h1>Eliminar Registro de Pesaje</h1>
+            <p>Esta acción no se puede deshacer</p>
+        </div>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Pesaje</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Fecha)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Fecha)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PesoKg)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PesoKg)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Observacion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Observacion)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Animal)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Animal.AnimalId)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="PesajeId" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+        <div class="modal-body">
+            <!-- Resumen del Pesaje -->
+            <div class="pesaje-summary">
+                <div class="pesaje-avatar">
+                    ⚖️
+                </div>
+                <div class="pesaje-info">
+                    <h3>Registro de Pesaje #@Model.PesajeId</h3>
+                    <div class="pesaje-details">
+                        <strong>Animal ID:</strong> @Model.Animal.AnimalId |
+                        <strong>Fecha:</strong> @Model.Fecha.ToString("dd/MM/yyyy") |
+                        <strong>Estado:</strong> <span class="badge badge-danger">A eliminar</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Peso destacado -->
+            <div class="peso-display">
+                📊 Peso Registrado: @Html.DisplayFor(model => model.PesoKg) kg
+            </div>
+
+            <!-- Mensaje de Advertencia -->
+            <div class="warning-message">
+                <strong>⚠️ ADVERTENCIA:</strong> Está a punto de eliminar permanentemente este registro de pesaje del sistema.
+                Esta acción no se puede deshacer y se perderán todos los datos asociados.
+            </div>
+
+            <!-- Información Detallada -->
+            <div class="details-grid">
+                <div>
+                    <div class="detail-group">
+                        <div class="detail-label">🆔 ID del Pesaje</div>
+                        <div class="detail-value">@Html.DisplayFor(model => model.PesajeId)</div>
+                    </div>
+                    <div class="detail-group">
+                        <div class="detail-label">🐮 ID del Animal</div>
+                        <div class="detail-value">@Html.DisplayFor(model => model.Animal.AnimalId)</div>
+                    </div>
+                    <div class="detail-group">
+                        <div class="detail-label">📅 Fecha de Pesaje</div>
+                        <div class="detail-value">@Html.DisplayFor(model => model.Fecha)</div>
+                    </div>
+                </div>
+                <div>
+                    <div class="detail-group">
+                        <div class="detail-label">⚖️ Peso Registrado</div>
+                        <div class="detail-value">
+                            <strong style="color: var(--primary); font-size: 1.1rem;">@Html.DisplayFor(model => model.PesoKg) kg</strong>
+                        </div>
+                    </div>
+                    <div class="detail-group">
+                        <div class="detail-label">📝 Observaciones</div>
+                        <div class="detail-value">
+                            @if (!string.IsNullOrEmpty(Model.Observacion))
+                            {
+                                @Html.DisplayFor(model => model.Observacion)
+                            }
+                            else
+                            {
+                                <span style="color: #999; font-style: italic;">Sin observaciones</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="detail-group">
+                        <div class="detail-label">⏰ Hora del Pesaje</div>
+                        <div class="detail-value">@Model.Fecha.ToString("hh:mm tt")</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario de Eliminación -->
+            <form asp-action="Delete" id="deleteForm">
+                <input type="hidden" asp-for="PesajeId" />
+
+                <div class="btn-group">
+                    <a asp-action="Details" asp-route-id="@Model.PesajeId" class="btn btn-outline">
+                        <span>👁️</span> Ver Detalles
+                    </a>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <span>←</span> Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-danger" onclick="return confirmDelete()">
+                        <span>🗑️</span> Eliminar Pesaje
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+<script>
+    function confirmDelete() {
+        const pesajeId = '@Model.PesajeId';
+        const fecha = '@Model.Fecha.ToString("dd/MM/yyyy")';
+        const peso = '@Model.PesoKg kg';
+        const animalId = '@Model.Animal.AnimalId';
+
+        return confirm(`¿ESTÁ ABSOLUTAMENTE SEGURO?\n\nEstá a punto de eliminar permanentemente:\n\n📊 Registro de Pesaje #${pesajeId}\n📅 Fecha: ${fecha}\n⚖️ Peso: ${peso}\n🐮 Animal ID: ${animalId}\n\n✅ Esta acción NO se puede deshacer\n✅ Se perderán todos los datos del pesaje\n✅ No habrá forma de recuperarlos\n\n¿Continuar con la eliminación?`);
+    }
+
+    // Cerrar modal al hacer clic fuera de él
+    document.addEventListener('DOMContentLoaded', function() {
+        const overlay = document.querySelector('.modal-overlay');
+
+        overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+                window.location.href = '@Url.Action("Index")';
+            }
+        });
+
+        // Cerrar con tecla Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                window.location.href = '@Url.Action("Index")';
+            }
+        });
+
+        // Efecto de shake en el botón de eliminar al pasar el mouse
+        const deleteBtn = document.querySelector('.btn-danger');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('mouseenter', function() {
+                this.style.animation = 'shake 0.5s ease-in-out';
+            });
+
+            deleteBtn.addEventListener('animationend', function() {
+                this.style.animation = '';
+            });
+        }
+    });
+
+    // Animación de shake
+    const style = document.createElement('style');
+    style.textContent = `
+        @@keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+
+<style>
+    :root {
+        --primary: @primaryColor;
+        --secondary: @secondaryColor;
+        --danger: @dangerColor;
+        --light: #f8f9fa;
+        --dark: #333;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        padding: 20px;
+    }
+
+    .delete-modal {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        max-width: 600px;
+        width: 100%;
+        overflow: hidden;
+        animation: modalAppear 0.3s ease-out;
+    }
+
+    @@keyframes modalAppear {
+        from {
+            opacity: 0;
+            transform: scale(0.9) translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, var(--danger), #e74c3c);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+    }
+
+    .warning-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .modal-header h1 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: 600;
+    }
+
+    .modal-header p {
+        margin: 0.5rem 0 0;
+        opacity: 0.9;
+        font-size: 1rem;
+    }
+
+    .modal-body {
+        padding: 2rem;
+    }
+
+    .pesaje-summary {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: #fff5f5;
+        border-radius: 10px;
+        border-left: 4px solid var(--danger);
+    }
+
+    .pesaje-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--danger), #e74c3c);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2.5rem;
+        flex-shrink: 0;
+    }
+
+    .pesaje-info h3 {
+        margin: 0 0 0.5rem;
+        color: var(--dark);
+        font-size: 1.3rem;
+    }
+
+    .pesaje-details {
+        color: #666;
+        font-size: 0.9rem;
+        line-height: 1.4;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .detail-group {
+        margin-bottom: 1rem;
+    }
+
+    .detail-label {
+        font-weight: 600;
+        color: var(--dark);
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .detail-value {
+        color: #555;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .warning-message {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+        .warning-message strong {
+            color: #856404;
+        }
+
+    .btn-group {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-decoration: none;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        min-width: 140px;
+        justify-content: center;
+    }
+
+    .btn-danger {
+        background-color: var(--danger);
+        color: white;
+    }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 2px solid #6c757d;
+        color: #6c757d;
+    }
+
+        .btn-outline:hover {
+            background-color: #6c757d;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+    .badge {
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-danger {
+        background-color: #f8d7da;
+        color: var(--danger);
+    }
+
+    .badge-info {
+        background-color: #d1ecf1;
+        color: #17a2b8;
+    }
+
+    .badge-success {
+        background-color: #d4edda;
+        color: #28a745;
+    }
+
+    .badge-warning {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
+    .peso-display {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: var(--primary);
+        text-align: center;
+        padding: 1rem;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 10px;
+        margin: 1rem 0;
+        border: 2px solid var(--primary);
+    }
+
+    /* Responsive */
+    @@media (max-width: 768px) {
+        body {
+            padding: 10px;
+        }
+
+        .delete-modal {
+            max-width: 100%;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+        }
+
+            .modal-header h1 {
+                font-size: 1.5rem;
+            }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .pesaje-summary {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+        }
+
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .btn-group {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .modal-header h1 {
+            font-size: 1.3rem;
+        }
+
+        .modal-body {
+            padding: 1rem;
+        }
+
+        .pesaje-avatar {
+            width: 60px;
+            height: 60px;
+            font-size: 2rem;
+        }
+
+        .pesaje-info h3 {
+            font-size: 1.1rem;
+        }
+    }
+</style>
