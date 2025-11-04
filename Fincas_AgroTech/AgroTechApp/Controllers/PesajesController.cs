@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using AgroTechApp.Models.DB;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using AgroTechApp.Models.DB;
 
 namespace AgroTechApp.Controllers
 {
@@ -76,58 +72,75 @@ namespace AgroTechApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+
+
+        // GET: Pesajes/Details/5
+        public async Task<IActionResult> Details(long? id)
+        {
+            if (id == null) return NotFound();
+
+            var pesaje = await _context.Pesajes
+                .Include(p => p.Animal) // <- importante para ver Arete/Nombre
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.PesajeId == id);
+
+            if (pesaje == null) return NotFound();
+
+            return View(pesaje);
+        }
+
         // GET: Pesajes/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var pesaje = await _context.Pesajes.FindAsync(id);
-            if (pesaje == null)
-            {
-                return NotFound();
-            }
-            ViewData["AnimalId"] = new SelectList(_context.Animals, "AnimalId", "AnimalId", pesaje.AnimalId);
+            var pesaje = await _context.Pesajes
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.PesajeId == id);
+
+            if (pesaje == null) return NotFound();
+
+            var animales = _context.Animals
+                .Select(a => new { a.AnimalId, Texto = a.Arete + " - " + (a.Nombre ?? "(sin nombre)") })
+                .ToList();
+
+            ViewData["AnimalId"] = new SelectList(animales, "AnimalId", "Texto", pesaje.AnimalId);
             return View(pesaje);
         }
 
         // POST: Pesajes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("PesajeId,AnimalId,Fecha,PesoKg,Observacion")] Pesaje pesaje)
         {
-            if (id != pesaje.PesajeId)
+            if (id != pesaje.PesajeId) return NotFound();
+
+            // Evitar que el binder se meta con la navegación
+            ModelState.Remove("Animal");
+
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                var animales = _context.Animals
+                    .Select(a => new { a.AnimalId, Texto = a.Arete + " - " + (a.Nombre ?? "(sin nombre)") })
+                    .ToList();
+                ViewData["AnimalId"] = new SelectList(animales, "AnimalId", "Texto", pesaje.AnimalId);
+                return View(pesaje);
             }
 
-            if (ModelState.IsValid)
+            try
             {
-                try
-                {
-                    _context.Update(pesaje);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!PesajeExists(pesaje.PesajeId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                _context.Update(pesaje);
+                await _context.SaveChangesAsync();
             }
-            ViewData["AnimalId"] = new SelectList(_context.Animals, "AnimalId", "AnimalId", pesaje.AnimalId);
-            return View(pesaje);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.Pesajes.Any(e => e.PesajeId == id)) return NotFound();
+                throw;
+            }
+
+            return RedirectToAction(nameof(Index));
         }
+
 
         // GET: Pesajes/Delete/5
         public async Task<IActionResult> Delete(long? id)
