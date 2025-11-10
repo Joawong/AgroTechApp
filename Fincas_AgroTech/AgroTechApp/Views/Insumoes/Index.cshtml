@@ -1,49 +1,53 @@
 ﻿@model IEnumerable<AgroTechApp.Models.DB.Insumo>
-
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Gestión de Insumos";
+    // Helpers locales
+    var stock = ViewBag.StockPorInsumo as Dictionary<long, decimal> ?? new();
+    decimal S(long id) => stock.TryGetValue(id, out var s) ? s : 0m;
+
+    // Filtros actuales
+    long? selFinca = ViewBag?.FincaId?.SelectedValue as long?;
+    int? selCat = ViewBag?.CategoriaId?.SelectedValue as int?;
+    string selEst = ViewBag?.Estado as string ?? "";
+    string q = ViewBag?.Q as string ?? "";
+
+    int kTotal = ViewBag.TotalActivos ?? 0;
+    int kBajo = ViewBag.PorAcabarse ?? 0;
+    int kAgotados = ViewBag.Agotados ?? 0;
+    int kCategorias = ViewBag.Categorias ?? 0;
 }
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestión de Insumos - AgroTech</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #2E8B57;
             --primary-dark: #26734d;
             --primary-light: #3CB371;
-            --secondary: #F4A460;
-            --accent: #FF6B6B;
             --light: #f8f9fa;
             --dark: #2C3E50;
             --gray: #6c757d;
-            --gray-light: #e9ecef;
+            --border: #dee2e6;
+            --shadow: rgba(0,0,0,.08);
+            --shadow-hover: rgba(0,0,0,.15);
             --success: #28a745;
             --warning: #ffc107;
             --danger: #dc3545;
-            --info: #17a2b8;
-            --border: #dee2e6;
-            --shadow: rgba(0, 0, 0, 0.08);
-            --shadow-hover: rgba(0, 0, 0, 0.15);
         }
 
         * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            box-sizing: border-box
         }
 
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #e3f2fd 100%);
+            background: linear-gradient(135deg,#f5f7fa 0%,#e3f2fd 100%);
             color: var(--dark);
-            min-height: 100vh;
-            line-height: 1.6;
+            font-family: Inter, Segoe UI, Arial, sans-serif;
         }
 
         .container {
@@ -52,895 +56,384 @@
             padding: 0 20px;
         }
 
-        /* Header Styles */
-        .header {
-            background: white;
-            box-shadow: 0 4px 20px var(--shadow);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1rem 0;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .logo-icon {
-            font-size: 2.5rem;
-            color: var(--primary);
-        }
-
-        .logo-text h1 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary);
-            margin-bottom: 0.25rem;
-        }
-
-        .logo-text p {
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            background: var(--light);
-            padding: 0.75rem 1.5rem;
-            border-radius: 50px;
-            box-shadow: 0 2px 8px var(--shadow);
-        }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-        }
-
-        /* Main Content */
-        .main-content {
-            padding: 2rem 0;
-        }
-
         .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
+            margin: 24px 0;
+            gap: 12px;
             flex-wrap: wrap;
-            gap: 1rem;
         }
 
         .page-title {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--dark);
+            font-size: 28px;
+            font-weight: 800;
             display: flex;
-            align-items: center;
-            gap: 0.75rem;
+            gap: 10px;
+            align-items: center
         }
 
             .page-title i {
-                color: var(--primary);
+                color: var(--primary)
             }
 
         .page-actions {
             display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        /* Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 12px var(--shadow);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            cursor: pointer;
-        }
-
-            .stat-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 8px 20px var(--shadow-hover);
-            }
-
-        .stat-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-        }
-
-            .stat-icon.primary {
-                background: linear-gradient(135deg, var(--primary-light), var(--primary));
-                color: white;
-            }
-
-            .stat-icon.warning {
-                background: linear-gradient(135deg, #FFD166, var(--warning));
-                color: white;
-            }
-
-            .stat-icon.danger {
-                background: linear-gradient(135deg, #FF9E7D, var(--danger));
-                color: white;
-            }
-
-            .stat-icon.info {
-                background: linear-gradient(135deg, #118AB2, var(--info));
-                color: white;
-            }
-
-        .stat-info h3 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-        }
-
-        .stat-info p {
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        /* Filters & Search */
-        .filters-section {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 12px var(--shadow);
-            margin-bottom: 2rem;
-        }
-
-        .filters-header {
-            display: flex;
-            justify-content: between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .filters-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .filters-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .filter-label {
-            font-weight: 500;
-            color: var(--dark);
-            font-size: 0.9rem;
-        }
-
-        .filter-select, .filter-input {
-            padding: 0.75rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 0.9rem;
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-        }
-
-            .filter-select:focus, .filter-input:focus {
-                outline: none;
-                border-color: var(--primary);
-                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
-            }
-
-        .search-box {
-            position: relative;
-            grid-column: 1 / -1;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 0.75rem 1rem 0.75rem 2.5rem;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-
-            .search-input:focus {
-                outline: none;
-                border-color: var(--primary);
-                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
-            }
-
-        .search-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-        }
-
-        /* Table Section */
-        .table-section {
-            background: white;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 20px var(--shadow);
-            margin-bottom: 2rem;
-        }
-
-        .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem;
-            background: var(--light);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .table-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .table-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
-
-        .table-container {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th {
-            background: var(--light);
-            padding: 1rem;
-            text-align: left;
-            font-weight: 600;
-            color: var(--dark);
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-        }
-
-        td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border);
-            color: var(--dark);
-        }
-
-        tr {
-            transition: background-color 0.2s ease;
-        }
-
-            tr:hover {
-                background: #f8f9fa;
-            }
-
-        /* Status Badges */
-        .status-badge {
-            padding: 0.4rem 0.8rem;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .status-active {
-            background: #d4edda;
-            color: var(--success);
-        }
-
-        .status-inactive {
-            background: #f8d7da;
-            color: var(--danger);
-        }
-
-        .status-warning {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        /* Action Buttons */
-        .actions {
-            display: flex;
-            gap: 0.5rem;
+            gap: 10px;
+            flex-wrap: wrap
         }
 
         .btn {
-            padding: 0.5rem 1rem;
+            padding: .6rem 1rem;
             border: none;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            border-radius: 8px;
+            font-weight: 700;
             display: inline-flex;
+            gap: .5rem;
             align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
-        }
-
-        .btn-sm {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.8rem;
+            cursor: pointer;
+            text-decoration: none
         }
 
         .btn-primary {
             background: var(--primary);
-            color: white;
+            color: #fff
         }
 
             .btn-primary:hover {
-                background: var(--primary-dark);
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
-            }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-            .btn-success:hover {
-                background: #218838;
-                transform: translateY(-2px);
-            }
-
-        .btn-warning {
-            background: var(--warning);
-            color: var(--dark);
-        }
-
-            .btn-warning:hover {
-                background: #e0a800;
-                transform: translateY(-2px);
-            }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-            .btn-danger:hover {
-                background: #c82333;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+                background: var(--primary-dark)
             }
 
         .btn-outline {
-            background: transparent;
+            background: #fff;
             border: 1px solid var(--primary);
-            color: var(--primary);
+            color: var(--primary)
         }
 
             .btn-outline:hover {
                 background: var(--primary);
-                color: white;
+                color: #fff
             }
 
-        /* Pagination */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 1.5rem;
-            background: var(--light);
-            border-top: 1px solid var(--border);
-        }
-
-        .pagination-btn {
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--border);
-            background: white;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-            .pagination-btn:hover {
-                background: var(--primary);
-                color: white;
-                border-color: var(--primary);
-            }
-
-            .pagination-btn.active {
-                background: var(--primary);
-                color: white;
-                border-color: var(--primary);
-            }
-
-        .pagination-info {
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        /* Footer */
-        .footer {
-            text-align: center;
-            padding: 2rem 0;
-            margin-top: 3rem;
-            border-top: 1px solid var(--border);
-            color: var(--gray);
-            font-size: 0.9rem;
-        }
-
-        /* Animations */
-        @@keyframes fadeIn {
-            from
-
-        {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        }
-
-        .fade-in {
-            animation: fadeIn 0.5s ease forwards;
-        }
-
-        /* Responsive */
-        @@media (max-width: 768px) {
-            .header-content
-
-        {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-
-        .page-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-
-        .page-actions {
-            width: 100%;
-        }
-
-        .btn {
-            flex: 1;
-            justify-content: center;
-        }
-
-        .filters-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .table-header {
-            flex-direction: column;
-            gap: 1rem;
-            align-items: flex-start;
-        }
-
-        .table-actions {
-            width: 100%;
-            justify-content: flex-start;
-        }
-
-        }
-
-        @@media (max-width: 480px) {
-            .container
-
-        {
-            padding: 0 10px;
-        }
-
-        .logo-text h1 {
-            font-size: 1.5rem;
-        }
-
-        .page-title {
-            font-size: 1.5rem;
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+            gap: 16px;
+            margin-bottom: 20px
         }
 
         .stat-card {
-            flex-direction: column;
-            text-align: center;
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 16px var(--shadow);
+            display: flex;
+            gap: 14px;
+            align-items: center
         }
 
-        .actions {
-            flex-direction: column;
+        .stat-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 20px
+        }
+
+            .stat-icon.primary {
+                background: linear-gradient(135deg,var(--primary-light),var(--primary))
+            }
+
+            .stat-icon.warning {
+                background: linear-gradient(135deg,#FFD166,var(--warning))
+            }
+
+            .stat-icon.danger {
+                background: linear-gradient(135deg,#FF9E7D,var(--danger))
+            }
+
+            .stat-icon.info {
+                background: linear-gradient(135deg,#118AB2,#2A9FD6)
+            }
+
+        .filters {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px var(--shadow);
+            padding: 16px;
+            margin-bottom: 18px
+        }
+
+            .filters form {
+                display: grid;
+                grid-template-columns: repeat(5,1fr);
+                gap: 10px;
+                align-items: end
+            }
+
+            .filters .field {
+                display: flex;
+                flex-direction: column;
+                gap: 6px
+            }
+
+            .filters select, .filters input {
+                padding: .6rem .8rem;
+                border: 1px solid var(--border);
+                border-radius: 8px
+            }
+
+        .table-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px var(--shadow)
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .table-container {
+            overflow-x: auto
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        th {
+            background: var(--light);
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-weight: 700
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .status {
+            padding: .25rem .6rem;
+            border-radius: 999px;
+            font-size: .75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            display: inline-block
+        }
+
+        .ok {
+            background: #d4edda;
+            color: #155724
+        }
+
+        .low {
+            background: #fff3cd;
+            color: #856404
+        }
+
+        .zero {
+            background: #f8d7da;
+            color: #721c24
+        }
+
+        .off {
+            background: #e2e3e5;
+            color: #383d41
+        }
+
+        .row-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap
+        }
+
+        .btn-sm {
+            padding: .35rem .6rem;
+            border-radius: 6px;
+            font-weight: 700
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: #212529
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: #fff
+        }
+        @@media (max-width: 992px) {
+            .filters form
+
+        {
+            grid-template-columns: repeat(2,1fr)
+        }
+
+        }
+        @@media (max-width: 560px) {
+            .filters form
+
+        {
+            grid-template-columns: 1fr
         }
 
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <div class="logo-icon">
-                        <i class="fas fa-seedling"></i>
-                    </div>
-                    <div class="logo-text">
-                        <h1>AgroTech Insumos</h1>
-                        <p>Sistema de gestión de insumos agrícolas</p>
-                    </div>
-                </div>
-                <div class="user-info">
-                    <div class="user-avatar">JD</div>
-                    <div class="user-details">
-                        <div class="user-name">Juan Díaz</div>
-                        <div class="user-role">Administrador</div>
-                    </div>
-                </div>
+    <div class="container">
+        <!-- Header de página -->
+        <div class="page-header">
+            <div class="page-title"><i class="fas fa-boxes"></i> Gestión de Insumos</div>
+            <div class="page-actions">
+                <a asp-controller="Insumoes" asp-action="Create" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Nuevo Insumo
+                </a>
+                <a asp-controller="Inventario" asp-action="Entrada" asp-route-fincaId="@(selFinca ?? 0)" class="btn btn-primary">
+                    <i class="fas fa-arrow-down-wide-short"></i> Ingreso de Insumo Existente
+                </a>
+                <a asp-controller="Insumoes" asp-action="Index" asp-route-fincaId="@(selFinca)" class="btn btn-outline">
+                    <i class="fas fa-sync-alt"></i> Actualizar
+                </a>
             </div>
         </div>
-    </header>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <div class="container">
-            <!-- Page Header -->
-            <div class="page-header">
-                <h2 class="page-title">
-                    <i class="fas fa-boxes"></i>
-                    Gestión de Insumos
-                </h2>
-                <div class="page-actions">
-                    <button class="btn btn-primary">
-                        <i class="fas fa-plus"></i>
-                        Nuevo Insumo
-                    </button>
-                    <button class="btn btn-outline">
-                        <i class="fas fa-file-export"></i>
-                        Exportar
-                    </button>
-                    <button class="btn btn-outline">
-                        <i class="fas fa-sync-alt"></i>
-                        Actualizar
-                    </button>
-                </div>
+        <!-- KPIs -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon primary"><i class="fas fa-box"></i></div>
+                <div><div style="font-weight:800;font-size:1.3rem">@kTotal</div><div style="color:var(--gray)">Activos</div></div>
             </div>
-
-            <!-- Stats Cards -->
-            <div class="stats-grid">
-                <div class="stat-card fade-in">
-                    <div class="stat-icon primary">
-                        <i class="fas fa-box"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>142</h3>
-                        <p>Total Insumos</p>
-                    </div>
-                </div>
-                <div class="stat-card fade-in">
-                    <div class="stat-icon warning">
-                        <i class="fas fa-exclamation-triangle"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>8</h3>
-                        <p>Stock Bajo</p>
-                    </div>
-                </div>
-                <div class="stat-card fade-in">
-                    <div class="stat-icon danger">
-                        <i class="fas fa-times-circle"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>3</h3>
-                        <p>Agotados</p>
-                    </div>
-                </div>
-                <div class="stat-card fade-in">
-                    <div class="stat-icon info">
-                        <i class="fas fa-tags"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>15</h3>
-                        <p>Categorías</p>
-                    </div>
-                </div>
+            <div class="stat-card">
+                <div class="stat-icon warning"><i class="fas fa-exclamation-triangle"></i></div>
+                <div><div style="font-weight:800;font-size:1.3rem">@kBajo</div><div style="color:var(--gray)">Stock bajo</div></div>
             </div>
-
-            <!-- Filters Section -->
-            <div class="filters-section fade-in">
-                <div class="filters-header">
-                    <h3 class="filters-title">Filtros y Búsqueda</h3>
-                </div>
-                <div class="filters-grid">
-                    <div class="filter-group">
-                        <label class="filter-label">Categoría</label>
-                        <select class="filter-select">
-                            <option value="">Todas las categorías</option>
-                            <option value="fertilizantes">Fertilizantes</option>
-                            <option value="semillas">Semillas</option>
-                            <option value="herbicidas">Herbicidas</option>
-                            <option value="insumos">Insumos Varios</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Estado</label>
-                        <select class="filter-select">
-                            <option value="">Todos los estados</option>
-                            <option value="activo">Activo</option>
-                            <option value="inactivo">Inactivo</option>
-                            <option value="bajo-stock">Stock Bajo</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <label class="filter-label">Proveedor</label>
-                        <select class="filter-select">
-                            <option value="">Todos los proveedores</option>
-                            <option value="agroservi">AgroServi S.A.</option>
-                            <option value="fertimax">FertiMax</option>
-                            <option value="semillas-pro">Semillas Pro</option>
-                        </select>
-                    </div>
-                    <div class="filter-group search-box">
-                        <label class="filter-label">Buscar insumo</label>
-                        <div class="search-container">
-                            <i class="fas fa-search search-icon"></i>
-                            <input type="text" class="search-input" placeholder="Buscar por nombre, código...">
-                        </div>
-                    </div>
-                </div>
+            <div class="stat-card">
+                <div class="stat-icon danger"><i class="fas fa-times-circle"></i></div>
+                <div><div style="font-weight:800;font-size:1.3rem">@kAgotados</div><div style="color:var(--gray)">Agotados</div></div>
             </div>
-
-            <!-- Table Section -->
-            <div class="table-section fade-in">
-                <div class="table-header">
-                    <h3 class="table-title">Lista de Insumos</h3>
-                    <div class="table-actions">
-                        <button class="btn btn-outline btn-sm">
-                            <i class="fas fa-columns"></i>
-                            Columnas
-                        </button>
-                        <button class="btn btn-outline btn-sm">
-                            <i class="fas fa-filter"></i>
-                            Filtros
-                        </button>
-                    </div>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Código</th>
-                                <th>Nombre</th>
-                                <th>Categoría</th>
-                                <th>Stock</th>
-                                <th>Unidad</th>
-                                <th>Proveedor</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>INS-001</td>
-                                <td>Urea Granulada</td>
-                                <td>Fertilizantes</td>
-                                <td>45</td>
-                                <td>kg</td>
-                                <td>FertiMax</td>
-                                <td><span class="status-badge status-active">Activo</span></td>
-                                <td class="actions">
-                                    <button class="btn btn-success btn-sm">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>INS-002</td>
-                                <td>Maíz Híbrido</td>
-                                <td>Semillas</td>
-                                <td>120</td>
-                                <td>kg</td>
-                                <td>Semillas Pro</td>
-                                <td><span class="status-badge status-active">Activo</span></td>
-                                <td class="actions">
-                                    <button class="btn btn-success btn-sm">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>INS-003</td>
-                                <td>Glifosato</td>
-                                <td>Herbicidas</td>
-                                <td>5</td>
-                                <td>L</td>
-                                <td>AgroServi S.A.</td>
-                                <td><span class="status-badge status-warning">Stock Bajo</span></td>
-                                <td class="actions">
-                                    <button class="btn btn-success btn-sm">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>INS-004</td>
-                                <td>Sulfato de Amonio</td>
-                                <td>Fertilizantes</td>
-                                <td>0</td>
-                                <td>kg</td>
-                                <td>FertiMax</td>
-                                <td><span class="status-badge status-inactive">Agotado</span></td>
-                                <td class="actions">
-                                    <button class="btn btn-success btn-sm">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>INS-005</td>
-                                <td>Trigo Forrajero</td>
-                                <td>Semillas</td>
-                                <td>85</td>
-                                <td>kg</td>
-                                <td>Semillas Pro</td>
-                                <td><span class="status-badge status-active">Activo</span></td>
-                                <td class="actions">
-                                    <button class="btn btn-success btn-sm">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-warning btn-sm">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="pagination">
-                    <button class="pagination-btn">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <button class="pagination-btn active">1</button>
-                    <button class="pagination-btn">2</button>
-                    <button class="pagination-btn">3</button>
-                    <span class="pagination-info">de 8 páginas</span>
-                    <button class="pagination-btn">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
-                </div>
+            <div class="stat-card">
+                <div class="stat-icon info"><i class="fas fa-tags"></i></div>
+                <div><div style="font-weight:800;font-size:1.3rem">@kCategorias</div><div style="color:var(--gray)">Categorías</div></div>
             </div>
         </div>
-    </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <p>© 2023 AgroTech - Sistema de Gestión de Insumos. Todos los derechos reservados.</p>
+        <!-- Filtros -->
+        <div class="filters">
+            <form method="get" asp-action="Index">
+                <div class="field">
+                    <label>Finca</label>
+                    <select name="fincaId" asp-items="ViewBag.FincaId">
+                        <option value="">(Todas)</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Categoría</label>
+                    <select name="categoriaId" asp-items="ViewBag.CategoriaId">
+                        <option value="">(Todas)</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Estado</label>
+                    <select name="estado">
+                        <option value="" selected="@(string.IsNullOrEmpty(selEst) ? "selected" : null)">(Todos)</option>
+                        <option value="activo" selected="@(selEst == "activo" ? "selected" : null)">Activo</option>
+                        <option value="inactivo" selected="@(selEst == "inactivo" ? "selected" : null)">Inactivo</option>
+                        <option value="bajo" selected="@(selEst == "bajo" ? "selected" : null)">Stock Bajo</option>
+                        <option value="agotado" selected="@(selEst == "agotado" ? "selected" : null)">Agotado</option>
+                    </select>
+                </div>
+                <div class="field" style="grid-column: span 2;">
+                    <label>Buscar</label>
+                    <input type="text" name="q" value="@q" placeholder="Nombre o categoría..." />
+                </div>
+                <div class="field">
+                    <button type="submit" class="btn btn-outline"><i class="fas fa-filter"></i> Aplicar</button>
+                </div>
+            </form>
         </div>
-    </footer>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Efectos de hover en tarjetas y botones
-            const cards = document.querySelectorAll('.stat-card, .btn');
-            cards.forEach(card => {
-                card.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-5px)';
-                });
+        <!-- Tabla -->
+        <div class="table-card">
+            <div class="table-header">
+                <div style="font-weight:800">Lista de Insumos</div>
+                <div class="row-actions">
+                    <!-- botón columnas / export si quieres más tarde -->
+                    <a asp-controller="Insumoes" asp-action="Create" class="btn btn-outline btn-sm"><i class="fas fa-plus"></i> Nuevo</a>
+                </div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:110px;">Código</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th style="width:110px;">Stock</th>
+                            <th style="width:120px;">Unidad</th>
+                            <th style="width:120px;">Estado</th>
+                            <th style="width:340px;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var i in Model)
+                        {
+                            var stockActual = S(i.InsumoId);
+                            var statusCss = i.Activo ? (stockActual == 0 ? "zero" : (stockActual <= i.StockMinimo ? "low" : "ok")) : "off";
+                            var statusTxt = i.Activo ? (stockActual == 0 ? "Agotado" : (stockActual <= i.StockMinimo ? "Stock Bajo" : "OK")) : "Inactivo";
+                            var codigo = $"INS-{i.InsumoId:D4}";
+                            <tr>
+                                <td>@codigo</td>
+                                <td>@i.Nombre</td>
+                                <td>@i.Categoria?.Nombre</td>
+                                <td>@stockActual</td>
+                                <td>@i.Unidad?.Codigo</td>
+                                <td><span class="status @statusCss">@statusTxt</span></td>
+                                <td>
+                                    <div class="row-actions">
+                                        <a class="btn btn-primary btn-sm" asp-controller="Inventario" asp-action="Entrada"
+                                           asp-route-insumoId="@i.InsumoId" asp-route-fincaId="@i.FincaId" title="Registrar entrada">
+                                            <i class="fas fa-arrow-down-wide-short"></i> Entrada
+                                        </a>
+                                        <a class="btn btn-warning btn-sm" asp-controller="Inventario" asp-action="Consumo"
+                                           asp-route-insumoId="@i.InsumoId" asp-route-fincaId="@i.FincaId" title="Registrar consumo">
+                                            <i class="fas fa-arrow-up-wide-short"></i> Consumo
+                                        </a>
+                                        <a class="btn btn-outline btn-sm" asp-action="Edit" asp-route-id="@i.InsumoId" title="Editar">
+                                            <i class="fas fa-edit"></i> Editar
+                                        </a>
+                                        <a class="btn btn-outline btn-sm" asp-action="Details" asp-route-id="@i.InsumoId" title="Detalles">
+                                            <i class="fas fa-eye"></i> Detalle
+                                        </a>
+                                        <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@i.InsumoId" title="Eliminar">
+                                            <i class="fas fa-trash"></i> Eliminar
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-                card.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0)';
-                });
-            });
-
-            // Filtro de búsqueda en tiempo real
-            const searchInput = document.querySelector('.search-input');
-            searchInput.addEventListener('input', function() {
-                const searchTerm = this.value.toLowerCase();
-                const rows = document.querySelectorAll('tbody tr');
-
-                rows.forEach(row => {
-                    const text = row.textContent.toLowerCase();
-                    if (text.includes(searchTerm)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-            });
-
-            // Simular carga de datos
-            setTimeout(() => {
-                const fadeElements = document.querySelectorAll('.fade-in');
-                fadeElements.forEach(el => {
-                    el.style.opacity = '1';
-                    el.style.transform = 'translateY(0)';
-                });
-            }, 100);
-
-            // Efecto de confirmación al eliminar
-            const deleteButtons = document.querySelectorAll('.btn-danger');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const row = this.closest('tr');
-                    const itemName = row.cells[1].textContent;
-
-                    if (confirm(`¿Está seguro de que desea eliminar el insumo "${itemName}"?`)) {
-                        row.style.backgroundColor = '#ffebee';
-                        setTimeout(() => {
-                            row.remove();
-                        }, 500);
-                    }
-                });
-            });
-        });
-    </script>
+        <div style="height:24px"></div>
+    </div>
 </body>
 </html>

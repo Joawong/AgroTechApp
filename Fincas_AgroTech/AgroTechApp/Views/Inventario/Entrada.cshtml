@@ -1,0 +1,340 @@
+﻿@model AgroTechApp.ViewModels.EntradaVM
+
+@{
+    ViewData["Title"] = "Registrar Entrada de Insumo";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --border: #e1e5e9;
+            --gray: #6c757d;
+            --shadow: rgba(0,0,0,.1);
+        }
+
+        body {
+            background: linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);
+            padding: 20px;
+            font-family: Segoe UI,Arial,sans-serif;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .form-card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px var(--shadow);
+        }
+
+        .form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .form-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #333;
+            display: flex;
+            gap: .5rem;
+            align-items: center;
+        }
+
+        .form-body {
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+            gap: 1rem 1.25rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: .4rem;
+        }
+
+        .full {
+            grid-column: 1 / -1;
+        }
+
+        label {
+            font-weight: 600;
+        }
+
+        input, select, textarea {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: .7rem .85rem;
+            font-size: .95rem;
+            background: #fff;
+        }
+
+        .hint {
+            font-size: .85rem;
+            color: var(--gray);
+        }
+
+        .kpi {
+            background: #fff;
+            border: 1px dashed var(--border);
+            padding: .6rem .8rem;
+            border-radius: 8px;
+            display: inline-flex;
+            gap: .5rem;
+            align-items: center;
+        }
+
+        .row-inline {
+            display: flex;
+            gap: .6rem;
+            align-items: center;
+        }
+
+        .actions {
+            display: flex;
+            gap: .8rem;
+            margin-top: 1.25rem;
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 8px;
+            padding: .7rem 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            gap: .45rem;
+            align-items: center;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: #fff;
+        }
+
+        .toggle {
+            display: flex;
+            gap: .6rem;
+            align-items: center;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: .9rem;
+        }
+
+        .text-danger {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-card">
+            <div class="form-header">
+                <div class="form-title">
+                    <i class="fas fa-arrow-down-wide-short"></i> Registrar entrada a inventario
+                </div>
+                <div class="kpi">
+                    <i class="fas fa-boxes-stacked"></i>
+                    <span>Stock actual: <strong id="stockActual">—</strong></span>
+                </div>
+            </div>
+
+            <form asp-action="Entrada" method="post" id="entradaForm">
+                @Html.AntiForgeryToken()
+                <span asp-validation-summary="ModelOnly" class="text-danger"></span>
+
+                <div class="form-body">
+                    <!-- Finca -->
+                    <div class="form-group">
+                        <label for="FincaId">Finca</label>
+                        <select asp-for="FincaId" asp-items="ViewBag.FincaId" id="FincaId"></select>
+                        <span asp-validation-for="FincaId" class="error"></span>
+                    </div>
+
+                    <!-- Buscador + Select de Insumo -->
+                    <div class="form-group">
+                        <label>Insumo</label>
+                        <div class="row-inline">
+                            <input type="text" id="insumoSearch" placeholder="Buscar por nombre o categoría..." />
+                            <button type="button" id="btnBuscar" class="btn">Buscar</button>
+                        </div>
+                        <select id="insumoSelect"></select>
+                        <input type="hidden" asp-for="InsumoId" id="InsumoId" />
+                        <span asp-validation-for="InsumoId" class="error"></span>
+                        <div class="hint">Escriba y presione “Buscar”, luego seleccione el insumo.</div>
+                    </div>
+
+                    <!-- Cantidad -->
+                    <div class="form-group">
+                        <label asp-for="Cantidad"></label>
+                        <input asp-for="Cantidad" type="number" step="0.01" min="0.0001" />
+                        <span asp-validation-for="Cantidad" class="error"></span>
+                    </div>
+
+                    <!-- Precio Unitario -->
+                    <div class="form-group">
+                        <label asp-for="PrecioUnitario">Precio unitario (opcional)</label>
+                        <input asp-for="PrecioUnitario" type="number" step="0.01" min="0" />
+                        <span asp-validation-for="PrecioUnitario" class="error"></span>
+                    </div>
+
+                    <!-- Fecha -->
+                    <div class="form-group">
+                        <label asp-for="Fecha">Fecha</label>
+                        <input asp-for="Fecha" type="date" id="Fecha" />
+                        <span asp-validation-for="Fecha" class="error"></span>
+                    </div>
+
+                    <!-- Toggle Lote -->
+                    <div class="form-group toggle full">
+                        <input asp-for="UsarLote" type="checkbox" id="UsarLote" />
+                        <label for="UsarLote">Gestionar por lote (opcional)</label>
+                    </div>
+
+                    <!-- Lote (colapsable) -->
+                    <div id="loteGroup" class="full" style="display:none;">
+                        <div class="form-body" style="grid-template-columns:repeat(3,1fr)">
+                            <div class="form-group">
+                                <label asp-for="CodigoLote">Código de lote</label>
+                                <input asp-for="CodigoLote" />
+                                <span asp-validation-for="CodigoLote" class="error"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="FechaVencimiento">Fecha de vencimiento</label>
+                                <input asp-for="FechaVencimiento" type="date" id="FechaVencimiento" />
+                                <span asp-validation-for="FechaVencimiento" class="error"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="Observaciones">Observaciones</label>
+                                <input asp-for="Observaciones" />
+                                <span asp-validation-for="Observaciones" class="error"></span>
+                            </div>
+                        </div>
+                        <div class="hint">Use lote para medicamentos, vacunas, semillas o insumos con vencimiento. Para combustibles o granel, déjelo apagado.</div>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar entrada
+                    </button>
+                    <a asp-controller="Insumoes" asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+        <script>
+            (function () {
+                const FincaId = document.getElementById('FincaId');
+                const insumoSearch = document.getElementById('insumoSearch');
+                const btnBuscar = document.getElementById('btnBuscar');
+                const insumoSelect = document.getElementById('insumoSelect');
+                const InsumoIdHidden = document.getElementById('InsumoId');
+                const stockActual = document.getElementById('stockActual');
+
+                const UsarLote = document.getElementById('UsarLote');
+                const loteGroup = document.getElementById('loteGroup');
+
+                // Fecha default hoy
+                const fechaInput = document.getElementById('Fecha');
+                if (fechaInput && !fechaInput.value) {
+                    const today = new Date();
+                    const yyyy = today.getFullYear();
+                    const mm = String(today.getMonth() + 1).padStart(2, '0');
+                    const dd = String(today.getDate()).padStart(2, '0');
+                    fechaInput.value = `${yyyy}-${mm}-${dd}`;
+                }
+
+                // Toggle lote
+                function toggleLote() {
+                    loteGroup.style.display = UsarLote.checked ? '' : 'none';
+                }
+                UsarLote.addEventListener('change', toggleLote);
+                toggleLote();
+
+                // Rellena el select con resultados de búsqueda
+                async function buscarInsumos() {
+                    const term = (insumoSearch.value || '').trim();
+                    const finca = FincaId.value || '';
+                    const url = `/Inventario/BuscarInsumos?term=${encodeURIComponent(term)}&fincaId=${encodeURIComponent(finca)}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    insumoSelect.innerHTML = '';
+                    data.forEach(item => {
+                        const opt = document.createElement('option');
+                        opt.value = item.insumoId || item.InsumoId;
+                        opt.textContent = item.texto || item.Texto;
+                        insumoSelect.appendChild(opt);
+                    });
+                    if (insumoSelect.options.length > 0) {
+                        insumoSelect.selectedIndex = 0;
+                        InsumoIdHidden.value = insumoSelect.value;
+                        actualizarStock();
+                    } else {
+                        InsumoIdHidden.value = '';
+                        stockActual.textContent = '—';
+                    }
+                }
+
+                // Cambios que disparan actualización de stock
+                async function actualizarStock() {
+                    const insumoId = InsumoIdHidden.value;
+                    const fincaId = FincaId.value;
+                    if (!insumoId || !fincaId) { stockActual.textContent = '—'; return; }
+                    const url = `/Inventario/Stock?insumoId=${encodeURIComponent(insumoId)}&fincaId=${encodeURIComponent(fincaId)}`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    stockActual.textContent = (data.stock ?? 0);
+                }
+
+                btnBuscar.addEventListener('click', buscarInsumos);
+                insumoSearch.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); buscarInsumos(); } });
+                FincaId.addEventListener('change', actualizarStock);
+                insumoSelect.addEventListener('change', () => { InsumoIdHidden.value = insumoSelect.value; actualizarStock(); });
+
+                // Primera carga: usar combos iniciales enviados por el servidor
+                (function initFromServerSelect() {
+                    const serverSelect = document.querySelector('select[name="InsumoSelect"]'); // por si existiera
+                })();
+
+                // Validación mínima antes de enviar
+                const form = document.getElementById('entradaForm');
+                form.addEventListener('submit', (e) => {
+                    if (!InsumoIdHidden.value) {
+                        e.preventDefault();
+                        alert('Seleccione un insumo de la lista.');
+                        return;
+                    }
+                });
+            })();
+        </script>
+    }
+</body>
+</html>

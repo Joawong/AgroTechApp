@@ -257,3 +257,28 @@ CREATE INDEX IX_Animal_Finca_Arete ON agro.Animal(FincaId, Arete);
 CREATE INDEX IX_Tratamiento_Finca_Fecha ON agro.Tratamiento(FincaId, Fecha);
 CREATE INDEX IX_Gasto_Finca_Fecha ON agro.Gasto(FincaId, Fecha);
 CREATE INDEX IX_Ingreso_Finca_Fecha ON agro.Ingreso(FincaId, Fecha);
+
+-- Vista de stock (por finca e insumo)
+CREATE OR ALTER VIEW agro.vStockPorInsumo AS
+SELECT m.FincaId, m.InsumoId, SUM(m.Cantidad) AS Stock
+FROM agro.MovimientoInventario m
+GROUP BY m.FincaId, m.InsumoId;
+go 
+
+
+CREATE OR ALTER VIEW agro.vStockPorLote AS
+SELECT m.FincaId, m.InsumoId, m.LoteId, SUM(m.Cantidad) AS Stock
+FROM agro.MovimientoInventario m
+GROUP BY m.FincaId, m.InsumoId, m.LoteId;
+go
+
+
+-- Un insumo con mismo Nombre por Finca
+CREATE UNIQUE INDEX UX_Insumo_Finca_Nombre
+ON agro.Insumo (FincaId, Nombre);
+
+
+-- Semilla para tipos
+INSERT INTO agro.TipoMovimientoInventario(Nombre) 
+SELECT v FROM (VALUES ('Compra'),('Consumo'),('Ajuste+'),('Ajuste-')) AS t(v)
+WHERE NOT EXISTS (SELECT 1 FROM agro.TipoMovimientoInventario);

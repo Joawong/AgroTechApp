@@ -1,8 +1,8 @@
 using AgroTechApp.Data;
+using AgroTechApp.Models.DB;
+using AgroTechApp.Services.Inventario;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using AgroTechApp.Models.DB;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +22,8 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<IInventarioService, InventarioService>();
 
 var app = builder.Build();
 
@@ -48,5 +50,12 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var connection = dbContext.Database.GetDbConnection();
+    Console.WriteLine($"?? ApplicationDbContext se conectó a la base de datos: {connection.Database} en {connection.DataSource}");
+}
 
 app.Run();

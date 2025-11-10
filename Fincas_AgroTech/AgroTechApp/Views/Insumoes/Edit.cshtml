@@ -578,6 +578,7 @@
         </header>
 
         <!-- Main Content -->
+        @* === REEMPLAZA SOLO ESTA SECCIÓN EN TU VISTA === *@
         <div class="main-content">
             <!-- Form Section -->
             <div class="form-section">
@@ -592,123 +593,115 @@
                         </div>
                     </div>
 
-                    <form id="insumoForm">
+                    <form asp-action="Edit" method="post" id="insumoForm">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="InsumoId" />
+
                         <div class="form-grid">
                             <!-- ID del Insumo (solo lectura) -->
                             <div class="form-group">
-                                <label for="insumoId" class="required">
+                                <label class="required">
                                     <i class="fas fa-fingerprint"></i>
                                     ID del Insumo
                                 </label>
-                                <input type="text" id="insumoId" class="form-control" value="INS-2024-001" disabled>
+                                <input type="text" class="form-control" value="INS-@Model.InsumoId.ToString("D4")" disabled />
                                 <div class="form-help">
                                     <i class="fas fa-info-circle"></i>
                                     Identificador único del insumo (no editable)
                                 </div>
                             </div>
 
-                            <!-- Finca -->
+                            <!-- Finca (solo lectura) -->
                             <div class="form-group">
-                                <label for="fincaId" class="required">
+                                <label class="required">
                                     <i class="fas fa-tractor"></i>
                                     Finca
                                 </label>
                                 <div class="select-wrapper">
-                                    <select id="fincaId" class="form-control" required>
-                                        <option value="">Seleccione una finca</option>
-                                        <option value="1" selected>Finca La Esperanza</option>
-                                        <option value="2">Finca El Progreso</option>
-                                        <option value="3">Finca San José</option>
-                                        <option value="4">Finca Santa María</option>
-                                    </select>
+                                    <input type="text" class="form-control" value="@ViewBag.FincaNombre" disabled />
+                                    <input type="hidden" asp-for="FincaId" />
+                                </div>
+                                <div class="form-help">
+                                    <i class="fas fa-lock"></i>
+                                    La finca no se puede cambiar para no romper el historial de stock.
                                 </div>
                             </div>
 
-                            <!-- Categoría -->
+                            <!-- Categoría (editable) -->
                             <div class="form-group">
-                                <label for="categoriaId" class="required">
+                                <label class="required" asp-for="CategoriaId">
                                     <i class="fas fa-tags"></i>
                                     Categoría
                                 </label>
                                 <div class="select-wrapper">
-                                    <select id="categoriaId" class="form-control" required>
-                                        <option value="">Seleccione una categoría</option>
-                                        <option value="1" selected>Fertilizantes</option>
-                                        <option value="2">Plaguicidas</option>
-                                        <option value="3">Semillas</option>
-                                        <option value="4">Herbicidas</option>
-                                        <option value="5">Equipos</option>
-                                    </select>
+                                    <select asp-for="CategoriaId" class="form-control" asp-items="ViewBag.CategoriaId" required></select>
                                 </div>
+                                <span asp-validation-for="CategoriaId" class="text-danger"></span>
                             </div>
 
-                            <!-- Unidad -->
+                            <!-- Unidad (editable) -->
                             <div class="form-group">
-                                <label for="unidadId" class="required">
+                                <label class="required" asp-for="UnidadId">
                                     <i class="fas fa-balance-scale"></i>
                                     Unidad de Medida
                                 </label>
                                 <div class="select-wrapper">
-                                    <select id="unidadId" class="form-control" required>
-                                        <option value="">Seleccione una unidad</option>
-                                        <option value="1">Kilogramos (kg)</option>
-                                        <option value="2" selected>Litros (L)</option>
-                                        <option value="3">Gramos (g)</option>
-                                        <option value="4">Unidades (ud)</option>
-                                        <option value="5">Metros (m)</option>
-                                    </select>
+                                    <select asp-for="UnidadId" class="form-control" asp-items="ViewBag.UnidadId" required></select>
                                 </div>
+                                <span asp-validation-for="UnidadId" class="text-danger"></span>
                             </div>
 
-                            <!-- Nombre -->
+                            <!-- Nombre (editable) -->
                             <div class="form-group full-width">
-                                <label for="nombre" class="required">
+                                <label class="required" asp-for="Nombre">
                                     <i class="fas fa-tag"></i>
                                     Nombre del Insumo
                                 </label>
-                                <input type="text" id="nombre" class="form-control" value="Fertilizante NPK 15-15-15" required>
+                                <input asp-for="Nombre" class="form-control" required />
+                                <span asp-validation-for="Nombre" class="text-danger"></span>
                                 <div class="form-help">
                                     <i class="fas fa-lightbulb"></i>
-                                    Ingrese un nombre descriptivo para el insumo
+                                    Ingrese un nombre descriptivo y único (ej. “Urea 46%”).
                                 </div>
                             </div>
 
-                            <!-- Stock Mínimo -->
+                            <!-- Stock Mínimo (editable) -->
                             <div class="form-group">
-                                <label for="stockMinimo" class="required">
+                                <label class="required" asp-for="StockMinimo">
                                     <i class="fas fa-boxes"></i>
                                     Stock Mínimo
                                 </label>
-                                <input type="number" id="stockMinimo" class="form-control" value="50" min="0" step="0.01" required>
+                                <input asp-for="StockMinimo" class="form-control" min="0" step="1" required />
+                                <span asp-validation-for="StockMinimo" class="text-danger"></span>
                                 <div class="form-help">
                                     <i class="fas fa-exclamation-triangle"></i>
-                                    Cantidad mínima antes de generar alerta
+                                    Umbral para alerta de reposición.
                                 </div>
                             </div>
 
-                            <!-- Estado -->
+                            <!-- Estado (editable) -->
                             <div class="form-group full-width">
                                 <div class="switch-group">
                                     <label class="switch">
-                                        <input type="checkbox" id="activo" checked>
+                                        <input asp-for="Activo" id="activo" />
                                         <span class="slider"></span>
                                     </label>
                                     <span class="switch-label">Insumo Activo</span>
                                 </div>
+                                <span asp-validation-for="Activo" class="text-danger"></span>
                                 <div class="form-help">
                                     <i class="fas fa-power-off"></i>
-                                    Desactive para dar de baja temporalmente el insumo
+                                    Desactive para dar de baja temporalmente el insumo.
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Action Buttons -->
                         <div class="action-buttons">
-                            <a href="#" class="btn btn-outline">
-                                <i class="fas fa-times"></i>
-                                Cancelar
+                            <a asp-action="Index" class="btn btn-outline">
+                                <i class="fas fa-arrow-left"></i>
+                                Volver
                             </a>
-                            <button type="button" id="resetBtn" class="btn btn-secondary">
+                            <button type="reset" class="btn btn-secondary">
                                 <i class="fas fa-undo"></i>
                                 Restablecer
                             </button>
@@ -717,13 +710,15 @@
                                 Guardar Cambios
                             </button>
                         </div>
+
+                        <div asp-validation-summary="ModelOnly" class="validation"></div>
                     </form>
                 </div>
             </div>
 
             <!-- Sidebar -->
             <div class="sidebar">
-                <!-- Información del Insumo -->
+                <!-- Información del Insumo (relevante para edición) -->
                 <div class="info-card">
                     <div class="info-header">
                         <div class="info-icon">
@@ -732,48 +727,62 @@
                         <div class="info-title">Información del Insumo</div>
                     </div>
                     <div class="info-content">
-                        <p><strong>ID:</strong> INS-2024-001</p>
-                        <p><strong>Creado:</strong> 15/01/2024</p>
-                        <p><strong>Última actualización:</strong> Hoy</p>
+                        <p><strong>Código:</strong> INS-@Model.InsumoId.ToString("D4")</p>
+                        <p><strong>Finca:</strong> @ViewBag.FincaNombre</p>
+                        <p><strong>Categoría actual:</strong> @ViewBag.CategoriaActual</p>
+                        <p><strong>Unidad actual:</strong> @ViewBag.UnidadActual</p>
                         <p>
                             <strong>Estado:</strong>
-                            <span class="status-badge status-active">
-                                <i class="fas fa-check-circle"></i>
-                                Activo
-                            </span>
+                            @if (Model.Activo)
+                            {
+                                <span class="status-badge status-active"><i class="fas fa-check-circle"></i> Activo</span>
+                            }
+                            else
+                            {
+                                <span class="status-badge status-inactive"><i class="fas fa-times-circle"></i> Inactivo</span>
+                            }
                         </p>
                     </div>
                 </div>
 
-                <!-- Estadísticas Rápidas -->
+                <!-- Métricas útiles para decidir cambios -->
                 <div class="info-card">
                     <div class="info-header">
                         <div class="info-icon">
                             <i class="fas fa-chart-bar"></i>
                         </div>
-                        <div class="info-title">Estadísticas</div>
+                        <div class="info-title">Estado de Inventario</div>
                     </div>
                     <div class="stats-grid">
                         <div class="stat-item">
-                            <div class="stat-value">85%</div>
-                            <div class="stat-label">Stock Actual</div>
+                            <div class="stat-value">@((decimal)(ViewBag.StockActual ?? 0m))</div>
+                            <div class="stat-label">Stock actual</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value">12</div>
+                            <div class="stat-value">@Model.StockMinimo</div>
+                            <div class="stat-label">Stock mínimo</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">@((int)(ViewBag.Movimientos ?? 0))</div>
                             <div class="stat-label">Movimientos</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value">3</div>
-                            <div class="stat-label">Alertas</div>
-                        </div>
-                        <div class="stat-item">
-                            <div class="stat-value">95%</div>
-                            <div class="stat-label">Disponibilidad</div>
+                            <div class="stat-value">
+                                @(ViewBag.UltimoMov is DateTime d ? d.ToString("dd/MM/yyyy") : "—")
+                            </div>
+                            <div class="stat-label">Último movimiento</div>
                         </div>
                     </div>
+                    @if ((decimal)(ViewBag.StockActual ?? 0m) <= Model.StockMinimo)
+                    {
+                        <div class="form-help" style="margin-top:.75rem;">
+                            <i class="fas fa-exclamation-triangle" style="color:var(--warning)"></i>
+                            El stock está en o por debajo del mínimo. Considere programar una compra.
+                        </div>
+                    }
                 </div>
 
-                <!-- Acciones Rápidas -->
+                <!-- Acciones Rápidas orientadas a inventario -->
                 <div class="info-card">
                     <div class="info-header">
                         <div class="info-icon">
@@ -782,22 +791,33 @@
                         <div class="info-title">Acciones Rápidas</div>
                     </div>
                     <div class="info-content">
-                        <button class="btn btn-outline" style="width: 100%; margin-bottom: 0.5rem;">
+                        <a asp-action="Index" class="btn btn-outline" style="width: 100%; margin-bottom: 0.5rem;">
                             <i class="fas fa-history"></i>
-                            Ver Historial
-                        </button>
-                        <button class="btn btn-outline" style="width: 100%; margin-bottom: 0.5rem;">
-                            <i class="fas fa-chart-line"></i>
-                            Ver Reportes
-                        </button>
-                        <button class="btn btn-outline" style="width: 100%;">
-                            <i class="fas fa-file-export"></i>
-                            Exportar Datos
-                        </button>
+                            Volver a la lista
+                        </a>
+                        <a asp-action="Create" class="btn btn-outline" style="width: 100%; margin-bottom: 0.5rem;">
+                            <i class="fas fa-plus-circle"></i>
+                            Nuevo insumo
+                        </a>
+                        <a asp-controller="Movimientos" asp-action="Entrada" asp-route-insumoId="@Model.InsumoId" class="btn btn-outline" style="width: 100%; margin-bottom: 0.5rem;">
+                            <i class="fas fa-arrow-down"></i>
+                            Registrar entrada
+                        </a>
+                        <a asp-controller="Movimientos" asp-action="Consumo" asp-route-insumoId="@Model.InsumoId" class="btn btn-outline" style="width: 100%;">
+                            <i class="fas fa-arrow-up"></i>
+                            Registrar consumo
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
+
+        @section Scripts{
+            @{
+                await Html.RenderPartialAsync("_ValidationScriptsPartial");
+            }
+        }
+
 
         <!-- Footer -->
         <footer class="footer">

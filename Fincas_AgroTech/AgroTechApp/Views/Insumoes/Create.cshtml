@@ -1,4 +1,4 @@
-﻿@model AgroTechApp.Models.DB.Insumo
+﻿@model AgroTechApp.ViewModels.InsumoCreateVM
 
 <!DOCTYPE html>
 <html lang="es">
@@ -521,122 +521,137 @@
                     </div>
                 </div>
 
-                <form id="insumoForm">
+                <form asp-action="Create" method="post" id="insumoForm">
+                    @Html.AntiForgeryToken()
+
                     <div class="form-body">
-                        <div class="form-group">
-                            <label for="nombre" class="required">Nombre del Insumo</label>
-                            <input type="text" id="nombre" name="nombre" placeholder="Ej: Fertilizante NPK 10-10-10">
-                            <div class="error-message">El nombre del insumo es requerido</div>
+                        <!-- ===== Datos del insumo ===== -->
+                        <div class="form-group full-width">
+                            <h3 class="sidebar-title" style="margin:0;">
+                                <i class="fas fa-box-open"></i> Datos del insumo
+                            </h3>
                         </div>
 
                         <div class="form-group">
-                            <label for="categoria" class="required">Categoría</label>
-                            <select id="categoria" name="categoria">
+                            <label asp-for="Nombre" class="required"></label>
+                            <input asp-for="Nombre" placeholder="Ej: Fertilizante NPK 10-10-10" />
+                            <span class="form-hint">Nombre comercial o identificador interno.</span>
+                            <span asp-validation-for="Nombre" class="error-message"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="required" for="FincaId">Finca</label>
+                            <select asp-for="FincaId" asp-items="ViewBag.FincaId">
+                                <option value="">Seleccione una finca</option>
+                            </select>
+                            <span asp-validation-for="FincaId" class="error-message"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="required" for="CategoriaId">Categoría</label>
+                            <select asp-for="CategoriaId" asp-items="ViewBag.CategoriaId">
                                 <option value="">Seleccione una categoría</option>
-                                <option value="fertilizante">Fertilizante</option>
-                                <option value="semilla">Semilla</option>
-                                <option value="plaguicida">Plaguicida</option>
-                                <option value="herbicida">Herbicida</option>
-                                <option value="medicamento">Medicamento Veterinario</option>
-                                <option value="alimento">Alimento Animal</option>
-                                <option value="equipo">Equipo y Herramientas</option>
-                                <option value="otro">Otro</option>
                             </select>
-                            <div class="error-message">Debe seleccionar una categoría</div>
+                            <span asp-validation-for="CategoriaId" class="error-message"></span>
                         </div>
 
                         <div class="form-group">
-                            <label for="marca">Marca</label>
-                            <input type="text" id="marca" name="marca" placeholder="Ej: AgroMax">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="proveedor">Proveedor</label>
-                            <input type="text" id="proveedor" name="proveedor" placeholder="Ej: Distribuidora Agrícola S.A.">
-                        </div>
-
-                        <div class="form-group">
-                            <label for="cantidad" class="required">Cantidad</label>
-                            <input type="number" id="cantidad" name="cantidad" min="0" step="0.01" placeholder="0.00">
-                            <div class="error-message">La cantidad debe ser un número válido</div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="unidad" class="required">Unidad de Medida</label>
-                            <select id="unidad" name="unidad">
+                            <label class="required" for="UnidadId">Unidad de medida</label>
+                            <select asp-for="UnidadId" asp-items="ViewBag.UnidadId">
                                 <option value="">Seleccione unidad</option>
-                                <option value="kg">Kilogramos (kg)</option>
-                                <option value="g">Gramos (g)</option>
-                                <option value="l">Litros (l)</option>
-                                <option value="ml">Mililitros (ml)</option>
-                                <option value="unidad">Unidades</option>
-                                <option value="caja">Cajas</option>
-                                <option value="saco">Sacos</option>
-                                <option value="botella">Botellas</option>
                             </select>
-                            <div class="error-message">Debe seleccionar una unidad de medida</div>
+                            <span class="form-hint">Ej.: kg, l, unidad, saco…</span>
+                            <span asp-validation-for="UnidadId" class="error-message"></span>
                         </div>
 
                         <div class="form-group">
-                            <label for="precio" class="required">Precio Unitario</label>
-                            <input type="number" id="precio" name="precio" min="0" step="0.01" placeholder="0.00">
-                            <div class="error-message">El precio debe ser un número válido</div>
+                            <label asp-for="StockMinimo" class="required">Stock mínimo</label>
+                            <input asp-for="StockMinimo" type="number" step="1" min="0" />
+                            <span class="form-hint">Usado para alertas de reposición.</span>
+                            <span asp-validation-for="StockMinimo" class="error-message"></span>
                         </div>
 
                         <div class="form-group">
-                            <label for="moneda">Moneda</label>
-                            <select id="moneda" name="moneda">
-                                <option value="USD">USD ($)</option>
-                                <option value="EUR">EUR (€)</option>
-                                <option value="MXN" selected>MXN ($)</option>
-                                <option value="COP">COP ($)</option>
-                                <option value="PEN">PEN (S/)</option>
+                            <label asp-for="Activo">Activo</label>
+                            <select asp-for="Activo">
+                                <option value="true">Sí</option>
+                                <option value="false">No</option>
                             </select>
                         </div>
 
-                        <div class="form-group">
-                            <label for="fecha_ingreso" class="required">Fecha de Ingreso</label>
-                            <input type="date" id="fecha_ingreso" name="fecha_ingreso">
-                            <div class="error-message">La fecha de ingreso es requerida</div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="fecha_vencimiento">Fecha de Vencimiento</label>
-                            <input type="date" id="fecha_vencimiento" name="fecha_vencimiento">
-                            <div class="form-hint">Opcional - Solo para productos perecederos</div>
+                        <!-- ===== Entrada inicial ===== -->
+                        <div class="form-group full-width" style="margin-top: .5rem;">
+                            <h3 class="sidebar-title" style="margin:0;">
+                                <i class="fas fa-truck-loading"></i> Entrada inicial
+                            </h3>
                         </div>
 
                         <div class="form-group full-width">
-                            <label for="descripcion">Descripción</label>
-                            <textarea id="descripcion" name="descripcion" placeholder="Describa las características, usos y precauciones del insumo..."></textarea>
+                            <label>
+                                <input asp-for="RegistrarEntradaInicial" type="checkbox" id="RegistrarEntradaInicial" />
+                                Registrar entrada inicial (cantidad / precio / fechas)
+                            </label>
+                        </div>
+
+                        <div id="entradaContainer" class="full-width" style="display:block;">
+                            <div class="form-group">
+                                <label asp-for="Cantidad" class="required">Cantidad</label>
+                                <input asp-for="Cantidad" type="number" step="1" min="0" placeholder="0.00" />
+                                <span asp-validation-for="Cantidad" class="error-message"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="PrecioUnitario">Precio unitario</label>
+                                <input asp-for="PrecioUnitario" type="number" step="1" min="0" placeholder="0.00" />
+                                <span class="form-hint">Opcional (para compras).</span>
+                                <span asp-validation-for="PrecioUnitario" class="error-message"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="FechaIngreso" class="required">Fecha de ingreso</label>
+                                <input asp-for="FechaIngreso" type="date" />
+                                <span asp-validation-for="FechaIngreso" class="error-message"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="FechaVencimiento">Fecha de vencimiento</label>
+                                <input asp-for="FechaVencimiento" type="date" />
+                                <span class="form-hint">Opcional (solo si aplica vencimiento).</span>
+                                <span asp-validation-for="FechaVencimiento" class="error-message"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="CodigoLote">Código de lote</label>
+                                <input asp-for="CodigoLote" placeholder="Ej.: LOTE-AZ-2025" />
+                                <span class="form-hint">Opcional (si gestionas lotes).</span>
+                                <span asp-validation-for="CodigoLote" class="error-message"></span>
+                            </div>
+
+                            <div class="form-group full-width">
+                                <label asp-for="Observaciones">Observaciones (documento de entrada)</label>
+                                <textarea asp-for="Observaciones" placeholder="Notas de la compra o recepción..."></textarea>
+                                <span asp-validation-for="Observaciones" class="error-message"></span>
+                            </div>
                         </div>
 
                         <div class="form-group full-width">
-                            <label for="instrucciones">Instrucciones de Uso</label>
-                            <textarea id="instrucciones" name="instrucciones" placeholder="Indique las instrucciones para el uso correcto del insumo..."></textarea>
-                        </div>
-
-                        <div class="form-group full-width">
-                            <label for="observaciones">Observaciones</label>
-                            <textarea id="observaciones" name="observaciones" placeholder="Observaciones adicionales..."></textarea>
+                            <span asp-validation-summary="ModelOnly" class="error-message"></span>
                         </div>
                     </div>
 
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save"></i>
-                            Guardar Insumo
+                            <i class="fas fa-save"></i> Guardar Insumo
                         </button>
                         <button type="button" id="btnLimpiar" class="btn btn-outline">
-                            <i class="fas fa-broom"></i>
-                            Limpiar Formulario
+                            <i class="fas fa-broom"></i> Limpiar
                         </button>
-                        <a href="insumos.html" class="btn btn-secondary">
-                            <i class="fas fa-times"></i>
-                            Cancelar
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Cancelar
                         </a>
                     </div>
                 </form>
+
             </div>
 
             <!-- Sidebar -->
@@ -721,171 +736,119 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('insumoForm');
-            const btnLimpiar = document.getElementById('btnLimpiar');
-            const notification = document.getElementById('notification');
-            const notificationMessage = document.getElementById('notification-message');
+        document.addEventListener('DOMContentLoaded', function () {
+          const form = document.getElementById('insumoForm');
+          const btnLimpiar = document.getElementById('btnLimpiar');
+          const notification = document.getElementById('notification');
+          const notificationMessage = document.getElementById('notification-message');
 
-            // Establecer fecha actual como valor predeterminado
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('fecha_ingreso').value = today;
+          // Toggle entrada inicial
+          const toggleEntrada = document.getElementById('RegistrarEntradaInicial');
+          const entradaContainer = document.getElementById('entradaContainer');
 
-            // Validación en tiempo real
-            const inputs = form.querySelectorAll('input, select, textarea');
-            inputs.forEach(input => {
-                input.addEventListener('blur', function() {
-                    validateField(this);
-                });
+          const cantidadEl = document.getElementById('Cantidad');
+          const fechaIngresoEl = document.getElementById('FechaIngreso');
 
-                input.addEventListener('input', function() {
-                    // Remover estado de error mientras el usuario escribe
-                    if (this.parentElement.classList.contains('error')) {
-                        this.parentElement.classList.remove('error');
-                    }
-                });
-            });
+          const applyToggle = () => {
+            if (!toggleEntrada || !entradaContainer) return;
+            const on = toggleEntrada.checked;
+            entradaContainer.style.display = on ? '' : 'none';
+            if (cantidadEl) cantidadEl.required = on;
+            if (fechaIngresoEl) fechaIngresoEl.required = on;
+          };
+          if (toggleEntrada) {
+            toggleEntrada.addEventListener('change', applyToggle);
+            applyToggle();
+          }
 
-            // Función de validación de campo
-            function validateField(field) {
-                const formGroup = field.parentElement;
-                const value = field.value.trim();
-                let isValid = true;
+          // Fecha hoy por defecto (si existe)
+          const today = new Date().toISOString().split('T')[0];
+          if (fechaIngresoEl && !fechaIngresoEl.value) fechaIngresoEl.value = today;
 
-                // Validar campos requeridos
-                if (field.hasAttribute('required') && !value) {
-                    isValid = false;
-                }
+          // Validación simple (client-side)
+          const inputs = form.querySelectorAll('input, select, textarea');
+          inputs.forEach(input => {
+            input.addEventListener('blur', () => validateField(input));
+            input.addEventListener('input', () => input.parentElement.classList.remove('error'));
+          });
 
-                // Validaciones específicas por tipo de campo
-                if (field.type === 'number' && value) {
-                    if (parseFloat(value) < 0) {
-                        isValid = false;
-                    }
-                }
+          function validateField(field) {
+            const group = field.parentElement;
+            const value = (field.value || '').trim();
+            let ok = true;
 
-                if (field.id === 'fecha_vencimiento' && value) {
-                    const fechaIngreso = new Date(document.getElementById('fecha_ingreso').value);
-                    const fechaVencimiento = new Date(value);
-
-                    if (fechaVencimiento < fechaIngreso) {
-                        isValid = false;
-                        formGroup.querySelector('.error-message').textContent = 'La fecha de vencimiento no puede ser anterior a la fecha de ingreso';
-                    }
-                }
-
-                // Aplicar clases de validación
-                if (!isValid) {
-                    formGroup.classList.add('error');
-                    formGroup.classList.remove('success');
-                } else if (value) {
-                    formGroup.classList.remove('error');
-                    formGroup.classList.add('success');
-                } else {
-                    formGroup.classList.remove('error', 'success');
-                }
-
-                return isValid;
+            if (field.required && !value) ok = false;
+            if (field.type === 'number' && value) {
+              const n = parseFloat(value);
+              if (isNaN(n) || n < 0) ok = false;
+            }
+            if (field.id === 'FechaVencimiento' && value && fechaIngresoEl && fechaIngresoEl.value) {
+              const fi = new Date(fechaIngresoEl.value);
+              const fv = new Date(value);
+              if (fv < fi) {
+                ok = false;
+                const em = group.querySelector('.error-message');
+                if (em) em.textContent = 'La fecha de vencimiento no puede ser anterior a la fecha de ingreso';
+              }
             }
 
-            // Validar todo el formulario
-            function validateForm() {
-                let isValid = true;
-                const requiredFields = form.querySelectorAll('[required]');
-
-                requiredFields.forEach(field => {
-                    if (!validateField(field)) {
-                        isValid = false;
-                    }
-                });
-
-                return isValid;
+            if (!ok) {
+              group.classList.add('error');
+              group.classList.remove('success');
+            } else if (value) {
+              group.classList.remove('error');
+              group.classList.add('success');
+            } else {
+              group.classList.remove('error', 'success');
             }
+            return ok;
+          }
 
-            // Envío del formulario
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
+          function validateForm() {
+            let ok = true;
+            const requiredFields = form.querySelectorAll('[required]');
+            requiredFields.forEach(f => { if (!validateField(f)) ok = false; });
+            return ok;
+          }
 
-                if (validateForm()) {
-                    // Simular envío de datos
-                    const submitBtn = form.querySelector('button[type="submit"]');
-                    const originalText = submitBtn.innerHTML;
-
-                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
-                    submitBtn.disabled = true;
-
-                    // Simular delay de guardado
-                    setTimeout(() => {
-                        // Mostrar notificación de éxito
-                        showNotification('Insumo registrado exitosamente', 'success');
-
-                        // Resetear formulario
-                        form.reset();
-                        document.getElementById('fecha_ingreso').value = today;
-
-                        // Remover clases de validación
-                        document.querySelectorAll('.form-group').forEach(group => {
-                            group.classList.remove('success', 'error');
-                        });
-
-                        // Restaurar botón
-                        submitBtn.innerHTML = originalText;
-                        submitBtn.disabled = false;
-
-                        // Efecto visual
-                        form.classList.add('pulse');
-                        setTimeout(() => form.classList.remove('pulse'), 500);
-
-                    }, 1500);
-                } else {
-                    showNotification('Por favor, complete todos los campos requeridos correctamente', 'error');
-
-                    // Desplazarse al primer error
-                    const firstError = form.querySelector('.error');
-                    if (firstError) {
-                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                }
-            });
-
-            // Limpiar formulario
-            btnLimpiar.addEventListener('click', function() {
-                if (confirm('¿Está seguro de que desea limpiar todos los campos del formulario?')) {
-                    form.reset();
-                    document.getElementById('fecha_ingreso').value = today;
-
-                    // Remover clases de validación
-                    document.querySelectorAll('.form-group').forEach(group => {
-                        group.classList.remove('success', 'error');
-                    });
-
-                    showNotification('Formulario limpiado correctamente', 'success');
-                }
-            });
-
-            // Mostrar notificación
-            function showNotification(message, type) {
-                notificationMessage.textContent = message;
-                notification.className = `notification ${type}`;
-                notification.classList.add('show');
-
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                }, 4000);
+          // Submit
+          form.addEventListener('submit', function (e) {
+            if (!validateForm()) {
+              e.preventDefault();
+              showNotification('Por favor, complete los campos requeridos.', 'error');
+              const firstError = form.querySelector('.error');
+              if (firstError) firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              return;
             }
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+              submitBtn.disabled = true;
+              submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+            }
+          });
 
-            // Efectos visuales en los campos
-            inputs.forEach(input => {
-                input.addEventListener('focus', function() {
-                    this.parentElement.style.transform = 'translateY(-2px)';
-                    this.parentElement.style.transition = 'transform 0.2s ease';
-                });
-
-                input.addEventListener('blur', function() {
-                    this.parentElement.style.transform = 'translateY(0)';
-                });
+          // Limpiar
+          if (btnLimpiar) {
+            btnLimpiar.addEventListener('click', function () {
+              if (!confirm('¿Limpiar el formulario?')) return;
+              form.reset();
+              document.querySelectorAll('.form-group').forEach(g => g.classList.remove('success', 'error'));
+              if (fechaIngresoEl) fechaIngresoEl.value = today;
+              applyToggle();
+              showNotification('Formulario limpiado.', 'success');
             });
+          }
+
+          function showNotification(message, type) {
+            if (!notification) return;
+            notificationMessage.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            setTimeout(() => notification.classList.remove('show'), 4000);
+          }
         });
     </script>
+
+
 </body>
 </html>
