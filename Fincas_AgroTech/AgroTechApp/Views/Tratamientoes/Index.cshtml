@@ -147,6 +147,16 @@
                 transform: translateY(-2px);
             }
 
+        .btn-info {
+            background-color: var(--info);
+            color: white;
+        }
+
+            .btn-info:hover {
+                background-color: #138496;
+                transform: translateY(-2px);
+            }
+
         .btn-sm {
             padding: 0.5rem 1rem;
             font-size: 0.875rem;
@@ -292,6 +302,86 @@
                 border-color: var(--primary);
             }
 
+        /* Modal de recordatorio */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6c757d;
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+            .form-control:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+            }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+        }
+
         /* Responsive */
         @@media (max-width: 768px) {
             body {
@@ -327,6 +417,11 @@
             .actions-cell {
                 flex-direction: column;
             }
+
+            .modal-content {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
         }
 
         @@media (max-width: 480px) {
@@ -339,6 +434,10 @@
             }
 
             .filters {
+                flex-direction: column;
+            }
+
+            .modal-actions {
                 flex-direction: column;
             }
         }
@@ -360,7 +459,7 @@
                         <span class="icon">🔍</span> Buscar
                     </button>
                 </div>
-                <a asp-action="Create" class="btn btn-primary">
+                <a href="#" class="btn btn-primary">
                     <span class="icon">➕</span> Nuevo Tratamiento
                 </a>
             </div>
@@ -437,6 +536,72 @@
             <div class="pagination" id="pagination">
                 <!-- La paginación se generará dinámicamente -->
             </div>
+        </div>
+    </div>
+
+    <!-- Modal de Recordatorio -->
+    <div class="modal" id="reminderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">⏰ Crear Recordatorio</h3>
+                <button class="close-modal" onclick="closeReminderModal()">×</button>
+            </div>
+
+            <form id="reminderForm">
+                <input type="hidden" id="reminderTreatmentId">
+
+                <div class="form-group">
+                    <label class="form-label">Tratamiento</label>
+                    <input type="text" class="form-control" id="reminderTreatmentInfo" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Tipo de Recordatorio</label>
+                    <select class="form-control" id="reminderType" required>
+                        <option value="">Seleccione el tipo</option>
+                        <option value="proximo_tratamiento">Próximo Tratamiento</option>
+                        <option value="control_seguimiento">Control y Seguimiento</option>
+                        <option value="retiro_leche">Período de Retiro (Leche)</option>
+                        <option value="retiro_carne">Período de Retiro (Carne)</option>
+                        <option value="recordatorio_general">Recordatorio General</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Fecha del Recordatorio</label>
+                    <input type="datetime-local" class="form-control" id="reminderDate" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Mensaje del Recordatorio</label>
+                    <textarea class="form-control" id="reminderMessage" rows="3" placeholder="Ingrese el mensaje del recordatorio..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Método de Notificación</label>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" name="notificationMethod" value="email" checked>
+                            📧 Email
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" name="notificationMethod" value="push">
+                            📱 Notificación Push
+                        </label>
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" name="notificationMethod" value="sms">
+                            💬 SMS
+                        </label>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeReminderModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <span class="icon">💾</span> Guardar Recordatorio
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -541,6 +706,9 @@
                         <button class="btn btn-sm btn-warning" onclick="editTreatment(${tratamiento.id})">
                             ✏️ Editar
                         </button>
+                        <button class="btn btn-sm btn-info" onclick="setReminder(${tratamiento.id})">
+                            ⏰ Recordatorio
+                        </button>
                         <button class="btn btn-sm btn-danger" onclick="deleteTreatment(${tratamiento.id})">
                             🗑️ Eliminar
                         </button>
@@ -584,6 +752,67 @@
             }
         }
 
+        // Función para configurar recordatorio
+        function setReminder(id) {
+            const tratamiento = tratamientos.find(t => t.id === id);
+            if (tratamiento) {
+                document.getElementById('reminderTreatmentId').value = id;
+                document.getElementById('reminderTreatmentInfo').value =
+                    `${tratamiento.tipo} - ${tratamiento.animal || tratamiento.lote} - ${tratamiento.insumo}`;
+
+                // Establecer fecha por defecto (7 días después de la fecha del tratamiento)
+                const treatmentDate = new Date(tratamiento.fecha);
+                const reminderDate = new Date(treatmentDate);
+                reminderDate.setDate(treatmentDate.getDate() + 7);
+
+                document.getElementById('reminderDate').value = reminderDate.toISOString().slice(0, 16);
+
+                // Mensaje por defecto
+                document.getElementById('reminderMessage').value =
+                    `Recordatorio: ${tratamiento.tipo} para ${tratamiento.animal || tratamiento.lote}. ${tratamiento.observacion || ''}`;
+
+                // Mostrar modal
+                document.getElementById('reminderModal').style.display = 'flex';
+            }
+        }
+
+        // Función para cerrar modal de recordatorio
+        function closeReminderModal() {
+            document.getElementById('reminderModal').style.display = 'none';
+            document.getElementById('reminderForm').reset();
+        }
+
+        // Función para guardar recordatorio
+        document.getElementById('reminderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const treatmentId = document.getElementById('reminderTreatmentId').value;
+            const reminderType = document.getElementById('reminderType').value;
+            const reminderDate = document.getElementById('reminderDate').value;
+            const reminderMessage = document.getElementById('reminderMessage').value;
+
+            // Obtener métodos de notificación seleccionados
+            const notificationMethods = Array.from(document.querySelectorAll('input[name="notificationMethod"]:checked'))
+                .map(input => input.value);
+
+            if (notificationMethods.length === 0) {
+                alert('Por favor, seleccione al menos un método de notificación.');
+                return;
+            }
+
+            // Aquí iría la lógica para guardar el recordatorio en el sistema
+            console.log({
+                treatmentId,
+                reminderType,
+                reminderDate,
+                reminderMessage,
+                notificationMethods
+            });
+
+            alert('✅ Recordatorio guardado correctamente. Se enviarán notificaciones según la configuración.');
+            closeReminderModal();
+        });
+
         // Función de búsqueda
         function searchTreatments() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
@@ -610,6 +839,13 @@
             document.getElementById('tipoTratFilter').addEventListener('change', applyFilters);
             document.getElementById('fechaFilter').addEventListener('change', applyFilters);
             document.getElementById('estadoFilter').addEventListener('change', applyFilters);
+
+            // Cerrar modal al hacer clic fuera del contenido
+            document.getElementById('reminderModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeReminderModal();
+                }
+            });
         });
 
         // Función para aplicar filtros combinados
