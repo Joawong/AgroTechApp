@@ -1,0 +1,173 @@
+﻿@model AgroTechApp.Models.DB.Gasto
+
+@{
+    ViewData["Title"] = "Registrar Gasto";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e3f2fd 100%);
+            font-family: 'Inter', sans-serif;
+            color: #2C3E50;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: #fff;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+        }
+
+        h2 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            color: #2E8B57;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: grid;
+            gap: 16px;
+        }
+
+        label {
+            font-weight: 600;
+            color: #2C3E50;
+        }
+
+        input, select, textarea {
+            padding: .6rem .8rem;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            width: 100%;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn {
+            padding: .6rem 1.2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: #2E8B57;
+            color: white;
+        }
+
+            .btn-primary:hover {
+                background: #26734d;
+            }
+
+        .btn-secondary {
+            background: #e9ecef;
+            color: #2C3E50;
+        }
+
+        .error {
+            color: #dc3545;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2><i class="fas fa-wallet"></i> Registrar Gasto</h2>
+
+        <form asp-action="Create" method="post">
+            <div>
+                <label for="FincaId">Finca</label>
+                <select asp-for="FincaId" asp-items="ViewBag.Fincas" required>
+                    <option value="">Seleccione una finca</option>
+                </select>
+                <span asp-validation-for="FincaId" class="error"></span>
+            </div>
+
+            <div>
+                <label for="RubroGastoId">Rubro (Categoría) <span class="error">*</span></label>
+                <select asp-for="RubroGastoId" asp-items="ViewBag.Rubros" required>
+                    <option value="">Seleccione un rubro</option>
+                </select>
+                <span asp-validation-for="RubroGastoId" class="error"></span>
+            </div>
+
+            <div>
+                <label for="Fecha">Fecha</label>
+                <input asp-for="Fecha" type="date" required />
+                <span asp-validation-for="Fecha" class="error"></span>
+            </div>
+
+            <div>
+                <label for="Monto">Monto (₡) <span class="error">*</span></label>
+                <input asp-for="Monto" type="number" min="0.01" step="0.01" required />
+                <span asp-validation-for="Monto" class="error"></span>
+            </div>
+
+            <div>
+                <label for="Descripcion">Descripción</label>
+<textarea asp-for="Descripcion" placeholder="Ejemplo: Compra de alimento, pago de mano de obra, etc."></textarea>
+            </div>
+
+            <div>
+                <label for="Asignacion">Asignar gasto a</label>
+                <select id="Asignacion" name="Asignacion">
+                    <option value="">Seleccione...</option>
+                    <option value="Animal">Animal</option>
+                    <option value="Potrero">Potrero</option>
+                    <option value="Insumo">Insumo</option>
+                </select>
+            </div>
+
+            <div id="divAnimal" style="display:none;">
+                <label for="AnimalId">Animal</label>
+                <select asp-for="AnimalId" asp-items="ViewBag.Animales">
+                    <option value="">Seleccione un animal</option>
+                </select>
+            </div>
+
+            <div id="divPotrero" style="display:none;">
+                <label for="PotreroId">Potrero</label>
+                <select asp-for="PotreroId" asp-items="ViewBag.Potreros">
+                    <option value="">Seleccione un potrero</option>
+                </select>
+            </div>
+
+            <div id="divInsumo" style="display:none;">
+                <label for="InsumoId">Insumo</label>
+                <select asp-for="InsumoId" asp-items="ViewBag.Insumos">
+                    <option value="">Seleccione un insumo</option>
+                </select>
+            </div>
+
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Guardar</button>
+                <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Volver</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("Asignacion").addEventListener("change", function () {
+            const val = this.value;
+            document.getElementById("divAnimal").style.display = val === "Animal" ? "block" : "none";
+            document.getElementById("divPotrero").style.display = val === "Potrero" ? "block" : "none";
+            document.getElementById("divInsumo").style.display = val === "Insumo" ? "block" : "none";
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,374 @@
+﻿@model IEnumerable<AgroTechApp.Models.DB.Gasto>
+
+@{
+    ViewData["Title"] = "Gestión de Gastos";
+
+    // Datos de resumen
+    decimal totalGastos = ViewBag.TotalGastos ?? 0m;
+    int totalRegistros = ViewBag.TotalRegistros ?? 0;
+    int gastosPorAnimal = ViewBag.GastosPorAnimal ?? 0;
+    int gastosPorInsumo = ViewBag.GastosPorInsumo ?? 0;
+
+    // Filtros
+    long? fincaSel = ViewBag?.FincaId?.SelectedValue as long?;
+    int? rubroSel = ViewBag?.RubroGastoId?.SelectedValue as int?;
+    string q = ViewBag?.Q as string ?? "";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --primary-dark: #26734d;
+            --primary-light: #3CB371;
+            --light: #f8f9fa;
+            --dark: #2C3E50;
+            --gray: #6c757d;
+            --border: #dee2e6;
+            --shadow: rgba(0,0,0,.08);
+            --shadow-hover: rgba(0,0,0,.15);
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            background: linear-gradient(135deg,#f5f7fa 0%,#e3f2fd 100%);
+            color: var(--dark);
+            font-family: Inter, Segoe UI, Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 24px 0;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 800;
+            display: flex;
+            gap: 10px;
+            align-items: center
+        }
+
+            .page-title i {
+                color: var(--primary)
+            }
+
+        .page-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap
+        }
+
+        .btn {
+            padding: .6rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            display: inline-flex;
+            gap: .5rem;
+            align-items: center;
+            cursor: pointer;
+            text-decoration: none
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff
+        }
+
+            .btn-primary:hover {
+                background: var(--primary-dark)
+            }
+
+        .btn-outline {
+            background: #fff;
+            border: 1px solid var(--primary);
+            color: var(--primary)
+        }
+
+            .btn-outline:hover {
+                background: var(--primary);
+                color: #fff
+            }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+            gap: 16px;
+            margin-bottom: 20px
+        }
+
+        .stat-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 4px 16px var(--shadow);
+            display: flex;
+            gap: 14px;
+            align-items: center
+        }
+
+        .stat-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 20px
+        }
+
+            .stat-icon.primary {
+                background: linear-gradient(135deg,var(--primary-light),var(--primary))
+            }
+
+            .stat-icon.info {
+                background: linear-gradient(135deg,#118AB2,#2A9FD6)
+            }
+
+            .stat-icon.warning {
+                background: linear-gradient(135deg,#FFD166,var(--warning))
+            }
+
+            .stat-icon.danger {
+                background: linear-gradient(135deg,#FF9E7D,var(--danger))
+            }
+
+        .filters {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px var(--shadow);
+            padding: 16px;
+            margin-bottom: 18px
+        }
+
+            .filters form {
+                display: grid;
+                grid-template-columns: repeat(5,1fr);
+                gap: 10px;
+                align-items: end
+            }
+
+            .filters .field {
+                display: flex;
+                flex-direction: column;
+                gap: 6px
+            }
+
+            .filters select, .filters input {
+                padding: .6rem .8rem;
+                border: 1px solid var(--border);
+                border-radius: 8px
+            }
+
+        .table-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px var(--shadow)
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .table-container {
+            overflow-x: auto
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse
+        }
+
+        th {
+            background: var(--light);
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-weight: 700
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border)
+        }
+
+        .row-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap
+        }
+
+        .btn-sm {
+            padding: .35rem .6rem;
+            border-radius: 6px;
+            font-weight: 700
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: #fff
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: #212529
+        }
+
+        @@media (max-width: 992px) {
+            .filters form {
+                grid-template-columns: repeat(2,1fr)
+            }
+        }
+
+        @@media (max-width: 560px) {
+            .filters form {
+                grid-template-columns: 1fr
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="page-header">
+            <div class="page-title"><i class="fas fa-money-bill-wave"></i> Gestión de Gastos</div>
+            <div class="page-actions">
+                <a asp-action="Create" class="btn btn-primary"><i class="fas fa-plus"></i> Nuevo Gasto</a>
+                <a asp-action="Index" class="btn btn-outline"><i class="fas fa-sync-alt"></i> Actualizar</a>
+            </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon primary"><i class="fas fa-receipt"></i></div>
+                <div><div style="font-weight:800;font-size:1.3rem">@totalRegistros</div><div style="color:var(--gray)">Registros</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon warning"><i class="fas fa-paw"></i></div>
+                <div><div style="font-weight:800;font-size:1.3rem">@gastosPorAnimal</div><div style="color:var(--gray)">Gastos Animales</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon info"><i class="fas fa-flask"></i></div>
+                <div><div style="font-weight:800;font-size:1.3rem">@gastosPorInsumo</div><div style="color:var(--gray)">Gastos Insumos</div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon danger"><i class="fas fa-dollar-sign"></i></div>
+                <div><div style="font-weight:800;font-size:1.3rem">₡@totalGastos.ToString("N2")</div><div style="color:var(--gray)">Total Gastado</div></div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters">
+            <form method="get" asp-action="Index">
+                <div class="field">
+                    <label>Finca</label>
+                    <select name="fincaId" asp-items="ViewBag.FincaId">
+                        <option value="">(Todas)</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Rubro</label>
+                    <select name="rubroGastoId" asp-items="ViewBag.RubroGastoId">
+                        <option value="">(Todos)</option>
+                    </select>
+                </div>
+                <div class="field" style="grid-column: span 2;">
+                    <label>Buscar</label>
+                    <input type="text" name="q" value="@q" placeholder="Descripción o rubro..." />
+                </div>
+                <div class="field">
+                    <button type="submit" class="btn btn-outline"><i class="fas fa-filter"></i> Aplicar</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tabla -->
+        <div class="table-card">
+            <div class="table-header">
+                <div style="font-weight:800">Lista de Gastos</div>
+                <a asp-action="Create" class="btn btn-outline btn-sm"><i class="fas fa-plus"></i> Nuevo</a>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:100px;">Código</th>
+                            <th>Fecha</th>
+                            <th>Rubro</th>
+                            <th>Finca</th>
+                            <th>Monto</th>
+                            <th>Descripción</th>
+                            <th>Asociado a</th>
+                            <th style="width:220px;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var g in Model)
+                        {
+                            var codigo = $"GST-{g.GastoId:D4}";
+                            string asociado = g.Animal != null ? $"Animal #{g.Animal.AnimalId}" :
+                            g.Potrero != null ? $"Potrero #{g.Potrero.PotreroId}" :
+                            g.Insumo != null ? $"Insumo #{g.Insumo.InsumoId}" : "-";
+
+                            <tr>
+                                <td>@codigo</td>
+                                <td>@g.Fecha.ToString("dd/MM/yyyy")</td>
+                                <td>@g.RubroGasto?.Nombre</td>
+                                <td>@g.Finca?.Nombre</td>
+                                <td>₡@g.Monto.ToString("N2")</td>
+                                <td>@g.Descripcion</td>
+                                <td>@asociado</td>
+                                <td>
+                                    <div class="row-actions">
+                                        <a class="btn btn-outline btn-sm" asp-action="Edit" asp-route-id="@g.GastoId">
+                                            <i class="fas fa-edit"></i> Editar
+                                        </a>
+                                        <a class="btn btn-outline btn-sm" asp-action="Details" asp-route-id="@g.GastoId">
+                                            <i class="fas fa-eye"></i> Detalle
+                                        </a>
+                                        <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@g.GastoId">
+                                            <i class="fas fa-trash"></i> Eliminar
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div style="height:24px"></div>
+    </div>
+</body>
+</html>

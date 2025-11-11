@@ -408,6 +408,31 @@
                                 <li><a class="dropdown-item" asp-controller="Potreroes" asp-action="Create"><i class="fas fa-plus-circle me-2"></i>Nuevo Potrero</a></li>
                             </ul>
                         </li>
+
+                        <!-- Tratamientos -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark fw-semibold" href="#" id="tratamientoDropdown"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-pills me-1"></i>Tratamientos
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="tratamientosDropdown">
+                                <li><a class="dropdown-item" asp-controller="Tratamientos" asp-action="Index"><i class="fas fa-list me-2"></i>Registro de Tratamiento</a></li>
+                                <li><a class="dropdown-item" asp-controller="Tratamientos" asp-action="Create"><i class="fas fa-plus-circle me-2"></i>Nuevo Tratamiento</a></li>
+                            </ul>
+                        </li>
+
+                        <!-- Finanzas -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark fw-semibold" href="#" id="finanzasDropdown"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-chart-line me-1"></i>Finanzas
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="finanzasDropdown">
+                                <li><a class="dropdown-item" asp-controller="Finanzas" asp-action="Gastos"><i class="fas fa-money-bill-wave me-2"></i>Gastos</a></li>
+                                <li><a class="dropdown-item" asp-controller="Finanzas" asp-action="Ingresos"><i class="fas fa-hand-holding-usd me-2"></i>Ingresos</a></li>
+                            </ul>
+                        </li>
+
                     </ul>
 
                     <partial name="_LoginPartial" />
