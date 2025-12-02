@@ -1,0 +1,1113 @@
+﻿@model AgroTechApp.Models.DB.User
+
+@{
+    ViewData["Title"] = "Editar Usuario";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --primary-light: #3CB371;
+            --primary-dark: #1E6B47;
+            --secondary: #F4A460;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #ffffff;
+            --border: #e1e5e9;
+            --shadow: rgba(46, 139, 87, 0.1);
+            --gray: #6c757d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .edit-card {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @@keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .edit-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .edit-header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -50%;
+                width: 100%;
+                height: 200%;
+                background: rgba(255, 255, 255, 0.1);
+                transform: rotate(30deg);
+            }
+
+            .edit-header h1 {
+                font-size: 2.2rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+                position: relative;
+                z-index: 1;
+            }
+
+            .edit-header p {
+                font-size: 1rem;
+                opacity: 0.9;
+                position: relative;
+                z-index: 1;
+            }
+
+        .edit-header-icon {
+            position: absolute;
+            left: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            opacity: 0.2;
+            z-index: 0;
+        }
+
+        .edit-body {
+            padding: 3rem;
+        }
+
+        .user-profile-summary {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+            padding: 1.5rem;
+            background: linear-gradient(to right, rgba(46, 139, 87, 0.05), rgba(244, 164, 96, 0.05));
+            border-radius: 15px;
+            border: 2px solid var(--border);
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 2rem;
+            border: 3px solid white;
+            box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
+        }
+
+        .user-summary {
+            flex: 1;
+        }
+
+            .user-summary h3 {
+                color: var(--dark);
+                font-size: 1.5rem;
+                margin-bottom: 0.5rem;
+            }
+
+        .user-meta {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+            .meta-item i {
+                color: var(--primary);
+            }
+
+        .edit-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .form-section {
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        @@keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .form-section:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .form-section:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .form-section:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .section-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-group {
+            margin-bottom: 1.8rem;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            label i {
+                color: var(--primary);
+                font-size: 0.9rem;
+                width: 20px;
+            }
+
+        .input-group {
+            position: relative;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            background: var(--white);
+            transition: all 0.3s ease;
+            color: var(--dark);
+        }
+
+            input:focus, select:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 4px rgba(46, 139, 87, 0.15);
+                transform: translateY(-2px);
+            }
+
+            input:hover, select:hover {
+                border-color: var(--primary-light);
+            }
+
+        .input-icon {
+            position: absolute;
+            right: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            pointer-events: none;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        /* Checkbox personalizado */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--light);
+            border-radius: 12px;
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+            .checkbox-group:hover {
+                border-color: var(--primary);
+                background: rgba(46, 139, 87, 0.05);
+            }
+
+        .custom-checkbox {
+            position: relative;
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+            .custom-checkbox input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+                position: absolute;
+            }
+
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 24px;
+            height: 24px;
+            background-color: var(--white);
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+            .checkmark:after {
+                content: "";
+                position: absolute;
+                display: none;
+                left: 7px;
+                top: 3px;
+                width: 6px;
+                height: 12px;
+                border: solid white;
+                border-width: 0 2px 2px 0;
+                transform: rotate(45deg);
+            }
+
+        .custom-checkbox input:checked ~ .checkmark {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+            .custom-checkbox input:checked ~ .checkmark:after {
+                display: block;
+            }
+
+        .checkbox-label {
+            font-weight: 600;
+            color: var(--dark);
+            cursor: pointer;
+            margin: 0;
+            flex: 1;
+        }
+
+        /* Validación */
+        .field-validation-error {
+            display: block;
+            margin-top: 0.5rem;
+            color: var(--danger);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: shake 0.5s ease;
+        }
+
+        @@keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .field-validation-error i {
+            font-size: 0.8rem;
+        }
+
+        .input-validation-error {
+            border-color: var(--danger) !important;
+            background-color: rgba(220, 53, 69, 0.05);
+        }
+
+            .input-validation-error:focus {
+                box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.15) !important;
+            }
+
+        .validation-summary-errors {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+            .validation-summary-errors ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .validation-summary-errors li {
+                display: flex;
+                align-items: center;
+                gap: 0.7rem;
+                margin-bottom: 0.5rem;
+                color: var(--danger);
+            }
+
+                .validation-summary-errors li:last-child {
+                    margin-bottom: 0;
+                }
+
+        .password-strength {
+            margin-top: 0.5rem;
+        }
+
+        .strength-meter {
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 0.3rem;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .strength-weak {
+            background: var(--danger);
+        }
+
+        .strength-medium {
+            background: var(--warning);
+        }
+
+        .strength-strong {
+            background: var(--success);
+        }
+
+        .strength-text {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 0.2rem;
+        }
+
+        /* Tooltip */
+        .info-tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 0.5rem;
+            color: var(--info);
+            cursor: help;
+        }
+
+            .info-tooltip:hover::after {
+                content: attr(data-tooltip);
+                position: absolute;
+                bottom: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                background: var(--dark);
+                color: white;
+                padding: 0.5rem 1rem;
+                border-radius: 6px;
+                font-size: 0.8rem;
+                white-space: nowrap;
+                z-index: 1000;
+                margin-bottom: 0.5rem;
+            }
+
+        /* Botones de acción */
+        .form-actions {
+            grid-column: 1 / -1;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--border);
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            min-width: 180px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(46, 139, 87, 0.3);
+                background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #868e96);
+            color: var(--white);
+        }
+
+            .btn-secondary:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+                background: linear-gradient(135deg, #5a6268, #6c757d);
+            }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #ffd351);
+            color: var(--dark);
+        }
+
+            .btn-warning:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(255, 193, 7, 0.3);
+            }
+
+        /* Loading effect */
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+        }
+
+            .btn-loading::after {
+                content: '';
+                position: absolute;
+                width: 20px;
+                height: 20px;
+                top: 50%;
+                left: 50%;
+                margin-left: -10px;
+                margin-top: -10px;
+                border: 2px solid white;
+                border-top-color: transparent;
+                border-radius: 50%;
+                animation: spin 0.8s linear infinite;
+            }
+
+        @@keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            body {
+                padding: 10px;
+                align-items: flex-start;
+            }
+
+            .edit-header {
+                padding: 2rem;
+            }
+
+                .edit-header h1 {
+                    font-size: 1.8rem;
+                }
+
+            .edit-body {
+                padding: 1.5rem;
+            }
+
+            .edit-header-icon {
+                display: none;
+            }
+
+            .user-profile-summary {
+                flex-direction: column;
+                text-align: center;
+                gap: 1.5rem;
+            }
+
+            .user-meta {
+                justify-content: center;
+            }
+
+            .edit-form {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .edit-header {
+                padding: 1.5rem;
+            }
+
+                .edit-header h1 {
+                    font-size: 1.5rem;
+                }
+
+            .edit-body {
+                padding: 1rem;
+            }
+
+            .user-avatar {
+                width: 70px;
+                height: 70px;
+                font-size: 1.8rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.8rem;
+            }
+
+            .section-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            input, select {
+                padding: 0.9rem 1rem;
+            }
+        }
+
+        /* Readonly fields styling */
+        .readonly-field {
+            background-color: var(--light);
+            border-color: var(--border) !important;
+            cursor: not-allowed;
+        }
+
+            .readonly-field:hover {
+                border-color: var(--border) !important;
+                transform: none !important;
+            }
+
+            .readonly-field:focus {
+                box-shadow: none !important;
+                transform: none !important;
+            }
+
+        .field-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gray);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+            .field-info i {
+                color: var(--info);
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="edit-card">
+            <!-- Encabezado -->
+            <div class="edit-header">
+                <div class="edit-header-icon">
+                    <i class="fas fa-user-edit"></i>
+                </div>
+                <h1>✏️ Editar Usuario</h1>
+                <p>Modifique la información del usuario @Model.Nombre</p>
+            </div>
+
+            <!-- Cuerpo del Formulario -->
+            <div class="edit-body">
+                <!-- Resumen del Usuario -->
+                <div class="user-profile-summary">
+                    <div class="user-avatar">
+                        @Model.Nombre.Substring(0, 1).ToUpper()
+                    </div>
+                    <div class="user-summary">
+                        <h3>@Model.Nombre</h3>
+                        <div class="user-meta">
+                            <div class="meta-item">
+                                <i class="fas fa-envelope"></i>
+                                <span>@Model.Email</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-user-tag"></i>
+                                <span>Rol: @Model.Rol?.RolId</span>
+                            </div>
+                            <div class="meta-item">
+                                <i class="fas fa-calendar"></i>
+                                <span>Registrado: @Model.FechaCreacion.ToString("dd/MM/yyyy")</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario de Edición -->
+                <form asp-action="Edit" id="editUserForm">
+                    <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+                    <input type="hidden" asp-for="UserId" />
+
+                    <div class="edit-form">
+                        <!-- Sección de Información Personal -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-id-card"></i>
+                                </div>
+                                <h3 class="section-title">Información Personal</h3>
+                            </div>
+
+                            <!-- Nombre -->
+                            <div class="form-group">
+                                <label asp-for="Nombre">
+                                    <i class="fas fa-user"></i> Nombre completo
+                                </label>
+                                <div class="input-group">
+                                    <input asp-for="Nombre" class="form-control" placeholder="Ingrese el nombre completo" />
+                                    <span class="input-icon">
+                                        <i class="fas fa-user-circle"></i>
+                                    </span>
+                                </div>
+                                <span asp-validation-for="Nombre" class="field-validation-error">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                </span>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="form-group">
+                                <label asp-for="Email">
+                                    <i class="fas fa-envelope"></i> Correo electrónico
+                                </label>
+                                <div class="input-group">
+                                    <input asp-for="Email" class="form-control" placeholder="ejemplo@correo.com" type="email" />
+                                    <span class="input-icon">
+                                        <i class="fas fa-at"></i>
+                                    </span>
+                                </div>
+                                <span asp-validation-for="Email" class="field-validation-error">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Sección de Seguridad -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <h3 class="section-title">Seguridad y Acceso</h3>
+                            </div>
+
+                            <!-- Contraseña -->
+                            <div class="form-group">
+                                <label asp-for="HashPassword">
+                                    <i class="fas fa-lock"></i> Contraseña
+                                    <span class="info-tooltip" data-tooltip="Dejar en blanco para no cambiar">
+                                        <i class="fas fa-info-circle"></i>
+                                    </span>
+                                </label>
+                                <div class="input-group">
+                                    <input asp-for="HashPassword" class="form-control" id="passwordInput"
+                                           type="password" placeholder="Nueva contraseña (opcional)" />
+                                    <button type="button" class="password-toggle" id="togglePassword">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="password-strength">
+                                    <div class="strength-meter">
+                                        <div class="strength-fill" id="strengthFill"></div>
+                                    </div>
+                                    <div class="strength-text" id="strengthText">Seguridad de la contraseña</div>
+                                </div>
+                                <span asp-validation-for="HashPassword" class="field-validation-error">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                </span>
+                            </div>
+
+                            <!-- Rol -->
+                            <div class="form-group">
+                                <label asp-for="RolId">
+                                    <i class="fas fa-user-tag"></i> Rol del usuario
+                                </label>
+                                <div class="input-group">
+                                    <select asp-for="RolId" class="form-control" asp-items="ViewBag.RolId">
+                                        <option value="">Seleccione un rol</option>
+                                    </select>
+                                    <span class="input-icon">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </span>
+                                </div>
+                                <span asp-validation-for="RolId" class="field-validation-error">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                </span>
+                            </div>
+
+                            <!-- Estado Activo -->
+                            <div class="form-group">
+                                <label>
+                                    <i class="fas fa-power-off"></i> Estado de la cuenta
+                                </label>
+                                <div class="checkbox-group">
+                                    <label class="custom-checkbox">
+                                        <input asp-for="Activo" class="form-check-input" />
+                                        <span class="checkmark"></span>
+                                    </label>
+                                    <span class="checkbox-label">
+                                        Usuario activo
+                                        @if (!Model.Activo)
+                                        {
+                                            <span style="color: var(--danger); margin-left: 0.5rem;">
+                                                <i class="fas fa-exclamation-triangle"></i> Actualmente inactivo
+                                            </span>
+                                        }
+                                    </span>
+                                </div>
+                                <div class="field-info">
+                                    <i class="fas fa-info-circle"></i>
+                                    Los usuarios inactivos no pueden iniciar sesión
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sección de Metadatos -->
+                        <div class="form-section">
+                            <div class="section-header">
+                                <div class="section-icon">
+                                    <i class="fas fa-info-circle"></i>
+                                </div>
+                                <h3 class="section-title">Metadatos del Sistema</h3>
+                            </div>
+
+                            <!-- Fecha de Creación -->
+                            <div class="form-group">
+                                <label asp-for="FechaCreacion">
+                                    <i class="fas fa-calendar-plus"></i> Fecha de creación
+                                </label>
+                                <div class="input-group">
+                                    <input asp-for="FechaCreacion" class="form-control readonly-field" readonly />
+                                    <span class="input-icon">
+                                        <i class="fas fa-calendar"></i>
+                                    </span>
+                                </div>
+                                <div class="field-info">
+                                    <i class="fas fa-lock"></i> Este campo es solo lectura
+                                </div>
+                                <span asp-validation-for="FechaCreacion" class="field-validation-error">
+                                    <i class="fas fa-exclamation-circle"></i>
+                                </span>
+                            </div>
+
+                            <!-- ID de Usuario -->
+                            <div class="form-group">
+                                <label>
+                                    <i class="fas fa-fingerprint"></i> ID de Usuario
+                                </label>
+                                <div class="input-group">
+                                    <input value="@Model.UserId" class="form-control readonly-field" readonly />
+                                    <span class="input-icon">
+                                        <i class="fas fa-hashtag"></i>
+                                    </span>
+                                </div>
+                                <div class="field-info">
+                                    <i class="fas fa-lock"></i> Identificador único del sistema
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <i class="fas fa-save"></i> Guardar Cambios
+                            </button>
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancelar
+                            </a>
+                            <a asp-action="Details" asp-route-id="@Model.UserId" class="btn btn-warning">
+                                <i class="fas fa-eye"></i> Ver Detalles
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const passwordInput = document.getElementById('passwordInput');
+                const togglePassword = document.getElementById('togglePassword');
+                const strengthFill = document.getElementById('strengthFill');
+                const strengthText = document.getElementById('strengthText');
+                const submitBtn = document.getElementById('submitBtn');
+                const form = document.getElementById('editUserForm');
+                const originalPassword = '@Model.HashPassword';
+
+                // Establecer placeholder inicial para contraseña
+                if (!passwordInput.value && originalPassword) {
+                    passwordInput.placeholder = "•••••••• (mantener actual)";
+                }
+
+                // Mostrar/ocultar contraseña
+                togglePassword.addEventListener('click', function() {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+                });
+
+                // Validar fortaleza de contraseña
+                function checkPasswordStrength(password) {
+                    let strength = 0;
+                    let text = '';
+
+                    // Si está vacío, mantener contraseña actual
+                    if (!password) {
+                        text = 'Mantener contraseña actual';
+                        strengthFill.className = 'strength-fill';
+                        strengthFill.style.width = '0%';
+                        strengthText.textContent = text;
+                        return;
+                    }
+
+                    // Longitud mínima
+                    if (password.length >= 8) strength++;
+                    if (password.length >= 12) strength++;
+
+                    // Caracteres variados
+                    if (/[A-Z]/.test(password)) strength++; // Mayúsculas
+                    if (/[a-z]/.test(password)) strength++; // Minúsculas
+                    if (/[0-9]/.test(password)) strength++; // Números
+                    if (/[^A-Za-z0-9]/.test(password)) strength++; // Símbolos
+
+                    // Determinar nivel y texto
+                    if (strength <= 2) {
+                        text = 'Débil';
+                        strengthFill.className = 'strength-fill strength-weak';
+                        strengthFill.style.width = '33%';
+                    } else if (strength <= 4) {
+                        text = 'Media';
+                        strengthFill.className = 'strength-fill strength-medium';
+                        strengthFill.style.width = '66%';
+                    } else {
+                        text = 'Fuerte';
+                        strengthFill.className = 'strength-fill strength-strong';
+                        strengthFill.style.width = '100%';
+                    }
+
+                    strengthText.textContent = `Seguridad: ${text}`;
+                }
+
+                // Escuchar cambios en la contraseña
+                passwordInput.addEventListener('input', function() {
+                    checkPasswordStrength(this.value);
+                });
+
+                // Efectos en inputs
+                const inputs = document.querySelectorAll('input:not(.readonly-field), select');
+                inputs.forEach(input => {
+                    input.addEventListener('focus', function() {
+                        this.parentElement.style.transform = 'translateY(-2px)';
+                    });
+
+                    input.addEventListener('blur', function() {
+                        this.parentElement.style.transform = 'translateY(0)';
+                    });
+                });
+
+                // Efecto de carga al enviar
+                form.addEventListener('submit', function(e) {
+                    if (form.checkValidity()) {
+                        // Si la contraseña está vacía, establecer valor null para no cambiarla
+                        if (!passwordInput.value.trim()) {
+                            passwordInput.value = '';
+                        }
+
+                        submitBtn.classList.add('btn-loading');
+                        submitBtn.disabled = true;
+
+                        // Permitir que el formulario se envíe después de mostrar el efecto
+                        setTimeout(() => {
+                            submitBtn.classList.remove('btn-loading');
+                            submitBtn.disabled = false;
+                        }, 3000);
+                    }
+                });
+
+                // Validación en tiempo real
+                const validationElements = document.querySelectorAll('.field-validation-error');
+                inputs.forEach(input => {
+                    input.addEventListener('input', function() {
+                        const errorSpan = this.nextElementSibling?.nextElementSibling;
+                        if (errorSpan && errorSpan.classList.contains('field-validation-error')) {
+                            if (this.value.trim() !== '') {
+                                errorSpan.style.opacity = '0';
+                                setTimeout(() => {
+                                    errorSpan.textContent = '';
+                                }, 300);
+                            }
+                        }
+                    });
+                });
+
+                // Efectos hover en checkbox
+                const checkboxGroup = document.querySelector('.checkbox-group');
+                const checkbox = document.querySelector('.custom-checkbox input');
+                const checkmark = document.querySelector('.checkmark');
+
+                checkboxGroup.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+
+                checkboxGroup.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+
+                checkmark.addEventListener('click', function() {
+                    const isChecked = checkbox.checked;
+                    this.style.transform = isChecked ? 'scale(0.9)' : 'scale(1.1)';
+                    setTimeout(() => {
+                        this.style.transform = 'scale(1)';
+                    }, 300);
+                });
+
+                // Inicializar validación de contraseña
+                checkPasswordStrength(passwordInput.value);
+
+                // Confirmación si se desactiva el usuario
+                const activeCheckbox = document.querySelector('input[name="Activo"]');
+                if (!@Model.Activo.ToString().ToLower()) {
+                    activeCheckbox.addEventListener('change', function() {
+                        if (this.checked) {
+                            if (confirm('¿Está seguro de activar este usuario? El usuario podrá iniciar sesión nuevamente.')) {
+                                return true;
+                            } else {
+                                this.checked = false;
+                                return false;
+                            }
+                        }
+                    });
+                }
+
+                // Mostrar advertencia si se cambia el rol
+                const roleSelect = document.querySelector('select[name="RolId"]');
+                const originalRole = '@Model.RolId';
+
+                roleSelect.addEventListener('change', function() {
+                    if (this.value !== originalRole) {
+                        const roleName = this.options[this.selectedIndex].text;
+                        if (!confirm(`¿Está seguro de cambiar el rol a "${roleName}"? Esto afectará los permisos del usuario.`)) {
+                            this.value = originalRole;
+                        }
+                    }
+                });
+            });
+        </script>
+    }
+</body>
+</html>

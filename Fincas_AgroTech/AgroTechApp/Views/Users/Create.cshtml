@@ -1,0 +1,690 @@
+﻿@model AgroTechApp.Models.DB.User
+
+@{
+    ViewData["Title"] = "Crear Nuevo Usuario";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --primary-light: #3CB371;
+            --primary-dark: #1E6B47;
+            --secondary: #F4A460;
+            --success: #28a745;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #ffffff;
+            --border: #e1e5e9;
+            --shadow: rgba(46, 139, 87, 0.1);
+            --gray: #6c757d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .form-card {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @@keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .form-header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -50%;
+                width: 100%;
+                height: 200%;
+                background: rgba(255, 255, 255, 0.1);
+                transform: rotate(30deg);
+            }
+
+            .form-header h1 {
+                font-size: 2.2rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+                position: relative;
+                z-index: 1;
+            }
+
+            .form-header p {
+                font-size: 1rem;
+                opacity: 0.9;
+                position: relative;
+                z-index: 1;
+            }
+
+        .form-header-icon {
+            position: absolute;
+            left: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            opacity: 0.2;
+            z-index: 0;
+        }
+
+        .form-body {
+            padding: 3rem;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+            position: relative;
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        @@keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .form-group:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .form-group:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .form-group:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .form-group:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+            label i {
+                color: var(--primary);
+                font-size: 0.9rem;
+                width: 20px;
+            }
+
+        .input-group {
+            position: relative;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            background: var(--white);
+            transition: all 0.3s ease;
+            color: var(--dark);
+        }
+
+            input:focus, select:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 4px rgba(46, 139, 87, 0.15);
+                transform: translateY(-2px);
+            }
+
+            input:hover, select:hover {
+                border-color: var(--primary-light);
+            }
+
+        .input-icon {
+            position: absolute;
+            right: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            pointer-events: none;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--border);
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+            flex: 1;
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(46, 139, 87, 0.3);
+                background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #868e96);
+            color: var(--white);
+            flex: 1;
+        }
+
+            .btn-secondary:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+                background: linear-gradient(135deg, #5a6268, #6c757d);
+            }
+
+        .btn-sm {
+            padding: 0.8rem 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* Validación */
+        .field-validation-error {
+            display: block;
+            margin-top: 0.5rem;
+            color: var(--danger);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            animation: shake 0.5s ease;
+        }
+
+        @@keyframes shake {
+            0%, 100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .field-validation-error i {
+            font-size: 0.8rem;
+        }
+
+        .input-validation-error {
+            border-color: var(--danger) !important;
+            background-color: rgba(220, 53, 69, 0.05);
+        }
+
+            .input-validation-error:focus {
+                box-shadow: 0 0 0 4px rgba(220, 53, 69, 0.15) !important;
+            }
+
+        .validation-summary-errors {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+
+            .validation-summary-errors ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .validation-summary-errors li {
+                display: flex;
+                align-items: center;
+                gap: 0.7rem;
+                margin-bottom: 0.5rem;
+                color: var(--danger);
+            }
+
+                .validation-summary-errors li:last-child {
+                    margin-bottom: 0;
+                }
+
+        .password-strength {
+            margin-top: 0.5rem;
+        }
+
+        .strength-meter {
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 0.3rem;
+        }
+
+        .strength-fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .strength-weak {
+            background: var(--danger);
+        }
+
+        .strength-medium {
+            background: var(--warning);
+        }
+
+        .strength-strong {
+            background: var(--success);
+        }
+
+        .strength-text {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 0.2rem;
+        }
+
+        /* Tooltip */
+        .info-tooltip {
+            position: relative;
+            display: inline-block;
+            margin-left: 0.5rem;
+            color: var(--info);
+            cursor: help;
+        }
+
+            .info-tooltip:hover::after {
+                content: attr(data-tooltip);
+                position: absolute;
+                bottom: 100%;
+                left: 50%;
+                transform: translateX(-50%);
+                background: var(--dark);
+                color: white;
+                padding: 0.5rem 1rem;
+                border-radius: 6px;
+                font-size: 0.8rem;
+                white-space: nowrap;
+                z-index: 1000;
+                margin-bottom: 0.5rem;
+            }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            body {
+                padding: 10px;
+                align-items: flex-start;
+            }
+
+            .form-header {
+                padding: 2rem;
+            }
+
+                .form-header h1 {
+                    font-size: 1.8rem;
+                }
+
+            .form-body {
+                padding: 2rem;
+            }
+
+            .form-header-icon {
+                display: none;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .form-header {
+                padding: 1.5rem;
+            }
+
+                .form-header h1 {
+                    font-size: 1.5rem;
+                }
+
+            .form-body {
+                padding: 1.5rem;
+            }
+
+            input, select {
+                padding: 0.9rem 1rem;
+            }
+        }
+
+        /* Loading effect */
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+        }
+
+            .btn-loading::after {
+                content: '';
+                position: absolute;
+                width: 20px;
+                height: 20px;
+                top: 50%;
+                left: 50%;
+                margin-left: -10px;
+                margin-top: -10px;
+                border: 2px solid white;
+                border-top-color: transparent;
+                border-radius: 50%;
+                animation: spin 0.8s linear infinite;
+            }
+
+        @@keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-card">
+            <!-- Encabezado del Formulario -->
+            <div class="form-header">
+                <div class="form-header-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <h1>👤 Crear Nuevo Usuario</h1>
+                <p>Complete los datos para registrar un nuevo usuario en AgroTech</p>
+            </div>
+
+            <!-- Cuerpo del Formulario -->
+            <div class="form-body">
+                <form asp-action="Create" id="createUserForm">
+                    <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+                    <!-- Campo Nombre -->
+                    <div class="form-group">
+                        <label asp-for="Nombre">
+                            <i class="fas fa-user"></i> Nombre completo
+                        </label>
+                        <div class="input-group">
+                            <input asp-for="Nombre" class="form-control" placeholder="Ingrese el nombre completo" />
+                            <span class="input-icon">
+                                <i class="fas fa-user-circle"></i>
+                            </span>
+                        </div>
+                        <span asp-validation-for="Nombre" class="field-validation-error">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </span>
+                    </div>
+
+                    <!-- Campo Email -->
+                    <div class="form-group">
+                        <label asp-for="Email">
+                            <i class="fas fa-envelope"></i> Correo electrónico
+                        </label>
+                        <div class="input-group">
+                            <input asp-for="Email" class="form-control" placeholder="ejemplo@correo.com" type="email" />
+                            <span class="input-icon">
+                                <i class="fas fa-at"></i>
+                            </span>
+                        </div>
+                        <span asp-validation-for="Email" class="field-validation-error">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </span>
+                    </div>
+
+                    <!-- Campo Contraseña -->
+                    <div class="form-group">
+                        <label asp-for="HashPassword">
+                            <i class="fas fa-lock"></i> Contraseña
+                            <span class="info-tooltip" data-tooltip="Mínimo 8 caracteres, mayúsculas y números">
+                                <i class="fas fa-info-circle"></i>
+                            </span>
+                        </label>
+                        <div class="input-group">
+                            <input asp-for="HashPassword" class="form-control" id="passwordInput"
+                                   type="password" placeholder="Ingrese una contraseña segura" />
+                            <button type="button" class="password-toggle" id="togglePassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength">
+                            <div class="strength-meter">
+                                <div class="strength-fill" id="strengthFill"></div>
+                            </div>
+                            <div class="strength-text" id="strengthText">Seguridad de la contraseña</div>
+                        </div>
+                        <span asp-validation-for="HashPassword" class="field-validation-error">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </span>
+                    </div>
+
+                    <!-- Campo Rol -->
+                    <div class="form-group">
+                        <label asp-for="RolId">
+                            <i class="fas fa-user-tag"></i> Rol del usuario
+                        </label>
+                        <div class="input-group">
+                            <select asp-for="RolId" class="form-control" asp-items="ViewBag.RolId">
+                                <option value="">Seleccione un rol</option>
+                            </select>
+                            <span class="input-icon">
+                                <i class="fas fa-chevron-down"></i>
+                            </span>
+                        </div>
+                        <span asp-validation-for="RolId" class="field-validation-error">
+                            <i class="fas fa-exclamation-circle"></i>
+                        </span>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary" id="submitBtn">
+                            <i class="fas fa-save"></i> Crear Usuario
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver a la lista
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const passwordInput = document.getElementById('passwordInput');
+                const togglePassword = document.getElementById('togglePassword');
+                const strengthFill = document.getElementById('strengthFill');
+                const strengthText = document.getElementById('strengthText');
+                const submitBtn = document.getElementById('submitBtn');
+                const form = document.getElementById('createUserForm');
+
+                // Mostrar/ocultar contraseña
+                togglePassword.addEventListener('click', function() {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+                });
+
+                // Validar fortaleza de contraseña
+                function checkPasswordStrength(password) {
+                    let strength = 0;
+                    let text = '';
+
+                    // Longitud mínima
+                    if (password.length >= 8) strength++;
+                    if (password.length >= 12) strength++;
+
+                    // Caracteres variados
+                    if (/[A-Z]/.test(password)) strength++; // Mayúsculas
+                    if (/[a-z]/.test(password)) strength++; // Minúsculas
+                    if (/[0-9]/.test(password)) strength++; // Números
+                    if (/[^A-Za-z0-9]/.test(password)) strength++; // Símbolos
+
+                    // Determinar nivel y texto
+                    if (strength <= 2) {
+                        text = 'Débil';
+                        strengthFill.className = 'strength-fill strength-weak';
+                        strengthFill.style.width = '33%';
+                    } else if (strength <= 4) {
+                        text = 'Media';
+                        strengthFill.className = 'strength-fill strength-medium';
+                        strengthFill.style.width = '66%';
+                    } else {
+                        text = 'Fuerte';
+                        strengthFill.className = 'strength-fill strength-strong';
+                        strengthFill.style.width = '100%';
+                    }
+
+                    strengthText.textContent = `Seguridad: ${text}`;
+                }
+
+                // Escuchar cambios en la contraseña
+                passwordInput.addEventListener('input', function() {
+                    checkPasswordStrength(this.value);
+                });
+
+                // Efectos en inputs
+                const inputs = document.querySelectorAll('input, select');
+                inputs.forEach(input => {
+                    input.addEventListener('focus', function() {
+                        this.parentElement.style.transform = 'translateY(-2px)';
+                    });
+
+                    input.addEventListener('blur', function() {
+                        this.parentElement.style.transform = 'translateY(0)';
+                    });
+                });
+
+                // Efecto de carga al enviar
+                form.addEventListener('submit', function(e) {
+                    if (form.checkValidity()) {
+                        submitBtn.classList.add('btn-loading');
+                        submitBtn.disabled = true;
+
+                        // Permitir que el formulario se envíe después de mostrar el efecto
+                        setTimeout(() => {
+                            submitBtn.classList.remove('btn-loading');
+                            submitBtn.disabled = false;
+                        }, 3000);
+                    }
+                });
+
+                // Validación en tiempo real
+                const validationElements = document.querySelectorAll('.field-validation-error');
+                inputs.forEach(input => {
+                    input.addEventListener('input', function() {
+                        const errorSpan = this.nextElementSibling?.nextElementSibling;
+                        if (errorSpan && errorSpan.classList.contains('field-validation-error')) {
+                            if (this.value.trim() !== '') {
+                                errorSpan.style.opacity = '0';
+                                setTimeout(() => {
+                                    errorSpan.textContent = '';
+                                }, 300);
+                            }
+                        }
+                    });
+                });
+
+                // Inicializar validación de contraseña
+                checkPasswordStrength(passwordInput.value);
+            });
+        </script>
+    }
+</body>
+</html>

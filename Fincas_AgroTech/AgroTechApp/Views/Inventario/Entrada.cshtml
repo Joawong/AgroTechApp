@@ -10,60 +10,153 @@
     <meta charset="utf-8" />
     <title>@ViewData["Title"] - AgroTech</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #2E8B57;
+            --primary-light: #3CB371;
+            --primary-dark: #1E6B47;
+            --secondary: #6c757d;
+            --secondary-light: #868e96;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #ffffff;
             --border: #e1e5e9;
+            --border-light: #edf2f7;
+            --shadow: rgba(46, 139, 87, 0.1);
+            --shadow-light: rgba(0, 0, 0, 0.05);
             --gray: #6c757d;
-            --shadow: rgba(0,0,0,.1);
+            --gray-light: #adb5bd;
+            --background: #f8fafc;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            background: linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             padding: 20px;
-            font-family: Segoe UI,Arial,sans-serif;
+            font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
         }
 
         .container {
             max-width: 1100px;
             margin: 0 auto;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .form-card {
-            background: #fff;
-            border-radius: 15px;
-            padding: 2rem;
-            box-shadow: 0 5px 15px var(--shadow);
+            background: var(--white);
+            border-radius: 18px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 30px var(--shadow);
+            border: 1px solid var(--border-light);
+            transition: transform 0.3s ease;
         }
+
+            .form-card:hover {
+                transform: translateY(-2px);
+            }
 
         .form-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.25rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border);
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-light);
         }
 
         .form-title {
-            font-size: 1.3rem;
+            font-size: 1.8rem;
             font-weight: 700;
-            color: #333;
+            color: var(--dark);
             display: flex;
-            gap: .5rem;
+            gap: 1rem;
             align-items: center;
+        }
+
+            .form-title i {
+                background: linear-gradient(135deg, var(--primary), var(--primary-light));
+                color: white;
+                width: 48px;
+                height: 48px;
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 1.4rem;
+                box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
+            }
+
+        .stock-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border-radius: 12px;
+            display: flex;
+            gap: 0.8rem;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        @@keyframes pulse {
+            0% {
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+            }
+
+            100% {
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            }
+        }
+
+        .stock-info i {
+            font-size: 1.2rem;
+        }
+
+        .stock-amount {
+            font-weight: 800;
+            font-size: 1.3rem;
+            margin-left: 5px;
         }
 
         .form-body {
             display: grid;
-            grid-template-columns: repeat(2,1fr);
-            gap: 1rem 1.25rem;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-            gap: .4rem;
+            gap: 0.6rem;
+            position: relative;
         }
 
         .full {
@@ -72,80 +165,356 @@
 
         label {
             font-weight: 600;
+            color: var(--dark);
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
+
+            label i {
+                color: var(--primary);
+                font-size: 0.9rem;
+            }
 
         input, select, textarea {
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: .7rem .85rem;
-            font-size: .95rem;
-            background: #fff;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 0.85rem 1rem;
+            font-size: 1rem;
+            background: var(--white);
+            transition: all 0.3s ease;
+            font-family: 'Roboto', sans-serif;
         }
+
+            input:focus, select:focus, textarea:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+                transform: translateY(-1px);
+            }
+
+            input:hover, select:hover {
+                border-color: var(--primary-light);
+            }
+
+        .search-container {
+            position: relative;
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        #insumoSearch {
+            flex: 1;
+            padding-left: 2.5rem;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+            z-index: 2;
+        }
+
+        #btnBuscar {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 6px rgba(46, 139, 87, 0.2);
+        }
+
+            #btnBuscar:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 12px rgba(46, 139, 87, 0.3);
+                background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            }
 
         .hint {
-            font-size: .85rem;
+            font-size: 0.85rem;
             color: var(--gray);
-        }
-
-        .kpi {
-            background: #fff;
-            border: 1px dashed var(--border);
-            padding: .6rem .8rem;
-            border-radius: 8px;
-            display: inline-flex;
-            gap: .5rem;
-            align-items: center;
-        }
-
-        .row-inline {
+            margin-top: 0.3rem;
             display: flex;
-            gap: .6rem;
             align-items: center;
+            gap: 0.5rem;
+        }
+
+            .hint i {
+                color: var(--info);
+            }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: var(--light);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            border: 2px solid var(--border-light);
+            transition: all 0.3s ease;
+        }
+
+            .toggle-container:hover {
+                border-color: var(--primary-light);
+                background: rgba(46, 139, 87, 0.05);
+            }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+            .toggle-switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--gray-light);
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+            .slider:before {
+                position: absolute;
+                content: "";
+                height: 22px;
+                width: 22px;
+                left: 4px;
+                bottom: 4px;
+                background-color: white;
+                transition: .4s;
+                border-radius: 50%;
+            }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+            input:checked + .slider:before {
+                transform: translateX(30px);
+            }
+
+        #loteGroup {
+            background: linear-gradient(to bottom, rgba(248, 249, 250, 0.8), rgba(240, 242, 245, 0.9));
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 2px dashed var(--primary-light);
+            margin-top: 1rem;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @@keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .lote-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
         }
 
         .actions {
             display: flex;
-            gap: .8rem;
-            margin-top: 1.25rem;
-            border-top: 1px solid var(--border);
-            padding-top: 1rem;
+            gap: 1rem;
+            margin-top: 2.5rem;
+            border-top: 2px solid var(--border-light);
+            padding-top: 1.5rem;
         }
 
         .btn {
             border: none;
-            border-radius: 8px;
-            padding: .7rem 1.2rem;
-            font-weight: 700;
+            border-radius: 12px;
+            padding: 0.9rem 1.8rem;
+            font-weight: 600;
             cursor: pointer;
             display: inline-flex;
-            gap: .45rem;
+            gap: 0.7rem;
             align-items: center;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            text-decoration: none;
         }
 
         .btn-primary {
-            background: var(--primary);
-            color: #fff;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+            box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
         }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 18px rgba(46, 139, 87, 0.4);
+                background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            }
 
         .btn-secondary {
-            background: #6c757d;
-            color: #fff;
+            background: linear-gradient(135deg, var(--secondary), var(--secondary-light));
+            color: var(--white);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
         }
 
-        .toggle {
+            .btn-secondary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 18px rgba(108, 117, 125, 0.4);
+                background: linear-gradient(135deg, var(--secondary-light), var(--secondary));
+            }
+
+        /* ESTILOS PARA LOS MENSAJES DE ERROR - CORREGIDOS */
+        .field-validation-error {
+            color: var(--danger);
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
             display: flex;
-            gap: .6rem;
             align-items: center;
+            gap: 0.5rem;
+            opacity: 0;
+            transform: translateY(-5px);
+            transition: all 0.3s ease;
         }
 
-        .error {
-            color: #dc3545;
-            font-size: .9rem;
+            .field-validation-error:not(:empty) {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
+            .field-validation-error i {
+                font-size: 0.8rem;
+                color: var(--danger);
+            }
+
+        .validation-summary-errors {
+            background: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
         }
+
+            .validation-summary-errors ul {
+                list-style: none;
+                padding-left: 0;
+                margin: 0;
+            }
+
+            .validation-summary-errors li {
+                display: flex;
+                align-items: center;
+                gap: 0.7rem;
+                margin-bottom: 0.5rem;
+                color: var(--danger);
+            }
+
+                .validation-summary-errors li:last-child {
+                    margin-bottom: 0;
+                }
+
+                .validation-summary-errors li i {
+                    font-size: 0.9rem;
+                }
 
         .text-danger {
-            color: #dc3545;
+            color: var(--danger);
         }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+            color: var(--primary);
+        }
+
+            .loading i {
+                animation: spin 1s linear infinite;
+            }
+
+        @@keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .success-message {
+            background: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.3);
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            color: var(--success);
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .form-body {
+                grid-template-columns: 1fr;
+            }
+
+            .lote-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+        }
+
+        /* Efectos para campos inválidos */
+        input.input-validation-error,
+        select.input-validation-error,
+        textarea.input-validation-error {
+            border-color: var(--danger);
+            background-color: rgba(220, 53, 69, 0.05);
+        }
+
+            input.input-validation-error:focus,
+            select.input-validation-error:focus,
+            textarea.input-validation-error:focus {
+                box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+            }
     </style>
 </head>
 <body>
@@ -153,86 +522,141 @@
         <div class="form-card">
             <div class="form-header">
                 <div class="form-title">
-                    <i class="fas fa-arrow-down-wide-short"></i> Registrar entrada a inventario
+                    <i class="fas fa-arrow-down-wide-short"></i>
+                    <div>
+                        <h1>Registrar entrada a inventario</h1>
+                        <p class="hint" style="font-weight: normal; margin-top: 0.2rem;">
+                            <i class="fas fa-info-circle"></i> Complete los datos para registrar una nueva entrada de insumos
+                        </p>
+                    </div>
                 </div>
-                <div class="kpi">
+                <div class="stock-info">
                     <i class="fas fa-boxes-stacked"></i>
-                    <span>Stock actual: <strong id="stockActual">—</strong></span>
+                    <div>
+                        <div>Stock actual</div>
+                        <div class="stock-amount" id="stockActual">—</div>
+                    </div>
                 </div>
             </div>
 
             <form asp-action="Entrada" method="post" id="entradaForm">
                 @Html.AntiForgeryToken()
-                <span asp-validation-summary="ModelOnly" class="text-danger"></span>
+
+                @if (ViewData.ModelState.ErrorCount > 0)
+                {
+                    <div class="validation-summary-errors">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    </div>
+                }
 
                 <div class="form-body">
                     <!-- Finca -->
                     <div class="form-group">
-                        <label for="FincaId">Finca</label>
-                        <select asp-for="FincaId" asp-items="ViewBag.FincaId" id="FincaId"></select>
-                        <span asp-validation-for="FincaId" class="error"></span>
+                        <label for="FincaId">
+                            <i class="fas fa-tractor"></i> Finca
+                        </label>
+                        <select asp-for="FincaId" asp-items="ViewBag.FincaId" id="FincaId" class="select-style">
+                            <option value="">Seleccione una finca</option>
+                        </select>
+                        <span asp-validation-for="FincaId" class="field-validation-error"></span>
                     </div>
 
                     <!-- Buscador + Select de Insumo -->
                     <div class="form-group">
-                        <label>Insumo</label>
-                        <div class="row-inline">
+                        <label>
+                            <i class="fas fa-search"></i> Buscar Insumo
+                        </label>
+                        <div class="search-container">
+                            <i class="fas fa-search search-icon"></i>
                             <input type="text" id="insumoSearch" placeholder="Buscar por nombre o categoría..." />
-                            <button type="button" id="btnBuscar" class="btn">Buscar</button>
+                            <button type="button" id="btnBuscar" class="btn">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
                         </div>
-                        <select id="insumoSelect"></select>
+
+                        <label for="insumoSelect" style="margin-top: 1rem;">
+                            <i class="fas fa-box"></i> Seleccionar Insumo
+                        </label>
+                        <select id="insumoSelect" class="select-style">
+                            <option value="">Seleccione un insumo</option>
+                        </select>
                         <input type="hidden" asp-for="InsumoId" id="InsumoId" />
-                        <span asp-validation-for="InsumoId" class="error"></span>
-                        <div class="hint">Escriba y presione “Buscar”, luego seleccione el insumo.</div>
+                        <span asp-validation-for="InsumoId" class="field-validation-error"></span>
+                        <div class="hint">
+                            <i class="fas fa-lightbulb"></i> Escriba el nombre del insumo y presione "Buscar", luego selecciónelo de la lista.
+                        </div>
                     </div>
 
                     <!-- Cantidad -->
                     <div class="form-group">
-                        <label asp-for="Cantidad"></label>
-                        <input asp-for="Cantidad" type="number" step="0.01" min="0.0001" />
-                        <span asp-validation-for="Cantidad" class="error"></span>
+                        <label asp-for="Cantidad">
+                            <i class="fas fa-balance-scale"></i> Cantidad
+                        </label>
+                        <input asp-for="Cantidad" type="number" step="0.01" min="0.0001" placeholder="Ej. 10.5" />
+                        <span asp-validation-for="Cantidad" class="field-validation-error"></span>
                     </div>
 
                     <!-- Precio Unitario -->
                     <div class="form-group">
-                        <label asp-for="PrecioUnitario">Precio unitario (opcional)</label>
-                        <input asp-for="PrecioUnitario" type="number" step="0.01" min="0" />
-                        <span asp-validation-for="PrecioUnitario" class="error"></span>
+                        <label asp-for="PrecioUnitario">
+                            <i class="fas fa-dollar-sign"></i> Precio unitario (opcional)
+                        </label>
+                        <input asp-for="PrecioUnitario" type="number" step="0.01" min="0" placeholder="Ej. 25.99" />
+                        <span asp-validation-for="PrecioUnitario" class="field-validation-error"></span>
                     </div>
 
                     <!-- Fecha -->
                     <div class="form-group">
-                        <label asp-for="Fecha">Fecha</label>
+                        <label asp-for="Fecha">
+                            <i class="fas fa-calendar-alt"></i> Fecha
+                        </label>
                         <input asp-for="Fecha" type="date" id="Fecha" />
-                        <span asp-validation-for="Fecha" class="error"></span>
+                        <span asp-validation-for="Fecha" class="field-validation-error"></span>
                     </div>
 
                     <!-- Toggle Lote -->
-                    <div class="form-group toggle full">
-                        <input asp-for="UsarLote" type="checkbox" id="UsarLote" />
-                        <label for="UsarLote">Gestionar por lote (opcional)</label>
+                    <div class="toggle-container full">
+                        <div class="toggle-switch">
+                            <input asp-for="UsarLote" type="checkbox" id="UsarLote" />
+                            <span class="slider"></span>
+                        </div>
+                        <label for="UsarLote" style="margin-bottom: 0; cursor: pointer;">
+                            <i class="fas fa-tags"></i> Gestionar por lote (opcional)
+                        </label>
                     </div>
 
                     <!-- Lote (colapsable) -->
                     <div id="loteGroup" class="full" style="display:none;">
-                        <div class="form-body" style="grid-template-columns:repeat(3,1fr)">
+                        <div class="lote-grid">
                             <div class="form-group">
-                                <label asp-for="CodigoLote">Código de lote</label>
-                                <input asp-for="CodigoLote" />
-                                <span asp-validation-for="CodigoLote" class="error"></span>
+                                <label asp-for="CodigoLote">
+                                    <i class="fas fa-barcode"></i> Código de lote
+                                </label>
+                                <input asp-for="CodigoLote" placeholder="Ej. LOTE-2023-001" />
+                                <span asp-validation-for="CodigoLote" class="field-validation-error"></span>
                             </div>
                             <div class="form-group">
-                                <label asp-for="FechaVencimiento">Fecha de vencimiento</label>
+                                <label asp-for="FechaVencimiento">
+                                    <i class="fas fa-calendar-times"></i> Fecha de vencimiento
+                                </label>
                                 <input asp-for="FechaVencimiento" type="date" id="FechaVencimiento" />
-                                <span asp-validation-for="FechaVencimiento" class="error"></span>
+                                <span asp-validation-for="FechaVencimiento" class="field-validation-error"></span>
                             </div>
                             <div class="form-group">
-                                <label asp-for="Observaciones">Observaciones</label>
-                                <input asp-for="Observaciones" />
-                                <span asp-validation-for="Observaciones" class="error"></span>
+                                <label asp-for="Observaciones">
+                                    <i class="fas fa-sticky-note"></i> Observaciones
+                                </label>
+                                <input asp-for="Observaciones" placeholder="Observaciones adicionales" />
+                                <span asp-validation-for="Observaciones" class="field-validation-error"></span>
                             </div>
                         </div>
-                        <div class="hint">Use lote para medicamentos, vacunas, semillas o insumos con vencimiento. Para combustibles o granel, déjelo apagado.</div>
+                        <div class="hint">
+                            <i class="fas fa-info-circle"></i> Use lote para medicamentos, vacunas, semillas o insumos con vencimiento. Para combustibles o granel, déjelo apagado.
+                        </div>
+                    </div>
+
+                    <div class="loading full" id="loadingIndicator">
+                        <i class="fas fa-spinner"></i> Cargando datos...
                     </div>
                 </div>
 
@@ -241,7 +665,7 @@
                         <i class="fas fa-save"></i> Guardar entrada
                     </button>
                     <a asp-controller="Insumoes" asp-action="Index" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Volver
+                        <i class="fas fa-arrow-left"></i> Volver al inventario
                     </a>
                 </div>
             </form>
@@ -252,18 +676,19 @@
         <partial name="_ValidationScriptsPartial" />
         <script>
             (function () {
+                // Elementos del DOM
                 const FincaId = document.getElementById('FincaId');
                 const insumoSearch = document.getElementById('insumoSearch');
                 const btnBuscar = document.getElementById('btnBuscar');
                 const insumoSelect = document.getElementById('insumoSelect');
                 const InsumoIdHidden = document.getElementById('InsumoId');
                 const stockActual = document.getElementById('stockActual');
-
                 const UsarLote = document.getElementById('UsarLote');
                 const loteGroup = document.getElementById('loteGroup');
-
-                // Fecha default hoy
+                const loadingIndicator = document.getElementById('loadingIndicator');
                 const fechaInput = document.getElementById('Fecha');
+
+                // Fecha por defecto: hoy
                 if (fechaInput && !fechaInput.value) {
                     const today = new Date();
                     const yyyy = today.getFullYear();
@@ -272,67 +697,189 @@
                     fechaInput.value = `${yyyy}-${mm}-${dd}`;
                 }
 
-                // Toggle lote
+                // Toggle para la gestión de lotes
                 function toggleLote() {
-                    loteGroup.style.display = UsarLote.checked ? '' : 'none';
-                }
-                UsarLote.addEventListener('change', toggleLote);
-                toggleLote();
-
-                // Rellena el select con resultados de búsqueda
-                async function buscarInsumos() {
-                    const term = (insumoSearch.value || '').trim();
-                    const finca = FincaId.value || '';
-                    const url = `/Inventario/BuscarInsumos?term=${encodeURIComponent(term)}&fincaId=${encodeURIComponent(finca)}`;
-                    const res = await fetch(url);
-                    const data = await res.json();
-                    insumoSelect.innerHTML = '';
-                    data.forEach(item => {
-                        const opt = document.createElement('option');
-                        opt.value = item.insumoId || item.InsumoId;
-                        opt.textContent = item.texto || item.Texto;
-                        insumoSelect.appendChild(opt);
-                    });
-                    if (insumoSelect.options.length > 0) {
-                        insumoSelect.selectedIndex = 0;
-                        InsumoIdHidden.value = insumoSelect.value;
-                        actualizarStock();
+                    if (UsarLote.checked) {
+                        loteGroup.style.display = 'block';
+                        loteGroup.style.animation = 'slideDown 0.3s ease-out';
                     } else {
-                        InsumoIdHidden.value = '';
-                        stockActual.textContent = '—';
+                        loteGroup.style.display = 'none';
                     }
                 }
 
-                // Cambios que disparan actualización de stock
+                UsarLote.addEventListener('change', toggleLote);
+                toggleLote();
+
+                // Mostrar/ocultar loading
+                function showLoading(show) {
+                    loadingIndicator.style.display = show ? 'block' : 'none';
+                }
+
+                // Buscar insumos
+                async function buscarInsumos() {
+                    const term = (insumoSearch.value || '').trim();
+                    const finca = FincaId.value || '';
+
+                    if (!term) {
+                        alert('Por favor, ingrese un término de búsqueda.');
+                        insumoSearch.focus();
+                        return;
+                    }
+
+                    showLoading(true);
+                    const url = `/Inventario/BuscarInsumos?term=${encodeURIComponent(term)}&fincaId=${encodeURIComponent(finca)}`;
+
+                    try {
+                        const res = await fetch(url);
+                        const data = await res.json();
+
+                        insumoSelect.innerHTML = '<option value="">Seleccione un insumo</option>';
+
+                        if (data && data.length > 0) {
+                            data.forEach(item => {
+                                const opt = document.createElement('option');
+                                opt.value = item.insumoId || item.InsumoId;
+                                opt.textContent = item.texto || item.Texto;
+                                insumoSelect.appendChild(opt);
+                            });
+
+                            if (insumoSelect.options.length > 1) {
+                                insumoSelect.selectedIndex = 1;
+                                InsumoIdHidden.value = insumoSelect.value;
+                                await actualizarStock();
+                                showSuccessMessage(`${data.length} insumos encontrados`);
+                            }
+                        } else {
+                            showErrorMessage('No se encontraron insumos con ese criterio');
+                        }
+                    } catch (error) {
+                        console.error('Error buscando insumos:', error);
+                        showErrorMessage('Error al buscar insumos');
+                    } finally {
+                        showLoading(false);
+                    }
+                }
+
+                // Actualizar stock actual
                 async function actualizarStock() {
                     const insumoId = InsumoIdHidden.value;
                     const fincaId = FincaId.value;
-                    if (!insumoId || !fincaId) { stockActual.textContent = '—'; return; }
+
+                    if (!insumoId || !fincaId) {
+                        stockActual.textContent = '—';
+                        return;
+                    }
+
+                    showLoading(true);
                     const url = `/Inventario/Stock?insumoId=${encodeURIComponent(insumoId)}&fincaId=${encodeURIComponent(fincaId)}`;
-                    const res = await fetch(url);
-                    const data = await res.json();
-                    stockActual.textContent = (data.stock ?? 0);
+
+                    try {
+                        const res = await fetch(url);
+                        const data = await res.json();
+                        stockActual.textContent = (data.stock ?? 0).toLocaleString('es-ES');
+                        stockActual.style.color = '#ffffff';
+                    } catch (error) {
+                        console.error('Error actualizando stock:', error);
+                        stockActual.textContent = 'Error';
+                        stockActual.style.color = '#ff6b6b';
+                    } finally {
+                        showLoading(false);
+                    }
                 }
 
+                // Mensajes de retroalimentación
+                function showSuccessMessage(message) {
+                    const existingMsg = document.querySelector('.success-message');
+                    if (existingMsg) existingMsg.remove();
+
+                    const successMsg = document.createElement('div');
+                    successMsg.className = 'success-message';
+                    successMsg.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+
+                    const formBody = document.querySelector('.form-body');
+                    formBody.insertBefore(successMsg, formBody.firstChild);
+
+                    setTimeout(() => {
+                        if (successMsg.parentNode) {
+                            successMsg.style.opacity = '0';
+                            successMsg.style.transition = 'opacity 0.5s';
+                            setTimeout(() => successMsg.remove(), 500);
+                        }
+                    }, 3000);
+                }
+
+                function showErrorMessage(message) {
+                    alert(message);
+                }
+
+                // Event Listeners
                 btnBuscar.addEventListener('click', buscarInsumos);
-                insumoSearch.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); buscarInsumos(); } });
+                insumoSearch.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        buscarInsumos();
+                    }
+                });
+
                 FincaId.addEventListener('change', actualizarStock);
-                insumoSelect.addEventListener('change', () => { InsumoIdHidden.value = insumoSelect.value; actualizarStock(); });
 
-                // Primera carga: usar combos iniciales enviados por el servidor
-                (function initFromServerSelect() {
-                    const serverSelect = document.querySelector('select[name="InsumoSelect"]'); // por si existiera
-                })();
+                insumoSelect.addEventListener('change', () => {
+                    InsumoIdHidden.value = insumoSelect.value;
+                    if (insumoSelect.value) {
+                        actualizarStock();
+                    } else {
+                        stockActual.textContent = '—';
+                    }
+                });
 
-                // Validación mínima antes de enviar
+                // Validación antes de enviar
                 const form = document.getElementById('entradaForm');
                 form.addEventListener('submit', (e) => {
                     if (!InsumoIdHidden.value) {
                         e.preventDefault();
-                        alert('Seleccione un insumo de la lista.');
+                        showErrorMessage('Por favor, seleccione un insumo de la lista.');
+                        insumoSelect.focus();
                         return;
                     }
+
+                    if (!FincaId.value) {
+                        e.preventDefault();
+                        showErrorMessage('Por favor, seleccione una finca.');
+                        FincaId.focus();
+                        return;
+                    }
+
+                    // Mostrar loading durante el envío
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+                    submitBtn.disabled = true;
+
+                    // Restaurar botón si hay error de validación del lado del cliente
+                    setTimeout(() => {
+                        submitBtn.innerHTML = originalText;
+                        submitBtn.disabled = false;
+                    }, 3000);
                 });
+
+                // Efectos visuales para inputs
+                document.querySelectorAll('input, select').forEach(input => {
+                    input.addEventListener('focus', function() {
+                        this.parentElement.style.transform = 'translateY(-2px)';
+                    });
+
+                    input.addEventListener('blur', function() {
+                        this.parentElement.style.transform = 'translateY(0)';
+                    });
+                });
+
+                // Carga inicial si hay datos en el ViewBag
+                window.addEventListener('DOMContentLoaded', () => {
+                    if (FincaId.options.length > 1) {
+                        FincaId.selectedIndex = 1;
+                    }
+                });
+
             })();
         </script>
     }

@@ -1,0 +1,822 @@
+﻿@model AgroTechApp.Models.DB.User
+
+@{
+    ViewData["Title"] = "Eliminar Usuario";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --primary-light: #3CB371;
+            --primary-dark: #1E6B47;
+            --danger: #dc3545;
+            --danger-light: #e4606d;
+            --danger-dark: #c82333;
+            --warning: #ffc107;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #ffffff;
+            --border: #e1e5e9;
+            --shadow: rgba(220, 53, 69, 0.1);
+            --gray: #6c757d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .delete-card {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px var(--shadow);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @@keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .delete-header {
+            background: linear-gradient(135deg, var(--danger), var(--danger-dark));
+            color: white;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .delete-header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -50%;
+                width: 100%;
+                height: 200%;
+                background: rgba(255, 255, 255, 0.1);
+                transform: rotate(30deg);
+            }
+
+            .delete-header h1 {
+                font-size: 2.2rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+                position: relative;
+                z-index: 1;
+            }
+
+            .delete-header p {
+                font-size: 1rem;
+                opacity: 0.9;
+                position: relative;
+                z-index: 1;
+            }
+
+        .delete-header-icon {
+            position: absolute;
+            left: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            opacity: 0.2;
+            z-index: 0;
+        }
+
+        .warning-banner {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border-left: 5px solid var(--warning);
+            padding: 1.5rem;
+            margin: 2rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: pulse 2s infinite;
+        }
+
+        @@keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 193, 7, 0);
+            }
+        }
+
+        .warning-icon {
+            font-size: 2rem;
+            color: #856404;
+        }
+
+        .warning-content h3 {
+            color: #856404;
+            margin-bottom: 0.3rem;
+            font-size: 1.2rem;
+        }
+
+        .warning-content p {
+            color: #856404;
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        .user-details {
+            padding: 0 2rem;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .detail-card {
+            background: var(--light);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 2px solid var(--border);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .detail-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+                border-color: var(--danger-light);
+            }
+
+        .detail-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+            .detail-label i {
+                color: var(--danger);
+                font-size: 0.8rem;
+                width: 20px;
+            }
+
+        .detail-value {
+            color: var(--dark);
+            font-size: 1.1rem;
+            font-weight: 500;
+            padding: 0.8rem 0;
+            border-top: 1px dashed var(--border);
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--danger), #e83e8c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 2rem;
+            margin: 0 auto 1.5rem;
+            border: 3px solid white;
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+
+        .user-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: #28a745;
+            border-left: 3px solid #28a745;
+        }
+
+        .status-inactive {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: var(--danger);
+            border-left: 3px solid var(--danger);
+        }
+
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            color: var(--info);
+            border-left: 3px solid var(--info);
+        }
+
+        .password-hidden {
+            font-family: monospace;
+            color: var(--gray);
+            letter-spacing: 2px;
+            background: var(--white);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            border: 1px solid var(--border);
+            display: inline-block;
+        }
+
+        .password-toggle {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            margin-left: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-actions {
+            padding: 2rem;
+            background: linear-gradient(to right, rgba(220, 53, 69, 0.05), rgba(255, 193, 7, 0.05));
+            border-top: 2px solid var(--border);
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            min-width: 180px;
+            justify-content: center;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), var(--danger-light));
+            color: var(--white);
+        }
+
+            .btn-danger:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(220, 53, 69, 0.3);
+                background: linear-gradient(135deg, var(--danger-dark), var(--danger));
+            }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #868e96);
+            color: var(--white);
+        }
+
+            .btn-secondary:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3);
+                background: linear-gradient(135deg, #5a6268, #6c757d);
+            }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #ffd351);
+            color: var(--dark);
+        }
+
+            .btn-warning:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(255, 193, 7, 0.3);
+            }
+
+        /* Confirmation modal */
+        .confirmation-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+            .confirmation-modal.show {
+                opacity: 1;
+                visibility: visible;
+            }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .confirmation-modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-icon {
+            font-size: 4rem;
+            color: var(--danger);
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .modal-message {
+            color: var(--gray);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn-modal-danger {
+            background: linear-gradient(135deg, var(--danger), var(--danger-light));
+            color: var(--white);
+            padding: 0.8rem 2rem;
+        }
+
+        .btn-modal-cancel {
+            background: linear-gradient(135deg, #6c757d, #868e96);
+            color: var(--white);
+            padding: 0.8rem 2rem;
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            body {
+                padding: 10px;
+                align-items: flex-start;
+            }
+
+            .delete-header {
+                padding: 2rem;
+            }
+
+                .delete-header h1 {
+                    font-size: 1.8rem;
+                }
+
+            .delete-header-icon {
+                display: none;
+            }
+
+            .user-details {
+                padding: 0 1.5rem;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                padding: 1.5rem;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+                width: 95%;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .delete-header {
+                padding: 1.5rem;
+            }
+
+                .delete-header h1 {
+                    font-size: 1.5rem;
+                }
+
+            .warning-banner {
+                margin: 1.5rem;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .user-details {
+                padding: 0 1rem;
+            }
+
+            .form-actions {
+                padding: 1rem;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+            .btn-modal-danger,
+            .btn-modal-cancel {
+                width: 100%;
+            }
+        }
+
+        /* Loading effect */
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+        }
+
+            .btn-loading::after {
+                content: '';
+                position: absolute;
+                width: 20px;
+                height: 20px;
+                top: 50%;
+                left: 50%;
+                margin-left: -10px;
+                margin-top: -10px;
+                border: 2px solid white;
+                border-top-color: transparent;
+                border-radius: 50%;
+                animation: spin 0.8s linear infinite;
+            }
+
+        @@keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Fade in animation for details */
+        .detail-card {
+            animation: fadeIn 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        @@keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .detail-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .detail-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .detail-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .detail-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+
+        .detail-card:nth-child(5) {
+            animation-delay: 0.5s;
+        }
+
+        .detail-card:nth-child(6) {
+            animation-delay: 0.6s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="delete-card">
+            <!-- Encabezado -->
+            <div class="delete-header">
+                <div class="delete-header-icon">
+                    <i class="fas fa-user-times"></i>
+                </div>
+                <h1>🗑️ Eliminar Usuario</h1>
+                <p>Confirme la eliminación permanente de este usuario</p>
+            </div>
+
+            <!-- Advertencia -->
+            <div class="warning-banner">
+                <div class="warning-icon">
+                    ⚠️
+                </div>
+                <div class="warning-content">
+                    <h3>¡Atención! Esta acción es irreversible</h3>
+                    <p>Una vez eliminado, el usuario no podrá ser recuperado. Todos los datos asociados serán eliminados permanentemente.</p>
+                </div>
+            </div>
+
+            <!-- Avatar y Detalles del Usuario -->
+            <div class="user-details">
+                <div class="user-avatar">
+                    @Model.Nombre.Substring(0, 1).ToUpper()
+                </div>
+
+                <div class="detail-grid">
+                    <!-- Nombre -->
+                    <div class="detail-card">
+                        <div class="detail-label">
+                            <i class="fas fa-user"></i> Nombre Completo
+                        </div>
+                        <div class="detail-value">
+                            @Html.DisplayFor(model => model.Nombre)
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="detail-card">
+                        <div class="detail-label">
+                            <i class="fas fa-envelope"></i> Correo Electrónico
+                        </div>
+                        <div class="detail-value">
+                            @Html.DisplayFor(model => model.Email)
+                        </div>
+                    </div>
+
+                    <!-- Contraseña -->
+                    <div class="detail-card">
+                        <div class="detail-label">
+                            <i class="fas fa-lock"></i> Contraseña Hash
+                        </div>
+                        <div class="detail-value">
+                            <span class="password-hidden" id="passwordDisplay">••••••••</span>
+                            <button type="button" class="password-toggle" onclick="togglePassword()">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="detail-card">
+                        <div class="detail-label">
+                            <i class="fas fa-power-off"></i> Estado
+                        </div>
+                        <div class="detail-value">
+                            @if (Model.Activo)
+                            {
+                                <span class="user-status status-active">
+                                    <i class="fas fa-check-circle"></i> Activo
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="user-status status-inactive">
+                                    <i class="fas fa-times-circle"></i> Inactivo
+                                </span>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- Fecha de Creación -->
+                    <div class="detail-card">
+                        <div class="detail-label">
+                            <i class="fas fa-calendar-plus"></i> Fecha de Creación
+                        </div>
+                        <div class="detail-value">
+                            @Html.DisplayFor(model => model.FechaCreacion)
+                        </div>
+                    </div>
+
+                    <!-- Rol -->
+                    <div class="detail-card">
+                        <div class="detail-label">
+                            <i class="fas fa-user-tag"></i> Rol Asignado
+                        </div>
+                        <div class="detail-value">
+                            <span class="role-badge">
+                                <i class="fas fa-shield-alt"></i> @Html.DisplayFor(model => model.Rol.RolId)
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formulario de Confirmación -->
+            <form asp-action="Delete" id="deleteForm">
+                <input type="hidden" asp-for="UserId" />
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-danger" id="deleteBtn">
+                        <i class="fas fa-trash"></i> Eliminar Usuario
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </a>
+                    <a asp-action="Edit" asp-route-id="@Model.UserId" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Editar en su lugar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación -->
+    <div class="confirmation-modal" id="confirmationModal">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2 class="modal-title">¿Está completamente seguro?</h2>
+            <p class="modal-message">
+                Está a punto de eliminar permanentemente al usuario <strong>@Model.Nombre</strong> (<strong>@Model.Email</strong>).
+                <br><br>
+                Esta acción <strong>NO</strong> se puede deshacer.
+            </p>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-modal-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash"></i> Sí, eliminar permanentemente
+                </button>
+                <button type="button" class="btn btn-modal-cancel" id="cancelDeleteBtn">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteBtn = document.getElementById('deleteBtn');
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+            const confirmationModal = document.getElementById('confirmationModal');
+            const deleteForm = document.getElementById('deleteForm');
+            let passwordVisible = false;
+            const originalPassword = '@Model.HashPassword';
+
+            // Mostrar modal de confirmación
+            deleteBtn.addEventListener('click', function() {
+                confirmationModal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            });
+
+            // Cancelar eliminación
+            cancelDeleteBtn.addEventListener('click', function() {
+                confirmationModal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+            });
+
+            // Confirmar eliminación
+            confirmDeleteBtn.addEventListener('click', function() {
+                // Mostrar efecto de carga
+                this.classList.add('btn-loading');
+                this.disabled = true;
+
+                // Cerrar modal
+                confirmationModal.classList.remove('show');
+                document.body.style.overflow = 'auto';
+
+                // Enviar formulario después de un breve delay
+                setTimeout(() => {
+                    deleteForm.submit();
+                }, 500);
+            });
+
+            // Cerrar modal al hacer clic fuera
+            confirmationModal.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    confirmationModal.classList.remove('show');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+
+            // Mostrar/ocultar contraseña
+            window.togglePassword = function() {
+                const passwordDisplay = document.getElementById('passwordDisplay');
+                const toggleBtn = document.querySelector('.password-toggle i');
+
+                if (!passwordVisible) {
+                    // Mostrar primeros y últimos caracteres con asteriscos en medio
+                    if (originalPassword.length > 8) {
+                        const visiblePart = originalPassword.substring(0, 3) + '••••••' +
+                                           originalPassword.substring(originalPassword.length - 3);
+                        passwordDisplay.textContent = visiblePart;
+                    } else {
+                        passwordDisplay.textContent = originalPassword;
+                    }
+                    toggleBtn.className = 'fas fa-eye-slash';
+                    passwordVisible = true;
+                } else {
+                    passwordDisplay.textContent = '••••••••';
+                    toggleBtn.className = 'fas fa-eye';
+                    passwordVisible = false;
+                }
+            };
+
+            // Efecto de teclear en la eliminación (opcional, solo visual)
+            deleteBtn.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.05)';
+            });
+
+            deleteBtn.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+
+            // Prevenir envío accidental con Enter
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && confirmationModal.classList.contains('show')) {
+                    e.preventDefault();
+                }
+            });
+
+            // Efectos en las tarjetas de detalle
+            const detailCards = document.querySelectorAll('.detail-card');
+            detailCards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+
+            // Animación de advertencia
+            const warningBanner = document.querySelector('.warning-banner');
+            let pulseCount = 0;
+            const pulseInterval = setInterval(() => {
+                if (pulseCount < 3) {
+                    warningBanner.style.animation = 'none';
+                    void warningBanner.offsetWidth; // Trigger reflow
+                    warningBanner.style.animation = 'pulse 2s infinite';
+                    pulseCount++;
+                } else {
+                    clearInterval(pulseInterval);
+                }
+            }, 4000);
+        });
+    </script>
+</body>
+</html>

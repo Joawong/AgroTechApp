@@ -49,6 +49,8 @@ namespace AgroTechApp.Controllers
             return View(animal);
         }
 
+
+
         // GET: Animales/Create
         public IActionResult Create()
         {
