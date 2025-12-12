@@ -632,13 +632,7 @@
                     <p>Sistema de gestión de pesaje de ganado</p>
                 </div>
             </div>
-            <div class="user-info">
-                <div class="user-avatar">JD</div>
-                <div class="user-details">
-                    <div class="user-name">Juan Díaz</div>
-                    <div class="user-role">Administrador</div>
-                </div>
-            </div>
+            
         </header>
 
         <!-- Dashboard Cards -->
@@ -753,8 +747,8 @@
                                                 @item.Animal.AnimalId.ToString().Substring(0, Math.Min(3, item.Animal.AnimalId.ToString().Length))
                                             </div>
                                             <div>
-                                                <div class="animal-name">Animal #@Html.DisplayFor(modelItem => item.Animal.AnimalId)</div>
-                                                <div class="animal-id">ID: @Html.DisplayFor(modelItem => item.Animal.AnimalId)</div>
+                                                <div class="animal-name">Arete #@Html.DisplayFor(modelItem => item.Animal.Arete)</div>
+                                                <div class="animal-id">Nombre: @Html.DisplayFor(modelItem => item.Animal.Nombre)</div>
                                             </div>
                                         </div>
                                     </td>

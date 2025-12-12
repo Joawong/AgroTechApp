@@ -1,5 +1,6 @@
-using AgroTechApp.Data;
+﻿using AgroTechApp.Data;
 using AgroTechApp.Models.DB;
+using AgroTechApp.Services;
 using AgroTechApp.Services.Inventario;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -20,10 +21,20 @@ builder.Services.AddDbContext<AgroTechDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>() 
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(24); // Sesión dura 24 horas
+    options.Cookie.HttpOnly = true; // Seguridad
+    options.Cookie.IsEssential = true; // Necesaria para GDPR
+});
+
 builder.Services.AddScoped<IInventarioService, InventarioService>();
+builder.Services.AddScoped<IFinanzasService, FinanzasService>();
 
 var app = builder.Build();
 
@@ -43,8 +54,10 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseSession();
 
 app.MapControllerRoute(
     name: "default",
@@ -55,7 +68,7 @@ using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     var connection = dbContext.Database.GetDbConnection();
-    Console.WriteLine($"?? ApplicationDbContext se conect� a la base de datos: {connection.Database} en {connection.DataSource}");
+    Console.WriteLine($"?? ApplicationDbContext se conectó a la base de datos: {connection.Database} en {connection.DataSource}");
 }
 
 app.Run();

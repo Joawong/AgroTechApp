@@ -32,4 +32,7 @@ public partial class Finca
     public virtual ICollection<Tratamiento> Tratamientos { get; set; } = new List<Tratamiento>();
 
     public virtual ICollection<User> Users { get; set; } = new List<User>();
+
+    public virtual ICollection<UserFinca> UserFincas { get; set; } = new List<UserFinca>();
+
 }

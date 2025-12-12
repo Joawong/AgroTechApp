@@ -320,19 +320,14 @@
             <form asp-action="Edit" id="editForm">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                 <input type="hidden" asp-for="AnimalId" />
+                <input type="hidden" asp-for="FincaId" />
+
+
 
                 <div class="form-grid">
                     <!-- Información Básica -->
                     <div class="form-section">
                         <h3>📝 Información Básica</h3>
-
-                        <div class="form-group">
-                            <label asp-for="FincaId" class="form-label">🏠 Finca</label>
-                            <select asp-for="FincaId" class="form-control select" asp-items="ViewBag.FincaId">
-                                <option value="">Seleccione una finca</option>
-                            </select>
-                            <span asp-validation-for="FincaId" class="text-danger"></span>
-                        </div>
 
                         <div class="form-group">
                             <label asp-for="Arete" class="form-label">🏷️ Número de Arete</label>
@@ -415,7 +410,7 @@
 
                         <div class="form-group">
                             <label asp-for="PesoNacimiento" class="form-label">⚖️ Peso al Nacer (kg)</label>
-                            <input asp-for="PesoNacimiento" class="form-control" type="number" step="0.1" placeholder="Ej: 35.5" />
+                            <input asp-for="PesoNacimiento" class="form-control" type="text" placeholder="Ej: 35,5 o 35.5" />
                             <span asp-validation-for="PesoNacimiento" class="text-danger"></span>
                             <div class="current-value">
                                 Valor actual: <strong>@Model.PesoNacimiento kg</strong>

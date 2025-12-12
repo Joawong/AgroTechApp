@@ -3,372 +3,793 @@
 @{
     ViewData["Title"] = "Gestión de Gastos";
 
-    // Datos de resumen
-    decimal totalGastos = ViewBag.TotalGastos ?? 0m;
-    int totalRegistros = ViewBag.TotalRegistros ?? 0;
-    int gastosPorAnimal = ViewBag.GastosPorAnimal ?? 0;
-    int gastosPorInsumo = ViewBag.GastosPorInsumo ?? 0;
-
-    // Filtros
-    long? fincaSel = ViewBag?.FincaId?.SelectedValue as long?;
-    int? rubroSel = ViewBag?.RubroGastoId?.SelectedValue as int?;
-    string q = ViewBag?.Q as string ?? "";
+    // Calcular estadísticas
+    var totalGastos = Model.Sum(g => g.Monto);
+    var totalRegistros = Model.Count();
+    var gastosAutomaticos = Model.Count(g => g.EsAutomatico);
+    var gastosManuales = Model.Count(g => !g.EsAutomatico);
 }
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8" />
-    <title>@ViewData["Title"] - AgroTech</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --primary: #2E8B57;
+        --primary-light: #3CB371;
+        --primary-dark: #1E6B47;
+        --secondary: #F4A460;
+        --success: #28a745;
+        --warning: #ffc107;
+        --danger: #dc3545;
+        --info: #17a2b8;
+        --light: #f8f9fa;
+        --dark: #343a40;
+        --white: #ffffff;
+        --border: #e1e5e9;
+        --shadow: rgba(46, 139, 87, 0.1);
+        --gray: #6c757d;
+    }
 
-    <style>
-        :root {
-            --primary: #2E8B57;
-            --primary-dark: #26734d;
-            --primary-light: #3CB371;
-            --light: #f8f9fa;
-            --dark: #2C3E50;
-            --gray: #6c757d;
-            --border: #dee2e6;
-            --shadow: rgba(0,0,0,.08);
-            --shadow-hover: rgba(0,0,0,.15);
-            --success: #28a745;
-            --warning: #ffc107;
-            --danger: #dc3545;
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e3f2fd 100%);
+        font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    }
+
+    .admin-card {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 15px 40px var(--shadow);
+        overflow: hidden;
+        border: 1px solid var(--border);
+        animation: fadeIn 0.5s ease-out;
+        margin-bottom: 2rem;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
         }
 
-        * {
-            box-sizing: border-box
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 2.5rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .admin-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg);
         }
 
-        body {
-            background: linear-gradient(135deg,#f5f7fa 0%,#e3f2fd 100%);
-            color: var(--dark);
-            font-family: Inter, Segoe UI, Arial, sans-serif;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin: 24px 0;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .page-title {
-            font-size: 28px;
-            font-weight: 800;
-            display: flex;
-            gap: 10px;
-            align-items: center
-        }
-
-            .page-title i {
-                color: var(--primary)
-            }
-
-        .page-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap
-        }
-
-        .btn {
-            padding: .6rem 1rem;
-            border: none;
-            border-radius: 8px;
+        .admin-header h1 {
+            font-size: 2.5rem;
             font-weight: 700;
-            display: inline-flex;
-            gap: .5rem;
-            align-items: center;
-            cursor: pointer;
-            text-decoration: none
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
         }
 
-        .btn-primary {
-            background: var(--primary);
-            color: #fff
+        .admin-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
         }
 
-            .btn-primary:hover {
-                background: var(--primary-dark)
+    .admin-header-icon {
+        position: absolute;
+        right: 2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 3rem;
+        opacity: 0.2;
+        z-index: 0;
+    }
+
+    .admin-body {
+        padding: 2.5rem;
+    }
+
+    .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .header-title h2 {
+        color: var(--dark);
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .header-title p {
+        color: var(--gray);
+        font-size: 0.95rem;
+    }
+
+    .btn-custom {
+        padding: 0.85rem 1.8rem;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.7rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary-custom {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color: var(--white);
+    }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(46, 139, 87, 0.3);
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white;
+        }
+
+    .btn-sm {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.85rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+        background: var(--white);
+        padding: 1.8rem;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        border-left: 5px solid var(--primary);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+    .stat-icon {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        font-size: 2.5rem;
+        opacity: 0.2;
+        color: var(--primary);
+    }
+
+    .stat-number {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: var(--dark);
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    .search-section {
+        background: linear-gradient(to right, rgba(46, 139, 87, 0.05), rgba(244, 164, 96, 0.05));
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 2px solid var(--border);
+    }
+
+    .search-container {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        flex: 1;
+        min-width: 300px;
+        padding: 1rem 1.5rem;
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        font-size: 1rem;
+        background: var(--white);
+        transition: all 0.3s ease;
+    }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+            transform: translateY(-1px);
+        }
+
+    .filter-select {
+        padding: 1rem 1.5rem;
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        background: var(--white);
+        font-size: 1rem;
+        min-width: 150px;
+        cursor: pointer;
+    }
+
+    .table-container {
+        background: var(--white);
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        margin-top: 1rem;
+    }
+
+    .table-custom {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+    }
+
+        .table-custom thead {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+        }
+
+        .table-custom th {
+            padding: 1.2rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+        }
+
+            .table-custom th::after {
+                content: '';
+                position: absolute;
+                right: 0;
+                top: 25%;
+                height: 50%;
+                width: 1px;
+                background: rgba(255, 255, 255, 0.2);
             }
 
-        .btn-outline {
-            background: #fff;
-            border: 1px solid var(--primary);
-            color: var(--primary)
+            .table-custom th:last-child::after {
+                display: none;
+            }
+
+        .table-custom td {
+            padding: 1.2rem 1rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
         }
 
-            .btn-outline:hover {
-                background: var(--primary);
-                color: #fff
+        .table-custom tbody tr {
+            transition: all 0.3s ease;
+        }
+
+            .table-custom tbody tr:hover {
+                background: linear-gradient(to right, rgba(46, 139, 87, 0.03), rgba(244, 164, 96, 0.03));
+                transform: translateX(5px);
             }
+
+                .table-custom tbody tr:hover td {
+                    border-color: rgba(46, 139, 87, 0.2);
+                }
+
+    .badge-tipo {
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .badge-automatico {
+        background: linear-gradient(135deg, #cfe2ff, #9ec5fe);
+        color: #084298;
+        border-left: 3px solid var(--info);
+    }
+
+    .badge-manual {
+        background: linear-gradient(135deg, #e2e3e5, #d3d4d5);
+        color: #41464b;
+        border-left: 3px solid var(--gray);
+    }
+
+    .badge-rubro {
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        color: #856404;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .actions-group {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .btn-success {
+        background: var(--success);
+        color: white;
+    }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+    .btn-warning {
+        background: var(--warning);
+        color: #212529;
+    }
+
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-1px);
+        }
+
+    .btn-danger {
+        background: var(--danger);
+        color: white;
+    }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+    .btn-disabled {
+        background: #e9ecef;
+        color: #6c757d;
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--gray);
+    }
+
+    .empty-state-icon {
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.3;
+        color: var(--primary);
+    }
+
+    .empty-state h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--dark);
+    }
+
+    .table-footer {
+        padding: 1.5rem;
+        background: var(--light);
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .pagination-info {
+        color: var(--gray);
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .alert-custom {
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    @@keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        border-left: 4px solid var(--success);
+        color: #155724;
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        border-left: 4px solid var(--danger);
+        color: #721c24;
+    }
+
+    @@media (max-width: 1200px) {
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .table-custom {
+            min-width: 1000px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .admin-header {
+            padding: 2rem;
+        }
+
+            .admin-header h1 {
+                font-size: 2rem;
+            }
+
+        .admin-body {
+            padding: 1.5rem;
+        }
 
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
-            gap: 16px;
-            margin-bottom: 20px
+            grid-template-columns: repeat(2, 1fr);
         }
+    }
+</style>
 
-        .stat-card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 16px;
-            box-shadow: 0 4px 16px var(--shadow);
-            display: flex;
-            gap: 14px;
-            align-items: center
-        }
+<div class="admin-card">
+    <!-- Encabezado -->
+    <div class="admin-header">
+        <div class="admin-header-icon">
+            <i class="fas fa-money-bill-wave"></i>
+        </div>
+        <h1>💰 Gestión de Gastos</h1>
+        <p>Administre y registre todos los gastos de su finca</p>
+    </div>
 
-        .stat-icon {
-            width: 54px;
-            height: 54px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 20px
-        }
-
-            .stat-icon.primary {
-                background: linear-gradient(135deg,var(--primary-light),var(--primary))
-            }
-
-            .stat-icon.info {
-                background: linear-gradient(135deg,#118AB2,#2A9FD6)
-            }
-
-            .stat-icon.warning {
-                background: linear-gradient(135deg,#FFD166,var(--warning))
-            }
-
-            .stat-icon.danger {
-                background: linear-gradient(135deg,#FF9E7D,var(--danger))
-            }
-
-        .filters {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 16px var(--shadow);
-            padding: 16px;
-            margin-bottom: 18px
-        }
-
-            .filters form {
-                display: grid;
-                grid-template-columns: repeat(5,1fr);
-                gap: 10px;
-                align-items: end
-            }
-
-            .filters .field {
-                display: flex;
-                flex-direction: column;
-                gap: 6px
-            }
-
-            .filters select, .filters input {
-                padding: .6rem .8rem;
-                border: 1px solid var(--border);
-                border-radius: 8px
-            }
-
-        .table-card {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px var(--shadow)
-        }
-
-        .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px;
-            border-bottom: 1px solid var(--border)
-        }
-
-        .table-container {
-            overflow-x: auto
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse
-        }
-
-        th {
-            background: var(--light);
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-            font-weight: 700
-        }
-
-        td {
-            padding: 12px;
-            border-bottom: 1px solid var(--border)
-        }
-
-        .row-actions {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap
-        }
-
-        .btn-sm {
-            padding: .35rem .6rem;
-            border-radius: 6px;
-            font-weight: 700
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: #fff
-        }
-
-        .btn-warning {
-            background: var(--warning);
-            color: #212529
-        }
-
-        @@media (max-width: 992px) {
-            .filters form {
-                grid-template-columns: repeat(2,1fr)
-            }
-        }
-
-        @@media (max-width: 560px) {
-            .filters form {
-                grid-template-columns: 1fr
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Header -->
-        <div class="page-header">
-            <div class="page-title"><i class="fas fa-money-bill-wave"></i> Gestión de Gastos</div>
-            <div class="page-actions">
-                <a asp-action="Create" class="btn btn-primary"><i class="fas fa-plus"></i> Nuevo Gasto</a>
-                <a asp-action="Index" class="btn btn-outline"><i class="fas fa-sync-alt"></i> Actualizar</a>
+    <!-- Cuerpo Principal -->
+    <div class="admin-body">
+        <!-- Alerts -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert-custom alert-success">
+                <i class="fas fa-check-circle" style="font-size: 1.5rem;"></i>
+                <span>@TempData["Success"]</span>
             </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert-custom alert-danger">
+                <i class="fas fa-exclamation-circle" style="font-size: 1.5rem;"></i>
+                <span>@TempData["Error"]</span>
+            </div>
+        }
+
+        <!-- Encabezado con acciones -->
+        <div class="header-actions">
+            <div class="header-title">
+                <h2>Lista de Gastos</h2>
+                <p id="gastoCount">Total de gastos registrados: @totalRegistros</p>
+            </div>
+            <a asp-action="Create" class="btn-custom btn-primary-custom">
+                <i class="fas fa-plus"></i> Nuevo Gasto
+            </a>
         </div>
 
-        <!-- KPIs -->
+        <!-- Estadísticas -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-icon primary"><i class="fas fa-receipt"></i></div>
-                <div><div style="font-weight:800;font-size:1.3rem">@totalRegistros</div><div style="color:var(--gray)">Registros</div></div>
+                <div class="stat-icon">
+                    <i class="fas fa-receipt"></i>
+                </div>
+                <div class="stat-number">@totalRegistros</div>
+                <div class="stat-label">Total Registros</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon warning"><i class="fas fa-paw"></i></div>
-                <div><div style="font-weight:800;font-size:1.3rem">@gastosPorAnimal</div><div style="color:var(--gray)">Gastos Animales</div></div>
+            <div class="stat-card" style="border-left-color: var(--danger);">
+                <div class="stat-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <div class="stat-number">₡@totalGastos.ToString("N2")</div>
+                <div class="stat-label">Total Gastado</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon info"><i class="fas fa-flask"></i></div>
-                <div><div style="font-weight:800;font-size:1.3rem">@gastosPorInsumo</div><div style="color:var(--gray)">Gastos Insumos</div></div>
+            <div class="stat-card" style="border-left-color: var(--info);">
+                <div class="stat-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="stat-number">@gastosAutomaticos</div>
+                <div class="stat-label">Gastos Automáticos</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon danger"><i class="fas fa-dollar-sign"></i></div>
-                <div><div style="font-weight:800;font-size:1.3rem">₡@totalGastos.ToString("N2")</div><div style="color:var(--gray)">Total Gastado</div></div>
+            <div class="stat-card" style="border-left-color: var(--gray);">
+                <div class="stat-icon">
+                    <i class="fas fa-hand-paper"></i>
+                </div>
+                <div class="stat-number">@gastosManuales</div>
+                <div class="stat-label">Gastos Manuales</div>
             </div>
         </div>
 
-        <!-- Filtros -->
-        <div class="filters">
-            <form method="get" asp-action="Index">
-                <div class="field">
-                    <label>Finca</label>
-                    <select name="fincaId" asp-items="ViewBag.FincaId">
-                        <option value="">(Todas)</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>Rubro</label>
-                    <select name="rubroGastoId" asp-items="ViewBag.RubroGastoId">
-                        <option value="">(Todos)</option>
-                    </select>
-                </div>
-                <div class="field" style="grid-column: span 2;">
-                    <label>Buscar</label>
-                    <input type="text" name="q" value="@q" placeholder="Descripción o rubro..." />
-                </div>
-                <div class="field">
-                    <button type="submit" class="btn btn-outline"><i class="fas fa-filter"></i> Aplicar</button>
-                </div>
-            </form>
+        <!-- Búsqueda y Filtros -->
+        <div class="search-section">
+            <div class="search-container">
+                <input type="text" class="search-box" placeholder="🔍 Buscar por descripción..." id="searchInput">
+                <select class="filter-select" id="tipoFilter">
+                    <option value="">Todos los tipos</option>
+                    <option value="automatico">Automáticos</option>
+                    <option value="manual">Manuales</option>
+                </select>
+                <select class="filter-select" id="rubroFilter">
+                    <option value="">Todos los rubros</option>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var rubro in Model.Select(g => g.RubroGasto?.Nombre).Distinct().Where(r => r != null))
+                        {
+                            <option value="@rubro">@rubro</option>
+                        }
+                    }
+                </select>
+            </div>
         </div>
 
-        <!-- Tabla -->
-        <div class="table-card">
-            <div class="table-header">
-                <div style="font-weight:800">Lista de Gastos</div>
-                <a asp-action="Create" class="btn btn-outline btn-sm"><i class="fas fa-plus"></i> Nuevo</a>
-            </div>
-            <div class="table-container">
-                <table>
+        <!-- Tabla de Gastos -->
+        <div class="table-container">
+            @if (Model != null && Model.Any())
+            {
+                <table class="table-custom">
                     <thead>
                         <tr>
-                            <th style="width:100px;">Código</th>
                             <th>Fecha</th>
                             <th>Rubro</th>
-                            <th>Finca</th>
-                            <th>Monto</th>
                             <th>Descripción</th>
-                            <th>Asociado a</th>
-                            <th style="width:220px;">Acciones</th>
+                            <th>Monto</th>
+                            <th>Tipo</th>
+                            <th>Origen</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @foreach (var g in Model)
+                    <tbody id="gastosTableBody">
+                        @foreach (var gasto in Model)
                         {
-                            var codigo = $"GST-{g.GastoId:D4}";
-                            string asociado = g.Animal != null ? $"Animal #{g.Animal.AnimalId}" :
-                            g.Potrero != null ? $"Potrero #{g.Potrero.PotreroId}" :
-                            g.Insumo != null ? $"Insumo #{g.Insumo.InsumoId}" : "-";
-
-                            <tr>
-                                <td>@codigo</td>
-                                <td>@g.Fecha.ToString("dd/MM/yyyy")</td>
-                                <td>@g.RubroGasto?.Nombre</td>
-                                <td>@g.Finca?.Nombre</td>
-                                <td>₡@g.Monto.ToString("N2")</td>
-                                <td>@g.Descripcion</td>
-                                <td>@asociado</td>
+                            <tr class="gasto-row"
+                                data-descripcion="@gasto.Descripcion?.ToLower()"
+                                data-tipo="@(gasto.EsAutomatico ? "automatico" : "manual")"
+                                data-rubro="@gasto.RubroGasto?.Nombre">
                                 <td>
-                                    <div class="row-actions">
-                                        <a class="btn btn-outline btn-sm" asp-action="Edit" asp-route-id="@g.GastoId">
-                                            <i class="fas fa-edit"></i> Editar
+                                    <strong>@gasto.Fecha.ToString("dd/MM/yyyy")</strong>
+                                </td>
+                                <td>
+                                    <span class="badge-rubro">
+                                        <i class="fas fa-tag"></i> @gasto.RubroGasto?.Nombre
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(gasto.Descripcion))
+                                    {
+                                        <span>@gasto.Descripcion</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color: var(--gray); font-style: italic;">Sin descripción</span>
+                                    }
+                                    @if (gasto.Animal != null)
+                                    {
+                                        <br />
+                                        <small style="color: var(--gray);">
+                                            <i class="fas fa-paw"></i> Animal: @gasto.Animal.Arete
+                                        </small>
+                                    }
+                                    @if (gasto.Insumo != null)
+                                    {
+                                        <br />
+                                        <small style="color: var(--gray);">
+                                            <i class="fas fa-flask"></i> Insumo: @gasto.Insumo.Nombre
+                                        </small>
+                                    }
+                                </td>
+                                <td>
+                                    <strong style="color: var(--danger); font-size: 1.1rem;">
+                                        ₡@gasto.Monto.ToString("N2")
+                                    </strong>
+                                </td>
+                                <td>
+                                    @if (gasto.EsAutomatico)
+                                    {
+                                        <span class="badge-tipo badge-automatico">
+                                            <i class="fas fa-robot"></i> Automático
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-tipo badge-manual">
+                                            <i class="fas fa-hand-paper"></i> Manual
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(gasto.OrigenModulo))
+                                    {
+                                        <span style="font-size: 0.85rem; color: var(--gray);">
+                                            @gasto.OrigenModulo
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span style="font-size: 0.85rem; color: var(--gray); font-style: italic;">
+                                            -
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="actions-group">
+                                        <a asp-action="Details" asp-route-id="@gasto.GastoId"
+                                           class="btn btn-success btn-sm" title="Ver detalles">
+                                            <i class="fas fa-eye"></i>
                                         </a>
-                                        <a class="btn btn-outline btn-sm" asp-action="Details" asp-route-id="@g.GastoId">
-                                            <i class="fas fa-eye"></i> Detalle
-                                        </a>
-                                        <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@g.GastoId">
-                                            <i class="fas fa-trash"></i> Eliminar
-                                        </a>
+                                        @if (gasto.EsAutomatico)
+                                        {
+                                            <span class="btn btn-disabled btn-sm" title="No se pueden editar gastos automáticos">
+                                                <i class="fas fa-lock"></i> Protegido
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <a asp-action="Edit" asp-route-id="@gasto.GastoId"
+                                               class="btn btn-warning btn-sm" title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a asp-action="Delete" asp-route-id="@gasto.GastoId"
+                                               class="btn btn-danger btn-sm" title="Eliminar">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        }
                                     </div>
                                 </td>
                             </tr>
                         }
                     </tbody>
                 </table>
-            </div>
-        </div>
 
-        <div style="height:24px"></div>
+                <!-- Pie de tabla -->
+                <div class="table-footer">
+                    <div class="pagination-info" id="paginationInfo">
+                        Mostrando @Model.Count() de @Model.Count() gastos
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <h3>No hay gastos registrados</h3>
+                    <p>Comience registrando el primer gasto de su finca.</p>
+                    <a asp-action="Create" class="btn-custom btn-primary-custom">
+                        <i class="fas fa-plus"></i> Registrar Primer Gasto
+                    </a>
+                </div>
+            }
+        </div>
     </div>
-</body>
-</html>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchInput');
+            const tipoFilter = document.getElementById('tipoFilter');
+            const rubroFilter = document.getElementById('rubroFilter');
+            const gastoRows = document.querySelectorAll('.gasto-row');
+            const totalGastos = @totalRegistros;
+
+            function filterTable() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const tipoValue = tipoFilter.value;
+                const rubroValue = rubroFilter.value;
+
+                let visibleCount = 0;
+
+                gastoRows.forEach(row => {
+                    const descripcion = row.getAttribute('data-descripcion') || '';
+                    const tipo = row.getAttribute('data-tipo');
+                    const rubro = row.getAttribute('data-rubro');
+
+                    const matchesSearch = !searchTerm || descripcion.includes(searchTerm);
+                    const matchesTipo = !tipoValue || tipo === tipoValue;
+                    const matchesRubro = !rubroValue || rubro === rubroValue;
+
+                    if (matchesSearch && matchesTipo && matchesRubro) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                // Actualizar contadores
+                document.getElementById('gastoCount').textContent = `Mostrando ${visibleCount} de ${totalGastos} gastos`;
+                document.getElementById('paginationInfo').textContent = `Mostrando ${visibleCount} de ${totalGastos} gastos`;
+            }
+
+            // Event listeners
+            searchInput.addEventListener('input', filterTable);
+            tipoFilter.addEventListener('change', filterTable);
+            rubroFilter.addEventListener('change', filterTable);
+
+            // Auto-hide alerts
+            setTimeout(() => {
+                const alerts = document.querySelectorAll('.alert-custom');
+                alerts.forEach(alert => {
+                    alert.style.transition = 'opacity 0.5s, transform 0.5s';
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-10px)';
+                    setTimeout(() => alert.remove(), 500);
+                });
+            }, 5000);
+        });
+    </script>
+}

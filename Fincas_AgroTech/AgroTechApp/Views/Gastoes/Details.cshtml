@@ -1,66 +1,466 @@
 ﻿@model AgroTechApp.Models.DB.Gasto
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalle del Gasto";
 }
 
-<h1>Details</h1>
+<style>
+    :root {
+        --primary: #2E8B57;
+        --primary-light: #3CB371;
+        --primary-dark: #1E6B47;
+        --info: #17a2b8;
+        --danger: #dc3545;
+        --gray: #6c757d;
+        --white: #ffffff;
+        --border: #e1e5e9;
+        --shadow: rgba(46, 139, 87, 0.1);
+    }
 
-<div>
-    <h4>Gasto</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Fecha)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Fecha)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Monto)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Monto)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Descripcion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Descripcion)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Animal)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Animal.AnimalId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Finca)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Finca.FincaId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Insumo)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Insumo.InsumoId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Potrero)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Potrero.PotreroId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RubroGasto)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RubroGasto.RubroGastoId)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.GastoId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e3f2fd 100%);
+        font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    }
+
+    .detail-card {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 15px 40px var(--shadow);
+        overflow: hidden;
+        border: 1px solid var(--border);
+        max-width: 800px;
+        margin: 2rem auto;
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .detail-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .detail-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg);
+        }
+
+        .detail-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+    .detail-body {
+        padding: 2.5rem;
+    }
+
+    .info-section {
+        margin-bottom: 2rem;
+    }
+
+        .info-section h3 {
+            color: var(--primary);
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .info-item {
+        background: #f8f9fa;
+        padding: 1.2rem;
+        border-radius: 12px;
+        border-left: 4px solid var(--primary);
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        color: var(--gray);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .info-value {
+        font-size: 1.1rem;
+        color: var(--primary-dark);
+        font-weight: 600;
+    }
+
+        .info-value.large {
+            font-size: 2rem;
+            color: var(--danger);
+        }
+
+    .badge-tipo {
+        padding: 0.5rem 1.2rem;
+        border-radius: 50px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .badge-automatico {
+        background: linear-gradient(135deg, #cfe2ff, #9ec5fe);
+        color: #084298;
+        border-left: 3px solid var(--info);
+    }
+
+    .badge-manual {
+        background: linear-gradient(135deg, #e2e3e5, #d3d4d5);
+        color: #41464b;
+        border-left: 3px solid var(--gray);
+    }
+
+    .alert-info {
+        background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+        border-left: 4px solid var(--info);
+        padding: 1.2rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+        .alert-info i {
+            font-size: 1.5rem;
+            color: var(--info);
+        }
+
+    .alert-warning {
+        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        border-left: 4px solid #856404;
+        padding: 1.2rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+        .alert-warning i {
+            font-size: 1.5rem;
+            color: #856404;
+        }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        padding-top: 2rem;
+        border-top: 2px solid var(--border);
+        margin-top: 2rem;
+    }
+
+    .btn-custom {
+        padding: 0.9rem 2rem;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.7rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color: var(--white);
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(46, 139, 87, 0.3);
+        }
+
+    .btn-warning {
+        background: #ffc107;
+        color: #212529;
+    }
+
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+        }
+
+    .btn-danger {
+        background: var(--danger);
+        color: white;
+    }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+    .btn-secondary {
+        background: var(--white);
+        color: var(--gray);
+        border: 2px solid var(--border);
+    }
+
+        .btn-secondary:hover {
+            background: #f8f9fa;
+            border-color: var(--gray);
+        }
+
+    @@media (max-width: 768px) {
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn-custom {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="detail-card">
+    <!-- Encabezado -->
+    <div class="detail-header">
+        <h1><i class="fas fa-receipt"></i> Detalle del Gasto</h1>
+    </div>
+
+    <!-- Cuerpo -->
+    <div class="detail-body">
+        <!-- Alerta de tipo -->
+        @if (Model.EsAutomatico)
+        {
+            <div class="alert-warning">
+                <i class="fas fa-lock"></i>
+                <div>
+                    <strong>🤖 Gasto Automático</strong>
+                    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem;">
+                        Este gasto fue generado automáticamente por el módulo: <strong>@Model.OrigenModulo</strong>.
+                        No puede ser editado ni eliminado manualmente.
+                    </p>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert-info">
+                <i class="fas fa-hand-paper"></i>
+                <div>
+                    <strong>✍️ Gasto Manual</strong>
+                    <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem;">
+                        Este gasto fue registrado manualmente. Puede editarlo o eliminarlo si es necesario.
+                    </p>
+                </div>
+            </div>
+        }
+
+        <!-- Información Principal -->
+        <div class="info-section">
+            <h3><i class="fas fa-info-circle"></i> Información General</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="fas fa-hashtag"></i> Código
+                    </div>
+                    <div class="info-value">GST-@Model.GastoId.ToString("D5")</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="fas fa-calendar"></i> Fecha
+                    </div>
+                    <div class="info-value">@Model.Fecha.ToString("dd/MM/yyyy")</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="fas fa-tag"></i> Rubro
+                    </div>
+                    <div class="info-value">@Model.RubroGasto?.Nombre</div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-label">
+                        <i class="fas fa-robot"></i> Tipo
+                    </div>
+                    <div class="info-value">
+                        @if (Model.EsAutomatico)
+                        {
+                            <span class="badge-tipo badge-automatico">
+                                <i class="fas fa-robot"></i> Automático
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge-tipo badge-manual">
+                                <i class="fas fa-hand-paper"></i> Manual
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Monto -->
+        <div class="info-section">
+            <h3><i class="fas fa-dollar-sign"></i> Monto</h3>
+            <div class="info-item">
+                <div class="info-label">
+                    <i class="fas fa-money-bill-wave"></i> Total
+                </div>
+                <div class="info-value large">₡@Model.Monto.ToString("N2")</div>
+            </div>
+        </div>
+
+        <!-- Descripción -->
+        @if (!string.IsNullOrWhiteSpace(Model.Descripcion))
+        {
+            <div class="info-section">
+                <h3><i class="fas fa-align-left"></i> Descripción</h3>
+                <div class="info-item">
+                    <div class="info-value" style="font-size: 1rem; line-height: 1.6;">
+                        @Model.Descripcion
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Asignaciones -->
+        @if (Model.Animal != null || Model.Potrero != null || Model.Insumo != null)
+        {
+            <div class="info-section">
+                <h3><i class="fas fa-link"></i> Asignado A</h3>
+                <div class="info-grid">
+                    @if (Model.Animal != null)
+                    {
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-paw"></i> Animal
+                            </div>
+                            <div class="info-value">
+                                @Model.Animal.Arete
+                                @if (!string.IsNullOrWhiteSpace(Model.Animal.Nombre))
+                                {
+                                    <span> - @Model.Animal.Nombre</span>
+                                }
+                            </div>
+                        </div>
+                    }
+
+                    @if (Model.Potrero != null)
+                    {
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-map-marked-alt"></i> Potrero
+                            </div>
+                            <div class="info-value">@Model.Potrero.Nombre</div>
+                        </div>
+                    }
+
+                    @if (Model.Insumo != null)
+                    {
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-flask"></i> Insumo
+                            </div>
+                            <div class="info-value">@Model.Insumo.Nombre</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- Información Adicional (solo para automáticos) -->
+        @if (Model.EsAutomatico)
+        {
+            <div class="info-section">
+                <h3><i class="fas fa-cog"></i> Información del Sistema</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-cube"></i> Módulo Origen
+                        </div>
+                        <div class="info-value">@Model.OrigenModulo</div>
+                    </div>
+
+                    @if (Model.ReferenciaOrigenId.HasValue)
+                    {
+                        <div class="info-item">
+                            <div class="info-label">
+                                <i class="fas fa-link"></i> Referencia ID
+                            </div>
+                            <div class="info-value">@Model.ReferenciaOrigenId</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- Acciones -->
+        <div class="form-actions">
+            <a asp-action="Index" class="btn-custom btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver a la Lista
+            </a>
+
+            @if (!Model.EsAutomatico)
+            {
+                <a asp-action="Edit" asp-route-id="@Model.GastoId" class="btn-custom btn-warning">
+                    <i class="fas fa-edit"></i> Editar
+                </a>
+                <a asp-action="Delete" asp-route-id="@Model.GastoId" class="btn-custom btn-danger">
+                    <i class="fas fa-trash"></i> Eliminar
+                </a>
+            }
+        </div>
+    </div>
 </div>

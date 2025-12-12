@@ -1,0 +1,28 @@
+﻿@model AgroTechApp.Models.DB.Finca
+
+@{
+    ViewData["Title"] = "Detalles de Finca";
+}
+
+<div class="container mt-4">
+
+    <h1 class="fw-bold text-success mb-4">Detalles de Finca</h1>
+
+    <div class="card p-4 shadow-sm" style="border-radius:15px;">
+        <h3>@Model.Nombre</h3>
+        <p><strong>Ubicación:</strong> @Model.Ubicacion</p>
+
+        <span class="badge @(Model.Activa ? "bg-success" : "bg-danger")">
+            @(Model.Activa ? "Activa" : "Inactiva")
+        </span>
+
+        <hr />
+
+        <a asp-action="Edit" asp-route-id="@Model.FincaId" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Editar
+        </a>
+
+        <a asp-action="Index" class="btn btn-secondary ms-2">Volver</a>
+    </div>
+
+</div>

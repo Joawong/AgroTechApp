@@ -161,6 +161,7 @@
         .info-value {
             color: #555;
             text-align: right;
+            font-weight: 500;
         }
 
         .badge {
@@ -195,6 +196,11 @@
         .badge-primary {
             background-color: #d1e7dd;
             color: var(--primary);
+        }
+
+        .badge-secondary {
+            background-color: #e2e3e5;
+            color: #6c757d;
         }
 
         .btn-group {
@@ -351,7 +357,7 @@
     <div class="details-container">
         <div class="details-header">
             <span class="animal-icon">
-                @if (Model.Sexo == "M" || Model.Sexo == "Macho")
+                @if (Model.Sexo == "M")
                 {
                     @:🐂
                 }
@@ -369,7 +375,7 @@
             <div class="animal-profile">
                 <div class="profile-avatar">
                     <div class="avatar-circle">
-                        @if (Model.Sexo == "M" || Model.Sexo == "Macho")
+                        @if (Model.Sexo == "M")
                         {
                             @:🐂
                         }
@@ -378,25 +384,32 @@
                             @:🐄
                         }
                     </div>
-                    <div class="profile-name">@Model.Nombre</div>
-                    <div class="profile-id">ID: @Model.AnimalId</div>
+                    <div class="profile-name">@(Model.Nombre ?? "Sin nombre")</div>
+                    <div class="profile-id">Arete: @Model.Arete</div>
 
                     <!-- Calculadora de Edad -->
                     @if (Model.FechaNacimiento.HasValue)
                     {
                         var fechaNacimiento = Model.FechaNacimiento.Value;
                         var hoy = DateOnly.FromDateTime(DateTime.Today);
-                        var edad = hoy.Year - fechaNacimiento.Year;
+                        var años = hoy.Year - fechaNacimiento.Year;
+                        var meses = hoy.Month - fechaNacimiento.Month;
 
                         // Ajustar si aún no ha llegado el cumpleaños este año
-                        if (fechaNacimiento > hoy.AddYears(-edad))
+                        if (fechaNacimiento.AddYears(años) > hoy)
                         {
-                            edad--;
+                            años--;
+                            meses += 12;
+                        }
+
+                        if (meses < 0)
+                        {
+                            meses += 12;
                         }
 
                         <div class="age-calculator">
-                            <div class="age-number">@edad</div>
-                            <div class="age-label">Años de edad</div>
+                            <div class="age-number">@años años @(meses > 0 ? $", {meses} meses" : "")</div>
+                            <div class="age-label">Edad aproximada</div>
                         </div>
                     }
                 </div>
@@ -411,21 +424,21 @@
                         </div>
                         <div class="info-item">
                             <span class="info-label">💬 Nombre</span>
-                            <span class="info-value">@Model.Nombre</span>
+                            <span class="info-value">@(Model.Nombre ?? "Sin nombre")</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">⚥ Sexo</span>
                             <span class="info-value">
                                 @{
-                                    var sexoBadgeClass = (Model.Sexo == "M" || Model.Sexo == "Macho") ? "badge-info" : "badge-warning";
-                                    var sexoText = (Model.Sexo == "M" || Model.Sexo == "Macho") ? "Macho" : "Hembra";
+                                    var sexoBadgeClass = Model.Sexo == "M" ? "badge-info" : "badge-warning";
+                                    var sexoText = Model.Sexo == "M" ? "Macho 🐂" : "Hembra 🐄";
                                 }
                                 <span class="badge @sexoBadgeClass">@sexoText</span>
                             </span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">🎂 Fecha de Nacimiento</span>
-                            <span class="info-value">@Model.FechaNacimiento?.ToString("dd/MM/yyyy")</span>
+                            <span class="info-value">@(Model.FechaNacimiento?.ToString("dd/MM/yyyy") ?? "No registrada")</span>
                         </div>
                     </div>
 
@@ -434,18 +447,32 @@
                         <h3>⚖️ Características Físicas</h3>
                         <div class="info-item">
                             <span class="info-label">📊 Peso al Nacer</span>
-                            <span class="info-value">@Model.PesoNacimiento kg</span>
+                            <span class="info-value">@(Model.PesoNacimiento?.ToString("0.0") ?? "N/A") kg</span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">🔬 Raza</span>
+                            <span class="info-label">🐂 Raza</span>
                             <span class="info-value">
-                                <span class="badge badge-primary">@Model.Raza?.RazaId</span>
+                                @if (Model.Raza != null)
+                                {
+                                    <span class="badge badge-primary">@Model.Raza.Nombre</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-secondary">Sin raza</span>
+                                }
                             </span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">📦 Lote</span>
                             <span class="info-value">
-                                <span class="badge badge-primary">@Model.LoteAnimal?.LoteAnimalId</span>
+                                @if (Model.LoteAnimal != null)
+                                {
+                                    <span class="badge badge-primary">@Model.LoteAnimal.Nombre</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-secondary">Sin lote</span>
+                                }
                             </span>
                         </div>
                     </div>
@@ -456,17 +483,30 @@
                         <div class="info-item">
                             <span class="info-label">🏡 Finca</span>
                             <span class="info-value">
-                                <span class="badge badge-success">@Model.Finca?.FincaId</span>
+                                @if (Model.Finca != null)
+                                {
+                                    <span class="badge badge-success">@Model.Finca.Nombre</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-secondary">Sin finca</span>
+                                }
                             </span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">📈 Estado</span>
                             <span class="info-value">
                                 @{
-                                    var estadoBadgeClass = (Model.Estado == "Activo" || Model.Estado == "1") ? "badge-success" : "badge-danger";
-                                    var estadoText = (Model.Estado == "Activo" || Model.Estado == "1") ? "Activo" : "Inactivo";
+                                    var estadoBadgeClass = Model.Estado switch
+                                    {
+                                        "Activo" => "badge-success",
+                                        "Vendido" => "badge-warning",
+                                        "Muerto" => "badge-danger",
+                                        "Trasladado" => "badge-info",
+                                        _ => "badge-secondary"
+                                    };
                                 }
-                                <span class="badge @estadoBadgeClass">@estadoText</span>
+                                <span class="badge @estadoBadgeClass">@Model.Estado</span>
                             </span>
                         </div>
                     </div>
@@ -479,7 +519,11 @@
                             <span class="info-value">
                                 @if (Model.Madre != null)
                                 {
-                                    <span class="badge badge-primary">@Model.Madre.AnimalId</span>
+                                    <span>
+                                        <strong>@Model.Madre.Nombre</strong>
+                                        <br />
+                                        <small style="color: #6c757d;">Arete: @Model.Madre.Arete</small>
+                                    </span>
                                 }
                                 else
                                 {
@@ -492,7 +536,11 @@
                             <span class="info-value">
                                 @if (Model.Padre != null)
                                 {
-                                    <span class="badge badge-primary">@Model.Padre.AnimalId</span>
+                                    <span>
+                                        <strong>@Model.Padre.Nombre</strong>
+                                        <br />
+                                        <small style="color: #6c757d;">Arete: @Model.Padre.Arete</small>
+                                    </span>
                                 }
                                 else
                                 {

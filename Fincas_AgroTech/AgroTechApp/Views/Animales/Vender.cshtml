@@ -1,0 +1,454 @@
+﻿@model AgroTechApp.Models.DB.Animal
+
+@{
+    ViewData["Title"] = "Vender Animal";
+    var ultimoPeso = ViewBag.UltimoPeso as decimal?;
+    var nombreAnimal = ViewBag.NombreAnimal as string;
+    var costoCompra = ViewBag.CostoCompra as decimal?;
+}
+
+<style>
+    :root {
+        --primary: #2E8B57;
+        --success: #28a745;
+        --danger: #dc3545;
+        --warning: #ffc107;
+        --info: #17a2b8;
+        --light: #f8f9fa;
+    }
+
+    .vender-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .vender-header {
+        background: linear-gradient(135deg, var(--success), #20c997);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+        .vender-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .vender-header p {
+            margin: 0.5rem 0 0;
+            opacity: 0.9;
+        }
+
+    .vender-body {
+        padding: 2rem;
+    }
+
+    .info-card {
+        background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+        border: 2px solid #2196f3;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(33, 150, 243, 0.2);
+    }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+    .info-label {
+        font-weight: 600;
+        color: #1976d2;
+    }
+
+    .info-value {
+        color: #0d47a1;
+        font-weight: 500;
+    }
+
+    .form-section {
+        background: var(--light);
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid var(--primary);
+    }
+
+        .form-section h3 {
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+    .form-group {
+        margin-bottom: 1.2rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+        .form-label.required::after {
+            content: " *";
+            color: var(--danger);
+        }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+        }
+
+    .input-group {
+        display: flex;
+        align-items: center;
+    }
+
+    .input-group-text {
+        background: var(--primary);
+        color: white;
+        padding: 0.75rem 1rem;
+        border-radius: 8px 0 0 8px;
+        font-weight: 600;
+    }
+
+    .input-group .form-control {
+        border-radius: 0 8px 8px 0;
+    }
+
+    .text-danger {
+        color: var(--danger);
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    .text-muted {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-top: 0.3rem;
+        display: block;
+    }
+
+    .rentabilidad-preview {
+        background: linear-gradient(135deg, #fff3e0, #ffe0b2);
+        border: 2px solid var(--warning);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+        display: none;
+    }
+
+        .rentabilidad-preview.show {
+            display: block;
+        }
+
+        .rentabilidad-preview h4 {
+            margin: 0 0 1rem;
+            color: #f57c00;
+        }
+
+    .rentabilidad-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+    }
+
+    .rentabilidad-total {
+        border-top: 2px solid #f57c00;
+        padding-top: 0.75rem;
+        margin-top: 0.75rem;
+        font-weight: 700;
+        font-size: 1.3rem;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-success {
+        background-color: var(--success);
+        color: white;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+    .alert {
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert-warning {
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        color: #856404;
+    }
+
+    @@media (max-width: 768px) {
+        .vender-container {
+            margin: 1rem;
+        }
+
+        .btn-group {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="vender-container">
+    <div class="vender-header">
+        <h1>💰 Vender Animal</h1>
+        <p>@nombreAnimal</p>
+    </div>
+
+    <div class="vender-body">
+        <!-- Información del Animal -->
+        <div class="info-card">
+            <h4 style="margin-top: 0; color: #1976d2;">
+                <i class="fas fa-info-circle"></i> Información del Animal
+            </h4>
+            <div class="info-row">
+                <span class="info-label">Arete:</span>
+                <span class="info-value">@Model.Arete</span>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(Model.Nombre))
+            {
+                <div class="info-row">
+                    <span class="info-label">Nombre:</span>
+                    <span class="info-value">@Model.Nombre</span>
+                </div>
+            }
+            <div class="info-row">
+                <span class="info-label">Raza:</span>
+                <span class="info-value">@(Model.Raza?.Nombre ?? "N/A")</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Sexo:</span>
+                <span class="info-value">@(Model.Sexo == "M" ? "Macho" : "Hembra")</span>
+            </div>
+            @if (ultimoPeso.HasValue)
+            {
+                <div class="info-row">
+                    <span class="info-label">Último Peso:</span>
+                    <span class="info-value">@ultimoPeso.Value.ToString("N2") kg</span>
+                </div>
+            }
+            @if (costoCompra.HasValue)
+            {
+                <div class="info-row">
+                    <span class="info-label">Costo de Compra:</span>
+                    <span class="info-value">₡@costoCompra.Value.ToString("N2")</span>
+                </div>
+            }
+        </div>
+
+        @if (!costoCompra.HasValue)
+        {
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Nota:</strong> Este animal no tiene costo de compra registrado (posiblemente nació en la finca).
+                No se podrá calcular rentabilidad automáticamente.
+            </div>
+        }
+
+        <form asp-action="Vender" method="post">
+            <input type="hidden" asp-for="AnimalId" />
+
+            <!-- Datos de la Venta -->
+            <div class="form-section">
+                <h3>💵 Datos de la Venta</h3>
+
+                <div class="form-group">
+                    <label for="PrecioVenta" class="form-label required">Precio de Venta</label>
+                    <div class="input-group">
+                        <span class="input-group-text">₡</span>
+                        <input type="number"
+                               id="PrecioVenta"
+                               name="PrecioVenta"
+                               class="form-control"
+                               step="0.01"
+                               min="0"
+                               placeholder="0.00"
+                               required />
+                    </div>
+                    <span asp-validation-for="PrecioVenta" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="FechaVenta" class="form-label required">Fecha de Venta</label>
+                    <input type="date"
+                           id="FechaVenta"
+                           name="FechaVenta"
+                           class="form-control"
+                           value="@DateTime.Today.ToString("yyyy-MM-dd")"
+                           required />
+                    <span asp-validation-for="FechaVenta" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="PesoVenta" class="form-label">Peso de Venta (Opcional)</label>
+                    <div class="input-group">
+                        <input type="number"
+                               id="PesoVenta"
+                               name="PesoVenta"
+                               class="form-control"
+                               step="0.01"
+                               min="0"
+                               placeholder="0.00"
+                               value="@(ultimoPeso?.ToString("N2"))" />
+                        <span class="input-group-text">kg</span>
+                    </div>
+                    <small class="text-muted">Ingrese el peso final del animal al momento de la venta</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="Observacion" class="form-label">Observaciones</label>
+                    <textarea id="Observacion"
+                              name="Observacion"
+                              class="form-control"
+                              rows="3"
+                              placeholder="Información adicional sobre la venta (comprador, forma de pago, etc.)"></textarea>
+                </div>
+            </div>
+
+            <!-- Preview de Rentabilidad -->
+            @if (costoCompra.HasValue)
+            {
+                <div id="rentabilidadPreview" class="rentabilidad-preview">
+                    <h4><i class="fas fa-chart-line"></i> Vista Previa de Rentabilidad</h4>
+                    <div class="rentabilidad-row">
+                        <span>Precio de Venta:</span>
+                        <span id="previewVenta">₡0.00</span>
+                    </div>
+                    <div class="rentabilidad-row">
+                        <span>Costo de Compra:</span>
+                        <span>₡@costoCompra.Value.ToString("N2")</span>
+                    </div>
+                    <div class="rentabilidad-row rentabilidad-total">
+                        <span>Ganancia Estimada:</span>
+                        <span id="previewGanancia" style="color: var(--success);">₡0.00</span>
+                    </div>
+                    <div class="rentabilidad-row">
+                        <span>ROI (Retorno de Inversión):</span>
+                        <span id="previewROI" style="color: var(--info); font-weight: 600;">0.0%</span>
+                    </div>
+                </div>
+            }
+
+            <div class="btn-group">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check"></i> Confirmar Venta
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const precioVentaInput = document.getElementById('PrecioVenta');
+            const costoCompra = @(costoCompra?.ToString() ?? "null");
+            const rentabilidadPreview = document.getElementById('rentabilidadPreview');
+            const previewVenta = document.getElementById('previewVenta');
+            const previewGanancia = document.getElementById('previewGanancia');
+            const previewROI = document.getElementById('previewROI');
+
+            if (costoCompra && precioVentaInput) {
+                precioVentaInput.addEventListener('input', function() {
+                    const precioVenta = parseFloat(this.value) || 0;
+
+                    if (precioVenta > 0) {
+                        const ganancia = precioVenta - costoCompra;
+                        const roi = ((ganancia / costoCompra) * 100);
+
+                        previewVenta.textContent = '₡' + precioVenta.toLocaleString('es-CR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                        previewGanancia.textContent = '₡' + ganancia.toLocaleString('es-CR', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                        previewROI.textContent = roi.toFixed(1) + '%';
+
+                        // Cambiar color según ganancia
+                        if (ganancia >= 0) {
+                            previewGanancia.style.color = 'var(--success)';
+                            previewROI.style.color = 'var(--success)';
+                        } else {
+                            previewGanancia.style.color = 'var(--danger)';
+                            previewROI.style.color = 'var(--danger)';
+                        }
+
+                        rentabilidadPreview.classList.add('show');
+                    } else {
+                        rentabilidadPreview.classList.remove('show');
+                    }
+                });
+            }
+        });
+    </script>
+}

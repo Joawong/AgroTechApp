@@ -1,0 +1,325 @@
+﻿@model IEnumerable<AgroTechApp.Models.DB.Mortalidad>
+
+@{
+    ViewData["Title"] = "Registro de Mortalidad";
+    var totalPerdidas = ViewBag.TotalPerdidas as decimal? ?? 0;
+    var totalMortalidades = ViewBag.TotalMortalidades as int? ?? 0;
+}
+
+<style>
+    :root {
+        --primary: #2E8B57;
+        --danger: #dc3545;
+        --warning: #ffc107;
+        --info: #17a2b8;
+        --light: #f8f9fa;
+        --dark: #333;
+    }
+
+    .mortalidad-header {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+        .mortalidad-header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .mortalidad-header p {
+            margin: 0.5rem 0 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border-left: 4px solid;
+    }
+
+        .stat-card.perdidas {
+            border-left-color: var(--danger);
+        }
+
+        .stat-card.total {
+            border-left-color: var(--warning);
+        }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+        .stat-value.danger {
+            color: var(--danger);
+        }
+
+    .table-container {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+        .table thead th {
+            background: var(--light);
+            color: var(--dark);
+            font-weight: 600;
+            border: none;
+            padding: 1rem;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .table tbody td {
+            padding: 1rem;
+            vertical-align: middle;
+        }
+
+    .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+    }
+
+    .badge-danger {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+    }
+
+    .badge-warning {
+        background: linear-gradient(135deg, #ffd93d, #f6c23e);
+        color: #333;
+    }
+
+    .badge-info {
+        background: linear-gradient(135deg, #74b9ff, #0984e3);
+    }
+
+    .badge-secondary {
+        background: linear-gradient(135deg, #b2bec3, #636e72);
+    }
+
+    .btn-action {
+        padding: 0.5rem 1rem;
+        margin: 0 0.25rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .btn-info {
+        background: var(--info);
+        color: white;
+    }
+
+        .btn-info:hover {
+            background: #138496;
+            transform: translateY(-2px);
+        }
+
+    .btn-danger {
+        background: var(--danger);
+        color: white;
+    }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+    .btn-primary-custom {
+        background: linear-gradient(135deg, var(--primary), #3CB371);
+        color: white;
+        padding: 0.75rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+        box-shadow: 0 4px 15px rgba(46, 139, 87, 0.3);
+        transition: all 0.3s ease;
+    }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46, 139, 87, 0.4);
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #6c757d;
+    }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+    @@media (max-width: 768px) {
+        .stats-container {
+            grid-template-columns: 1fr;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+    }
+</style>
+
+<div class="mortalidad-header">
+    <h1>☠️ Registro de Mortalidad</h1>
+    <p>Control y seguimiento de pérdidas por mortalidad animal</p>
+</div>
+
+<!-- Estadísticas -->
+<div class="stats-container">
+    <div class="stat-card perdidas">
+        <div class="stat-label">💰 Total Pérdidas</div>
+        <div class="stat-value danger">₡@totalPerdidas.ToString("N0")</div>
+    </div>
+    <div class="stat-card total">
+        <div class="stat-label">📊 Total Mortalidades</div>
+        <div class="stat-value">@totalMortalidades</div>
+    </div>
+</div>
+
+<!-- Acciones -->
+<div style="margin-bottom: 1.5rem;">
+    <a asp-action="Create" class="btn-primary-custom">
+        <i class="fas fa-plus"></i> Registrar Nueva Mortalidad
+    </a>
+</div>
+
+<!-- Tabla -->
+<div class="table-container">
+    @if (Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Animal</th>
+                        <th>Raza</th>
+                        <th>Causa</th>
+                        <th>Pérdida</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <strong>@item.Fecha.ToString("dd/MM/yyyy")</strong>
+                                <br />
+                                <small class="text-muted">@item.Fecha.ToString("HH:mm")</small>
+                            </td>
+                            <td>
+                                <strong>@item.Animal?.Arete</strong>
+                                @if (!string.IsNullOrWhiteSpace(item.Animal?.Nombre))
+                                {
+                                    <br />
+                                    <small class="text-muted">@item.Animal.Nombre</small>
+                                }
+                            </td>
+                            <td>@(item.Animal?.Raza?.Nombre ?? "N/A")</td>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(item.Causa))
+                                {
+                                    @if (item.Causa == "Enfermedad")
+                                    {
+                                        <span class="badge badge-danger">🦠 @item.Causa</span>
+                                    }
+                                    else if (item.Causa == "Accidente")
+                                    {
+                                        <span class="badge badge-warning">⚠️ @item.Causa</span>
+                                    }
+                                    else if (item.Causa == "Vejez")
+                                    {
+                                        <span class="badge badge-info">⏰ @item.Causa</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-secondary">@item.Causa</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Desconocida</span>
+                                }
+                            </td>
+                            <td>
+                                @if (item.Animal?.CostoCompra.HasValue == true)
+                                {
+                                    <strong class="text-danger">₡@item.Animal.CostoCompra.Value.ToString("N0")</strong>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">-</span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.MortalidadId"
+                                   class="btn-action btn-info" title="Ver Detalles">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.MortalidadId"
+                                   class="btn-action btn-danger" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <i class="fas fa-inbox"></i>
+            <h3>No hay registros de mortalidad</h3>
+            <p>Comience registrando una nueva mortalidad usando el botón superior</p>
+        </div>
+    }
+</div>

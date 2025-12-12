@@ -6,14 +6,14 @@
     <Name>DB</Name>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>4.1</ProjectVersion>
-    <ProjectGuid>{07414b3e-eb5e-47e6-ae53-b1bdc380afdb}</ProjectGuid>
+    <ProjectGuid>{d132542c-51c9-42d9-b04e-e4516a904e32}</ProjectGuid>
     <DSP>Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider</DSP>
     <OutputType>Database</OutputType>
     <RootPath>
     </RootPath>
     <RootNamespace>DB</RootNamespace>
     <AssemblyName>DB</AssemblyName>
-    <ModelCollation>1033, CI</ModelCollation>
+    <ModelCollation>3082,CI</ModelCollation>
     <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
     <DeployToDatabase>True</DeployToDatabase>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
@@ -22,6 +22,8 @@
     <SqlServerVerification>False</SqlServerVerification>
     <IncludeCompositeObjects>True</IncludeCompositeObjects>
     <TargetDatabaseSet>True</TargetDatabaseSet>
+    <DefaultCollation>Modern_Spanish_CI_AS</DefaultCollation>
+    <DefaultFilegroup>PRIMARY</DefaultFilegroup>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -56,45 +58,9 @@
   <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
   <ItemGroup>
     <Folder Include="Properties" />
-    <Folder Include="dbo\" />
-    <Folder Include="dbo\Tables\" />
-    <Folder Include="agro\" />
-    <Folder Include="agro\Tables\" />
     <Folder Include="Security\" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="dbo\Tables\AspNetUserTokens.sql" />
-    <Build Include="dbo\Tables\AspNetUsers.sql" />
-    <Build Include="dbo\Tables\AspNetUserRoles.sql" />
-    <Build Include="dbo\Tables\AspNetUserLogins.sql" />
-    <Build Include="dbo\Tables\AspNetUserClaims.sql" />
-    <Build Include="dbo\Tables\AspNetRoles.sql" />
-    <Build Include="dbo\Tables\AspNetRoleClaims.sql" />
-    <Build Include="dbo\Tables\__EFMigrationsHistory.sql" />
-    <Build Include="agro\Tables\Animal.sql" />
-    <Build Include="agro\Tables\Potrero.sql" />
-    <Build Include="agro\Tables\LoteAnimal.sql" />
-    <Build Include="agro\Tables\MovimientoInventario.sql" />
-    <Build Include="agro\Tables\InsumoLote.sql" />
-    <Build Include="agro\Tables\Insumo.sql" />
-    <Build Include="agro\Tables\RubroIngreso.sql" />
-    <Build Include="agro\Tables\RubroGasto.sql" />
-    <Build Include="agro\Tables\TipoTratamiento.sql" />
-    <Build Include="agro\Tables\TipoMovimientoInventario.sql" />
-    <Build Include="agro\Tables\Raza.sql" />
-    <Build Include="agro\Tables\CategoriaInsumo.sql" />
-    <Build Include="agro\Tables\UnidadMedida.sql" />
-    <Build Include="agro\Tables\UserFinca.sql" />
-    <Build Include="agro\Tables\User.sql" />
-    <Build Include="agro\Tables\Rol.sql" />
-    <Build Include="agro\Tables\Finca.sql" />
-    <Build Include="agro\Tables\Ingreso.sql" />
-    <Build Include="agro\Tables\Gasto.sql" />
-    <Build Include="agro\Tables\Pesaje.sql" />
-    <Build Include="agro\Tables\Mortalidad.sql" />
-    <Build Include="agro\Tables\PeriodoRetiro.sql" />
-    <Build Include="agro\Tables\Tratamiento.sql" />
-    <Build Include="agro\Tables\MovimientoAnimal.sql" />
     <Build Include="Security\agro.sql" />
   </ItemGroup>
 </Project>

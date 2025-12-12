@@ -1,0 +1,389 @@
+﻿@model AgroTechApp.Models.DB.Mortalidad
+
+@{
+    ViewData["Title"] = "Registrar Mortalidad";
+}
+
+<style>
+    :root {
+        --primary: #2E8B57;
+        --danger: #dc3545;
+        --warning: #ffc107;
+        --light: #f8f9fa;
+        --dark: #333;
+    }
+
+    .create-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .create-header {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+        .create-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .create-header p {
+            margin: 0.5rem 0 0;
+            opacity: 0.9;
+        }
+
+    .create-body {
+        padding: 2rem;
+    }
+
+    .alert-warning {
+        background: linear-gradient(135deg, #fff3cd, #ffe8a1);
+        border: 2px solid var(--warning);
+        border-radius: 10px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+        .alert-warning i {
+            font-size: 2rem;
+            color: #f57c00;
+        }
+
+    .form-section {
+        background: var(--light);
+        padding: 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid var(--primary);
+    }
+
+        .form-section h3 {
+            color: var(--primary);
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+    .form-group {
+        margin-bottom: 1.2rem;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+        .form-label.required::after {
+            content: " *";
+            color: var(--danger);
+        }
+
+    .form-control, .form-select {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+        .form-control:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+        }
+
+    .text-danger {
+        color: var(--danger);
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+        display: block;
+    }
+
+    .text-muted {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-top: 0.3rem;
+        display: block;
+    }
+
+    .perdida-preview {
+        background: linear-gradient(135deg, #ffebee, #ffcdd2);
+        border: 2px solid var(--danger);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin: 1.5rem 0;
+        display: none;
+    }
+
+        .perdida-preview.show {
+            display: block;
+        }
+
+        .perdida-preview h4 {
+            margin: 0 0 1rem;
+            color: var(--danger);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+    .perdida-info {
+        background: white;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .perdida-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+    }
+
+    .perdida-total {
+        border-top: 2px solid var(--danger);
+        padding-top: 0.75rem;
+        margin-top: 0.75rem;
+        font-weight: 700;
+        font-size: 1.5rem;
+    }
+
+    .btn-group {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-danger {
+        background-color: var(--danger);
+        color: white;
+    }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+    @@media (max-width: 768px) {
+        .create-container {
+            margin: 1rem;
+        }
+
+        .btn-group {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="create-container">
+    <div class="create-header">
+        <h1>☠️ Registrar Mortalidad</h1>
+        <p>Complete la información del animal fallecido</p>
+    </div>
+
+    <div class="create-body">
+        <div class="alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>
+                <strong>Importante:</strong> Al registrar esta mortalidad, el estado del animal cambiará automáticamente a "Muerto"
+                y se registrará la pérdida financiera correspondiente.
+            </div>
+        </div>
+
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- Sección: Información del Animal -->
+            <div class="form-section">
+                <h3>🐄 Animal Fallecido</h3>
+
+                <div class="form-group">
+                    <label asp-for="AnimalId" class="form-label required">Animal</label>
+                    <select asp-for="AnimalId"
+                            id="animalSelect"
+                            class="form-select"
+                            asp-items="ViewBag.AnimalId"
+                            required>
+                        <option value="">-- Seleccione el animal --</option>
+                    </select>
+                    <span asp-validation-for="AnimalId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- Sección: Detalles de la Mortalidad -->
+            <div class="form-section">
+                <h3>📋 Detalles de la Mortalidad</h3>
+
+                <div class="form-group">
+                    <label asp-for="Fecha" class="form-label required">Fecha y Hora</label>
+                    <input asp-for="Fecha"
+                           type="datetime-local"
+                           class="form-control"
+                           required />
+                    <span asp-validation-for="Fecha" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Causa" class="form-label">Causa de Muerte</label>
+                    <select asp-for="Causa" class="form-select">
+                        <option value="">-- Seleccione causa --</option>
+                        <option value="Enfermedad">🦠 Enfermedad</option>
+                        <option value="Accidente">⚠️ Accidente</option>
+                        <option value="Vejez">⏰ Vejez</option>
+                        <option value="Depredación">🐺 Depredación</option>
+                        <option value="Parto">🤰 Complicaciones de Parto</option>
+                        <option value="Desconocida">❓ Desconocida</option>
+                    </select>
+                    <span asp-validation-for="Causa" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Observacion" class="form-label">Observaciones</label>
+                    <textarea asp-for="Observacion"
+                              class="form-control"
+                              rows="4"
+                              placeholder="Describa cualquier detalle relevante sobre las circunstancias de la muerte..."></textarea>
+                    <span asp-validation-for="Observacion" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- Preview de Pérdida -->
+            <div id="perdidaPreview" class="perdida-preview">
+                <h4>
+                    <i class="fas fa-coins"></i>
+                    Impacto Financiero
+                </h4>
+                <div class="perdida-info">
+                    <div class="perdida-row">
+                        <span>Animal:</span>
+                        <strong id="previewAnimal">-</strong>
+                    </div>
+                    <div class="perdida-row">
+                        <span>Raza:</span>
+                        <span id="previewRaza">-</span>
+                    </div>
+                    <div class="perdida-row">
+                        <span>Costo de Compra:</span>
+                        <strong id="previewCosto">-</strong>
+                    </div>
+                    <div class="perdida-row perdida-total">
+                        <span>Pérdida Total:</span>
+                        <span id="previewPerdida" style="color: var(--danger);">₡0.00</span>
+                    </div>
+                </div>
+                <small class="text-muted">
+                    <i class="fas fa-info-circle"></i>
+                    Esta pérdida será registrada automáticamente como un gasto en el rubro "Pérdidas por Mortalidad"
+                </small>
+            </div>
+
+            <div class="btn-group">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-check"></i> Registrar Mortalidad
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const animalSelect = document.getElementById('animalSelect');
+            const perdidaPreview = document.getElementById('perdidaPreview');
+            const previewAnimal = document.getElementById('previewAnimal');
+            const previewRaza = document.getElementById('previewRaza');
+            const previewCosto = document.getElementById('previewCosto');
+            const previewPerdida = document.getElementById('previewPerdida');
+
+            animalSelect?.addEventListener('change', function() {
+                const animalId = this.value;
+
+                if (!animalId) {
+                    perdidaPreview.classList.remove('show');
+                    return;
+                }
+
+                // Hacer request AJAX para obtener info del animal
+                fetch(`/Mortalidad/ObtenerCostoAnimal?animalId=${animalId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const nombreCompleto = data.arete + (data.nombre ? ' - ' + data.nombre : '');
+                            const costoCompra = data.costoCompra || 0;
+
+                            previewAnimal.textContent = nombreCompleto;
+                            previewRaza.textContent = data.raza;
+                            previewCosto.textContent = '₡' + costoCompra.toLocaleString('es-CR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+                            previewPerdida.textContent = '₡' + costoCompra.toLocaleString('es-CR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+
+                            if (costoCompra > 0) {
+                                perdidaPreview.classList.add('show');
+                            } else {
+                                perdidaPreview.classList.remove('show');
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al obtener información del animal:', error);
+                    });
+            });
+        });
+    </script>
+}

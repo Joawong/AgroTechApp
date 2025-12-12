@@ -23,6 +23,14 @@ public partial class Gasto
 
     public long? InsumoId { get; set; }
 
+    // Sistema de Flags
+    public bool EsAutomatico { get; set; }
+
+    public string? OrigenModulo { get; set; }
+
+    public long? ReferenciaOrigenId { get; set; }
+
+    // Navegación
     public virtual Animal? Animal { get; set; }
 
     public virtual Finca Finca { get; set; } = null!;

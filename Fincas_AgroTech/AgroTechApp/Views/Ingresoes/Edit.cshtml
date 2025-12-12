@@ -1,59 +1,230 @@
 ﻿@model AgroTechApp.Models.DB.Ingreso
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar Ingreso";
+    bool esAutomatico = ViewBag.EsAutomatico != null ? (bool)ViewBag.EsAutomatico : false;
 }
 
-<h1>Edit</h1>
+<style>
+    :root {
+        --primary: #2E8B57;
+        --primary-light: #3CB371;
+        --primary-dark: #1E6B47;
+        --danger: #dc3545;
+        --light-bg: #f8f9fa;
+        --border: #e1e5e9;
+        --shadow: rgba(0,0,0,0.1);
+    }
 
-<h4>Ingreso</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
+    .form-card {
+        background: white;
+        max-width: 900px;
+        margin: 2rem auto;
+        border-radius: 20px;
+        box-shadow: 0 15px 40px var(--shadow);
+        overflow: hidden;
+        animation: fadeIn .5s ease-out;
+        font-family: 'Inter', sans-serif;
+    }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        padding: 2rem;
+        color: white;
+        text-align: center;
+    }
+
+        .form-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+    .form-body {
+        padding: 2.5rem;
+    }
+
+    .warning-box {
+        background: #fff3cd;
+        border-left: 4px solid #e0a800;
+        padding: 1rem 1.2rem;
+        border-radius: 12px;
+        color: #856404;
+        margin-bottom: 1.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2,1fr);
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    @@media(max - width:768px) {
+        .form-row
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    }
+
+    .form-group label {
+        font-weight: 600;
+        color: #333;
+        display: block;
+        margin-bottom: .4rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: .9rem 1.2rem;
+        border-radius: 12px;
+        border: 2px solid var(--border);
+        transition: .3s ease;
+    }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46,139,87,.15);
+        }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 2rem;
+        border-top: 2px solid var(--border);
+        padding-top: 2rem;
+    }
+
+    .btn {
+        padding: .9rem 1.8rem;
+        border-radius: 12px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+    }
+
+    .btn-secondary {
+        background: #f0f0f0;
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        color: white;
+    }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+    .btn-disabled {
+        background: #bbb;
+        cursor: not-allowed;
+        color: white;
+    }
+
+    .error-message {
+        color: var(--danger);
+        margin-top: .4rem;
+        font-size: .9rem;
+    }
+</style>
+
+<div class="form-card">
+    <div class="form-header">
+        <h1><i class="fas fa-edit"></i> Editar Ingreso</h1>
+        <p style="margin-top:.5rem; opacity:.9;">Actualice la información del ingreso manual</p>
+    </div>
+
+    <div class="form-body">
+
+        @if (esAutomatico)
+        {
+            <div class="warning-box">
+                <strong>Este ingreso fue generado automáticamente por el módulo:</strong> @ViewBag.OrigenModulo <br />
+                No puede ser editado manualmente. Use el módulo de origen para modificarlo.
+            </div>
+
+            <div class="form-actions">
+                <a asp-action="Details" asp-route-id="@Model.IngresoId" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
+
+            return;
+        }
+
         <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="IngresoId" />
-            <div class="form-group">
-                <label asp-for="FincaId" class="control-label"></label>
-                <select asp-for="FincaId" class="form-control" asp-items="ViewBag.FincaId"></select>
-                <span asp-validation-for="FincaId" class="text-danger"></span>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="Fecha">Fecha *</label>
+                    <input asp-for="Fecha" type="date" class="form-control" required />
+                    <span asp-validation-for="Fecha" class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="Monto">Monto (₡) *</label>
+                    <input asp-for="Monto" type="number" min="0.01" step="0.01" class="form-control" required />
+                    <span asp-validation-for="Monto" class="error-message"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="RubroIngresoId" class="control-label"></label>
-                <select asp-for="RubroIngresoId" class="form-control" asp-items="ViewBag.RubroIngresoId"></select>
-                <span asp-validation-for="RubroIngresoId" class="text-danger"></span>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="RubroIngresoId">Rubro *</label>
+                    <select asp-for="RubroIngresoId" class="form-control" asp-items="ViewBag.RubroIngresoId"></select>
+                    <span asp-validation-for="RubroIngresoId" class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="AnimalId">Animal (Opcional)</label>
+                    <select asp-for="AnimalId" class="form-control" asp-items="ViewBag.AnimalId"></select>
+                </div>
             </div>
+
             <div class="form-group">
-                <label asp-for="Fecha" class="control-label"></label>
-                <input asp-for="Fecha" class="form-control" />
-                <span asp-validation-for="Fecha" class="text-danger"></span>
+                <label for="Descripcion">Descripción</label>
+                <textarea asp-for="Descripcion" class="form-control" placeholder="Detalle del ingreso"></textarea>
             </div>
-            <div class="form-group">
-                <label asp-for="Monto" class="control-label"></label>
-                <input asp-for="Monto" class="form-control" />
-                <span asp-validation-for="Monto" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Descripcion" class="control-label"></label>
-                <input asp-for="Descripcion" class="form-control" />
-                <span asp-validation-for="Descripcion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AnimalId" class="control-label"></label>
-                <select asp-for="AnimalId" class="form-control" asp-items="ViewBag.AnimalId"></select>
-                <span asp-validation-for="AnimalId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+
+            <div class="form-actions">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Guardar Cambios
+                </button>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

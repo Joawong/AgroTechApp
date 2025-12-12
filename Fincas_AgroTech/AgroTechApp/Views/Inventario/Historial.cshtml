@@ -1,0 +1,320 @@
+﻿@model IEnumerable<AgroTechApp.Models.DB.MovimientoInventario>
+@{
+    ViewData["Title"] = "Historial de Movimientos";
+    long? filtroInsumo = ViewBag.InsumoIdFiltro;
+    string filtroTipo = ViewBag.TipoFiltro ?? "";
+    DateTime? filtroDesde = ViewBag.DesdeFiltro;
+    DateTime? filtroHasta = ViewBag.HastaFiltro;
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --primary-dark: #26734d;
+            --light: #f8f9fa;
+            --dark: #2C3E50;
+            --gray: #6c757d;
+            --border: #dee2e6;
+            --shadow: rgba(0,0,0,.08);
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg,#f5f7fa 0%,#e3f2fd 100%);
+            color: var(--dark);
+            font-family: Inter, Segoe UI, Arial, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .page-title {
+            font-size: 28px;
+            font-weight: 800;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+            .page-title i {
+                color: var(--primary);
+            }
+
+        .page-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: .6rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            display: inline-flex;
+            gap: .5rem;
+            align-items: center;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-outline {
+            background: #fff;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .filters {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px var(--shadow);
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+            .filters form {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 12px;
+                align-items: end;
+            }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+            .field label {
+                font-weight: 600;
+                font-size: 0.9rem;
+            }
+
+            .field select, .field input {
+                padding: .6rem .8rem;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+            }
+
+        .table-card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+
+        .table-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border);
+            font-weight: 700;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: var(--light);
+            padding: 12px;
+            text-align: left;
+            font-weight: 700;
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-entrada {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-consumo {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-ajuste {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-transferencia {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+
+            .empty-state i {
+                font-size: 3rem;
+                margin-bottom: 16px;
+            }
+
+        @@media (max-width: 900px) {
+            .filters form {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @@media (max-width: 500px) {
+            .filters form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <div class="page-title">
+                <i class="fas fa-history"></i> Historial de Movimientos
+            </div>
+            <div class="page-actions">
+                <a asp-controller="Inventario" asp-action="Dashboard" class="btn btn-outline">
+                    <i class="fas fa-chart-pie"></i> Dashboard
+                </a>
+                <a asp-controller="Insumoes" asp-action="Index" class="btn btn-primary">
+                    <i class="fas fa-boxes"></i> Insumos
+                </a>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filters">
+            <form method="get" asp-action="Historial">
+                <div class="field">
+                    <label>Insumo</label>
+                    <select name="insumoId" asp-items="ViewBag.Insumos">
+                        <option value="">(Todos)</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Tipo</label>
+                    <select name="tipo" asp-items="ViewBag.Tipos">
+                        <option value="">(Todos)</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label>Desde</label>
+                    <input type="date" name="desde" value="@filtroDesde?.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="field">
+                    <label>Hasta</label>
+                    <input type="date" name="hasta" value="@filtroHasta?.ToString("yyyy-MM-dd")" />
+                </div>
+                <div class="field">
+                    <button type="submit" class="btn btn-outline">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tabla -->
+        <div class="table-card">
+            <div class="table-header">
+                <span><i class="fas fa-list"></i> Movimientos (@Model.Count())</span>
+            </div>
+            <div class="table-container">
+                @if (Model.Any())
+                {
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fecha</th>
+                                <th>Insumo</th>
+                                <th>Tipo</th>
+                                <th>Cantidad</th>
+                                <th>Costo Unit.</th>
+                                <th>Observaciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var m in Model)
+                            {
+                                var tipoNombre = m.Tipo?.Nombre ?? "—";
+                                var badgeClass = tipoNombre.ToLower() switch
+                                {
+                                    "entrada" => "badge-entrada",
+                                    "consumo" => "badge-consumo",
+                                    "ajuste" => "badge-ajuste",
+                                    _ => "badge-transferencia"
+                                };
+                                <tr>
+                                    <td>@m.MovId</td>
+                                    <td>@m.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@m.Insumo?.Nombre</td>
+                                    <td><span class="badge @badgeClass">@tipoNombre</span></td>
+                                    <td>@m.Cantidad.ToString("N2") @m.Insumo?.Unidad?.Codigo</td>
+                                    <td>@(m.CostoUnitario?.ToString("C2") ?? "—")</td>
+                                    <td>@(string.IsNullOrEmpty(m.Observacion) ? "—" : m.Observacion)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No se encontraron movimientos con los filtros seleccionados</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</body>
+</html>

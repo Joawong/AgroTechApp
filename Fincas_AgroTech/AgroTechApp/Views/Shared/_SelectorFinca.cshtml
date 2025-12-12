@@ -1,0 +1,19 @@
+﻿@model IEnumerable<AgroTechApp.Models.DB.Finca>
+
+@{
+    string? activa = Context.Session.GetString("FincaActiva");
+}
+
+@if (Model != null && Model.Any())
+{
+    <form asp-controller="Fincas" asp-action="CambiarFinca" method="post" class="d-flex">
+        <select name="id" class="form-select" onchange="this.form.submit()" style="max-width: 250px;">
+            @foreach (var f in Model)
+            {
+                <option value="@f.FincaId" selected="@(activa == f.FincaId.ToString() ? "selected" : null)">
+                    🏠 @f.Nombre
+                </option>
+            }
+        </select>
+    </form>
+}

@@ -61,6 +61,8 @@ public partial class AgroTechDbContext : DbContext
 
     public virtual DbSet<User> Users { get; set; }
 
+    public DbSet<UserFinca> UserFincas { get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
         => optionsBuilder.UseSqlServer("Server=localhost;Database=AgroTech;Trusted_Connection=True;TrustServerCertificate=True;");
@@ -513,23 +515,29 @@ public partial class AgroTechDbContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__User__RolId__403A8C7D");
 
-            entity.HasMany(d => d.Fincas).WithMany(p => p.Users)
-                .UsingEntity<Dictionary<string, object>>(
-                    "UserFinca",
-                    r => r.HasOne<Finca>().WithMany()
-                        .HasForeignKey("FincaId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__UserFinca__Finca__45F365D3"),
-                    l => l.HasOne<User>().WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.ClientSetNull)
-                        .HasConstraintName("FK__UserFinca__UserI__44FF419A"),
-                    j =>
-                    {
-                        j.HasKey("UserId", "FincaId").HasName("PK__UserFinc__954322FA450C2252");
-                        j.ToTable("UserFinca", "agro");
-                    });
+            
         });
+
+        modelBuilder.Entity<UserFinca>(entity =>
+        {
+            entity.ToTable("UserFinca", "agro");
+
+            entity.HasKey(e => e.UserFincaId);
+
+            entity.Property(e => e.AspNetUserId)
+                .HasMaxLength(450)
+                .IsRequired();
+
+            entity.HasOne(d => d.Finca)
+                .WithMany(p => p.UserFincas)
+                .HasForeignKey(d => d.FincaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(e => new { e.AspNetUserId, e.FincaId })
+                .IsUnique();
+        });
+
+
 
         OnModelCreatingPartial(modelBuilder);
     }

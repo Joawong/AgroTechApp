@@ -198,50 +198,78 @@
             margin-bottom: 1rem;
         }
 
+        .validation-errors {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+            .validation-errors strong {
+                color: #721c24;
+            }
+
+            .validation-errors ul {
+                margin: 0.5rem 0 0;
+                padding-left: 1.5rem;
+            }
+
+            .validation-errors li {
+                color: #721c24;
+                margin: 0.25rem 0;
+            }
+
         /* Responsive */
         @@media (max-width: 768px) {
-            body {
-                padding: 10px;
+            body
+
+        {
+            padding: 10px;
+        }
+
+        .create-header {
+            padding: 1.5rem;
+        }
+
+            .create-header h1 {
+                font-size: 1.8rem;
             }
 
-            .create-header {
-                padding: 1.5rem;
-            }
+        .create-body {
+            padding: 1.5rem;
+        }
 
-                .create-header h1 {
-                    font-size: 1.8rem;
-                }
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
 
-            .create-body {
-                padding: 1.5rem;
-            }
+        .btn-group {
+            flex-direction: column;
+        }
 
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
 
-            .btn-group {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
         }
 
         @@media (max-width: 480px) {
-            .create-header h1 {
-                font-size: 1.5rem;
-            }
+            .create-header h1
 
-            .create-body {
-                padding: 1rem;
-            }
+        {
+            font-size: 1.5rem;
+        }
 
-            .form-section {
-                padding: 1rem;
-            }
+        .create-body {
+            padding: 1rem;
+        }
+
+        .form-section {
+            padding: 1rem;
+        }
+
         }
     </style>
 </head>
@@ -253,6 +281,23 @@
         </div>
 
         <div class="create-body">
+            <!-- Mostrar errores de validación -->
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="validation-errors">
+                    <strong>⚠️ Errores de validación:</strong>
+                    <ul>
+                        @foreach (var modelState in ViewData.ModelState)
+                        {
+                            foreach (var error in modelState.Value.Errors)
+                            {
+                                <li><strong>@modelState.Key</strong>: @error.ErrorMessage</li>
+                            }
+                        }
+                    </ul>
+                </div>
+            }
+
             <div class="animal-illustration">
                 <div class="animal-icon">🐮</div>
             </div>
@@ -267,15 +312,7 @@
                         <h3>📝 Información Básica</h3>
 
                         <div class="form-group">
-                            <label asp-for="FincaId" class="form-label">🏠 Finca</label>
-                            <select asp-for="FincaId" class="form-control select" asp-items="ViewBag.FincaId" required>
-                                <option value="" selected disabled>Seleccione una finca</option>
-                            </select>
-                            <span asp-validation-for="FincaId" class="text-danger"></span>
-                        </div>
-
-                        <div class="form-group">
-                            <label asp-for="Arete" class="form-label">🏷️ Número de Arete</label>
+                            <label asp-for="Arete" class="form-label">🏷️ Número de Arete *</label>
                             <input asp-for="Arete" class="form-control" placeholder="Ingrese el número de arete" required />
                             <span asp-validation-for="Arete" class="text-danger"></span>
                         </div>
@@ -292,23 +329,42 @@
                         <h3>🔬 Características</h3>
 
                         <div class="form-group">
-                            <label asp-for="Sexo" class="form-label">⚥ Sexo</label>
+                            <label asp-for="Sexo" class="form-label">⚥ Sexo *</label>
                             <select asp-for="Sexo" class="form-control select" required>
                                 <option value="">Seleccione el sexo</option>
-                                <option value="M">Macho</option>
-                                <option value="F">Hembra</option>
+                                <option value="M">Macho 🐂</option>
+                                <option value="H">Hembra 🐄</option>
                             </select>
                             <span asp-validation-for="Sexo" class="text-danger"></span>
                         </div>
+
                         <div class="form-group">
-                            <label asp-for="Estado" class="form-label">Estado</label>
-                            <select asp-for="Estado" class="form-control" required>
+                            <label asp-for="Estado" class="form-label">📈 Estado *</label>
+                            <select asp-for="Estado" class="form-control select" required>
                                 <option value="Activo">Activo</option>
-                                <option value="Muerto">Muerto</option>
                                 <option value="Vendido">Vendido</option>
+                                <option value="Muerto">Muerto</option>
                                 <option value="Trasladado">Trasladado</option>
                             </select>
                             <span asp-validation-for="Estado" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="CostoCompra" class="control-label">Costo de Compra (Opcional)</label>
+                            <div class="input-group">
+                                <span class="input-group-text">₡</span>
+                                <input asp-for="CostoCompra"
+                                       type="number"
+                                       step="0.01"
+                                       min="0"
+                                       class="form-control"
+                                       placeholder="0.00" />
+                            </div>
+                            <span asp-validation-for="CostoCompra" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle"></i>
+                                Solo ingrese un valor si el animal fue comprado. Deje en blanco si nació en la finca.
+                            </small>
                         </div>
 
                         <div class="form-group">
@@ -339,8 +395,8 @@
                         </div>
 
                         <div class="form-group">
-                            <label asp-for="PesoNacimiento" class="form-label">⚖️ Peso al Nacer (kg)</label>
-                            <input asp-for="PesoNacimiento" class="form-control" type="number" step="0.1" placeholder="Ej: 35.5" />
+                            <label asp-for="PesoNacimiento" class="form-label">⚖️ Peso Inicial (kg)</label>
+                            <input asp-for="PesoNacimiento" class="form-control" type="number" step="1" placeholder="Ej: 35" />
                             <span asp-validation-for="PesoNacimiento" class="text-danger"></span>
                         </div>
                     </div>
@@ -355,6 +411,7 @@
                                 <option value="">Seleccione la madre</option>
                             </select>
                             <span asp-validation-for="MadreId" class="text-danger"></span>
+                            <small style="color: #6c757d;">Solo se muestran hembras</small>
                         </div>
 
                         <div class="form-group">
@@ -363,6 +420,7 @@
                                 <option value="">Seleccione el padre</option>
                             </select>
                             <span asp-validation-for="PadreId" class="text-danger"></span>
+                            <small style="color: #6c757d;">Solo se muestran machos</small>
                         </div>
                     </div>
                 </div>
@@ -376,23 +434,6 @@
                     </button>
                 </div>
             </form>
-            @if (!ViewData.ModelState.IsValid)
-            {
-                <div class="text-danger" style="margin-bottom: 1rem;">
-                    <strong>Errores de validación:</strong>
-                    <ul>
-                        @foreach (var modelState in ViewData.ModelState)
-                        {
-                            foreach (var error in modelState.Value.Errors)
-                            {
-                                <li><strong>@modelState.Key</strong>: @error.ErrorMessage</li>
-                            }
-                        }
-                    </ul>
-                </div>
-            }
-
-
         </div>
     </div>
 
@@ -402,7 +443,6 @@
         }
 
         <script>
-            // Mejora la experiencia del usuario
             document.addEventListener('DOMContentLoaded', function() {
                 // Establecer fecha máxima como hoy para fecha de nacimiento
                 const fechaNacimiento = document.getElementById('FechaNacimiento');
@@ -415,30 +455,53 @@
                 const inputs = document.querySelectorAll('.form-control');
                 inputs.forEach(input => {
                     input.addEventListener('focus', function() {
-                        this.parentElement.classList.add('focused');
+                        this.style.borderColor = 'var(--primary)';
+                        this.style.boxShadow = '0 0 0 3px rgba(46, 139, 87, 0.1)';
                     });
+
                     input.addEventListener('blur', function() {
-                        this.parentElement.classList.remove('focused');
+                        this.style.borderColor = '#e1e5e9';
+                        this.style.boxShadow = 'none';
                     });
                 });
 
-                // Validación en tiempo real mejorada
+                // Validación en tiempo real
                 const form = document.getElementById('animalForm');
                 form.addEventListener('submit', function(e) {
                     const requiredFields = form.querySelectorAll('[required]');
                     let isValid = true;
+                    let firstInvalidField = null;
 
                     requiredFields.forEach(field => {
-                        if (!field.value.trim()) {
+                        if (!field.value || field.value.trim() === '') {
                             isValid = false;
                             field.style.borderColor = 'var(--danger)';
+                            if (!firstInvalidField) {
+                                firstInvalidField = field;
+                            }
+                        } else {
+                            field.style.borderColor = '#e1e5e9';
                         }
                     });
 
                     if (!isValid) {
                         e.preventDefault();
-                        alert('Por favor, complete todos los campos requeridos.');
+                        alert('⚠️ Por favor, complete todos los campos marcados con * (obligatorios).');
+                        if (firstInvalidField) {
+                            firstInvalidField.focus();
+                            firstInvalidField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
                     }
+                });
+
+                // Limpiar borde rojo cuando el usuario empiece a escribir
+                const requiredInputs = document.querySelectorAll('[required]');
+                requiredInputs.forEach(input => {
+                    input.addEventListener('input', function() {
+                        if (this.value.trim()) {
+                            this.style.borderColor = '#e1e5e9';
+                        }
+                    });
                 });
             });
         </script>

@@ -2,183 +2,290 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AgroTechApp.Controllers
 {
-    public class PesajesController : Controller
+    [Authorize]
+    public class PesajesController : BaseController
     {
-        private readonly AgroTechDbContext _context;
-        private readonly ILogger<PesajesController> _logger;
-
-        public PesajesController(AgroTechDbContext context, ILogger<PesajesController> logger)
+        public PesajesController(
+            AgroTechDbContext context,
+            ILogger<PesajesController> logger)
+            : base(context, logger)
         {
-            _context = context;
-            _logger = logger;
         }
 
+        // ============================
         // GET: Pesajes
+        // ============================
         public async Task<IActionResult> Index()
         {
-            var agroTechDbContext = _context.Pesajes.Include(p => p.Animal);
-            return View(await agroTechDbContext.ToListAsync());
+            try
+            {
+                var fincaId = GetFincaId();
+
+                var pesajes = await _context.Pesajes
+                    .Include(p => p.Animal)
+                    .Where(p => p.Animal.FincaId == fincaId) // 🔒 MULTI-TENANT
+                    .OrderByDescending(p => p.Fecha)
+                    .ToListAsync();
+
+                return View(pesajes);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
         }
 
+        // ============================
         // GET: Pesajes/Create
+        // ============================
         public IActionResult Create()
         {
-            // Texto amigable para el combo: Arete - Nombre
-            var animales = _context.Animals
-                .Select(a => new { a.AnimalId, Texto = a.Arete + " - " + (a.Nombre ?? "(sin nombre)") })
-                .ToList();
+            try
+            {
+                var fincaId = GetFincaId();
 
-            ViewData["AnimalId"] = new SelectList(animales, "AnimalId", "Texto");
+                var animales = _context.Animals
+                    .Where(a => a.FincaId == fincaId) // 🔒 solo animales de la finca
+                    .Select(a => new
+                    {
+                        a.AnimalId,
+                        Texto = a.Arete + " - " + (a.Nombre ?? "(sin nombre)")
+                    })
+                    .ToList();
 
-            // Sugerencia: fecha hoy
-            var modelo = new Pesaje { Fecha = DateTime.Today };
-            return View(modelo);
+                ViewData["AnimalId"] = new SelectList(animales, "AnimalId", "Texto");
+
+                return View(new Pesaje { Fecha = DateTime.Today });
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
         }
 
+        // ============================
         // POST: Pesajes/Create
+        // ============================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("PesajeId,AnimalId,Fecha,PesoKg,Observacion")] Pesaje pesaje)
         {
-            // Evitar que el binder "toque" la navegación
-            ModelState.Remove("Animal");
-
-            // Logs que sí se ven
-            var animalRaw = Request.HasFormContentType ? Request.Form["AnimalId"].ToString() : "(no form)";
-            var fechaRaw = Request.HasFormContentType ? Request.Form["Fecha"].ToString() : "(no form)";
-            var pesoRaw = Request.HasFormContentType ? Request.Form["PesoKg"].ToString() : "(no form)";
-            _logger.LogInformation("[DEBUG] Form: AnimalId='{AnimalId}', Fecha='{Fecha}', PesoKg='{PesoKg}'", animalRaw, fechaRaw, pesoRaw);
-
-            if (!ModelState.IsValid)
+            try
             {
-                // Dump de errores
-                foreach (var kv in ModelState)
-                    foreach (var err in kv.Value.Errors)
-                        _logger.LogWarning("[VALIDATION] {Key}: {Error}", kv.Key, err.ErrorMessage);
+                var fincaId = GetFincaId();
 
-                var animales = _context.Animals
-                    .Select(a => new { a.AnimalId, Texto = a.Arete + " - " + (a.Nombre ?? "(sin nombre)") })
-                    .ToList();
+                ModelState.Remove("Animal");
 
-                ViewData["AnimalId"] = new SelectList(animales, "AnimalId", "Texto", pesaje.AnimalId);
-                return View(pesaje);
+                // 🔒 Validar que el animal pertenezca a la finca del usuario
+                var animal = await _context.Animals
+                    .FirstOrDefaultAsync(a => a.AnimalId == pesaje.AnimalId && a.FincaId == fincaId);
+
+                if (animal == null)
+                {
+                    ModelState.AddModelError("AnimalId", "El animal seleccionado no pertenece a su finca.");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    var animales = _context.Animals
+                        .Where(a => a.FincaId == fincaId)
+                        .Select(a => new
+                        {
+                            a.AnimalId,
+                            Texto = a.Arete + " - " + (a.Nombre ?? "(sin nombre)")
+                        }).ToList();
+
+                    ViewData["AnimalId"] = new SelectList(animales, "AnimalId", "Texto", pesaje.AnimalId);
+                    return View(pesaje);
+                }
+
+                _context.Add(pesaje);
+                await _context.SaveChangesAsync();
+                MostrarExito("Pesaje registrado correctamente.");
+                return RedirectToAction(nameof(Index));
             }
-
-            _context.Add(pesaje);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
         }
 
-
-
+        // ============================
         // GET: Pesajes/Details/5
+        // ============================
         public async Task<IActionResult> Details(long? id)
         {
             if (id == null) return NotFound();
 
-            var pesaje = await _context.Pesajes
-                .Include(p => p.Animal) // <- importante para ver Arete/Nombre
-                .AsNoTracking()
-                .FirstOrDefaultAsync(m => m.PesajeId == id);
+            try
+            {
+                var fincaId = GetFincaId();
 
-            if (pesaje == null) return NotFound();
+                var pesaje = await _context.Pesajes
+                    .Include(p => p.Animal)
+                    .FirstOrDefaultAsync(p => p.PesajeId == id && p.Animal.FincaId == fincaId); // 🔒 filtro
 
-            return View(pesaje);
+                if (pesaje == null) return NotFound();
+
+                // Historial del mismo animal (solo el suyo)
+                ViewBag.HistorialPesajes = await _context.Pesajes
+                    .Where(p => p.AnimalId == pesaje.AnimalId)
+                    .OrderBy(p => p.Fecha)
+                    .AsNoTracking()
+                    .ToListAsync();
+
+                return View(pesaje);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
         }
 
+        // ============================
         // GET: Pesajes/Edit/5
+        // ============================
         public async Task<IActionResult> Edit(long? id)
         {
             if (id == null) return NotFound();
 
-            var pesaje = await _context.Pesajes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p => p.PesajeId == id);
+            try
+            {
+                var fincaId = GetFincaId();
 
-            if (pesaje == null) return NotFound();
+                var pesaje = await _context.Pesajes
+                    .Include(p => p.Animal)
+                    .Where(p => p.PesajeId == id && p.Animal.FincaId == fincaId)
+                    .FirstOrDefaultAsync();
 
-            var animales = _context.Animals
-                .Select(a => new { a.AnimalId, Texto = a.Arete + " - " + (a.Nombre ?? "(sin nombre)") })
-                .ToList();
+                if (pesaje == null) return NotFound();
 
-            ViewData["AnimalId"] = new SelectList(animales, "AnimalId", "Texto", pesaje.AnimalId);
-            return View(pesaje);
+                var animales = await _context.Animals
+                    .Where(a => a.FincaId == fincaId)
+                    .Select(a => new
+                    {
+                        a.AnimalId,
+                        Texto = a.Arete + " - " + (a.Nombre ?? "(sin nombre)")
+                    })
+                    .ToListAsync();
+
+                ViewData["AnimalId"] = new SelectList(animales, "AnimalId", "Texto", pesaje.AnimalId);
+
+                return View(pesaje);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
         }
 
+        // ============================
         // POST: Pesajes/Edit/5
+        // ============================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("PesajeId,AnimalId,Fecha,PesoKg,Observacion")] Pesaje pesaje)
         {
             if (id != pesaje.PesajeId) return NotFound();
 
-            // Evitar que el binder se meta con la navegación
-            ModelState.Remove("Animal");
-
-            if (!ModelState.IsValid)
-            {
-                var animales = _context.Animals
-                    .Select(a => new { a.AnimalId, Texto = a.Arete + " - " + (a.Nombre ?? "(sin nombre)") })
-                    .ToList();
-                ViewData["AnimalId"] = new SelectList(animales, "AnimalId", "Texto", pesaje.AnimalId);
-                return View(pesaje);
-            }
-
             try
             {
+                var fincaId = GetFincaId();
+                ModelState.Remove("Animal");
+
+                // 🔒 Validar que el animal pertenece a la finca
+                if (!await _context.Animals.AnyAsync(a => a.AnimalId == pesaje.AnimalId && a.FincaId == fincaId))
+                {
+                    ModelState.AddModelError("AnimalId", "Ese animal no pertenece a su finca.");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    var animales = await _context.Animals
+                        .Where(a => a.FincaId == fincaId)
+                        .Select(a => new
+                        {
+                            a.AnimalId,
+                            Texto = a.Arete + " - " + (a.Nombre ?? "(sin nombre)")
+                        }).ToListAsync();
+
+                    ViewData["AnimalId"] = new SelectList(animales, "AnimalId", "Texto", pesaje.AnimalId);
+                    return View(pesaje);
+                }
+
                 _context.Update(pesaje);
                 await _context.SaveChangesAsync();
+                MostrarExito("Pesaje actualizado correctamente.");
+
+                return RedirectToAction(nameof(Index));
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_context.Pesajes.Any(e => e.PesajeId == id)) return NotFound();
-                throw;
+                return NotFound();
             }
-
-            return RedirectToAction(nameof(Index));
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
         }
 
-
+        // ============================
         // GET: Pesajes/Delete/5
+        // ============================
         public async Task<IActionResult> Delete(long? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id is null) return NotFound();
 
-            var pesaje = await _context.Pesajes
-                .Include(p => p.Animal)
-                .FirstOrDefaultAsync(m => m.PesajeId == id);
-            if (pesaje == null)
+            try
             {
-                return NotFound();
-            }
+                var fincaId = GetFincaId();
 
-            return View(pesaje);
+                var pesaje = await _context.Pesajes
+                    .Include(p => p.Animal)
+                    .FirstOrDefaultAsync(p => p.PesajeId == id && p.Animal.FincaId == fincaId);
+
+                if (pesaje == null) return NotFound();
+
+                return View(pesaje);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
         }
 
+        // ============================
         // POST: Pesajes/Delete/5
+        // ============================
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            var pesaje = await _context.Pesajes.FindAsync(id);
-            if (pesaje != null)
+            try
             {
+                var fincaId = GetFincaId();
+
+                var pesaje = await _context.Pesajes
+                    .Include(p => p.Animal)
+                    .Where(p => p.PesajeId == id && p.Animal.FincaId == fincaId)
+                    .FirstOrDefaultAsync();
+
+                if (pesaje == null) return NotFound();
+
                 _context.Pesajes.Remove(pesaje);
+                await _context.SaveChangesAsync();
+                MostrarExito("Pesaje eliminado.");
+
+                return RedirectToAction(nameof(Index));
             }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool PesajeExists(long id)
-        {
-            return _context.Pesajes.Any(e => e.PesajeId == id);
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
         }
     }
 }

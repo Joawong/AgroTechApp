@@ -2,1144 +2,242 @@
 
 @{
     ViewData["Title"] = "Editar Potrero";
-}
-
-<div class="edit-container">
-    <!-- Header -->
-    <div class="edit-header">
-        <div class="header-content">
-            <div class="header-icon">
-                <i class="fas fa-edit"></i>
-            </div>
-            <div class="header-text">
-                <h1>Editar Potrero</h1>
-                <p>Actualice la información del potrero agrícola</p>
-            </div>
-            <div class="header-badge">
-                <span class="status-badge @(Model.Activo ? "active" : "inactive")">
-                    <i class="fas @(Model.Activo ? "fa-check-circle" : "fa-times-circle")"></i>
-                    @(Model.Activo ? "Activo" : "Inactivo")
-                </span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Form Container -->
-    <div class="form-container">
-        <form asp-action="Edit" class="modern-form" id="editForm">
-            <input type="hidden" asp-for="PotreroId" />
-
-            <div class="form-sections">
-                <!-- Información Básica -->
-                <div class="form-section">
-                    <div class="section-header">
-                        <i class="fas fa-info-circle"></i>
-                        <h3>Información Básica</h3>
-                    </div>
-
-                    <div class="form-group floating">
-                        <div class="input-group">
-                            <div class="input-icon">
-                                <i class="fas fa-tractor"></i>
-                            </div>
-                            <select asp-for="FincaId" class="form-control modern-select" asp-items="ViewBag.FincaId" id="fincaSelect">
-                                <option value="">Seleccione una finca</option>
-                            </select>
-                            <label asp-for="FincaId" class="floating-label">Finca</label>
-                        </div>
-                        <span asp-validation-for="FincaId" class="validation-message"></span>
-                        <div class="input-hint">Seleccione la finca a la que pertenece el potrero</div>
-                    </div>
-
-                    <div class="form-group floating">
-                        <div class="input-group">
-                            <div class="input-icon">
-                                <i class="fas fa-signature"></i>
-                            </div>
-                            <input asp-for="Nombre" class="form-control modern-input" placeholder=" " />
-                            <label asp-for="Nombre" class="floating-label">Nombre del Potrero</label>
-                        </div>
-                        <span asp-validation-for="Nombre" class="validation-message"></span>
-                        <div class="input-hint">Ej: Potrero Norte, Campo Sur, etc.</div>
-                    </div>
-                </div>
-
-                <!-- Medidas y Estado -->
-                <div class="form-section">
-                    <div class="section-header">
-                        <i class="fas fa-ruler-combined"></i>
-                        <h3>Medidas y Estado</h3>
-                    </div>
-
-                    <div class="form-group floating">
-                        <div class="input-group">
-                            <div class="input-icon">
-                                <i class="fas fa-ruler"></i>
-                            </div>
-                            <input asp-for="Hectareas" class="form-control modern-input" placeholder=" " type="number" step="0.01" min="0" />
-                            <label asp-for="Hectareas" class="floating-label">Hectáreas</label>
-                        </div>
-                        <span asp-validation-for="Hectareas" class="validation-message"></span>
-                        <div class="input-hint">Tamaño del potrero en hectáreas</div>
-
-                        <!-- Conversiones en tiempo real -->
-                        <div class="conversion-display" id="conversionDisplay">
-                            <div class="conversion-item">
-                                <span class="conversion-value" id="metrosCuadrados">0 m²</span>
-                                <span class="conversion-label">Metros cuadrados</span>
-                            </div>
-                            <div class="conversion-item">
-                                <span class="conversion-value" id="acres">0 acres</span>
-                                <span class="conversion-label">Acres</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group toggle-group">
-                        <div class="toggle-header">
-                            <i class="fas fa-power-off"></i>
-                            <label class="toggle-label">Estado del Potrero</label>
-                        </div>
-                        <div class="toggle-container">
-                            <label class="toggle-switch">
-                                <input class="toggle-input" asp-for="Activo" type="checkbox" />
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-text">
-                                    <span class="toggle-on">Activo</span>
-                                    <span class="toggle-off">Inactivo</span>
-                                </span>
-                            </label>
-                        </div>
-                        <div class="toggle-hint">
-                            Un potrero activo estará disponible para operaciones agrícolas
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Preview Section -->
-            <div class="preview-section">
-                <div class="preview-header">
-                    <i class="fas fa-eye"></i>
-                    <h3>Vista Previa</h3>
-                </div>
-                <div class="preview-content">
-                    <div class="preview-card">
-                        <div class="preview-header-info">
-                            <div class="preview-icon">
-                                <i class="fas fa-map-marked-alt"></i>
-                            </div>
-                            <div class="preview-title">
-                                <h4 id="previewNombre">@Model.Nombre</h4>
-                                <span class="preview-id">ID: @Model.PotreroId</span>
-                            </div>
-                            <span class="preview-status @(Model.Activo ? "active" : "inactive")" id="previewStatus">
-                                @(Model.Activo ? "Activo" : "Inactivo")
-                            </span>
-                        </div>
-                        <div class="preview-body">
-                            <div class="preview-item">
-                                <i class="fas fa-tractor"></i>
-                                <span>Finca: <strong id="previewFinca">@Model.FincaId</strong></span>
-                            </div>
-                            <div class="preview-item">
-                                <i class="fas fa-ruler-combined"></i>
-                                <span>Tamaño: <strong id="previewHectareas">@Model.Hectareas</strong> hectáreas</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="form-actions">
-                <a asp-action="Index" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i>
-                    Cancelar
-                </a>
-                <div class="primary-actions">
-                    <button type="button" class="btn btn-outline" id="resetBtn">
-                        <i class="fas fa-undo"></i>
-                        Restablecer
-                    </button>
-                    <button type="submit" class="btn btn-primary" id="submitBtn">
-                        <i class="fas fa-save"></i>
-                        <span class="btn-text">Guardar Cambios</span>
-                        <span class="btn-loading" id="btnLoading">
-                            <i class="fas fa-spinner fa-spin"></i>
-                            Guardando...
-                        </span>
-                    </button>
-                </div>
-            </div>
-        </form>
-    </div>
-
-    <!-- Changes Saved Modal -->
-    <div class="success-modal" id="successModal">
-        <div class="success-content">
-            <div class="success-icon">
-                <i class="fas fa-check-circle"></i>
-            </div>
-            <h3>¡Cambios Guardados!</h3>
-            <p>La información del potrero ha sido actualizada correctamente.</p>
-            <div class="success-actions">
-                <a asp-action="Index" class="btn btn-primary">
-                    <i class="fas fa-list"></i>
-                    Volver al Listado
-                </a>
-                <button class="btn btn-outline" id="stayBtn">
-                    <i class="fas fa-edit"></i>
-                    Seguir Editando
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('editForm');
-            const submitBtn = document.getElementById('submitBtn');
-            const btnLoading = document.getElementById('btnLoading');
-            const resetBtn = document.getElementById('resetBtn');
-            const successModal = document.getElementById('successModal');
-            const stayBtn = document.getElementById('stayBtn');
-            const hectaresInput = document.querySelector('input[name="Hectareas"]');
-            const nombreInput = document.querySelector('input[name="Nombre"]');
-            const fincaSelect = document.querySelector('select[name="FincaId"]');
-            const activoToggle = document.querySelector('input[name="Activo"]');
-
-            // Estado original para reset
-            const originalState = {
-                nombre: nombreInput.value,
-                fincaId: fincaSelect.value,
-                hectareas: hectaresInput.value,
-                activo: activoToggle.checked
-            };
-
-            // Floating labels
-            const floatingInputs = document.querySelectorAll('.modern-input, .modern-select');
-
-            floatingInputs.forEach(input => {
-                if (input.value) {
-                    input.parentElement.classList.add('focused');
-                }
-
-                input.addEventListener('focus', function() {
-                    this.parentElement.classList.add('focused');
-                });
-
-                input.addEventListener('blur', function() {
-                    if (!this.value) {
-                        this.parentElement.classList.remove('focused');
-                    }
-                });
-            });
-
-            // Conversiones en tiempo real
-            function updateConversions() {
-                const hectareas = parseFloat(hectaresInput.value) || 0;
-                const metrosCuadrados = hectareas * 10000;
-                const acres = hectareas * 2.47105;
-
-                document.getElementById('metrosCuadrados').textContent =
-                    metrosCuadrados.toLocaleString('es-ES', { maximumFractionDigits: 2 }) + ' m²';
-                document.getElementById('acres').textContent =
-                    acres.toLocaleString('es-ES', { maximumFractionDigits: 2 }) + ' acres';
-            }
-
-            hectaresInput.addEventListener('input', updateConversions);
-            updateConversions(); // Inicializar
-
-            // Actualizar vista previa en tiempo real
-            function updatePreview() {
-                document.getElementById('previewNombre').textContent = nombreInput.value || 'Sin nombre';
-                document.getElementById('previewHectareas').textContent = hectaresInput.value || '0';
-                document.getElementById('previewFinca').textContent = fincaSelect.options[fincaSelect.selectedIndex]?.text || 'No seleccionada';
-
-                const isActive = activoToggle.checked;
-                const previewStatus = document.getElementById('previewStatus');
-                previewStatus.textContent = isActive ? 'Activo' : 'Inactivo';
-                previewStatus.className = `preview-status ${isActive ? 'active' : 'inactive'}`;
-            }
-
-            nombreInput.addEventListener('input', updatePreview);
-            hectaresInput.addEventListener('input', updatePreview);
-            fincaSelect.addEventListener('change', updatePreview);
-            activoToggle.addEventListener('change', updatePreview);
-            updatePreview(); // Inicializar
-
-            // Restablecer formulario
-            resetBtn.addEventListener('click', function() {
-                if (confirm('¿Está seguro de que desea restablecer todos los cambios?')) {
-                    nombreInput.value = originalState.nombre;
-                    fincaSelect.value = originalState.fincaId;
-                    hectaresInput.value = originalState.hectareas;
-                    activoToggle.checked = originalState.activo;
-
-                    // Disparar eventos para actualizar UI
-                    nombreInput.dispatchEvent(new Event('input'));
-                    fincaSelect.dispatchEvent(new Event('change'));
-                    hectaresInput.dispatchEvent(new Event('input'));
-                    activoToggle.dispatchEvent(new Event('change'));
-
-                    // Mostrar feedback
-                    this.innerHTML = '<i class="fas fa-check"></i> Restablecido';
-                    this.classList.add('success');
-                    setTimeout(() => {
-                        this.innerHTML = '<i class="fas fa-undo"></i> Restablecer';
-                        this.classList.remove('success');
-                    }, 2000);
-                }
-            });
-
-            // Validación y envío del formulario
-            form.addEventListener('submit', function(e) {
-                let isValid = true;
-
-                // Validar campos requeridos
-                if (!nombreInput.value.trim()) {
-                    isValid = false;
-                    showError(nombreInput, 'El nombre es requerido');
-                }
-
-                if (!fincaSelect.value) {
-                    isValid = false;
-                    showError(fincaSelect, 'Debe seleccionar una finca');
-                }
-
-                if (!hectaresInput.value || parseFloat(hectaresInput.value) <= 0) {
-                    isValid = false;
-                    showError(hectaresInput, 'Las hectáreas deben ser mayores a 0');
-                }
-
-                if (isValid) {
-                    e.preventDefault();
-
-                    // Mostrar loading
-                    submitBtn.disabled = true;
-                    btnLoading.style.display = 'inline-flex';
-                    submitBtn.querySelector('.btn-text').style.display = 'none';
-
-                    // Simular envío (en producción esto sería real)
-                    setTimeout(() => {
-                        successModal.classList.add('show');
-                    }, 1000);
-                } else {
-                    e.preventDefault();
-                    // Animación de shake para campos con error
-                    const errorElements = document.querySelectorAll('.error');
-                    errorElements.forEach(el => {
-                        el.classList.add('shake');
-                        setTimeout(() => el.classList.remove('shake'), 500);
-                    });
-                }
-            });
-
-            // Cerrar modal de éxito
-            stayBtn.addEventListener('click', function() {
-                successModal.classList.remove('show');
-                submitBtn.disabled = false;
-                btnLoading.style.display = 'none';
-                submitBtn.querySelector('.btn-text').style.display = 'inline-flex';
-            });
-
-            // Remover estado de error al corregir
-            floatingInputs.forEach(input => {
-                input.addEventListener('input', function() {
-                    if (this.value) {
-                        this.parentElement.classList.remove('error');
-                        hideError(this);
-                    }
-                });
-            });
-
-            function showError(input, message) {
-                input.parentElement.classList.add('error');
-                let errorElement = input.parentElement.querySelector('.custom-error');
-                if (!errorElement) {
-                    errorElement = document.createElement('div');
-                    errorElement.className = 'custom-error';
-                    input.parentElement.appendChild(errorElement);
-                }
-                errorElement.textContent = message;
-            }
-
-            function hideError(input) {
-                const errorElement = input.parentElement.querySelector('.custom-error');
-                if (errorElement) {
-                    errorElement.remove();
-                }
-            }
-
-            // Efectos hover
-            const buttons = document.querySelectorAll('.btn');
-            buttons.forEach(btn => {
-                btn.addEventListener('mouseenter', function() {
-                    if (!this.disabled) {
-                        this.style.transform = 'translateY(-2px)';
-                    }
-                });
-
-                btn.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0)';
-                });
-            });
-        });
-    </script>
+    var primaryColor = "#2E8B57";
 }
 
 <style>
-    /* Variables */
     :root {
-        --primary: #2E8B57;
-        --primary-dark: #26734d;
-        --primary-light: #3CB371;
+        --primary: @primaryColor;
         --secondary: #6c757d;
-        --success: #28a745;
-        --danger: #dc3545;
-        --warning: #ffc107;
-        --info: #17a2b8;
         --light: #f8f9fa;
         --dark: #343a40;
         --border: #e1e5e9;
-        --shadow: rgba(0, 0, 0, 0.1);
-        --text: #495057;
-        --text-light: #6c757d;
+        --success: #28a745;
+        --danger: #dc3545;
+        --warning: #ffc107;
     }
 
-    /* Base Styles */
     * {
         box-sizing: border-box;
-        margin: 0;
-        padding: 0;
     }
 
     body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        min-height: 100vh;
+        margin: 0;
         padding: 20px;
-        color: var(--text);
+        min-height: 100vh;
     }
 
-    /* Container Principal */
     .edit-container {
-        max-width: 1000px;
+        max-width: 800px;
         margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        overflow: hidden;
         animation: slideUp 0.6s ease-out;
     }
 
-    /* Header */
     .edit-header {
-        background: white;
-        border-radius: 20px;
-        padding: 2.5rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px var(--shadow);
-    }
-
-    .header-content {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 1.5rem;
-    }
-
-    .header-icon {
-        font-size: 3rem;
-        color: var(--primary);
-        background: linear-gradient(135deg, var(--primary), var(--primary-light));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .header-text {
-        flex: 1;
-    }
-
-        .header-text h1 {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: var(--dark);
-            margin-bottom: 0.5rem;
-        }
-
-        .header-text p {
-            color: var(--text-light);
-            font-size: 1.1rem;
-            margin: 0;
-        }
-
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.75rem 1.5rem;
-        border-radius: 25px;
-        font-weight: 600;
-        font-size: 0.9rem;
-    }
-
-        .status-badge.active {
-            background: #d4edda;
-            color: #155724;
-            border: 2px solid #c3e6cb;
-        }
-
-        .status-badge.inactive {
-            background: #f8d7da;
-            color: #721c24;
-            border: 2px solid #f1b0b7;
-        }
-
-    /* Form Container */
-    .form-container {
-        background: white;
-        border-radius: 20px;
-        box-shadow: 0 10px 30px var(--shadow);
-        overflow: hidden;
-    }
-
-    /* Form Sections */
-    .form-sections {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0;
-    }
-
-    .form-section {
-        padding: 2.5rem;
-        border-right: 1px solid var(--border);
-    }
-
-        .form-section:last-child {
-            border-right: none;
-        }
-
-    .section-header {
+        background: linear-gradient(135deg, var(--primary), #3CB371);
+        color: white;
+        padding: 2rem;
         display: flex;
         align-items: center;
         gap: 1rem;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid var(--light);
     }
 
-        .section-header i {
-            color: var(--primary);
-            font-size: 1.5rem;
-        }
+    .edit-header-icon {
+        font-size: 2.5rem;
+    }
 
-        .section-header h3 {
-            color: var(--primary);
-            font-size: 1.3rem;
+    .edit-header-content h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 600;
+    }
+
+    .edit-header-content p {
+        margin: 0.5rem 0 0;
+        opacity: 0.9;
+        font-size: 1.1rem;
+    }
+
+    .edit-body {
+        padding: 2.5rem;
+    }
+
+    .potrero-info {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .info-item .label {
             font-weight: 600;
-            margin: 0;
+            color: var(--dark);
         }
 
-    /* Form Groups */
-    .form-group {
+        .info-item .value {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+    .edit-section {
         margin-bottom: 2rem;
-        position: relative;
     }
+
+        .edit-section h3 {
+            color: var(--dark);
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid var(--primary);
+            font-size: 1.3rem;
+        }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+            .form-group label.required::after {
+                content: " *";
+                color: var(--danger);
+            }
+
+    .form-control {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        border: 2px solid var(--border);
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+        }
 
     .input-group {
         position: relative;
     }
 
-    .input-icon {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-light);
-        z-index: 2;
-        transition: all 0.3s ease;
-    }
-
-    .modern-input,
-    .modern-select {
-        width: 100%;
-        padding: 1rem 1rem 1rem 3rem;
-        border: 2px solid var(--border);
-        border-radius: 12px;
-        font-size: 1rem;
-        background: white;
-        transition: all 0.3s ease;
-        position: relative;
-        z-index: 1;
-    }
-
-    .modern-select {
-        appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%236c757d' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 1rem center;
-        background-size: 16px;
-    }
-
-        .modern-input:focus,
-        .modern-select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
-            transform: translateY(-1px);
-        }
-
-            .modern-input:focus + .floating-label,
-            .modern-select:focus + .floating-label,
-            .floating-label.focused {
-                top: -0.5rem;
-                left: 3rem;
-                font-size: 0.8rem;
-                color: var(--primary);
-                background: white;
-                padding: 0 0.5rem;
-                z-index: 3;
-            }
-
-    /* Floating Labels */
-    .floating-label {
-        position: absolute;
-        left: 3rem;
-        top: 1rem;
-        font-size: 1rem;
-        color: var(--text-light);
-        transition: all 0.3s ease;
-        pointer-events: none;
-        z-index: 2;
-    }
-
-    /* Conversion Display */
-    .conversion-display {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-        margin-top: 1rem;
-    }
-
-    .conversion-item {
-        text-align: center;
-        padding: 1rem;
-        background: var(--light);
-        border-radius: 10px;
-        border: 1px solid var(--border);
-    }
-
-    .conversion-value {
-        display: block;
-        font-weight: 600;
-        color: var(--primary);
-        margin-bottom: 0.25rem;
-    }
-
-    .conversion-label {
-        font-size: 0.8rem;
-        color: var(--text-light);
-    }
-
-    /* Toggle Switch */
-    .toggle-group {
-        background: var(--light);
-        padding: 1.5rem;
-        border-radius: 12px;
-        border: 1px solid var(--border);
-    }
-
-    .toggle-header {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 1rem;
-    }
-
-        .toggle-header i {
-            color: var(--primary);
-            font-size: 1.2rem;
-        }
-
-    .toggle-label {
-        font-weight: 600;
-        color: var(--dark);
-        font-size: 1rem;
-    }
-
-    .toggle-container {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 1rem;
-    }
-
-    .toggle-switch {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        cursor: pointer;
-    }
-
-    .toggle-input {
-        display: none;
-    }
-
-    .toggle-slider {
-        width: 60px;
-        height: 30px;
-        background: var(--secondary);
-        border-radius: 15px;
-        position: relative;
-        transition: all 0.3s ease;
-    }
-
-        .toggle-slider::before {
-            content: '';
+        .input-group .icon {
             position: absolute;
-            width: 24px;
-            height: 24px;
-            background: white;
-            border-radius: 50%;
-            top: 3px;
-            left: 3px;
-            transition: all 0.3s ease;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--secondary);
         }
 
-    .toggle-input:checked + .toggle-slider {
-        background: var(--primary);
-    }
-
-        .toggle-input:checked + .toggle-slider::before {
-            transform: translateX(30px);
+        .input-group .form-control {
+            padding-left: 3rem;
         }
-
-    .toggle-text {
-        font-weight: 600;
-    }
-
-    .toggle-on {
-        color: var(--primary);
-    }
-
-    .toggle-off {
-        color: var(--secondary);
-    }
-
-    .toggle-input:checked ~ .toggle-text .toggle-on {
-        display: inline;
-    }
-
-    .toggle-input:checked ~ .toggle-text .toggle-off {
-        display: none;
-    }
-
-    .toggle-input:not(:checked) ~ .toggle-text .toggle-on {
-        display: none;
-    }
-
-    .toggle-input:not(:checked) ~ .toggle-text .toggle-off {
-        display: inline;
-    }
-
-    .toggle-hint {
-        font-size: 0.85rem;
-        color: var(--text-light);
-        text-align: center;
-        line-height: 1.4;
-    }
-
-    /* Preview Section */
-    .preview-section {
-        background: var(--light);
-        padding: 2rem 2.5rem;
-        border-top: 1px solid var(--border);
-    }
-
-    .preview-header {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-
-        .preview-header i {
-            color: var(--primary);
-            font-size: 1.3rem;
-        }
-
-        .preview-header h3 {
-            color: var(--dark);
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin: 0;
-        }
-
-    .preview-card {
-        background: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        box-shadow: 0 5px 15px var(--shadow);
-        border: 2px solid var(--border);
-    }
-
-    .preview-header-info {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .preview-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, var(--primary), var(--primary-light));
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.3rem;
-    }
-
-    .preview-title {
-        flex: 1;
-    }
-
-        .preview-title h4 {
-            color: var(--dark);
-            margin: 0 0 0.25rem 0;
-            font-size: 1.2rem;
-        }
-
-    .preview-id {
-        font-size: 0.85rem;
-        color: var(--text-light);
-    }
-
-    .preview-status {
-        padding: 0.5rem 1rem;
-        border-radius: 15px;
-        font-weight: 600;
-        font-size: 0.85rem;
-    }
-
-        .preview-status.active {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .preview-status.inactive {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
-    .preview-body {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1rem;
-    }
-
-    .preview-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        padding: 0.75rem;
-        background: var(--light);
-        border-radius: 8px;
-    }
-
-        .preview-item i {
-            color: var(--primary);
-            width: 16px;
-        }
-
-    /* Form Actions */
-    .form-actions {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 2rem 2.5rem;
-        border-top: 1px solid var(--border);
-        background: white;
-    }
-
-    .primary-actions {
-        display: flex;
-        gap: 1rem;
-    }
-
-    .btn {
-        padding: 0.875rem 1.5rem;
-        border: none;
-        border-radius: 12px;
-        font-size: 1rem;
-        font-weight: 600;
-        text-decoration: none;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        position: relative;
-    }
 
     .btn-primary {
-        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        background-color: var(--primary);
+        border: none;
+        padding: 0.75rem 1.5rem;
         color: white;
-        box-shadow: 0 4px 15px rgba(46, 139, 87, 0.3);
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: 0.3s ease;
     }
 
-        .btn-primary:hover:not(:disabled) {
-            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(46, 139, 87, 0.4);
+        .btn-primary:hover {
+            background-color: #276f48;
         }
 
     .btn-secondary {
-        background: var(--secondary);
+        background-color: var(--secondary);
+        border: none;
+        padding: 0.75rem 1.5rem;
         color: white;
-    }
-
-        .btn-secondary:hover {
-            background: #5a6268;
-            transform: translateY(-2px);
-        }
-
-    .btn-outline {
-        background: transparent;
-        border: 2px solid var(--secondary);
-        color: var(--secondary);
-    }
-
-        .btn-outline:hover {
-            background: var(--secondary);
-            color: white;
-        }
-
-        .btn-outline.success {
-            border-color: var(--success);
-            color: var(--success);
-        }
-
-    .btn:disabled {
-        opacity: 0.7;
-        cursor: not-allowed;
-        transform: none !important;
-    }
-
-    .btn-loading {
-        display: none;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    /* Success Modal */
-    .success-modal {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        backdrop-filter: blur(5px);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 1000;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-    }
-
-        .success-modal.show {
-            opacity: 1;
-            visibility: visible;
-        }
-
-    .success-content {
-        background: white;
-        border-radius: 20px;
-        padding: 3rem;
-        text-align: center;
-        max-width: 400px;
-        width: 90%;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-        transform: scale(0.9);
-        transition: all 0.3s ease;
-    }
-
-    .success-modal.show .success-content {
-        transform: scale(1);
-    }
-
-    .success-icon {
-        font-size: 4rem;
-        color: var(--success);
-        margin-bottom: 1.5rem;
-    }
-
-    .success-content h3 {
-        color: var(--dark);
-        margin-bottom: 1rem;
-        font-size: 1.5rem;
-    }
-
-    .success-content p {
-        color: var(--text);
-        margin-bottom: 2rem;
-        line-height: 1.5;
-    }
-
-    .success-actions {
-        display: flex;
-        gap: 1rem;
-        justify-content: center;
-    }
-
-    /* Validation */
-    .validation-message {
-        color: var(--danger);
-        font-size: 0.85rem;
-        margin-top: 0.25rem;
-        display: block;
-    }
-
-    .input-hint {
-        font-size: 0.8rem;
-        color: var(--text-light);
-        margin-top: 0.25rem;
-        font-style: italic;
-    }
-
-    .error .modern-input,
-    .error .modern-select {
-        border-color: var(--danger);
-        box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
-    }
-
-    .error .input-icon {
-        color: var(--danger);
-    }
-
-    .custom-error {
-        color: var(--danger);
-        font-size: 0.85rem;
-        margin-top: 0.25rem;
-        font-weight: 500;
-    }
-
-    /* Animations */
-    @@keyframes slideUp {
-        from
-
-    {
-        opacity: 0;
-        transform: translateY(30px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    }
-
-    .shake {
-        animation: shake 0.5s ease-in-out;
-    }
-
-    @@keyframes shake {
-        0%, 100%
-
-    {
-        transform: translateX(0);
-    }
-
-    25% {
-        transform: translateX(-5px);
-    }
-
-    75% {
-        transform: translateX(5px);
-    }
-
-    }
-
-    /* Responsive */
-    @@media (max-width: 768px) {
-        body {
-            padding: 10px;
-        }
-
-        .form-sections {
-            grid-template-columns: 1fr;
-        }
-
-        .form-section {
-            border-right: none;
-            border-bottom: 1px solid var(--border);
-            padding: 2rem;
-        }
-
-            .form-section:last-child {
-                border-bottom: none;
-            }
-
-        .header-content {
-            flex-direction: column;
-            text-align: center;
-        }
-
-        .form-actions {
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .primary-actions {
-            width: 100%;
-            justify-content: stretch;
-        }
-
-            .primary-actions .btn {
-                flex: 1;
-            }
-
-        .preview-body {
-            grid-template-columns: 1fr;
-        }
-
-        .success-actions {
-            flex-direction: column;
-        }
-    }
-
-    @@media (max-width: 480px) {
-        .edit-header {
-            padding: 1.5rem;
-        }
-
-        .header-text h1 {
-            font-size: 1.8rem;
-        }
-
-        .form-section {
-            padding: 1.5rem;
-        }
-
-        .conversion-display {
-            grid-template-columns: 1fr;
-        }
-
-        .preview-section {
-            padding: 1.5rem;
-        }
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 1rem;
     }
 </style>
 
-<!-- Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<div class="edit-container">
+
+    <!-- HEADER -->
+    <div class="edit-header">
+        <div class="edit-header-icon">🌿</div>
+        <div class="edit-header-content">
+            <h1>Editar Potrero</h1>
+            <p>Modifica la información del potrero seleccionado</p>
+        </div>
+    </div>
+
+    <!-- BODY -->
+    <div class="edit-body">
+
+        <!-- INFO -->
+        <div class="potrero-info">
+            <div class="info-item">
+                <span class="label">Finca:</span>
+                <span class="value">@ViewBag.FincaNombre</span>
+            </div>
+            <div class="info-item">
+                <span class="label">ID:</span>
+                <span class="value">@Model.PotreroId</span>
+            </div>
+        </div>
+
+        <!-- FORM -->
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="PotreroId" />
+
+            <div class="edit-section">
+                <h3>Información general</h3>
+
+                <div class="form-group">
+                    <label asp-for="Nombre" class="required"></label>
+                    <input asp-for="Nombre" class="form-control" />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Hectareas" class="required"></label>
+                    <input asp-for="Hectareas" class="form-control" type="number" step="0.01" />
+                    <span asp-validation-for="Hectareas" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Activo"></label>
+                    <input asp-for="Activo" type="checkbox" />
+                </div>
+            </div>
+
+            <div style="display:flex; gap:1rem;">
+                <button type="submit" class="btn-primary">Guardar cambios</button>
+                <a asp-action="Index" class="btn-secondary">Cancelar</a>
+            </div>
+        </form>
+
+    </div>
+</div>

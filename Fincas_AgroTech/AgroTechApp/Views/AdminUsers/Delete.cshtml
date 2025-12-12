@@ -1,0 +1,481 @@
+﻿@model AgroTechApp.Models.ViewModels.AdminUserDetailsVM
+
+@{
+    ViewData["Title"] = "Eliminar Usuario";
+}
+
+<style>
+    :root {
+        --primary: #2E8B57;
+        --danger: #dc3545;
+        --danger-dark: #c82333;
+        --white: #ffffff;
+        --dark: #343a40;
+        --gray: #6c757d;
+        --shadow: rgba(220, 53, 69, 0.2);
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    .delete-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .delete-card {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 15px 40px var(--shadow);
+        overflow: hidden;
+        border: 3px solid var(--danger);
+        animation: fadeInUp 0.5s ease-out, shake 0.5s ease-in-out 0.5s;
+        margin-bottom: 2rem;
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@keyframes shake {
+        0%, 100% {
+            transform: translateX(0);
+        }
+
+        10%, 30%, 50%, 70%, 90% {
+            transform: translateX(-5px);
+        }
+
+        20%, 40%, 60%, 80% {
+            transform: translateX(5px);
+        }
+    }
+
+    .delete-header {
+        background: linear-gradient(135deg, var(--danger), var(--danger-dark));
+        color: white;
+        padding: 2.5rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .delete-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg);
+        }
+
+    .warning-icon {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        animation: pulse 2s ease-in-out infinite;
+        position: relative;
+        z-index: 1;
+    }
+
+        .warning-icon i {
+            font-size: 3rem;
+        }
+
+    @@keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+        }
+
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 0 0 20px rgba(255, 255, 255, 0);
+        }
+    }
+
+    .delete-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .delete-header p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+    }
+
+    .delete-body {
+        padding: 3rem;
+    }
+
+    .warning-box {
+        background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.05));
+        border: 2px solid var(--danger);
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+        .warning-box h3 {
+            color: var(--danger);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.7rem;
+        }
+
+        .warning-box p {
+            color: var(--dark);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+    .warning-list {
+        text-align: left;
+        background: var(--white);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+        .warning-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .warning-list li {
+            padding: 0.7rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            color: var(--danger);
+            font-weight: 500;
+            border-bottom: 1px solid #f8d7da;
+        }
+
+            .warning-list li:last-child {
+                border-bottom: none;
+            }
+
+            .warning-list li i {
+                font-size: 1.2rem;
+            }
+
+    .user-info-section {
+        background: linear-gradient(to right, rgba(46, 139, 87, 0.03), rgba(244, 164, 96, 0.03));
+        border: 2px solid #e1e5e9;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        color: var(--primary);
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .info-item {
+        background: var(--white);
+        padding: 1rem;
+        border-radius: 10px;
+        border-left: 3px solid var(--primary);
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        color: var(--gray);
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 0.3rem;
+    }
+
+    .info-value {
+        font-size: 1.1rem;
+        color: var(--dark);
+        font-weight: 500;
+    }
+
+    .badge-custom {
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .badge-info {
+        background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+        color: #17a2b8;
+    }
+
+    .roles-list, .fincas-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 2px solid #e1e5e9;
+    }
+
+    .btn-custom {
+        padding: 1rem 2.5rem;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.7rem;
+        text-decoration: none;
+        flex: 1;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-danger-custom {
+        background: linear-gradient(135deg, var(--danger), var(--danger-dark));
+        color: white;
+    }
+
+        .btn-danger-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
+            background: linear-gradient(135deg, var(--danger-dark), #bd2130);
+            color: white;
+        }
+
+    .btn-secondary-custom {
+        background: linear-gradient(135deg, #6c757d, #5a6268);
+        color: white;
+    }
+
+        .btn-secondary-custom:hover {
+            background: linear-gradient(135deg, #5a6268, #495057);
+            transform: translateY(-2px);
+            color: white;
+        }
+
+    @@media (max-width: 768px) {
+        .delete-body {
+            padding: 2rem;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+    }
+</style>
+
+<div class="delete-container">
+    <div class="delete-card">
+        <!-- Header -->
+        <div class="delete-header">
+            <div class="warning-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h1>⚠️ Eliminar Usuario</h1>
+            <p>Esta acción no se puede deshacer</p>
+        </div>
+
+        <!-- Body -->
+        <div class="delete-body">
+            <!-- Warning Box -->
+            <div class="warning-box">
+                <h3>
+                    <i class="fas fa-skull-crossbones"></i>
+                    ¡ADVERTENCIA! Acción Irreversible
+                </h3>
+                <p>
+                    Está a punto de <strong>eliminar permanentemente</strong> al usuario <strong>@Model.UserName</strong>.
+                    Esta acción eliminará todos los datos asociados y no podrá ser revertida.
+                </p>
+
+                <div class="warning-list">
+                    <ul>
+                        <li>
+                            <i class="fas fa-times-circle"></i>
+                            Se eliminará la cuenta del usuario del sistema
+                        </li>
+                        <li>
+                            <i class="fas fa-times-circle"></i>
+                            Se removerán todos los roles asignados
+                        </li>
+                        <li>
+                            <i class="fas fa-times-circle"></i>
+                            Se eliminarán las asignaciones a @Model.Fincas.Count finca(s)
+                        </li>
+                        <li>
+                            <i class="fas fa-times-circle"></i>
+                            El usuario perderá acceso inmediatamente
+                        </li>
+                        <li>
+                            <i class="fas fa-times-circle"></i>
+                            Esta operación NO se puede deshacer
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- User Info -->
+            <div class="user-info-section">
+                <h3 class="section-title">
+                    <i class="fas fa-user-circle"></i>
+                    Información del Usuario a Eliminar
+                </h3>
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-id-card"></i> ID Usuario
+                        </div>
+                        <div class="info-value">@Model.UserId</div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-user"></i> Nombre
+                        </div>
+                        <div class="info-value">@Model.UserName</div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-envelope"></i> Email
+                        </div>
+                        <div class="info-value">@Model.Email</div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-check-circle"></i> Estado
+                        </div>
+                        <div class="info-value">
+                            @if (Model.EmailConfirmed)
+                            {
+                                <span style="color: #28a745;">✓ Activo</span>
+                            }
+                            else
+                            {
+                                <span style="color: #dc3545;">✗ Inactivo</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Roles -->
+                @if (Model.Roles.Any())
+                {
+                    <div style="margin-top: 1.5rem;">
+                        <div class="info-label" style="margin-bottom: 0.7rem;">
+                            <i class="fas fa-user-shield"></i> ROLES ASIGNADOS
+                        </div>
+                        <div class="roles-list">
+                            @foreach (var role in Model.Roles)
+                            {
+                                <span class="badge-custom badge-info">
+                                    <i class="fas fa-shield-alt"></i> @role
+                                </span>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Fincas -->
+                @if (Model.Fincas.Any())
+                {
+                    <div style="margin-top: 1.5rem;">
+                        <div class="info-label" style="margin-bottom: 0.7rem;">
+                            <i class="fas fa-map-marked-alt"></i> FINCAS ASIGNADAS (@Model.Fincas.Count)
+                        </div>
+                        <div class="fincas-list">
+                            @foreach (var finca in Model.Fincas)
+                            {
+                                <span class="badge-custom badge-info">
+                                    <i class="fas fa-warehouse"></i> @finca.Nombre
+                                </span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Confirmation Form -->
+            <form asp-action="Delete" method="post">
+                <input type="hidden" asp-for="UserId" />
+
+                <div class="form-actions">
+                    <a asp-action="Index" class="btn-custom btn-secondary-custom">
+                        <i class="fas fa-arrow-left"></i>
+                        Cancelar - Volver a la Lista
+                    </a>
+                    <button type="submit" class="btn-custom btn-danger-custom">
+                        <i class="fas fa-trash-alt"></i>
+                        Sí, Eliminar Usuario Definitivamente
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Confirmar antes de eliminar
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const confirmed = confirm('⚠️ ÚLTIMA ADVERTENCIA\n\n¿Está ABSOLUTAMENTE SEGURO de que desea eliminar este usuario?\n\nEsta acción NO se puede deshacer.');
+            if (!confirmed) {
+                e.preventDefault();
+            }
+        });
+    </script>
+}

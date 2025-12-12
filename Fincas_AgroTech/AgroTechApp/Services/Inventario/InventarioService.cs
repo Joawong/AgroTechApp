@@ -1,14 +1,20 @@
 ﻿// Services/Inventario/InventarioService.cs
 using AgroTechApp.Models.DB;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace AgroTechApp.Services.Inventario
 {
     public class InventarioService : IInventarioService
     {
         private readonly AgroTechDbContext _db;
+        private readonly ILogger<InventarioService> _logger;
 
-        public InventarioService(AgroTechDbContext db) => _db = db;
+        public InventarioService(AgroTechDbContext db, ILogger<InventarioService> logger)
+        {
+            _db = db;
+            _logger = logger;
+        }
 
         private async Task<int> TipoIdAsync(string nombre, CancellationToken ct)
             => await _db.TipoMovimientoInventarios
@@ -24,7 +30,7 @@ namespace AgroTechApp.Services.Inventario
             if (loteId.HasValue) q = q.Where(m => m.LoteId == loteId.Value);
 
             return await q.GroupBy(m => m.InsumoId)
-                          .Select(g => new { g.Key, Stock = g.Sum(x => x.Cantidad) }) // firmado en BD
+                          .Select(g => new { g.Key, Stock = g.Sum(x => x.Cantidad) })
                           .ToDictionaryAsync(x => x.Key, x => x.Stock, ct);
         }
 
@@ -46,9 +52,44 @@ namespace AgroTechApp.Services.Inventario
         public async Task RegistrarEntradaAsync(long fincaId, long insumoId, decimal cantidad, decimal? costoUnitario,
                                                 long? loteId = null, string? observacion = null, DateTime? fecha = null, CancellationToken ct = default)
         {
-            if (cantidad <= 0) throw new ArgumentException("La cantidad de entrada debe ser positiva.");
+            if (cantidad <= 0)
+            {
+                _logger.LogWarning("Intento de registrar entrada con cantidad no positiva: {Cantidad}", cantidad);
+                throw new ArgumentException("La cantidad de entrada debe ser positiva.");
+            }
 
-            var tipoId = await TipoIdAsync("Compra", ct); // o "Ajuste+" para ajustes
+            // ✅ VALIDAR: Insumo pertenece a la finca
+            var insumo = await _db.Insumos
+                .AsNoTracking()
+                .FirstOrDefaultAsync(i => i.InsumoId == insumoId && i.FincaId == fincaId, ct);
+
+            if (insumo == null)
+            {
+                _logger.LogWarning(
+                    "Intento de registrar entrada para insumo {InsumoId} que no pertenece a finca {FincaId}",
+                    insumoId, fincaId);
+                throw new InvalidOperationException(
+                    $"El insumo {insumoId} no pertenece a la finca {fincaId}");
+            }
+
+            // ✅ VALIDAR: Si hay lote, debe pertenecer al insumo
+            if (loteId.HasValue)
+            {
+                var lote = await _db.InsumoLotes
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(l => l.LoteId == loteId && l.InsumoId == insumoId, ct);
+
+                if (lote == null)
+                {
+                    _logger.LogWarning(
+                        "Intento de usar lote {LoteId} que no pertenece a insumo {InsumoId}",
+                        loteId, insumoId);
+                    throw new InvalidOperationException(
+                        $"El lote {loteId} no existe o no pertenece al insumo {insumoId}");
+                }
+            }
+
+            var tipoId = await TipoIdAsync("Compra", ct);
             _db.MovimientoInventarios.Add(new MovimientoInventario
             {
                 FincaId = fincaId,
@@ -61,16 +102,64 @@ namespace AgroTechApp.Services.Inventario
                 Observacion = observacion
             });
             await _db.SaveChangesAsync(ct);
+
+            _logger.LogInformation(
+                "Entrada registrada: Finca {FincaId}, Insumo {InsumoId}, Cantidad {Cantidad}",
+                fincaId, insumoId, cantidad);
         }
 
         public async Task RegistrarConsumoAsync(long fincaId, long insumoId, decimal cantidad,
                                                 long? loteId = null, string? observacion = null, DateTime? fecha = null, CancellationToken ct = default)
         {
-            if (cantidad <= 0) throw new ArgumentException("La cantidad de consumo debe ser positiva.");
+            if (cantidad <= 0)
+            {
+                _logger.LogWarning("Intento de registrar consumo con cantidad no positiva: {Cantidad}", cantidad);
+                throw new ArgumentException("La cantidad de consumo debe ser positiva.");
+            }
+
+            // ✅ VALIDAR: Insumo pertenece a la finca
+            var insumo = await _db.Insumos
+                .AsNoTracking()
+                .FirstOrDefaultAsync(i => i.InsumoId == insumoId && i.FincaId == fincaId, ct);
+
+            if (insumo == null)
+            {
+                _logger.LogWarning(
+                    "Intento de consumo para insumo {InsumoId} que no pertenece a finca {FincaId}",
+                    insumoId, fincaId);
+                throw new InvalidOperationException(
+                    $"El insumo {insumoId} no pertenece a la finca {fincaId}");
+            }
+
+            // ✅ VALIDAR: Si hay lote, debe pertenecer al insumo
+            if (loteId.HasValue)
+            {
+                var lote = await _db.InsumoLotes
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(l => l.LoteId == loteId && l.InsumoId == insumoId, ct);
+
+                if (lote == null)
+                {
+                    _logger.LogWarning(
+                        "Intento de consumo de lote {LoteId} que no pertenece a insumo {InsumoId}",
+                        loteId, insumoId);
+                    throw new InvalidOperationException(
+                        $"El lote {loteId} no existe o no pertenece al insumo {insumoId}");
+                }
+            }
+
             // Validar stock suficiente
             var stock = await GetStockPorInsumoAsync(fincaId, loteId, ct);
             var actual = stock.TryGetValue(insumoId, out var s) ? s : 0m;
-            if (actual < cantidad) throw new InvalidOperationException($"Stock insuficiente: actual {actual}, requerido {cantidad}.");
+
+            if (actual < cantidad)
+            {
+                _logger.LogWarning(
+                    "Stock insuficiente para consumo: Insumo {InsumoId}, Stock {Stock}, Requerido {Cantidad}",
+                    insumoId, actual, cantidad);
+                throw new InvalidOperationException(
+                    $"Stock insuficiente: disponible {actual:N2}, requerido {cantidad:N2}.");
+            }
 
             var tipoId = await TipoIdAsync("Consumo", ct);
             _db.MovimientoInventarios.Add(new MovimientoInventario
@@ -84,12 +173,51 @@ namespace AgroTechApp.Services.Inventario
                 Observacion = observacion
             });
             await _db.SaveChangesAsync(ct);
+
+            _logger.LogInformation(
+                "Consumo registrado: Finca {FincaId}, Insumo {InsumoId}, Cantidad {Cantidad}",
+                fincaId, insumoId, cantidad);
         }
 
         public async Task RegistrarAjusteAsync(long fincaId, long insumoId, decimal cantidadFirmada,
                                                long? loteId = null, string? observacion = null, DateTime? fecha = null, CancellationToken ct = default)
         {
-            if (cantidadFirmada == 0) throw new ArgumentException("El ajuste no puede ser 0.");
+            if (cantidadFirmada == 0)
+            {
+                _logger.LogWarning("Intento de ajuste con cantidad cero");
+                throw new ArgumentException("El ajuste no puede ser 0.");
+            }
+
+            // ✅ VALIDAR: Insumo pertenece a la finca
+            var insumo = await _db.Insumos
+                .AsNoTracking()
+                .FirstOrDefaultAsync(i => i.InsumoId == insumoId && i.FincaId == fincaId, ct);
+
+            if (insumo == null)
+            {
+                _logger.LogWarning(
+                    "Intento de ajuste para insumo {InsumoId} que no pertenece a finca {FincaId}",
+                    insumoId, fincaId);
+                throw new InvalidOperationException(
+                    $"El insumo {insumoId} no pertenece a la finca {fincaId}");
+            }
+
+            // ✅ VALIDAR: Si hay lote, debe pertenecer al insumo
+            if (loteId.HasValue)
+            {
+                var lote = await _db.InsumoLotes
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(l => l.LoteId == loteId && l.InsumoId == insumoId, ct);
+
+                if (lote == null)
+                {
+                    _logger.LogWarning(
+                        "Intento de ajuste de lote {LoteId} que no pertenece a insumo {InsumoId}",
+                        loteId, insumoId);
+                    throw new InvalidOperationException(
+                        $"El lote {loteId} no existe o no pertenece al insumo {insumoId}");
+                }
+            }
 
             var tipo = cantidadFirmada > 0 ? "Ajuste+" : "Ajuste-";
             var tipoId = await TipoIdAsync(tipo, ct);
@@ -99,8 +227,15 @@ namespace AgroTechApp.Services.Inventario
             {
                 var stock = await GetStockPorInsumoAsync(fincaId, loteId, ct);
                 var actual = stock.TryGetValue(insumoId, out var s) ? s : 0m;
+
                 if (actual < Math.Abs(cantidadFirmada))
-                    throw new InvalidOperationException($"Stock insuficiente para ajuste: actual {actual}, ajuste {cantidadFirmada}.");
+                {
+                    _logger.LogWarning(
+                        "Stock insuficiente para ajuste negativo: Insumo {InsumoId}, Stock {Stock}, Ajuste {Cantidad}",
+                        insumoId, actual, cantidadFirmada);
+                    throw new InvalidOperationException(
+                        $"Stock insuficiente para ajuste: disponible {actual:N2}, ajuste {cantidadFirmada:N2}.");
+                }
             }
 
             _db.MovimientoInventarios.Add(new MovimientoInventario
@@ -114,47 +249,124 @@ namespace AgroTechApp.Services.Inventario
                 Observacion = observacion
             });
             await _db.SaveChangesAsync(ct);
+
+            _logger.LogInformation(
+                "Ajuste registrado: Finca {FincaId}, Insumo {InsumoId}, Cantidad {Cantidad}",
+                fincaId, insumoId, cantidadFirmada);
         }
 
         public async Task TransferirAsync(long insumoId, long fincaOrigen, long fincaDestino, decimal cantidadPositiva,
                                           long? loteOrigen = null, long? loteDestino = null, string? observacion = null, DateTime? fecha = null, CancellationToken ct = default)
         {
-            if (cantidadPositiva <= 0) throw new ArgumentException("La cantidad a transferir debe ser positiva.");
+            if (cantidadPositiva <= 0)
+            {
+                _logger.LogWarning("Intento de transferencia con cantidad no positiva: {Cantidad}", cantidadPositiva);
+                throw new ArgumentException("La cantidad a transferir debe ser positiva.");
+            }
+
+            // ✅ VALIDAR: Insumo existe en ambas fincas (o al menos en origen)
+            var insumoOrigen = await _db.Insumos
+                .AsNoTracking()
+                .FirstOrDefaultAsync(i => i.InsumoId == insumoId && i.FincaId == fincaOrigen, ct);
+
+            if (insumoOrigen == null)
+            {
+                _logger.LogWarning(
+                    "Intento de transferencia de insumo {InsumoId} que no pertenece a finca origen {FincaId}",
+                    insumoId, fincaOrigen);
+                throw new InvalidOperationException(
+                    $"El insumo {insumoId} no pertenece a la finca origen {fincaOrigen}");
+            }
+
+            // ✅ VALIDAR: Lotes si se especifican
+            if (loteOrigen.HasValue)
+            {
+                var lote = await _db.InsumoLotes
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(l => l.LoteId == loteOrigen && l.InsumoId == insumoId, ct);
+
+                if (lote == null)
+                {
+                    _logger.LogWarning(
+                        "Lote origen {LoteId} no pertenece a insumo {InsumoId}",
+                        loteOrigen, insumoId);
+                    throw new InvalidOperationException(
+                        $"El lote origen {loteOrigen} no pertenece al insumo {insumoId}");
+                }
+            }
+
+            if (loteDestino.HasValue)
+            {
+                var lote = await _db.InsumoLotes
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(l => l.LoteId == loteDestino && l.InsumoId == insumoId, ct);
+
+                if (lote == null)
+                {
+                    _logger.LogWarning(
+                        "Lote destino {LoteId} no pertenece a insumo {InsumoId}",
+                        loteDestino, insumoId);
+                    throw new InvalidOperationException(
+                        $"El lote destino {loteDestino} no pertenece al insumo {insumoId}");
+                }
+            }
 
             var stockOrigen = await GetStockPorInsumoAsync(fincaOrigen, loteOrigen, ct);
             var actual = stockOrigen.TryGetValue(insumoId, out var s) ? s : 0m;
-            if (actual < cantidadPositiva)
-                throw new InvalidOperationException($"Stock insuficiente en origen: actual {actual}, a transferir {cantidadPositiva}.");
 
-            var idMenos = await TipoIdAsync("Ajuste-", ct); // salida técnica
-            var idMas = await TipoIdAsync("Ajuste+", ct); // entrada técnica
+            if (actual < cantidadPositiva)
+            {
+                _logger.LogWarning(
+                    "Stock insuficiente en origen para transferencia: Insumo {InsumoId}, Stock {Stock}, Requerido {Cantidad}",
+                    insumoId, actual, cantidadPositiva);
+                throw new InvalidOperationException(
+                    $"Stock insuficiente en finca origen: disponible {actual:N2}, requerido {cantidadPositiva:N2}.");
+            }
+
+            var idMenos = await TipoIdAsync("Ajuste-", ct);
+            var idMas = await TipoIdAsync("Ajuste+", ct);
 
             using var tx = await _db.Database.BeginTransactionAsync(ct);
 
-            _db.MovimientoInventarios.Add(new MovimientoInventario
+            try
             {
-                FincaId = fincaOrigen,
-                InsumoId = insumoId,
-                LoteId = loteOrigen,
-                TipoId = idMenos,
-                Cantidad = -cantidadPositiva,
-                Fecha = fecha ?? DateTime.UtcNow,
-                Observacion = observacion ?? "Transferencia (salida)"
-            });
-            _db.MovimientoInventarios.Add(new MovimientoInventario
-            {
-                FincaId = fincaDestino,
-                InsumoId = insumoId,
-                LoteId = loteDestino,
-                TipoId = idMas,
-                Cantidad = +cantidadPositiva,
-                Fecha = fecha ?? DateTime.UtcNow,
-                Observacion = observacion ?? "Transferencia (entrada)"
-            });
+                _db.MovimientoInventarios.Add(new MovimientoInventario
+                {
+                    FincaId = fincaOrigen,
+                    InsumoId = insumoId,
+                    LoteId = loteOrigen,
+                    TipoId = idMenos,
+                    Cantidad = -cantidadPositiva,
+                    Fecha = fecha ?? DateTime.UtcNow,
+                    Observacion = observacion ?? $"Transferencia a Finca {fincaDestino} (salida)"
+                });
 
-            await _db.SaveChangesAsync(ct);
-            await tx.CommitAsync(ct);
+                _db.MovimientoInventarios.Add(new MovimientoInventario
+                {
+                    FincaId = fincaDestino,
+                    InsumoId = insumoId,
+                    LoteId = loteDestino,
+                    TipoId = idMas,
+                    Cantidad = +cantidadPositiva,
+                    Fecha = fecha ?? DateTime.UtcNow,
+                    Observacion = observacion ?? $"Transferencia desde Finca {fincaOrigen} (entrada)"
+                });
+
+                await _db.SaveChangesAsync(ct);
+                await tx.CommitAsync(ct);
+
+                _logger.LogInformation(
+                    "Transferencia exitosa: Insumo {InsumoId}, Finca {FincaOrigen} → {FincaDestino}, Cantidad {Cantidad}",
+                    insumoId, fincaOrigen, fincaDestino, cantidadPositiva);
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync(ct);
+                _logger.LogError(ex,
+                    "Error en transferencia: Insumo {InsumoId}, {FincaOrigen} → {FincaDestino}",
+                    insumoId, fincaOrigen, fincaDestino);
+                throw;
+            }
         }
     }
 }
-

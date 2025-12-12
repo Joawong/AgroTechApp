@@ -1,0 +1,34 @@
+﻿@model AgroTechApp.Models.DB.Finca
+
+@{
+    ViewData["Title"] = "Editar Finca";
+}
+
+<div class="container mt-4">
+
+    <h1 class="fw-bold text-success mb-4">Editar Finca</h1>
+
+    <form asp-action="Edit" method="post" class="card p-4 shadow-sm" style="border-radius:15px;">
+        <input type="hidden" asp-for="FincaId" />
+
+        <div class="mb-3">
+            <label asp-for="Nombre" class="form-label fw-bold"></label>
+            <input asp-for="Nombre" class="form-control" />
+            <span asp-validation-for="Nombre" class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Ubicacion" class="form-label fw-bold"></label>
+            <input asp-for="Ubicacion" class="form-control" />
+            <span asp-validation-for="Ubicacion" class="text-danger"></span>
+        </div>
+
+        
+        <button type="submit" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Actualizar
+        </button>
+
+        <a asp-action="Index" class="btn btn-secondary ms-2">Volver</a>
+    </form>
+
+</div>

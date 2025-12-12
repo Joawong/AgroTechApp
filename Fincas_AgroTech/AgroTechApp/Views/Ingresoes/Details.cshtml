@@ -1,54 +1,170 @@
 ﻿@model AgroTechApp.Models.DB.Ingreso
-
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalle del Ingreso";
+    bool esAutomatico = ViewBag.EsAutomatico != null ? (bool)ViewBag.EsAutomatico : false;
 }
 
-<h1>Details</h1>
+<style>
+    .card-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        background: #fff;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        font-family: 'Inter', sans-serif;
+        animation: fadeIn .5s ease-out;
+    }
+    @@keyframes fadeIn {
+        from
 
-<div>
-    <h4>Ingreso</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Fecha)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Fecha)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Monto)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Monto)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Descripcion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Descripcion)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Animal)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Animal.AnimalId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Finca)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Finca.FincaId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RubroIngreso)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RubroIngreso.RubroIngresoId)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.IngresoId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+    }
+
+    }
+
+    .header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        color: #2E8B57;
+    }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .detail-box {
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        background: #f8f9fa;
+        border-left: 4px solid #2E8B57;
+    }
+
+    .label {
+        font-weight: 700;
+        color: #333;
+    }
+
+    .value {
+        color: #555;
+        font-size: 1.1rem;
+        margin-top: .3rem;
+    }
+
+    .warning-box {
+        margin-top: 1.5rem;
+        padding: 1rem 1.5rem;
+        background: #fff3cd;
+        border-left: 4px solid #e0a800;
+        border-radius: 10px;
+        color: #856404;
+    }
+
+    .actions {
+        margin-top: 2rem;
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+    }
+
+    .btn-custom {
+        padding: .8rem 1.8rem;
+        border-radius: 12px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+    }
+
+    .btn-secondary {
+        background: #ddd;
+    }
+
+    .btn-primary {
+        background: #2E8B57;
+        color: white;
+    }
+
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+</style>
+
+<div class="card-container">
+
+    <div class="header">
+        <h1><i class="fas fa-file-invoice-dollar"></i> Detalle del Ingreso</h1>
+    </div>
+
+    @if (esAutomatico)
+    {
+        <div class="warning-box">
+            <strong>Ingreso generado automáticamente</strong><br>
+            Este ingreso proviene del módulo: <b>@ViewBag.OrigenModulo</b>.
+            No puede ser editado ni eliminado manualmente.
+        </div>
+    }
+
+    <div class="details-grid">
+        <div class="detail-box">
+            <div class="label">Fecha</div>
+            <div class="value">@Model.Fecha.ToShortDateString()</div>
+        </div>
+
+        <div class="detail-box">
+            <div class="label">Monto</div>
+            <div class="value">₡@Model.Monto.ToString("N2")</div>
+        </div>
+
+        <div class="detail-box">
+            <div class="label">Rubro</div>
+            <div class="value">@Model.RubroIngreso?.Nombre</div>
+        </div>
+
+        <div class="detail-box">
+            <div class="label">Animal (opcional)</div>
+            <div class="value">
+                @(Model.AnimalId != null ? Model.Animal.Arete : "No asignado")
+            </div>
+        </div>
+
+        <div class="detail-box">
+            <div class="label">Descripción</div>
+            <div class="value">@Model.Descripcion</div>
+        </div>
+    </div>
+
+    <div class="actions">
+        <a asp-action="Index" class="btn-custom btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+
+        @if (!esAutomatico)
+        {
+            <a asp-action="Edit" asp-route-id="@Model.IngresoId" class="btn-custom btn-primary">
+                <i class="fas fa-edit"></i> Editar
+            </a>
+
+            <a asp-action="Delete" asp-route-id="@Model.IngresoId" class="btn-custom btn-danger">
+                <i class="fas fa-trash"></i> Eliminar
+            </a>
+        }
+    </div>
 </div>

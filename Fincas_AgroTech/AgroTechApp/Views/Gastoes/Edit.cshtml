@@ -1,69 +1,459 @@
 ﻿@model AgroTechApp.Models.DB.Gasto
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Editar Gasto";
 }
 
-<h1>Edit</h1>
+<style>
+    /* Usar los mismos estilos que Create.cshtml */
+    :root {
+        --primary: #2E8B57;
+        --primary-light: #3CB371;
+        --primary-dark: #1E6B47;
+        --warning: #ffc107;
+        --danger: #dc3545;
+        --white: #ffffff;
+        --border: #e1e5e9;
+        --shadow: rgba(46, 139, 87, 0.1);
+        --gray: #6c757d;
+        --light: #f8f9fa;
+    }
 
-<h4>Gasto</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e3f2fd 100%);
+        font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    }
+
+    .form-card {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 15px 40px var(--shadow);
+        overflow: hidden;
+        border: 1px solid var(--border);
+        animation: fadeIn 0.5s ease-out;
+        max-width: 900px;
+        margin: 2rem auto;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, var(--warning), #e0a800);
+        color: #212529;
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .form-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(30deg);
+        }
+
+        .form-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-header p {
+            font-size: 1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+    .form-body {
+        padding: 2.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: var(--primary-dark);
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .required {
+        color: var(--danger);
+        margin-left: 0.25rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.9rem 1.2rem;
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: var(--white);
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+            transform: translateY(-1px);
+        }
+
+    select.form-control {
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 1rem center;
+        padding-right: 3rem;
+    }
+
+    textarea.form-control {
+        resize: vertical;
+        min-height: 100px;
+        font-family: inherit;
+    }
+
+    .form-help {
+        font-size: 0.85rem;
+        color: var(--gray);
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .error-message {
+        color: var(--danger);
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .info-box {
+        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        border-left: 4px solid var(--warning);
+        padding: 1.2rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+    }
+
+        .info-box h4 {
+            color: #856404;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-box p {
+            color: #856404;
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+    .asignacion-section {
+        background: var(--light);
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+    }
+
+        .asignacion-section h3 {
+            font-size: 1.2rem;
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        padding-top: 2rem;
+        border-top: 2px solid var(--border);
+        margin-top: 2rem;
+    }
+
+    .btn-custom {
+        padding: 0.9rem 2rem;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.7rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--warning), #e0a800);
+        color: #212529;
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 193, 7, 0.3);
+        }
+
+    .btn-secondary {
+        background: var(--white);
+        color: var(--gray);
+        border: 2px solid var(--border);
+    }
+
+        .btn-secondary:hover {
+            background: var(--light);
+            border-color: var(--gray);
+            transform: translateY(-1px);
+        }
+
+    .hidden {
+        display: none !important;
+    }
+
+    @@media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn-custom {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="form-card">
+    <!-- Encabezado -->
+    <div class="form-header">
+        <h1><i class="fas fa-edit"></i> Editar Gasto</h1>
+        <p>Modifique la información del gasto manual</p>
+    </div>
+
+    <!-- Formulario -->
+    <div class="form-body">
+        <div class="info-box">
+            <h4><i class="fas fa-info-circle"></i> Información</h4>
+            <p>
+                Solo puede editar gastos manuales. Los gastos automáticos están protegidos contra modificaciones.
+            </p>
+        </div>
+
+        <form asp-action="Edit" method="post">
             <input type="hidden" asp-for="GastoId" />
-            <div class="form-group">
-                <label asp-for="FincaId" class="control-label"></label>
-                <select asp-for="FincaId" class="form-control" asp-items="ViewBag.FincaId"></select>
-                <span asp-validation-for="FincaId" class="text-danger"></span>
+            <input type="hidden" asp-for="FincaId" />
+
+            <!-- Rubro y Fecha -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="RubroGastoId">
+                        Rubro (Categoría) <span class="required">*</span>
+                    </label>
+                    <select asp-for="RubroGastoId" class="form-control" asp-items="ViewBag.RubroGastoId" required>
+                        <option value="">Seleccione un rubro</option>
+                    </select>
+                    <span asp-validation-for="RubroGastoId" class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="Fecha">
+                        Fecha <span class="required">*</span>
+                    </label>
+                    <input asp-for="Fecha" type="date" class="form-control" required />
+                    <span asp-validation-for="Fecha" class="error-message"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="RubroGastoId" class="control-label"></label>
-                <select asp-for="RubroGastoId" class="form-control" asp-items="ViewBag.RubroGastoId"></select>
-                <span asp-validation-for="RubroGastoId" class="text-danger"></span>
+
+            <!-- Monto -->
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="Monto">
+                        Monto (₡) <span class="required">*</span>
+                    </label>
+                    <input asp-for="Monto" type="number" min="0.01" step="0.01" class="form-control" required />
+                    <span asp-validation-for="Monto" class="error-message"></span>
+                </div>
             </div>
+
+            <!-- Descripción -->
             <div class="form-group">
-                <label asp-for="Fecha" class="control-label"></label>
-                <input asp-for="Fecha" class="form-control" />
-                <span asp-validation-for="Fecha" class="text-danger"></span>
+                <label class="form-label" for="Descripcion">
+                    Descripción
+                </label>
+                <textarea asp-for="Descripcion" class="form-control"></textarea>
+                <span asp-validation-for="Descripcion" class="error-message"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Monto" class="control-label"></label>
-                <input asp-for="Monto" class="form-control" />
-                <span asp-validation-for="Monto" class="text-danger"></span>
+
+            <!-- Asignación Opcional -->
+            <div class="asignacion-section">
+                <h3><i class="fas fa-link"></i> Asignar Gasto A (Opcional)</h3>
+
+                <div class="form-group">
+                    <label class="form-label" for="AsignacionTipo">
+                        Tipo de Asignación
+                    </label>
+                    <select id="AsignacionTipo" class="form-control">
+                        <option value="">Ninguno</option>
+                        @if (Model.AnimalId.HasValue)
+                        {
+                            <option value="Animal" selected>Animal</option>
+                        }
+                        else
+                        {
+                            <option value="Animal">Animal</option>
+                        }
+
+                        @if (Model.PotreroId.HasValue)
+                        {
+                            <option value="Potrero" selected>Potrero</option>
+                        }
+                        else
+                        {
+                            <option value="Potrero">Potrero</option>
+                        }
+
+                        @if (Model.InsumoId.HasValue)
+                        {
+                            <option value="Insumo" selected>Insumo</option>
+                        }
+                        else
+                        {
+                            <option value="Insumo">Insumo</option>
+                        }
+                    </select>
+                </div>
+
+                @{
+                    var animalClass = Model.AnimalId.HasValue ? "" : "hidden";
+                    var potreroClass = Model.PotreroId.HasValue ? "" : "hidden";
+                    var insumoClass = Model.InsumoId.HasValue ? "" : "hidden";
+                }
+
+                <div id="divAnimal" class="form-group @animalClass">
+                    <label class="form-label" for="AnimalId">
+                        <i class="fas fa-paw"></i> Animal
+                    </label>
+                    <select asp-for="AnimalId" class="form-control" asp-items="ViewBag.AnimalId">
+                        <option value="">Seleccione un animal</option>
+                    </select>
+                </div>
+
+                <div id="divPotrero" class="form-group @potreroClass">
+                    <label class="form-label" for="PotreroId">
+                        <i class="fas fa-map-marked-alt"></i> Potrero
+                    </label>
+                    <select asp-for="PotreroId" class="form-control" asp-items="ViewBag.PotreroId">
+                        <option value="">Seleccione un potrero</option>
+                    </select>
+                </div>
+
+                <div id="divInsumo" class="form-group @insumoClass">
+                    <label class="form-label" for="InsumoId">
+                        <i class="fas fa-flask"></i> Insumo
+                    </label>
+                    <select asp-for="InsumoId" class="form-control" asp-items="ViewBag.InsumoId">
+                        <option value="">Seleccione un insumo</option>
+                    </select>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Descripcion" class="control-label"></label>
-                <input asp-for="Descripcion" class="form-control" />
-                <span asp-validation-for="Descripcion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AnimalId" class="control-label"></label>
-                <select asp-for="AnimalId" class="form-control" asp-items="ViewBag.AnimalId"></select>
-                <span asp-validation-for="AnimalId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PotreroId" class="control-label"></label>
-                <select asp-for="PotreroId" class="form-control" asp-items="ViewBag.PotreroId"></select>
-                <span asp-validation-for="PotreroId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="InsumoId" class="control-label"></label>
-                <select asp-for="InsumoId" class="form-control" asp-items="ViewBag.InsumoId"></select>
-                <span asp-validation-for="InsumoId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+
+            <!-- Acciones -->
+            <div class="form-actions">
+                <a asp-action="Index" class="btn-custom btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+                <button type="submit" class="btn-custom btn-primary">
+                    <i class="fas fa-save"></i> Actualizar Gasto
+                </button>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const asignacionSelect = document.getElementById('AsignacionTipo');
+            const divAnimal = document.getElementById('divAnimal');
+            const divPotrero = document.getElementById('divPotrero');
+            const divInsumo = document.getElementById('divInsumo');
+
+            const animalSelect = document.getElementById('AnimalId');
+            const potreroSelect = document.getElementById('PotreroId');
+            const insumoSelect = document.getElementById('InsumoId');
+
+            asignacionSelect.addEventListener('change', function () {
+                const value = this.value;
+
+                // Ocultar todos
+                divAnimal.classList.add('hidden');
+                divPotrero.classList.add('hidden');
+                divInsumo.classList.add('hidden');
+
+                // Limpiar selecciones si se cambia
+                if (value !== 'Animal' && animalSelect) animalSelect.value = '';
+                if (value !== 'Potrero' && potreroSelect) potreroSelect.value = '';
+                if (value !== 'Insumo' && insumoSelect) insumoSelect.value = '';
+
+                // Mostrar el seleccionado
+                if (value === 'Animal') {
+                    divAnimal.classList.remove('hidden');
+                } else if (value === 'Potrero') {
+                    divPotrero.classList.remove('hidden');
+                } else if (value === 'Insumo') {
+                    divInsumo.classList.remove('hidden');
+                }
+            });
+        });
+    </script>
 }

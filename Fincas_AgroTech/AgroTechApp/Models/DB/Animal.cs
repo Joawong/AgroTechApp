@@ -9,8 +9,7 @@ public partial class Animal
     public long AnimalId { get; set; }
 
     [Required(ErrorMessage = "La finca es obligatoria.")]
-    public long? FincaId { get; set; }   // <-- nullable en el modelo para el binder aca
-
+    public long FincaId { get; set; }
 
     public string Arete { get; set; } = null!;
 
@@ -31,7 +30,13 @@ public partial class Animal
     public long? PadreId { get; set; }
 
     public long? LoteAnimalId { get; set; }
+    public decimal? CostoCompra { get; set; }
 
+    public decimal? PrecioVenta { get; set; }
+
+    public DateOnly? FechaVenta { get; set; }
+
+    // Navegación
     public virtual Finca Finca { get; set; } = null!;
 
     public virtual ICollection<Gasto> Gastos { get; set; } = new List<Gasto>();

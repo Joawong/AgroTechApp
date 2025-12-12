@@ -451,7 +451,8 @@
                         <i class="fas fa-calendar-day"></i>
                         Fecha de Pesaje
                     </label>
-                    <input asp-for="Fecha" type="datetime-local" class="form-control" />
+                    <input asp-for="Fecha" type="datetime-local" class="form-control"
+                           value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" readonly />
                     <span asp-validation-for="Fecha" class="text-danger"></span>
                     <div class="input-hint">Fecha y hora en que se realizó el pesaje</div>
                 </div>
@@ -462,7 +463,7 @@
                         Peso del Animal
                     </label>
                     <div class="weight-input-container">
-                        <input asp-for="PesoKg" type="number" class="form-control" step="0.01" min="1" max="2000"
+                        <input asp-for="PesoKg" type="number" class="form-control" step="1" min="1" max="2000"
                                placeholder="Ingrese el peso en kilogramos" />
                         <span class="weight-unit">kg</span>
                     </div>

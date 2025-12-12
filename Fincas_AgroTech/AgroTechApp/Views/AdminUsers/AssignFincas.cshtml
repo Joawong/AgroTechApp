@@ -1,0 +1,651 @@
+﻿@model AgroTechApp.Models.ViewModels.AdminAssignFincasVM
+
+@{
+    ViewData["Title"] = "Asignar Fincas";
+}
+
+<style>
+    :root {
+        --primary: #2E8B57;
+        --primary-light: #3CB371;
+        --primary-dark: #1E6B47;
+        --secondary: #F4A460;
+        --success: #28a745;
+        --danger: #dc3545;
+        --info: #17a2b8;
+        --white: #ffffff;
+        --dark: #343a40;
+        --gray: #6c757d;
+        --shadow: rgba(46, 139, 87, 0.1);
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    .assign-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .assign-card {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 15px 40px var(--shadow);
+        overflow: hidden;
+        border: 1px solid #e1e5e9;
+        animation: fadeInUp 0.5s ease-out;
+        margin-bottom: 2rem;
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .assign-header {
+        background: linear-gradient(135deg, var(--success), #34ce57);
+        color: white;
+        padding: 2.5rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .assign-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg);
+        }
+
+        .assign-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .assign-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+    .header-icon {
+        position: absolute;
+        right: 2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 3rem;
+        opacity: 0.2;
+        z-index: 0;
+    }
+
+    .assign-body {
+        padding: 3rem;
+    }
+
+    .user-info-box {
+        background: linear-gradient(to right, rgba(46, 139, 87, 0.05), rgba(244, 164, 96, 0.05));
+        border: 2px solid #e1e5e9;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2.5rem;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .user-avatar-medium {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 2rem;
+        border: 4px solid white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .user-info-details h2 {
+        color: var(--dark);
+        font-size: 1.8rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .user-info-details p {
+        color: var(--gray);
+        font-size: 1rem;
+    }
+
+    .selection-summary {
+        background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(40, 167, 69, 0.05));
+        border: 2px solid var(--success);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .summary-text {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--success);
+    }
+
+        .summary-text i {
+            font-size: 1.5rem;
+        }
+
+    .summary-count {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--success);
+    }
+
+    .controls-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .search-box {
+        flex: 1;
+        min-width: 300px;
+        padding: 1rem 1.5rem;
+        border: 2px solid #e1e5e9;
+        border-radius: 12px;
+        font-size: 1rem;
+        background: var(--white);
+        transition: all 0.3s ease;
+    }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+        }
+
+    .bulk-actions {
+        display: flex;
+        gap: 0.7rem;
+    }
+
+    .btn-bulk {
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-select-all {
+        background: linear-gradient(135deg, var(--success), #34ce57);
+        color: white;
+    }
+
+    .btn-deselect-all {
+        background: linear-gradient(135deg, var(--danger), #e4606d);
+        color: white;
+    }
+
+    .btn-bulk:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .fincas-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .finca-card {
+        background: linear-gradient(135deg, #ffffff, #f8f9fa);
+        border: 2px solid #e1e5e9;
+        border-radius: 15px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .finca-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 60px;
+            height: 60px;
+            background: var(--primary);
+            opacity: 0.05;
+            border-radius: 0 0 0 100%;
+            transition: all 0.3s ease;
+        }
+
+        .finca-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: var(--primary);
+        }
+
+            .finca-card:hover::before {
+                width: 100px;
+                height: 100px;
+            }
+
+        .finca-card.selected {
+            border-color: var(--success);
+            background: linear-gradient(135deg, rgba(40, 167, 69, 0.1), rgba(40, 167, 69, 0.05));
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+        }
+
+        .finca-card.inactive {
+            opacity: 0.6;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        }
+
+    .finca-checkbox-wrapper {
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .finca-checkbox {
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        accent-color: var(--success);
+        flex-shrink: 0;
+        margin-top: 0.2rem;
+    }
+
+    .finca-content {
+        flex: 1;
+    }
+
+    .finca-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.7rem;
+    }
+
+    .finca-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--dark);
+        margin: 0;
+    }
+
+    .finca-id {
+        font-size: 0.85rem;
+        color: var(--gray);
+        background: #e9ecef;
+        padding: 0.2rem 0.6rem;
+        border-radius: 8px;
+    }
+
+    .finca-location {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--gray);
+        font-size: 0.9rem;
+        margin-bottom: 0.7rem;
+    }
+
+    .finca-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .status-active {
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        color: var(--success);
+    }
+
+    .status-inactive {
+        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        color: var(--danger);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--gray);
+    }
+
+        .empty-state i {
+            font-size: 5rem;
+            opacity: 0.3;
+            margin-bottom: 1rem;
+        }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 2px solid #e1e5e9;
+    }
+
+    .btn-custom {
+        padding: 1rem 2.5rem;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.7rem;
+        text-decoration: none;
+        flex: 1;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-success-custom {
+        background: linear-gradient(135deg, var(--success), #34ce57);
+        color: white;
+    }
+
+        .btn-success-custom:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+            color: white;
+        }
+
+    .btn-secondary-custom {
+        background: linear-gradient(135deg, #6c757d, #5a6268);
+        color: white;
+    }
+
+        .btn-secondary-custom:hover {
+            transform: translateY(-2px);
+            color: white;
+        }
+
+    @@media (max-width: 768px) {
+        .assign-body {
+            padding: 2rem;
+        }
+
+        .fincas-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .controls-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .search-box {
+            min-width: 100%;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="assign-container">
+    <div class="assign-card">
+        <!-- Header -->
+        <div class="assign-header">
+            <div class="header-icon">
+                <i class="fas fa-map-marked-alt"></i>
+            </div>
+            <h1>🏡 Asignar Fincas</h1>
+            <p>Seleccione las fincas a las que tendrá acceso el usuario</p>
+        </div>
+
+        <!-- Body -->
+        <div class="assign-body">
+            <form asp-action="AssignFincas" method="post">
+                <input type="hidden" asp-for="UserId" />
+                <input type="hidden" asp-for="UserName" />
+                <input type="hidden" asp-for="Email" />
+
+                <!-- User Info Box -->
+                <div class="user-info-box">
+                    <div class="user-avatar-medium">
+                        @(Model.UserName?.Substring(0, 1).ToUpper() ?? "U")
+                    </div>
+                    <div class="user-info-details">
+                        <h2>@Model.UserName</h2>
+                        <p><i class="fas fa-envelope"></i> @Model.Email</p>
+                    </div>
+                </div>
+
+                <!-- Selection Summary -->
+                <div class="selection-summary">
+                    <div class="summary-text">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Fincas Seleccionadas:</span>
+                    </div>
+                    <div class="summary-count" id="selectedCount">0</div>
+                </div>
+
+                <!-- Controls Bar -->
+                <div class="controls-bar">
+                    <input type="text" class="search-box" id="searchInput" placeholder="🔍 Buscar finca por nombre o ubicación...">
+                    <div class="bulk-actions">
+                        <button type="button" class="btn-bulk btn-select-all" id="selectAllBtn">
+                            <i class="fas fa-check-double"></i> Seleccionar Todo
+                        </button>
+                        <button type="button" class="btn-bulk btn-deselect-all" id="deselectAllBtn">
+                            <i class="fas fa-times"></i> Deseleccionar Todo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Fincas Grid -->
+                @if (Model.Fincas != null && Model.Fincas.Any())
+                {
+                    <div class="fincas-grid" id="fincasGrid">
+                        @foreach (var finca in Model.Fincas)
+                        {
+                            <div class="finca-card @(!finca.Activa ? "inactive" : "") @(finca.Seleccionada ? "selected" : "")"
+                                 data-finca-id="@finca.FincaId"
+                                 data-search="@finca.Nombre.ToLower() @(finca.Ubicacion?.ToLower() ?? "")">
+                                <div class="finca-checkbox-wrapper">
+                                    <input type="checkbox"
+                                           class="finca-checkbox"
+                                           name="Fincas[@Model.Fincas.IndexOf(finca)].Seleccionada"
+                                           value="true"
+                                           id="finca_@finca.FincaId"
+                                           @(finca.Seleccionada ? "checked" : "")
+                                           data-finca-id="@finca.FincaId" />
+                                    <input type="hidden" name="Fincas[@Model.Fincas.IndexOf(finca)].FincaId" value="@finca.FincaId" />
+                                    <input type="hidden" name="Fincas[@Model.Fincas.IndexOf(finca)].Nombre" value="@finca.Nombre" />
+                                    <input type="hidden" name="Fincas[@Model.Fincas.IndexOf(finca)].Ubicacion" value="@finca.Ubicacion" />
+                                    <input type="hidden" name="Fincas[@Model.Fincas.IndexOf(finca)].Activa" value="@finca.Activa" />
+
+                                    <label for="finca_@finca.FincaId" class="finca-content">
+                                        <div class="finca-header">
+                                            <h3 class="finca-name">@finca.Nombre</h3>
+                                            <span class="finca-id">#@finca.FincaId</span>
+                                        </div>
+
+                                        @if (!string.IsNullOrEmpty(finca.Ubicacion))
+                                        {
+                                            <div class="finca-location">
+                                                <i class="fas fa-map-marker-alt"></i>
+                                                <span>@finca.Ubicacion</span>
+                                            </div>
+                                        }
+
+                                        <div>
+                                            @if (finca.Activa)
+                                            {
+                                                <span class="finca-status status-active">
+                                                    <i class="fas fa-check-circle"></i> Activa
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="finca-status status-inactive">
+                                                    <i class="fas fa-times-circle"></i> Inactiva
+                                                </span>
+                                            }
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <i class="fas fa-warehouse"></i>
+                        <h3>No hay fincas disponibles</h3>
+                        <p>No se encontraron fincas en el sistema</p>
+                    </div>
+                }
+
+                <!-- Action Buttons -->
+                <div class="form-actions">
+                    <button type="submit" class="btn-custom btn-success-custom">
+                        <i class="fas fa-save"></i>
+                        Guardar Asignación
+                    </button>
+                    <a asp-action="Details" asp-route-id="@Model.UserId" class="btn-custom btn-secondary-custom">
+                        <i class="fas fa-times"></i>
+                        Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const checkboxes = document.querySelectorAll('.finca-checkbox');
+            const selectedCount = document.getElementById('selectedCount');
+            const searchInput = document.getElementById('searchInput');
+            const fincaCards = document.querySelectorAll('.finca-card');
+            const selectAllBtn = document.getElementById('selectAllBtn');
+            const deselectAllBtn = document.getElementById('deselectAllBtn');
+
+            // Actualizar contador
+            function updateCount() {
+                const count = document.querySelectorAll('.finca-checkbox:checked').length;
+                selectedCount.textContent = count;
+            }
+
+            // Actualizar estilos de la card
+            function updateCardStyle(checkbox) {
+                const card = checkbox.closest('.finca-card');
+                if (checkbox.checked) {
+                    card.classList.add('selected');
+                } else {
+                    card.classList.remove('selected');
+                }
+            }
+
+            // Event listeners para checkboxes
+            checkboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function () {
+                    updateCardStyle(this);
+                    updateCount();
+                });
+
+                // Inicializar estilos
+                updateCardStyle(checkbox);
+            });
+
+            // Click en la card selecciona el checkbox
+            fincaCards.forEach(card => {
+                card.addEventListener('click', function (e) {
+                    if (e.target.type !== 'checkbox') {
+                        const checkbox = this.querySelector('.finca-checkbox');
+                        checkbox.checked = !checkbox.checked;
+                        checkbox.dispatchEvent(new Event('change'));
+                    }
+                });
+            });
+
+            // Búsqueda
+            searchInput.addEventListener('input', function () {
+                const searchTerm = this.value.toLowerCase();
+                fincaCards.forEach(card => {
+                    const searchData = card.getAttribute('data-search');
+                    if (searchData.includes(searchTerm)) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+
+            // Seleccionar todo
+            selectAllBtn.addEventListener('click', function () {
+                checkboxes.forEach(checkbox => {
+                    const card = checkbox.closest('.finca-card');
+                    if (card.style.display !== 'none') {
+                        checkbox.checked = true;
+                        updateCardStyle(checkbox);
+                    }
+                });
+                updateCount();
+            });
+
+            // Deseleccionar todo
+            deselectAllBtn.addEventListener('click', function () {
+                checkboxes.forEach(checkbox => {
+                    checkbox.checked = false;
+                    updateCardStyle(checkbox);
+                });
+                updateCount();
+            });
+
+            // Inicializar contador
+            updateCount();
+        });
+    </script>
+}

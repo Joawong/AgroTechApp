@@ -1,880 +1,804 @@
-﻿<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Tratamientos - AgroTech</title>
-    <style>
-        :root {
-            --primary: #2E8B57;
-            --secondary: #F4A460;
-            --light: #f8f9fa;
-            --dark: #333;
-            --success: #28a745;
-            --danger: #dc3545;
-            --warning: #ffc107;
-            --info: #17a2b8;
+﻿@model IEnumerable<AgroTechApp.Models.DB.Tratamiento>
+
+@{
+    ViewData["Title"] = "Gestión de Tratamientos";
+
+    // Calcular estadísticas
+    var totalTratamientos = Model.Count();
+    var tratamientosConInsumo = Model.Count(t => t.InsumoId.HasValue);
+    var tratamientosSinInsumo = Model.Count(t => !t.InsumoId.HasValue);
+    var animalesUnicos = Model.Select(t => t.AnimalId).Distinct().Count();
+}
+
+<style>
+    :root {
+        --primary: #6f42c1;
+        --primary-light: #8c5cd4;
+        --primary-dark: #5a32a3;
+        --success: #28a745;
+        --warning: #ffc107;
+        --danger: #dc3545;
+        --info: #17a2b8;
+        --light: #f8f9fa;
+        --dark: #343a40;
+        --white: #ffffff;
+        --border: #e1e5e9;
+        --shadow: rgba(111, 66, 193, 0.1);
+        --gray: #6c757d;
+    }
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e8e6f5 100%);
+        font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    }
+
+    .admin-card {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 15px 40px var(--shadow);
+        overflow: hidden;
+        border: 1px solid var(--border);
+        animation: fadeIn 0.5s ease-out;
+        margin-bottom: 2rem;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
         }
 
-        * {
-            box-sizing: border-box;
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
+    }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-        }
+    .admin-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color: white;
+        padding: 2.5rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, var(--primary), #3CB371);
-            color: white;
-            padding: 2rem;
-            text-align: center;
-        }
-
-            .header h1 {
-                margin: 0;
-                font-size: 2.2rem;
-                font-weight: 600;
-            }
-
-            .header p {
-                margin: 0.5rem 0 0;
-                opacity: 0.9;
-                font-size: 1.1rem;
-            }
-
-        .body {
-            padding: 2rem;
-        }
-
-        .actions-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .search-box {
-            display: flex;
-            gap: 0.5rem;
-            flex: 1;
-            max-width: 400px;
-        }
-
-        .search-input {
-            flex: 1;
-            padding: 0.75rem 1rem;
-            border: 2px solid #e1e5e9;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-            .search-input:focus {
-                outline: none;
-                border-color: var(--primary);
-                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
-            }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            text-decoration: none;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-
-            .btn-primary:hover {
-                background-color: #26734d;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
-            }
-
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-
-            .btn-secondary:hover {
-                background-color: #5a6268;
-                transform: translateY(-2px);
-            }
-
-        .btn-warning {
-            background-color: var(--warning);
-            color: #212529;
-        }
-
-            .btn-warning:hover {
-                background-color: #e0a800;
-                transform: translateY(-2px);
-            }
-
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-        }
-
-            .btn-danger:hover {
-                background-color: #c82333;
-                transform: translateY(-2px);
-            }
-
-        .btn-info {
-            background-color: var(--info);
-            color: white;
-        }
-
-            .btn-info:hover {
-                background-color: #138496;
-                transform: translateY(-2px);
-            }
-
-        .btn-sm {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-        }
-
-        .table-container {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-        }
-
-        .table {
+        .admin-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
             width: 100%;
-            border-collapse: collapse;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg);
         }
 
-            .table th {
-                background: linear-gradient(135deg, var(--primary), #3CB371);
-                color: white;
-                padding: 1rem;
-                text-align: left;
-                font-weight: 600;
-                font-size: 0.95rem;
-            }
-
-            .table td {
-                padding: 1rem;
-                border-bottom: 1px solid #e1e5e9;
-                vertical-align: middle;
-            }
-
-            .table tr:hover {
-                background-color: rgba(46, 139, 87, 0.05);
-            }
-
-        .badge {
-            display: inline-block;
-            padding: 0.35rem 0.65rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-align: center;
-            white-space: nowrap;
-            border-radius: 50rem;
-        }
-
-        .badge-success {
-            background-color: var(--success);
-            color: white;
-        }
-
-        .badge-warning {
-            background-color: var(--warning);
-            color: #212529;
-        }
-
-        .badge-info {
-            background-color: var(--info);
-            color: white;
-        }
-
-        .badge-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-
-        .actions-cell {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: #6c757d;
-        }
-
-            .empty-state .icon {
-                font-size: 4rem;
-                margin-bottom: 1rem;
-                opacity: 0.5;
-            }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 2rem;
-            gap: 0.5rem;
-        }
-
-            .pagination button {
-                padding: 0.5rem 1rem;
-                border: 1px solid #dee2e6;
-                background: white;
-                color: var(--primary);
-                cursor: pointer;
-                border-radius: 5px;
-                transition: all 0.3s ease;
-            }
-
-                .pagination button:hover {
-                    background: var(--primary);
-                    color: white;
-                }
-
-                .pagination button.active {
-                    background: var(--primary);
-                    color: white;
-                    border-color: var(--primary);
-                }
-
-        .filters {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .filter-label {
-            font-weight: 600;
-            font-size: 0.9rem;
-            color: var(--dark);
-        }
-
-        .filter-select {
-            padding: 0.5rem 1rem;
-            border: 2px solid #e1e5e9;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            background-color: white;
-        }
-
-            .filter-select:focus {
-                outline: none;
-                border-color: var(--primary);
-            }
-
-        /* Modal de recordatorio */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            max-width: 500px;
-            width: 90%;
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .close-modal {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #6c757d;
-        }
-
-        .form-group {
-            margin-bottom: 1.2rem;
-        }
-
-        .form-label {
-            display: block;
+        .admin-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
             margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: var(--dark);
+            position: relative;
+            z-index: 1;
         }
 
-        .form-control {
-            width: 100%;
-            padding: 0.75rem 1rem;
-            border: 2px solid #e1e5e9;
-            border-radius: 8px;
-            font-size: 1rem;
+        .admin-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+    .admin-header-icon {
+        position: absolute;
+        right: 2rem;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 3rem;
+        opacity: 0.2;
+        z-index: 0;
+    }
+
+    .admin-body {
+        padding: 2.5rem;
+    }
+
+    .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .header-title h2 {
+        color: var(--dark);
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .header-title p {
+        color: var(--gray);
+        font-size: 0.95rem;
+    }
+
+    .btn-custom {
+        padding: 0.85rem 1.8rem;
+        border: none;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.7rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary-custom {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color: var(--white);
+    }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(111, 66, 193, 0.3);
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: white;
+        }
+
+    .btn-sm {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.85rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+        background: var(--white);
+        padding: 1.8rem;
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        border-left: 5px solid var(--primary);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+    .stat-icon {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        font-size: 2.5rem;
+        opacity: 0.2;
+        color: var(--primary);
+    }
+
+    .stat-number {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: var(--dark);
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    .search-section {
+        background: linear-gradient(to right, rgba(111, 66, 193, 0.05), rgba(140, 92, 212, 0.05));
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        border: 2px solid var(--border);
+    }
+
+    .search-container {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+
+    .search-box {
+        flex: 1;
+        min-width: 300px;
+        padding: 1rem 1.5rem;
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        font-size: 1rem;
+        background: var(--white);
+        transition: all 0.3s ease;
+    }
+
+        .search-box:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.1);
+            transform: translateY(-1px);
+        }
+
+    .filter-select {
+        padding: 1rem 1.5rem;
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        background: var(--white);
+        font-size: 1rem;
+        min-width: 150px;
+        cursor: pointer;
+    }
+
+    .table-container {
+        background: var(--white);
+        border-radius: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        margin-top: 1rem;
+    }
+
+    .table-custom {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+    }
+
+        .table-custom thead {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+        }
+
+        .table-custom th {
+            padding: 1.2rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+        }
+
+            .table-custom th::after {
+                content: '';
+                position: absolute;
+                right: 0;
+                top: 25%;
+                height: 50%;
+                width: 1px;
+                background: rgba(255, 255, 255, 0.2);
+            }
+
+            .table-custom th:last-child::after {
+                display: none;
+            }
+
+        .table-custom td {
+            padding: 1.2rem 1rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .table-custom tbody tr {
             transition: all 0.3s ease;
         }
 
-            .form-control:focus {
-                outline: none;
-                border-color: var(--primary);
-                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+            .table-custom tbody tr:hover {
+                background: linear-gradient(to right, rgba(111, 66, 193, 0.03), rgba(140, 92, 212, 0.03));
+                transform: translateX(5px);
             }
 
-        .modal-actions {
-            display: flex;
-            gap: 1rem;
-            justify-content: flex-end;
-            margin-top: 2rem;
-        }
-
-        /* Responsive */
-        @@media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-
-            .header {
-                padding: 1.5rem;
-            }
-
-                .header h1 {
-                    font-size: 1.8rem;
+                .table-custom tbody tr:hover td {
+                    border-color: rgba(111, 66, 193, 0.2);
                 }
 
-            .body {
-                padding: 1.5rem;
-            }
+    .badge-tipo {
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
 
-            .actions-bar {
-                flex-direction: column;
-                align-items: stretch;
-            }
+    .badge-con-insumo {
+        background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+        color: #0c5460;
+        border-left: 3px solid var(--info);
+    }
 
-            .search-box {
-                max-width: 100%;
-            }
+    .badge-sin-insumo {
+        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        color: #856404;
+        border-left: 3px solid var(--warning);
+    }
 
-            .table {
-                display: block;
-                overflow-x: auto;
-            }
+    .badge-tratamiento {
+        padding: 0.3rem 0.8rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        background: linear-gradient(135deg, #e7d4ff, #d4b5ff);
+        color: #5a32a3;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
 
-            .actions-cell {
-                flex-direction: column;
-            }
+    .actions-group {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
 
-            .modal-content {
-                margin: 1rem;
-                padding: 1.5rem;
-            }
+    .btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .btn-info {
+        background: var(--info);
+        color: white;
+    }
+
+        .btn-info:hover {
+            background: #138496;
+            transform: translateY(-1px);
         }
 
-        @@media (max-width: 480px) {
-            .header h1 {
-                font-size: 1.5rem;
-            }
+    .btn-warning {
+        background: var(--warning);
+        color: #212529;
+    }
 
-            .body {
-                padding: 1rem;
-            }
-
-            .filters {
-                flex-direction: column;
-            }
-
-            .modal-actions {
-                flex-direction: column;
-            }
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-1px);
         }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>💊 Gestión de Tratamientos</h1>
-            <p>Administre y supervise todos los tratamientos aplicados en su finca</p>
+
+    .btn-danger {
+        background: var(--danger);
+        color: white;
+    }
+
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--gray);
+    }
+
+    .empty-state-icon {
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
+        opacity: 0.3;
+        color: var(--primary);
+    }
+
+    .empty-state h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--dark);
+    }
+
+    .table-footer {
+        padding: 1.5rem;
+        background: var(--light);
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .pagination-info {
+        color: var(--gray);
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .alert-custom {
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    @@keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        border-left: 4px solid var(--success);
+        color: #155724;
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        border-left: 4px solid var(--danger);
+        color: #721c24;
+    }
+
+    .info-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.2rem 0.6rem;
+        background: rgba(111, 66, 193, 0.1);
+        border-radius: 8px;
+        font-size: 0.85rem;
+        color: var(--primary);
+        margin-top: 0.3rem;
+    }
+
+    @@media (max-width: 1200px) {
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .table-custom {
+            min-width: 1000px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .admin-header {
+            padding: 2rem;
+        }
+
+            .admin-header h1 {
+                font-size: 2rem;
+            }
+
+        .admin-body {
+            padding: 1.5rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+</style>
+
+<div class="admin-card">
+    <!-- Encabezado -->
+    <div class="admin-header">
+        <div class="admin-header-icon">
+            <i class="fas fa-syringe"></i>
+        </div>
+        <h1>💉 Gestión de Tratamientos</h1>
+        <p>Administre y registre tratamientos veterinarios</p>
+    </div>
+
+    <!-- Cuerpo Principal -->
+    <div class="admin-body">
+        <!-- Alerts -->
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert-custom alert-success">
+                <i class="fas fa-check-circle" style="font-size: 1.5rem;"></i>
+                <span>@TempData["Success"]</span>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert-custom alert-danger">
+                <i class="fas fa-exclamation-circle" style="font-size: 1.5rem;"></i>
+                <span>@TempData["Error"]</span>
+            </div>
+        }
+
+        <!-- Encabezado con acciones -->
+        <div class="header-actions">
+            <div class="header-title">
+                <h2>Lista de Tratamientos</h2>
+                <p id="tratamientoCount">Total de tratamientos registrados: @totalTratamientos</p>
+            </div>
+            <a asp-action="Create" class="btn-custom btn-primary-custom">
+                <i class="fas fa-plus"></i> Nuevo Tratamiento
+            </a>
         </div>
 
-        <div class="body">
-            <!-- Barra de acciones -->
-            <div class="actions-bar">
-                <div class="search-box">
-                    <input type="text" class="search-input" placeholder="Buscar tratamientos..." id="searchInput">
-                    <button class="btn btn-primary" onclick="searchTreatments()">
-                        <span class="icon">🔍</span> Buscar
-                    </button>
+        <!-- Estadísticas -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clipboard-list"></i>
                 </div>
-                <a href="#" class="btn btn-primary">
-                    <span class="icon">➕</span> Nuevo Tratamiento
-                </a>
+                <div class="stat-number">@totalTratamientos</div>
+                <div class="stat-label">Total Tratamientos</div>
             </div>
-
-            <!-- Filtros -->
-            <div class="filters">
-                <div class="filter-group">
-                    <label class="filter-label">Finca</label>
-                    <select class="filter-select" id="fincaFilter">
-                        <option value="">Todas las fincas</option>
-                        <option value="1">Finca La Esperanza</option>
-                        <option value="2">Finca San José</option>
-                    </select>
+            <div class="stat-card" style="border-left-color: var(--info);">
+                <div class="stat-icon" style="color: var(--info);">
+                    <i class="fas fa-flask"></i>
                 </div>
-                <div class="filter-group">
-                    <label class="filter-label">Tipo de Tratamiento</label>
-                    <select class="filter-select" id="tipoTratFilter">
-                        <option value="">Todos los tipos</option>
-                        <option value="1">Vacunación</option>
-                        <option value="2">Desparasitación</option>
-                        <option value="3">Antibiótico</option>
-                        <option value="4">Vitaminas</option>
-                    </select>
-                </div>
-                <div class="filter-group">
-                    <label class="filter-label">Fecha</label>
-                    <input type="date" class="filter-select" id="fechaFilter">
-                </div>
-                <div class="filter-group">
-                    <label class="filter-label">Estado</label>
-                    <select class="filter-select" id="estadoFilter">
-                        <option value="">Todos</option>
-                        <option value="activo">Activo</option>
-                        <option value="completado">Completado</option>
-                        <option value="pendiente">Pendiente</option>
-                    </select>
-                </div>
+                <div class="stat-number" style="color: var(--info);">@tratamientosConInsumo</div>
+                <div class="stat-label">Con Insumo</div>
             </div>
+            <div class="stat-card" style="border-left-color: var(--warning);">
+                <div class="stat-icon" style="color: var(--warning);">
+                    <i class="fas fa-hand-paper"></i>
+                </div>
+                <div class="stat-number" style="color: var(--warning);">@tratamientosSinInsumo</div>
+                <div class="stat-label">Sin Insumo</div>
+            </div>
+            <div class="stat-card" style="border-left-color: var(--success);">
+                <div class="stat-icon" style="color: var(--success);">
+                    <i class="fas fa-paw"></i>
+                </div>
+                <div class="stat-number" style="color: var(--success);">@animalesUnicos</div>
+                <div class="stat-label">Animales Tratados</div>
+            </div>
+        </div>
 
-            <!-- Tabla de tratamientos -->
-            <div class="table-container">
-                <table class="table">
+        <!-- Búsqueda y Filtros -->
+        <div class="search-section">
+            <div class="search-container">
+                <input type="text" class="search-box" placeholder="🔍 Buscar por animal, tipo o responsable..." id="searchInput">
+                <select class="filter-select" id="tipoFilter">
+                    <option value="">Todos los tipos</option>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var tipo in Model.Select(t => t.TipoTrat?.Nombre).Distinct().Where(t => t != null))
+                        {
+                            <option value="@tipo">@tipo</option>
+                        }
+                    }
+                </select>
+                <select class="filter-select" id="insumoFilter">
+                    <option value="">Todos</option>
+                    <option value="con-insumo">Con Insumo</option>
+                    <option value="sin-insumo">Sin Insumo</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tabla de Tratamientos -->
+        <div class="table-container">
+            @if (Model != null && Model.Any())
+            {
+                <table class="table-custom">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Fecha</th>
-                            <th>Finca</th>
+                            <th>Animal</th>
                             <th>Tipo</th>
-                            <th>Animal/Lote</th>
                             <th>Insumo</th>
                             <th>Dosis</th>
-                            <th>Vía</th>
                             <th>Responsable</th>
+                            <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="tratamientosTable">
-                        <!-- Los datos se cargarán dinámicamente -->
+                    <tbody id="tratamientosTableBody">
+                        @foreach (var tratamiento in Model)
+                        {
+                            var searchData = $"{tratamiento.Animal?.Arete} {tratamiento.Animal?.Nombre} {tratamiento.TipoTrat?.Nombre} {tratamiento.Responsable}".ToLower();
+                            var tieneInsumo = tratamiento.InsumoId.HasValue ? "con-insumo" : "sin-insumo";
+
+                            <tr class="tratamiento-row"
+                                data-search="@searchData"
+                                data-tipo="@tratamiento.TipoTrat?.Nombre"
+                                data-insumo="@tieneInsumo">
+                                <td>
+                                    <strong>@tratamiento.Fecha.ToString("dd/MM/yyyy")</strong>
+                                    <br />
+                                    <small style="color: var(--gray);">@tratamiento.Fecha.ToString("HH:mm")</small>
+                                </td>
+                                <td>
+                                    <strong>@tratamiento.Animal?.Arete</strong>
+                                    @if (!string.IsNullOrWhiteSpace(tratamiento.Animal?.Nombre))
+                                    {
+                                        <br />
+                                        <small style="color: var(--gray);">@tratamiento.Animal.Nombre</small>
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge-tratamiento">
+                                        <i class="fas fa-notes-medical"></i> @tratamiento.TipoTrat?.Nombre
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (tratamiento.InsumoId.HasValue)
+                                    {
+                                        <strong>@tratamiento.Insumo?.Nombre</strong>
+                                        @if (tratamiento.Lote != null)
+                                        {
+                                            <div class="info-tag">
+                                                <i class="fas fa-barcode"></i> @tratamiento.Lote.CodigoLote
+                                            </div>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span style="color: var(--gray); font-style: italic;">Sin insumo</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(tratamiento.Dosis))
+                                    {
+                                        <strong style="color: var(--primary);">@tratamiento.Dosis</strong>
+                                        @if (!string.IsNullOrWhiteSpace(tratamiento.Via))
+                                        {
+                                            <br />
+                                            <small style="color: var(--gray);">
+                                                <i class="fas fa-syringe"></i> @tratamiento.Via
+                                            </small>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span style="color: var(--gray); font-style: italic;">N/A</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(tratamiento.Responsable))
+                                    {
+                                        <span>@tratamiento.Responsable</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color: var(--gray); font-style: italic;">No especificado</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (tratamiento.InsumoId.HasValue)
+                                    {
+                                        <span class="badge-tipo badge-con-insumo">
+                                            <i class="fas fa-flask"></i> Con Insumo
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge-tipo badge-sin-insumo">
+                                            <i class="fas fa-hand-paper"></i> Sin Insumo
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="actions-group">
+                                        <a asp-action="Details" asp-route-id="@tratamiento.TratamientoId"
+                                           class="btn btn-info btn-sm" title="Ver detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@tratamiento.TratamientoId"
+                                           class="btn btn-warning btn-sm" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@tratamiento.TratamientoId"
+                                           class="btn btn-danger btn-sm" title="Eliminar">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
-            </div>
 
-            <!-- Estado vacío -->
-            <div id="emptyState" class="empty-state" style="display: none;">
-                <div class="icon">💊</div>
-                <h3>No se encontraron tratamientos</h3>
-                <p>No hay tratamientos que coincidan con los criterios de búsqueda.</p>
-                <a href="#" class="btn btn-primary" style="margin-top: 1rem;">
-                    <span class="icon">➕</span> Crear Primer Tratamiento
-                </a>
-            </div>
-
-            <!-- Paginación -->
-            <div class="pagination" id="pagination">
-                <!-- La paginación se generará dinámicamente -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Recordatorio -->
-    <div class="modal" id="reminderModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">⏰ Crear Recordatorio</h3>
-                <button class="close-modal" onclick="closeReminderModal()">×</button>
-            </div>
-
-            <form id="reminderForm">
-                <input type="hidden" id="reminderTreatmentId">
-
-                <div class="form-group">
-                    <label class="form-label">Tratamiento</label>
-                    <input type="text" class="form-control" id="reminderTreatmentInfo" readonly>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Tipo de Recordatorio</label>
-                    <select class="form-control" id="reminderType" required>
-                        <option value="">Seleccione el tipo</option>
-                        <option value="proximo_tratamiento">Próximo Tratamiento</option>
-                        <option value="control_seguimiento">Control y Seguimiento</option>
-                        <option value="retiro_leche">Período de Retiro (Leche)</option>
-                        <option value="retiro_carne">Período de Retiro (Carne)</option>
-                        <option value="recordatorio_general">Recordatorio General</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Fecha del Recordatorio</label>
-                    <input type="datetime-local" class="form-control" id="reminderDate" required>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Mensaje del Recordatorio</label>
-                    <textarea class="form-control" id="reminderMessage" rows="3" placeholder="Ingrese el mensaje del recordatorio..." required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Método de Notificación</label>
-                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                        <label style="display: flex; align-items: center; gap: 0.5rem;">
-                            <input type="checkbox" name="notificationMethod" value="email" checked>
-                            📧 Email
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 0.5rem;">
-                            <input type="checkbox" name="notificationMethod" value="push">
-                            📱 Notificación Push
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 0.5rem;">
-                            <input type="checkbox" name="notificationMethod" value="sms">
-                            💬 SMS
-                        </label>
+                <!-- Pie de tabla -->
+                <div class="table-footer">
+                    <div class="pagination-info" id="paginationInfo">
+                        Mostrando @Model.Count() de @Model.Count() tratamientos
                     </div>
                 </div>
-
-                <div class="modal-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeReminderModal()">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">
-                        <span class="icon">💾</span> Guardar Recordatorio
-                    </button>
+            }
+            else
+            {
+                <div class="empty-state">
+                    <div class="empty-state-icon">
+                        <i class="fas fa-syringe"></i>
+                    </div>
+                    <h3>No hay tratamientos registrados</h3>
+                    <p>Comience registrando el primer tratamiento veterinario.</p>
+                    <a asp-action="Create" class="btn-custom btn-primary-custom">
+                        <i class="fas fa-plus"></i> Registrar Primer Tratamiento
+                    </a>
                 </div>
-            </form>
+            }
         </div>
     </div>
+</div>
 
+@section Scripts {
     <script>
-        // Datos de ejemplo para tratamientos
-        const tratamientos = [
-            {
-                id: 1,
-                fecha: '2023-11-15',
-                finca: 'Finca La Esperanza',
-                tipo: 'Vacunación',
-                animal: 'Betsy (Arete: A001)',
-                lote: null,
-                insumo: 'Vacuna Fiebre Aftosa',
-                dosis: '2 ml',
-                via: 'Intramuscular',
-                responsable: 'Juan Pérez',
-                observacion: 'Aplicado en cuello posterior',
-                estado: 'completado'
-            },
-            {
-                id: 2,
-                fecha: '2023-11-10',
-                finca: 'Finca San José',
-                tipo: 'Desparasitación',
-                animal: null,
-                lote: 'Lote de Terneros',
-                insumo: 'Ivermectina',
-                dosis: '5 ml',
-                via: 'Oral',
-                responsable: 'María García',
-                observacion: 'Aplicado en agua de bebida',
-                estado: 'completado'
-            },
-            {
-                id: 3,
-                fecha: '2023-11-20',
-                finca: 'Finca La Esperanza',
-                tipo: 'Antibiótico',
-                animal: 'Luna (Arete: A045)',
-                lote: null,
-                insumo: 'Penicilina',
-                dosis: '3 ml',
-                via: 'Intramuscular',
-                responsable: 'Carlos Rodríguez',
-                observacion: 'Tratamiento por mastitis',
-                estado: 'activo'
-            },
-            {
-                id: 4,
-                fecha: '2023-11-25',
-                finca: 'Finca La Esperanza',
-                tipo: 'Vitaminas',
-                animal: null,
-                lote: 'Lote de Vacas Lecheras',
-                insumo: 'Complejo Vitamínico B',
-                dosis: '10 ml',
-                via: 'Oral',
-                responsable: 'Ana López',
-                observacion: 'Suplemento nutricional',
-                estado: 'pendiente'
-            }
-        ];
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchInput');
+            const tipoFilter = document.getElementById('tipoFilter');
+            const insumoFilter = document.getElementById('insumoFilter');
+            const tratamientoRows = document.querySelectorAll('.tratamiento-row');
+            const totalTratamientos = @totalTratamientos;
 
-        // Función para renderizar la tabla
-        function renderTable(data) {
-            const tableBody = document.getElementById('tratamientosTable');
-            const emptyState = document.getElementById('emptyState');
+            function filterTable() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const tipoValue = tipoFilter.value;
+                const insumoValue = insumoFilter.value;
 
-            if (data.length === 0) {
-                tableBody.innerHTML = '';
-                emptyState.style.display = 'block';
-                return;
+                let visibleCount = 0;
+
+                tratamientoRows.forEach(row => {
+                    const searchData = row.getAttribute('data-search') || '';
+                    const tipo = row.getAttribute('data-tipo');
+                    const insumo = row.getAttribute('data-insumo');
+
+                    const matchesSearch = !searchTerm || searchData.includes(searchTerm);
+                    const matchesTipo = !tipoValue || tipo === tipoValue;
+                    const matchesInsumo = !insumoValue || insumo === insumoValue;
+
+                    if (matchesSearch && matchesTipo && matchesInsumo) {
+                        row.style.display = '';
+                        visibleCount++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                // Actualizar contadores
+                document.getElementById('tratamientoCount').textContent = `Mostrando ${visibleCount} de ${totalTratamientos} tratamientos`;
+                document.getElementById('paginationInfo').textContent = `Mostrando ${visibleCount} de ${totalTratamientos} tratamientos`;
             }
 
-            emptyState.style.display = 'none';
+            // Event listeners
+            searchInput.addEventListener('input', filterTable);
+            tipoFilter.addEventListener('change', filterTable);
+            insumoFilter.addEventListener('change', filterTable);
 
-            tableBody.innerHTML = data.map(tratamiento => `
-                <tr>
-                    <td><strong>#${tratamiento.id}</strong></td>
-                    <td>${formatDate(tratamiento.fecha)}</td>
-                    <td>${tratamiento.finca}</td>
-                    <td>
-                        <span class="badge ${getBadgeClass(tratamiento.tipo)}">
-                            ${tratamiento.tipo}
-                        </span>
-                    </td>
-                    <td>
-                        ${tratamiento.animal ?
-                            `<span class="badge badge-info">🐄 ${tratamiento.animal}</span>` :
-                            `<span class="badge badge-secondary">📦 ${tratamiento.lote}</span>`
-                        }
-                    </td>
-                    <td>${tratamiento.insumo}</td>
-                    <td>${tratamiento.dosis}</td>
-                    <td>${tratamiento.via}</td>
-                    <td>${tratamiento.responsable}</td>
-                    <td class="actions-cell">
-                        <button class="btn btn-sm btn-primary" onclick="viewTreatment(${tratamiento.id})">
-                            👁️ Ver
-                        </button>
-                        <button class="btn btn-sm btn-warning" onclick="editTreatment(${tratamiento.id})">
-                            ✏️ Editar
-                        </button>
-                        <button class="btn btn-sm btn-info" onclick="setReminder(${tratamiento.id})">
-                            ⏰ Recordatorio
-                        </button>
-                        <button class="btn btn-sm btn-danger" onclick="deleteTreatment(${tratamiento.id})">
-                            🗑️ Eliminar
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        // Función para formatear fecha
-        function formatDate(dateString) {
-            const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
-            return new Date(dateString).toLocaleDateString('es-ES', options);
-        }
-
-        // Función para determinar clase del badge según tipo
-        function getBadgeClass(tipo) {
-            switch(tipo) {
-                case 'Vacunación': return 'badge-success';
-                case 'Desparasitación': return 'badge-warning';
-                case 'Antibiótico': return 'badge-danger';
-                case 'Vitaminas': return 'badge-info';
-                default: return 'badge-secondary';
-            }
-        }
-
-        // Funciones de acción
-        function viewTreatment(id) {
-            alert(`Ver tratamiento #${id}`);
-            // Aquí iría la lógica para ver detalles
-        }
-
-        function editTreatment(id) {
-            alert(`Editar tratamiento #${id}`);
-            // Aquí iría la lógica para editar
-        }
-
-        function deleteTreatment(id) {
-            if (confirm(`¿Está seguro de que desea eliminar el tratamiento #${id}?`)) {
-                alert(`Tratamiento #${id} eliminado`);
-                // Aquí iría la lógica para eliminar
-            }
-        }
-
-        // Función para configurar recordatorio
-        function setReminder(id) {
-            const tratamiento = tratamientos.find(t => t.id === id);
-            if (tratamiento) {
-                document.getElementById('reminderTreatmentId').value = id;
-                document.getElementById('reminderTreatmentInfo').value =
-                    `${tratamiento.tipo} - ${tratamiento.animal || tratamiento.lote} - ${tratamiento.insumo}`;
-
-                // Establecer fecha por defecto (7 días después de la fecha del tratamiento)
-                const treatmentDate = new Date(tratamiento.fecha);
-                const reminderDate = new Date(treatmentDate);
-                reminderDate.setDate(treatmentDate.getDate() + 7);
-
-                document.getElementById('reminderDate').value = reminderDate.toISOString().slice(0, 16);
-
-                // Mensaje por defecto
-                document.getElementById('reminderMessage').value =
-                    `Recordatorio: ${tratamiento.tipo} para ${tratamiento.animal || tratamiento.lote}. ${tratamiento.observacion || ''}`;
-
-                // Mostrar modal
-                document.getElementById('reminderModal').style.display = 'flex';
-            }
-        }
-
-        // Función para cerrar modal de recordatorio
-        function closeReminderModal() {
-            document.getElementById('reminderModal').style.display = 'none';
-            document.getElementById('reminderForm').reset();
-        }
-
-        // Función para guardar recordatorio
-        document.getElementById('reminderForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const treatmentId = document.getElementById('reminderTreatmentId').value;
-            const reminderType = document.getElementById('reminderType').value;
-            const reminderDate = document.getElementById('reminderDate').value;
-            const reminderMessage = document.getElementById('reminderMessage').value;
-
-            // Obtener métodos de notificación seleccionados
-            const notificationMethods = Array.from(document.querySelectorAll('input[name="notificationMethod"]:checked'))
-                .map(input => input.value);
-
-            if (notificationMethods.length === 0) {
-                alert('Por favor, seleccione al menos un método de notificación.');
-                return;
-            }
-
-            // Aquí iría la lógica para guardar el recordatorio en el sistema
-            console.log({
-                treatmentId,
-                reminderType,
-                reminderDate,
-                reminderMessage,
-                notificationMethods
-            });
-
-            alert('✅ Recordatorio guardado correctamente. Se enviarán notificaciones según la configuración.');
-            closeReminderModal();
+            // Auto-hide alerts
+            setTimeout(() => {
+                const alerts = document.querySelectorAll('.alert-custom');
+                alerts.forEach(alert => {
+                    alert.style.transition = 'opacity 0.5s, transform 0.5s';
+                    alert.style.opacity = '0';
+                    alert.style.transform = 'translateY(-10px)';
+                    setTimeout(() => alert.remove(), 500);
+                });
+            }, 5000);
         });
-
-        // Función de búsqueda
-        function searchTreatments() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = tratamientos.filter(t =>
-                t.finca.toLowerCase().includes(searchTerm) ||
-                t.tipo.toLowerCase().includes(searchTerm) ||
-                (t.animal && t.animal.toLowerCase().includes(searchTerm)) ||
-                (t.lote && t.lote.toLowerCase().includes(searchTerm)) ||
-                t.insumo.toLowerCase().includes(searchTerm) ||
-                t.responsable.toLowerCase().includes(searchTerm)
-            );
-            renderTable(filtered);
-        }
-
-        // Inicializar la tabla al cargar la página
-        document.addEventListener('DOMContentLoaded', function() {
-            renderTable(tratamientos);
-
-            // Agregar funcionalidad de búsqueda en tiempo real
-            document.getElementById('searchInput').addEventListener('input', searchTreatments);
-
-            // Agregar funcionalidad a los filtros
-            document.getElementById('fincaFilter').addEventListener('change', applyFilters);
-            document.getElementById('tipoTratFilter').addEventListener('change', applyFilters);
-            document.getElementById('fechaFilter').addEventListener('change', applyFilters);
-            document.getElementById('estadoFilter').addEventListener('change', applyFilters);
-
-            // Cerrar modal al hacer clic fuera del contenido
-            document.getElementById('reminderModal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeReminderModal();
-                }
-            });
-        });
-
-        // Función para aplicar filtros combinados
-        function applyFilters() {
-            const fincaFilter = document.getElementById('fincaFilter').value;
-            const tipoFilter = document.getElementById('tipoTratFilter').value;
-            const fechaFilter = document.getElementById('fechaFilter').value;
-            const estadoFilter = document.getElementById('estadoFilter').value;
-
-            let filtered = tratamientos;
-
-            if (fincaFilter) {
-                filtered = filtered.filter(t => t.finca === fincaFilter);
-            }
-
-            if (tipoFilter) {
-                filtered = filtered.filter(t => t.tipo === tipoFilter);
-            }
-
-            if (fechaFilter) {
-                filtered = filtered.filter(t => t.fecha === fechaFilter);
-            }
-
-            if (estadoFilter) {
-                filtered = filtered.filter(t => t.estado === estadoFilter);
-            }
-
-            renderTable(filtered);
-        }
     </script>
-</body>
-</html>
+}

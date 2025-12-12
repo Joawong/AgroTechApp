@@ -49,7 +49,7 @@
                     <div class="form-group">
                         <label asp-for="Fecha" class="form-label">📅 Fecha de Pesaje</label>
                         <input asp-for="Fecha" type="datetime-local" class="form-control"
-                               value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                               value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" readonly />
                         <span asp-validation-for="Fecha" class="text-danger"></span>
                     </div>
 

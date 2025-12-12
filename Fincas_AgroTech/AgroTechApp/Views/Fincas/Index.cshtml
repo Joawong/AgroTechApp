@@ -1,0 +1,364 @@
+﻿@model IEnumerable<AgroTechApp.Models.DB.Finca>
+
+@{
+    ViewData["Title"] = "Gestión de Fincas";
+    var primaryColor = "#2E8B57";
+    var secondaryColor = "#F4A460";
+    var lightColor = "#f8f9fa";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AgroTech</title>
+
+    <style>
+        :root {
+            --primary: @primaryColor;
+            --secondary: @secondaryColor;
+            --light: @lightColor;
+            --dark: #333;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .fincas-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        .fincas-header {
+            background: linear-gradient(135deg, var(--primary), #3CB371);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+            .fincas-header h1 {
+                margin: 0;
+                font-size: 2.2rem;
+                font-weight: 600;
+            }
+
+            .fincas-header p {
+                opacity: 0.9;
+                margin-top: .5rem;
+            }
+
+        .fincas-body {
+            padding: 2rem;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: .75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            background: var(--primary);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            transition: .3s ease;
+        }
+
+            .btn:hover {
+                background-color: #26734d;
+                transform: translateY(-2px);
+            }
+
+        /* STATS */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            color: var(--dark);
+            font-size: .9rem;
+            font-weight: 600;
+        }
+
+        /* TABLE */
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, var(--primary), #3CB371);
+            color: white;
+        }
+
+        th, td {
+            padding: 1rem;
+            border-bottom: 1px solid #e1e5e9;
+            font-size: .95rem;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-1px);
+            transition: .2s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,.1);
+        }
+
+        .status-badge {
+            padding: .35rem .75rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: .8rem;
+        }
+
+        .active-badge {
+            background-color: #d4edda;
+            color: var(--success);
+        }
+
+        .inactive-badge {
+            background-color: #f8d7da;
+            color: var(--danger);
+        }
+
+        .actions-group {
+            display: flex;
+            gap: .5rem;
+            justify-content: center;
+        }
+
+        .btn-sm {
+            padding: .5rem 1rem;
+            font-size: .85rem;
+        }
+
+        /* SEARCH FILTER */
+        .search-filter {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: .75rem 1rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+        }
+
+        select {
+            padding: .75rem;
+            border-radius: 8px;
+            border: 2px solid #e1e5e9;
+        }
+
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="fincas-container">
+        <div class="fincas-header">
+            <h1>🏡 Gestión de Fincas</h1>
+            <p>Administre todas sus fincas registradas</p>
+        </div>
+
+        <div class="fincas-body">
+
+            <div class="header-actions">
+                <div>
+                    <h2 style="margin: 0;">Lista de Fincas</h2>
+                    <p style="margin: .5rem 0 0;">Total registradas: @Model.Count()</p>
+                </div>
+                <a asp-action="Create" class="btn">
+                    ➕ Crear Nueva Finca
+                </a>
+            </div>
+
+            <div class="stats-cards">
+                <div class="stat-card">
+                    <div class="stat-number">@Model.Count()</div>
+                    <div class="stat-label">Total de Fincas</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-number">@Model.Count(f => f.Activa)</div>
+                    <div class="stat-label">Fincas Activas</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-number">@Model.Count(f => !f.Activa)</div>
+                    <div class="stat-label">Fincas Inactivas</div>
+                </div>
+            </div>
+
+            <!-- Buscador -->
+            <div class="search-filter">
+                <input id="searchInput" type="text" class="search-box" placeholder="🔍 Buscar finca por nombre...">
+                <select id="statusFilter">
+                    <option value="">Todos los estados</option>
+                    <option value="true">Activas</option>
+                    <option value="false">Inactivas</option>
+                </select>
+            </div>
+
+            <div class="table-container">
+                @if (Model.Any())
+                {
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Ubicación</th>
+                                <th>Estado</th>
+                                <th>Fecha Creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var finca in Model)
+                            {
+                                <tr data-nombre="@finca.Nombre.ToLower()" data-activo="@finca.Activa">
+                                    <td><strong>@finca.Nombre</strong></td>
+                                    <td>@(finca.Ubicacion ?? "Sin especificar")</td>
+                                    <td>
+                                        @if (finca.Activa)
+                                        {
+                                            <span class="status-badge active-badge">Activa</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="status-badge inactive-badge">Inactiva</span>
+                                        }
+                                    </td>
+                                    <td>@finca.FechaCreacion.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <div class="actions-group">
+                                            <a asp-action="Edit" asp-route-id="@finca.FincaId"
+                                               class="btn btn-sm" style="background: var(--warning); color: #333;">✏️</a>
+
+                                            <a asp-action="Details" asp-route-id="@finca.FincaId"
+                                               class="btn btn-sm" style="background: var(--success);">👁️</a>
+
+                                            @if (finca.Activa)
+                                            {
+                                                <a asp-action="Delete" asp-route-id="@finca.FincaId"
+                                                   class="btn btn-sm" style="background: var(--danger);">🗑️</a>
+                                            }
+                                            else
+                                            {
+                                                <form asp-action="Activar" method="post" style="display:inline;">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@finca.FincaId" />
+                                                    <button type="submit" class="btn btn-sm"
+                                                            style="background: var(--primary); color: white;">
+                                                        🔄
+                                                    </button>
+                                                </form>
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <div style="font-size: 4rem;">🏡</div>
+                        <h3>No hay fincas registradas</h3>
+                        <p>Comience creando la primera finca asociada a su cuenta.</p>
+                        <a asp-action="Create" class="btn">➕ Crear Primera Finca</a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const searchInput = document.getElementById("searchInput");
+            const statusFilter = document.getElementById("statusFilter");
+            const rows = document.querySelectorAll("tbody tr");
+
+            function filter() {
+                const term = searchInput.value.toLowerCase();
+                const estado = statusFilter.value; // "true" | "false" | ""
+
+                rows.forEach(row => {
+                    const nombre = row.dataset.nombre;
+                    const activo = row.dataset.activo.toLowerCase(); // "true" | "false"
+
+                    const matchNombre = nombre.includes(term);
+                    const matchEstado = !estado || activo === estado;
+
+                    row.style.display = matchNombre && matchEstado ? "" : "none";
+                });
+            }
+
+            searchInput.addEventListener("input", filter);
+            statusFilter.addEventListener("change", filter);
+        });
+    </script>
+
+</body>
+</html>

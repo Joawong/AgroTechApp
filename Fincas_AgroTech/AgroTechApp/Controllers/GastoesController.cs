@@ -1,28 +1,46 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using AgroTechApp.Models.DB;
+using AgroTechApp.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AgroTechApp.Controllers
 {
-    public class GastoesController : Controller
+    [Authorize]
+    public class GastoesController : BaseController
     {
-        private readonly AgroTechDbContext _context;
-
-        public GastoesController(AgroTechDbContext context)
+        public GastoesController(
+            AgroTechDbContext context,
+            ILogger<GastoesController> logger)
+            : base(context, logger)
         {
-            _context = context;
         }
 
         // GET: Gastoes
         public async Task<IActionResult> Index()
         {
-            var agroTechDbContext = _context.Gastos.Include(g => g.Animal).Include(g => g.Finca).Include(g => g.Insumo).Include(g => g.Potrero).Include(g => g.RubroGasto);
-            return View(await agroTechDbContext.ToListAsync());
+            try
+            {
+                var fincaId = GetFincaId();
+
+                var gastos = await _context.Gastos
+                    .Where(g => g.FincaId == fincaId)
+                    .Include(g => g.Animal)
+                    .Include(g => g.Finca)
+                    .Include(g => g.Insumo)
+                    .Include(g => g.Potrero)
+                    .Include(g => g.RubroGasto)
+                    .OrderByDescending(g => g.Fecha)
+                    .ToListAsync();
+
+                return View(gastos);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogWarning(ex, "Acceso no autorizado");
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
         }
 
         // GET: Gastoes/Details/5
@@ -33,51 +51,141 @@ namespace AgroTechApp.Controllers
                 return NotFound();
             }
 
-            var gasto = await _context.Gastos
-                .Include(g => g.Animal)
-                .Include(g => g.Finca)
-                .Include(g => g.Insumo)
-                .Include(g => g.Potrero)
-                .Include(g => g.RubroGasto)
-                .FirstOrDefaultAsync(m => m.GastoId == id);
-            if (gasto == null)
+            try
             {
-                return NotFound();
-            }
+                var fincaId = GetFincaId();
 
-            return View(gasto);
+                var gasto = await _context.Gastos
+                    .Where(g => g.FincaId == fincaId && g.GastoId == id)
+                    .Include(g => g.Animal)
+                    .Include(g => g.Finca)
+                    .Include(g => g.Insumo)
+                    .Include(g => g.Potrero)
+                    .Include(g => g.RubroGasto)
+                    .FirstOrDefaultAsync();
+
+                if (gasto == null)
+                {
+                    return NotFound();
+                }
+
+                return View(gasto);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogWarning(ex, "Acceso no autorizado");
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
         }
 
         // GET: Gastoes/Create
         public IActionResult Create()
         {
-            ViewData["AnimalId"] = new SelectList(_context.Animals, "AnimalId", "AnimalId");
-            ViewData["FincaId"] = new SelectList(_context.Fincas, "FincaId", "FincaId");
-            ViewData["InsumoId"] = new SelectList(_context.Insumos, "InsumoId", "InsumoId");
-            ViewData["PotreroId"] = new SelectList(_context.Potreros, "PotreroId", "PotreroId");
-            ViewData["RubroGastoId"] = new SelectList(_context.RubroGastos, "RubroGastoId", "RubroGastoId");
-            return View();
+            try
+            {
+                var fincaId = GetFincaId();
+
+                // ViewBag para dropdowns (requerido por las vistas)
+                ViewBag.RubroGastoId = new SelectList(_context.RubroGastos, "RubroGastoId", "Nombre");
+                ViewBag.AnimalId = new SelectList(
+                    _context.Animals.Where(a => a.FincaId == fincaId),
+                    "AnimalId", "Arete");
+                ViewBag.PotreroId = new SelectList(
+                    _context.Potreros.Where(p => p.FincaId == fincaId),
+                    "PotreroId", "Nombre");
+                ViewBag.InsumoId = new SelectList(
+                    _context.Insumos.Where(i => i.FincaId == fincaId),
+                    "InsumoId", "Nombre");
+
+                return View();
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogWarning(ex, "Acceso no autorizado");
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
         }
 
         // POST: Gastoes/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("GastoId,FincaId,RubroGastoId,Fecha,Monto,Descripcion,AnimalId,PotreroId,InsumoId")] Gasto gasto)
+        public async Task<IActionResult> Create([Bind("GastoId,RubroGastoId,Fecha,Monto,Descripcion,AnimalId,PotreroId,InsumoId")] Gasto gasto)
         {
-            if (ModelState.IsValid)
+            try
             {
-                _context.Add(gasto);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                var fincaId = GetFincaId();
+                gasto.FincaId = fincaId;
+
+                // Los gastos creados manualmente NO son automáticos
+                gasto.EsAutomatico = false;
+                gasto.OrigenModulo = FinanzasConstants.OrigenModulos.MANUAL;
+                gasto.ReferenciaOrigenId = null;
+
+                ModelState.Remove("FincaId");
+                ModelState.Remove("Finca");
+                ModelState.Remove("Animal");
+                ModelState.Remove("Insumo");
+                ModelState.Remove("Potrero");
+                ModelState.Remove("RubroGasto");
+
+                // Validar que entidades relacionadas pertenecen a la finca
+                if (gasto.AnimalId.HasValue)
+                {
+                    var animal = await _context.Animals
+                        .FirstOrDefaultAsync(a => a.AnimalId == gasto.AnimalId && a.FincaId == fincaId);
+                    if (animal == null)
+                    {
+                        ModelState.AddModelError("AnimalId", "El animal no pertenece a su finca");
+                    }
+                }
+
+                if (gasto.InsumoId.HasValue)
+                {
+                    var insumo = await _context.Insumos
+                        .FirstOrDefaultAsync(i => i.InsumoId == gasto.InsumoId && i.FincaId == fincaId);
+                    if (insumo == null)
+                    {
+                        ModelState.AddModelError("InsumoId", "El insumo no pertenece a su finca");
+                    }
+                }
+
+                if (gasto.PotreroId.HasValue)
+                {
+                    var potrero = await _context.Potreros
+                        .FirstOrDefaultAsync(p => p.PotreroId == gasto.PotreroId && p.FincaId == fincaId);
+                    if (potrero == null)
+                    {
+                        ModelState.AddModelError("PotreroId", "El potrero no pertenece a su finca");
+                    }
+                }
+
+                if (ModelState.IsValid)
+                {
+                    _context.Add(gasto);
+                    await _context.SaveChangesAsync();
+                    MostrarExito("Gasto registrado exitosamente");
+                    return RedirectToAction(nameof(Index));
+                }
+
+                // Recargar dropdowns
+                ViewBag.RubroGastoId = new SelectList(_context.RubroGastos, "RubroGastoId", "Nombre", gasto.RubroGastoId);
+                ViewBag.AnimalId = new SelectList(
+                    _context.Animals.Where(a => a.FincaId == fincaId),
+                    "AnimalId", "Arete", gasto.AnimalId);
+                ViewBag.PotreroId = new SelectList(
+                    _context.Potreros.Where(p => p.FincaId == fincaId),
+                    "PotreroId", "Nombre", gasto.PotreroId);
+                ViewBag.InsumoId = new SelectList(
+                    _context.Insumos.Where(i => i.FincaId == fincaId),
+                    "InsumoId", "Nombre", gasto.InsumoId);
+
+                return View(gasto);
             }
-            ViewData["AnimalId"] = new SelectList(_context.Animals, "AnimalId", "AnimalId", gasto.AnimalId);
-            ViewData["FincaId"] = new SelectList(_context.Fincas, "FincaId", "FincaId", gasto.FincaId);
-            ViewData["InsumoId"] = new SelectList(_context.Insumos, "InsumoId", "InsumoId", gasto.InsumoId);
-            ViewData["PotreroId"] = new SelectList(_context.Potreros, "PotreroId", "PotreroId", gasto.PotreroId);
-            ViewData["RubroGastoId"] = new SelectList(_context.RubroGastos, "RubroGastoId", "RubroGastoId", gasto.RubroGastoId);
-            return View(gasto);
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogWarning(ex, "Acceso no autorizado");
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
         }
 
         // GET: Gastoes/Edit/5
@@ -88,22 +196,47 @@ namespace AgroTechApp.Controllers
                 return NotFound();
             }
 
-            var gasto = await _context.Gastos.FindAsync(id);
-            if (gasto == null)
+            try
             {
-                return NotFound();
+                var fincaId = GetFincaId();
+
+                var gasto = await _context.Gastos
+                    .Where(g => g.FincaId == fincaId && g.GastoId == id)
+                    .FirstOrDefaultAsync();
+
+                if (gasto == null)
+                {
+                    return NotFound();
+                }
+
+                // No permitir editar registros automáticos
+                if (gasto.EsAutomatico)
+                {
+                    MostrarError("No se pueden editar registros automáticos generados por el sistema. Use el módulo correspondiente para hacer cambios.");
+                    return RedirectToAction(nameof(Details), new { id });
+                }
+
+                ViewBag.RubroGastoId = new SelectList(_context.RubroGastos, "RubroGastoId", "Nombre", gasto.RubroGastoId);
+                ViewBag.AnimalId = new SelectList(
+                    _context.Animals.Where(a => a.FincaId == fincaId),
+                    "AnimalId", "Arete", gasto.AnimalId);
+                ViewBag.PotreroId = new SelectList(
+                    _context.Potreros.Where(p => p.FincaId == fincaId),
+                    "PotreroId", "Nombre", gasto.PotreroId);
+                ViewBag.InsumoId = new SelectList(
+                    _context.Insumos.Where(i => i.FincaId == fincaId),
+                    "InsumoId", "Nombre", gasto.InsumoId);
+
+                return View(gasto);
             }
-            ViewData["AnimalId"] = new SelectList(_context.Animals, "AnimalId", "AnimalId", gasto.AnimalId);
-            ViewData["FincaId"] = new SelectList(_context.Fincas, "FincaId", "FincaId", gasto.FincaId);
-            ViewData["InsumoId"] = new SelectList(_context.Insumos, "InsumoId", "InsumoId", gasto.InsumoId);
-            ViewData["PotreroId"] = new SelectList(_context.Potreros, "PotreroId", "PotreroId", gasto.PotreroId);
-            ViewData["RubroGastoId"] = new SelectList(_context.RubroGastos, "RubroGastoId", "RubroGastoId", gasto.RubroGastoId);
-            return View(gasto);
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogWarning(ex, "Acceso no autorizado");
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
         }
 
         // POST: Gastoes/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(long id, [Bind("GastoId,FincaId,RubroGastoId,Fecha,Monto,Descripcion,AnimalId,PotreroId,InsumoId")] Gasto gasto)
@@ -113,32 +246,81 @@ namespace AgroTechApp.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            try
             {
-                try
+                var fincaId = GetFincaId();
+
+                // Obtener el gasto original para verificar si es automático
+                var gastoOriginal = await _context.Gastos
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(g => g.GastoId == id && g.FincaId == fincaId);
+
+                if (gastoOriginal == null)
                 {
-                    _context.Update(gasto);
-                    await _context.SaveChangesAsync();
+                    return NotFound();
                 }
-                catch (DbUpdateConcurrencyException)
+
+                // BLOQUEAR EDICION DE REGISTROS AUTOMATICOS
+                if (gastoOriginal.EsAutomatico)
                 {
-                    if (!GastoExists(gasto.GastoId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    MostrarError("No se pueden editar registros automáticos generados por el sistema.");
+                    return RedirectToAction(nameof(Details), new { id });
                 }
-                return RedirectToAction(nameof(Index));
+
+                ModelState.Remove("FincaId");
+                ModelState.Remove("Finca");
+                ModelState.Remove("Animal");
+                ModelState.Remove("Insumo");
+                ModelState.Remove("Potrero");
+                ModelState.Remove("RubroGasto");
+
+                ValidarAcceso(gasto.FincaId);
+
+                if (ModelState.IsValid)
+                {
+                    try
+                    {
+                        //PRESERVAR campos de automatización
+                        gasto.EsAutomatico = gastoOriginal.EsAutomatico;
+                        gasto.OrigenModulo = gastoOriginal.OrigenModulo;
+                        gasto.ReferenciaOrigenId = gastoOriginal.ReferenciaOrigenId;
+
+                        _context.Update(gasto);
+                        await _context.SaveChangesAsync();
+                        MostrarExito("Gasto actualizado exitosamente");
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (!GastoExists(gasto.GastoId))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                    return RedirectToAction(nameof(Index));
+                }
+
+                ViewBag.RubroGastoId = new SelectList(_context.RubroGastos, "RubroGastoId", "Nombre", gasto.RubroGastoId);
+                ViewBag.AnimalId = new SelectList(
+                    _context.Animals.Where(a => a.FincaId == fincaId),
+                    "AnimalId", "Arete", gasto.AnimalId);
+                ViewBag.PotreroId = new SelectList(
+                    _context.Potreros.Where(p => p.FincaId == fincaId),
+                    "PotreroId", "Nombre", gasto.PotreroId);
+                ViewBag.InsumoId = new SelectList(
+                    _context.Insumos.Where(i => i.FincaId == fincaId),
+                    "InsumoId", "Nombre", gasto.InsumoId);
+
+                return View(gasto);
             }
-            ViewData["AnimalId"] = new SelectList(_context.Animals, "AnimalId", "AnimalId", gasto.AnimalId);
-            ViewData["FincaId"] = new SelectList(_context.Fincas, "FincaId", "FincaId", gasto.FincaId);
-            ViewData["InsumoId"] = new SelectList(_context.Insumos, "InsumoId", "InsumoId", gasto.InsumoId);
-            ViewData["PotreroId"] = new SelectList(_context.Potreros, "PotreroId", "PotreroId", gasto.PotreroId);
-            ViewData["RubroGastoId"] = new SelectList(_context.RubroGastos, "RubroGastoId", "RubroGastoId", gasto.RubroGastoId);
-            return View(gasto);
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogWarning(ex, "Acceso no autorizado");
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
         }
 
         // GET: Gastoes/Delete/5
@@ -149,19 +331,38 @@ namespace AgroTechApp.Controllers
                 return NotFound();
             }
 
-            var gasto = await _context.Gastos
-                .Include(g => g.Animal)
-                .Include(g => g.Finca)
-                .Include(g => g.Insumo)
-                .Include(g => g.Potrero)
-                .Include(g => g.RubroGasto)
-                .FirstOrDefaultAsync(m => m.GastoId == id);
-            if (gasto == null)
+            try
             {
-                return NotFound();
-            }
+                var fincaId = GetFincaId();
 
-            return View(gasto);
+                var gasto = await _context.Gastos
+                    .Where(g => g.FincaId == fincaId && g.GastoId == id)
+                    .Include(g => g.Animal)
+                    .Include(g => g.Finca)
+                    .Include(g => g.Insumo)
+                    .Include(g => g.Potrero)
+                    .Include(g => g.RubroGasto)
+                    .FirstOrDefaultAsync();
+
+                if (gasto == null)
+                {
+                    return NotFound();
+                }
+
+                // ADVERTENCIA SI ES AUTOMATICO
+                if (gasto.EsAutomatico)
+                {
+                    ViewBag.EsAutomatico = true;
+                    ViewBag.OrigenModulo = gasto.OrigenModulo;
+                }
+
+                return View(gasto);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogWarning(ex, "Acceso no autorizado");
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
         }
 
         // POST: Gastoes/Delete/5
@@ -169,14 +370,36 @@ namespace AgroTechApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(long id)
         {
-            var gasto = await _context.Gastos.FindAsync(id);
-            if (gasto != null)
+            try
             {
-                _context.Gastos.Remove(gasto);
-            }
+                var fincaId = GetFincaId();
 
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+                var gasto = await _context.Gastos
+                    .Where(g => g.FincaId == fincaId && g.GastoId == id)
+                    .FirstOrDefaultAsync();
+
+                if (gasto == null)
+                {
+                    return NotFound();
+                }
+
+                // NO PERMITIR ELIMINAR REGISTROS AUTOMATICOS
+                if (gasto.EsAutomatico)
+                {
+                    MostrarError($"No se pueden eliminar registros automáticos. Este gasto fue generado por el módulo: {gasto.OrigenModulo}. Use el módulo correspondiente para revertir la operación.");
+                    return RedirectToAction(nameof(Index));
+                }
+
+                _context.Gastos.Remove(gasto);
+                await _context.SaveChangesAsync();
+                MostrarExito("Gasto eliminado exitosamente");
+                return RedirectToAction(nameof(Index));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogWarning(ex, "Acceso no autorizado");
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
         }
 
         private bool GastoExists(long id)

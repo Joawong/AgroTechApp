@@ -347,6 +347,15 @@
                 <a class="navbar-brand fw-bold fs-3" asp-area="" asp-controller="Home" asp-action="Index">
                     AgroTech
                 </a>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="finca-selector-container me-3">
+                        <select id="fincaSelector" class="form-select finca-selector">
+                            <option value="">🏡 Cargando fincas...</option>
+                        </select>
+                    </div>
+                }
+
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
                         aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
@@ -360,18 +369,24 @@
                                 <i class="fas fa-home me-1"></i>Inicio
                             </a>
                         </li>
+                        <!--finca-->
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Fincas" asp-action="Index">
+                                🏡 Fincas
+                            </a>
+                        </li>
 
                         <!-- Gestión Animal -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-dark fw-semibold" href="#" id="animalDropdown"
-                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-cow me-1"></i>Gestión Animal
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="animalDropdown">
-                                <li><a class="dropdown-item" asp-controller="Animales" asp-action="Index"><i class="fas fa-list me-2"></i>Registro de Animales</a></li>
+                        <li class="nav-item dropdown"> 
+                            <a class="nav-link dropdown-toggle text-dark fw-semibold" href="#" id="animalDropdown" 
+                            role="button" data-bs-toggle="dropdown" aria-expanded="false"> 
+                            <i class="fas fa-cow me-1"></i>
+                            Gestión Animal </a> <ul class="dropdown-menu" aria-labelledby="animalDropdown"> 
+                                <li><a class="dropdown-item" asp-controller="Animales" asp-action="Index"><i class="fas fa-list me-2"></i>Registro de Animales</a></li> 
                                 <li><a class="dropdown-item" asp-controller="Animales" asp-action="Create"><i class="fas fa-plus-circle me-2"></i>Nuevo Animal</a></li>
-                            </ul>
-                        </li>
+                                <li><a class="dropdown-item" asp-controller="Mortalidad" asp-action="Index"><i class="fas fa-plus-circle me-2"></i>Mortalidad</a></li>
+                            </ul> 
+                            </li>
 
                         <!-- Pesajes -->
                         <li class="nav-item dropdown">
@@ -397,18 +412,6 @@
                             </ul>
                         </li>
 
-                        <!-- Potreros -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-dark fw-semibold" href="#" id="potrerosDropdown"
-                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-map-marked-alt me-1"></i>Potreros
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="potrerosDropdown">
-                                <li><a class="dropdown-item" asp-controller="Potreroes" asp-action="Index"><i class="fas fa-list me-2"></i>Registro de Potreros</a></li>
-                                <li><a class="dropdown-item" asp-controller="Potreroes" asp-action="Create"><i class="fas fa-plus-circle me-2"></i>Nuevo Potrero</a></li>
-                            </ul>
-                        </li>
-
                         <!-- Tratamientos -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-dark fw-semibold" href="#" id="tratamientoDropdown"
@@ -416,22 +419,29 @@
                                 <i class="fas fa-pills me-1"></i>Tratamientos
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="tratamientosDropdown">
-                                <li><a class="dropdown-item" asp-controller="Tratamientos" asp-action="Index"><i class="fas fa-list me-2"></i>Registro de Tratamiento</a></li>
-                                <li><a class="dropdown-item" asp-controller="Tratamientos" asp-action="Create"><i class="fas fa-plus-circle me-2"></i>Nuevo Tratamiento</a></li>
+                                <li><a class="dropdown-item" asp-controller="Tratamientoes" asp-action="Index"><i class="fas fa-list me-2"></i>Registro de Tratamiento</a></li>
+                                <li><a class="dropdown-item" asp-controller="Tratamientoes" asp-action="Create"><i class="fas fa-plus-circle me-2"></i>Nuevo Tratamiento</a></li>
                             </ul>
                         </li>
 
                         <!-- Finanzas -->
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle text-dark fw-semibold" href="#" id="finanzasDropdown"
-                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <a class="nav-link dropdown-toggle text-dark fw-semibold" href="#" data-bs-toggle="dropdown">
                                 <i class="fas fa-chart-line me-1"></i>Finanzas
                             </a>
-                            <ul class="dropdown-menu" aria-labelledby="finanzasDropdown">
-                                <li><a class="dropdown-item" asp-controller="Finanzas" asp-action="Gastos"><i class="fas fa-money-bill-wave me-2"></i>Gastos</a></li>
-                                <li><a class="dropdown-item" asp-controller="Finanzas" asp-action="Ingresos"><i class="fas fa-hand-holding-usd me-2"></i>Ingresos</a></li>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-controller="Gastoes" asp-action="Index">Gastos</a></li>
+                                <li><a class="dropdown-item" asp-controller="Ingresoes" asp-action="Index">Ingresos</a></li>
                             </ul>
                         </li>
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="AdminUsers" asp-action="Index">
+                                    <i class="fas fa-users-cog"></i> Usuarios
+                                </a>
+                            </li>
+                        }
 
                     </ul>
 
@@ -550,6 +560,250 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <script>
+            $(document).ready(function () {
+                cargarFincasUsuario();
+            });
+
+            function cargarFincasUsuario() {
+                $.ajax({
+                    url: '@Url.Action("GetFincaActual", "Home")',
+                    type: 'GET',
+                    success: function (response) {
+                        if (response.success) {
+                            cargarDropdownFincas(response.fincaId);
+                        }
+                    },
+                    error: function () {
+                        console.error('Error cargando finca actual');
+                    }
+                });
+            }
+
+            function cargarDropdownFincas(fincaActualId) {
+                $.ajax({
+                    url: '/Fincas/ObtenerFincasUsuario',
+                    type: 'GET',
+                    success: function (fincas) {
+                        var select = $('#fincaSelector');
+                        select.empty();
+
+                        if (fincas?.length > 0) {
+                            fincas.forEach(function (finca) {
+                                var selected = finca.fincaId === fincaActualId ? 'selected' : '';
+                                select.append(`<option value="${finca.fincaId}" ${selected}>🏡 ${finca.nombre}</option>`);
+                            });
+
+                            if (fincas.length === 1) {
+                                select.prop('disabled', true).addClass('single-farm');
+                            }
+                        } else {
+                            select.append('<option value="">Sin fincas asignadas</option>');
+                            select.prop('disabled', true);
+                        }
+                    },
+                    error: function () {
+                        console.error('Error cargando fincas del usuario');
+                    }
+                });
+            }
+
+            $('#fincaSelector').on('change', function () {
+                var fincaId = $(this).val();
+                if (fincaId) {
+                    cambiarFinca(fincaId);
+                }
+            });
+
+            function cambiarFinca(fincaId) {
+                $.ajax({
+                    url: '@Url.Action("CambiarFinca", "Home")',
+                    type: 'POST',
+                    data: { fincaId: fincaId },
+                    beforeSend: function () {
+                        $('#fincaSelector').prop('disabled', true);
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            location.reload();
+                        } else {
+                            alert('Error: ' + response.message);
+                            $('#fincaSelector').prop('disabled', false);
+                        }
+                    },
+                    error: function () {
+                        alert('Error al cambiar de finca');
+                        $('#fincaSelector').prop('disabled', false);
+                    }
+                });
+            }
+        </script>
+
+        <style>
+            .finca-selector-container {
+                display: flex;
+                align-items: center;
+            }
+
+            .finca-selector {
+                min-width: 250px;
+                border: 2px solid #2E8B57;
+                border-radius: 8px;
+                font-weight: 500;
+                color: #2E8B57;
+                background-color: #f0f8f0;
+                transition: all 0.3s ease;
+            }
+
+                .finca-selector:focus {
+                    border-color: #2A6BBF;
+                    box-shadow: 0 0 0 0.2rem rgba(42, 107, 191, 0.25);
+                }
+
+                .finca-selector.single-farm {
+                    cursor: not-allowed;
+                    opacity: 0.7;
+                }
+
+                .finca-selector:disabled {
+                    background-color: #e9ecef;
+                }
+
+            @@media (max-width: 768px) {
+                .finca-selector {
+                    min-width: 180px;
+                    font-size: 0.9rem;
+                }
+            }
+        </style>
+    }
+
+    <!-- Sistema de Alertas -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert-toast alert-success">
+            <i class="fas fa-check-circle"></i>
+            <span>@TempData["Success"]</span>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert-toast alert-error">
+            <i class="fas fa-times-circle"></i>
+            <span>@TempData["Error"]</span>
+        </div>
+    }
+
+    @if (TempData["Warning"] != null)
+    {
+        <div class="alert-toast alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>@TempData["Warning"]</span>
+        </div>
+    }
+
+    <style>
+        .alert-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            min-width: 300px;
+            max-width: 500px;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideIn 0.5s ease-out, slideOut 0.5s ease-out 4.5s forwards;
+            z-index: 9999;
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .alert-error {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+
+        .alert-warning {
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+            color: #333;
+        }
+
+        .alert-toast i {
+            font-size: 1.5rem;
+        }
+
+        @@keyframes slideIn {
+            from
+
+        {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        }
+
+        @@keyframes slideOut {
+            from
+
+        {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        to {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .alert-toast
+
+        {
+            left: 10px;
+            right: 10px;
+            min-width: auto;
+            top: 10px;
+        }
+
+        }
+    </style>
+
+    <script>
+        // Auto-cerrar alertas después de 5 segundos
+        document.addEventListener('DOMContentLoaded', function() {
+            const alerts = document.querySelectorAll('.alert-toast');
+            alerts.forEach(alert => {
+                setTimeout(() => {
+                    alert.remove();
+                }, 5000);
+
+                // Cerrar al hacer click
+                alert.addEventListener('click', function() {
+                    this.style.animation = 'slideOut 0.3s ease-out forwards';
+                    setTimeout(() => this.remove(), 300);
+                });
+            });
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

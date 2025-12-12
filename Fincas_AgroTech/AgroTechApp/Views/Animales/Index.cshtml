@@ -2,533 +2,434 @@
 
 @{
     ViewData["Title"] = "Gestión de Animales";
-    var primaryColor = "#2E8B57";
-    var secondaryColor = "#F4A460";
-    var lightColor = "#f8f9fa";
 }
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - AgroTech</title>
-    <style>
-        :root {
-            --primary: @primaryColor;
-            --secondary: @secondaryColor;
-            --light: @lightColor;
-            --dark: #333;
-            --success: #28a745;
-            --warning: #ffc107;
-            --danger: #dc3545;
-            --info: #17a2b8;
-        }
+<style>
+    .animals-header {
+        background: linear-gradient(135deg, #2E8B57, #3CB371);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
 
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        .animals-header h1 {
             margin: 0;
-            padding: 20px;
-            min-height: 100vh;
+            font-size: 2.2rem;
+            font-weight: 600;
         }
 
-        .animals-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            overflow: hidden;
+        .animals-header p {
+            margin: 0.5rem 0 0;
+            opacity: 0.9;
         }
 
-        .animals-header {
-            background: linear-gradient(135deg, var(--primary), #3CB371);
+    .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .stats-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        border-left: 4px solid #2E8B57;
+        text-align: center;
+    }
+
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #2E8B57;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        color: #333;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .btn-primary {
+        background-color: #2E8B57;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+        .btn-primary:hover {
+            background-color: #26734d;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
+        }
+
+    .table-container {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        overflow: hidden;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+    }
+
+        .table thead {
+            background: linear-gradient(135deg, #2E8B57, #3CB371);
             color: white;
-            padding: 2rem;
-            text-align: center;
         }
 
-            .animals-header h1 {
-                margin: 0;
-                font-size: 2.2rem;
-                font-weight: 600;
-            }
-
-            .animals-header p {
-                margin: 0.5rem 0 0;
-                opacity: 0.9;
-                font-size: 1.1rem;
-            }
-
-        .animals-body {
-            padding: 2rem;
-        }
-
-        .header-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .stats-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border-left: 4px solid var(--primary);
-            text-align: center;
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--primary);
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-label {
-            color: var(--dark);
+        .table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
             font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            text-decoration: none;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
-
-            .btn-primary:hover {
-                background-color: #26734d;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
-            }
-
-        .btn-success {
-            background-color: var(--success);
-            color: white;
-        }
-
-        .btn-warning {
-            background-color: var(--warning);
-            color: var(--dark);
-        }
-
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-        }
-
-        .btn-sm {
-            padding: 0.5rem 1rem;
-            font-size: 0.85rem;
-        }
-
-        .animals-table-container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            overflow: hidden;
-        }
-
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 0;
-        }
-
-            .table thead {
-                background: linear-gradient(135deg, var(--primary), #3CB371);
-                color: white;
-            }
-
-            .table th {
-                padding: 1rem;
-                text-align: left;
-                font-weight: 600;
-                font-size: 0.9rem;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-
-            .table td {
-                padding: 1rem;
-                border-bottom: 1px solid #e1e5e9;
-                vertical-align: middle;
-            }
-
-            .table tbody tr {
-                transition: all 0.3s ease;
-            }
-
-                .table tbody tr:hover {
-                    background-color: #f8f9fa;
-                    transform: translateY(-1px);
-                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                }
-
-        .animal-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), #3CB371);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-
-        .status-badge {
-            padding: 0.25rem 0.75rem;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
-        .status-active {
-            background-color: #d4edda;
-            color: var(--success);
-        }
-
-        .status-inactive {
-            background-color: #f8d7da;
-            color: var(--danger);
-        }
-
-        .sex-badge {
-            padding: 0.25rem 0.5rem;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .sex-male {
-            background-color: #d1ecf1;
-            color: var(--info);
-        }
-
-        .sex-female {
-            background-color: #f8d7da;
-            color: #e83e8c;
-        }
-
-        .actions-column {
-            white-space: nowrap;
-            text-align: center;
-        }
-
-        .actions-group {
-            display: flex;
-            gap: 0.5rem;
-            justify-content: center;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: #6c757d;
-        }
-
-            .empty-state .icon {
-                font-size: 4rem;
-                margin-bottom: 1rem;
-                opacity: 0.5;
-            }
-
-        .search-filter {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-
-        .search-box {
-            flex: 1;
-            min-width: 300px;
+        .table td {
             padding: 0.75rem 1rem;
-            border: 2px solid #e1e5e9;
-            border-radius: 8px;
-            font-size: 1rem;
+            border-bottom: 1px solid #e1e5e9;
+            vertical-align: middle;
+        }
+
+        .table tbody tr {
             transition: all 0.3s ease;
         }
 
-            .search-box:focus {
-                outline: none;
-                border-color: var(--primary);
-                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+            .table tbody tr:hover {
+                background-color: #f8f9fa;
+                transform: translateY(-1px);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             }
 
-        .filter-select {
-            padding: 0.75rem 1rem;
-            border: 2px solid #e1e5e9;
-            border-radius: 8px;
-            background: white;
-            font-size: 1rem;
-            min-width: 150px;
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+    .status-active {
+        background-color: #d4edda;
+        color: #28a745;
+    }
+
+    .status-vendido {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .status-muerto {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .sex-badge {
+        padding: 0.25rem 0.5rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .sex-male {
+        background-color: #d1ecf1;
+        color: #17a2b8;
+    }
+
+    .sex-female {
+        background-color: #f8d7da;
+        color: #e83e8c;
+    }
+
+    .btn-action {
+        padding: 0.5rem 0.75rem;
+        margin: 0 0.25rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+            transform: translateY(-1px);
         }
 
-        /* Responsive */
-        @@media (max-width: 1200px) {
-            .animals-table-container {
-                overflow-x: auto;
-            }
+    .btn-warning {
+        background-color: #ffc107;
+        color: #333;
+    }
 
-            .table {
-                min-width: 1000px;
-            }
+        .btn-warning:hover {
+            background-color: #e0a800;
+            transform: translateY(-1px);
         }
 
-        @@media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
+    .btn-info {
+        background-color: #17a2b8;
+        color: white;
+    }
 
-            .animals-header {
-                padding: 1.5rem;
-            }
-
-                .animals-header h1 {
-                    font-size: 1.8rem;
-                }
-
-            .animals-body {
-                padding: 1.5rem;
-            }
-
-            .header-actions {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .stats-cards {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .search-filter {
-                flex-direction: column;
-            }
-
-            .search-box {
-                min-width: 100%;
-            }
+        .btn-info:hover {
+            background-color: #138496;
+            transform: translateY(-1px);
         }
 
-        @@media (max-width: 480px) {
-            .animals-header h1 {
-                font-size: 1.5rem;
-            }
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
 
-            .animals-body {
-                padding: 1rem;
-            }
-
-            .stats-cards {
-                grid-template-columns: 1fr;
-            }
-
-            .actions-group {
-                flex-direction: column;
-            }
-
-            .btn-sm {
-                width: 100%;
-                justify-content: center;
-            }
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-1px);
         }
-    </style>
-</head>
-<body>
-    <div class="animals-container">
-        <div class="animals-header">
-            <h1>🐄 Gestión de Animales</h1>
-            <p>Administre y visualice todos los animales registrados en el sistema</p>
-        </div>
 
-        <div class="animals-body">
-            <div class="header-actions">
-                <div>
-                    <h2 style="margin: 0; color: var(--dark);">Lista de Animales</h2>
-                    <p style="margin: 0.5rem 0 0; color: #6c757d;">Total de animales registrados: @Model.Count()</p>
-                </div>
-                <a asp-action="Create" class="btn btn-primary">
-                    <span>➕</span> Registrar Nuevo Animal
-                </a>
-            </div>
+    .empty-state {
+        text-align: center;
+        padding: 3rem;
+        color: #6c757d;
+    }
 
-            <!-- Tarjetas de Estadísticas -->
-            <div class="stats-cards">
-                <div class="stat-card">
-                    <div class="stat-number">@Model.Count()</div>
-                    <div class="stat-label">Total Animales</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">@Model.Count(a => a.Sexo == "M" || a.Sexo == "Macho")</div>
-                    <div class="stat-label">Machos</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">@Model.Count(a => a.Sexo == "H" || a.Sexo == "Hembra")</div>
-                    <div class="stat-label">Hembras</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">@Model.Count(a => a.Estado == "Activo" || a.Estado == "1")</div>
-                    <div class="stat-label">Activos</div>
-                </div>
-            </div>
+        .empty-state .icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
 
-            <!-- Buscador y Filtros -->
-            <div class="search-filter">
-                <input type="text" class="search-box" placeholder="🔍 Buscar animales por nombre o arete..." id="searchInput">
-                <select class="filter-select" id="statusFilter">
-                    <option value="">Todos los estados</option>
-                    <option value="Activo">Activos</option>
-                    <option value="Inactivo">Inactivos</option>
-                </select>
-                <select class="filter-select" id="sexFilter">
-                    <option value="">Todos los sexos</option>
-                    <option value="M">Machos</option>
-                    <option value="H">Hembras</option>
-                </select>
-            </div>
+    .search-filter {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
 
-            <div class="animals-table-container">
-                @if (Model.Any())
-                {
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Animal</th>
-                                <th>Arete</th>
-                                <th>Nombre</th>
-                                <th>Sexo</th>
-                                <th>Nacimiento</th>
-                                <th>Peso (kg)</th>
-                                <th>Estado</th>
-                                <th>Finca</th>
-                                <th>Lote</th>
-                                <th>Raza</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var item in Model)
-                            {
-                                <tr>
-                                    <td>
-                                        <div class="animal-avatar">
-                                            @if (item.Sexo == "M" || item.Sexo == "Macho")
-                                            {
-                                                <span>🐂</span>
-                                            }
-                                            else
-                                            {
-                                                <span>🐄</span>
-                                            }
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <strong>@Html.DisplayFor(modelItem => item.Arete)</strong>
-                                    </td>
-                                    <td>
-                                        <strong>@Html.DisplayFor(modelItem => item.Nombre)</strong>
-                                    </td>
-                                    <td>
-                                        @{
-                                            var sexoClass = (item.Sexo == "M" || item.Sexo == "Macho") ? "sex-male" : "sex-female";
-                                            var sexoText = (item.Sexo == "M" || item.Sexo == "Macho") ? "Macho" : "Hembra";
-                                        }
-                                        <span class="sex-badge @sexoClass">@sexoText</span>
-                                    </td>
-                                    <td>
-                                        @item.FechaNacimiento?.ToString("dd/MM/yyyy")
-                                    </td>
-                                    <td>
-                                        <strong>@Html.DisplayFor(modelItem => item.PesoNacimiento)</strong>
-                                    </td>
-                                    <td>
-                                        @{
-                                            var estadoClass = (item.Estado == "Activo" || item.Estado == "1") ? "status-active" : "status-inactive";
-                                            var estadoText = (item.Estado == "Activo" || item.Estado == "1") ? "Activo" : "Inactivo";
-                                        }
-                                        <span class="status-badge @estadoClass">@estadoText</span>
-                                    </td>
-                                    <td>
-                                        <small>@Html.DisplayFor(modelItem => item.Finca.FincaId)</small>
-                                    </td>
-                                    <td>
-                                        <small>@Html.DisplayFor(modelItem => item.LoteAnimal.LoteAnimalId)</small>
-                                    </td>
-                                    <td>
-                                        <small>@Html.DisplayFor(modelItem => item.Raza.RazaId)</small>
-                                    </td>
-                                    <td class="actions-column">
-                                        <div class="actions-group">
-                                            <a asp-action="Edit" asp-route-id="@item.AnimalId" class="btn btn-warning btn-sm" title="Editar">
-                                                ✏️ Editar
-                                            </a>
-                                            <a asp-action="Details" asp-route-id="@item.AnimalId" class="btn btn-success btn-sm" title="Detalles">
-                                                👁️ Ver
-                                            </a>
-                                            <a asp-action="Delete" asp-route-id="@item.AnimalId" class="btn btn-danger btn-sm" title="Eliminar">
-                                                🗑️ Eliminar
-                                            </a>
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                }
-                else
-                {
-                    <div class="empty-state">
-                        <div class="icon">🐄</div>
-                        <h3>No hay animales registrados</h3>
-                        <p>Comience registrando el primer animal en el sistema.</p>
-                        <a asp-action="Create" class="btn btn-primary">
-                            <span>➕</span> Registrar Primer Animal
-                        </a>
-                    </div>
-                }
-            </div>
-        </div>
+    .search-box {
+        flex: 1;
+        min-width: 300px;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #2E8B57;
+            box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+        }
+
+    .filter-select {
+        padding: 0.75rem 1rem;
+        border: 2px solid #e1e5e9;
+        border-radius: 8px;
+        background: white;
+        font-size: 1rem;
+        min-width: 150px;
+    }
+
+    .actions-column {
+        white-space: nowrap;
+    }
+</style>
+
+<div class="animals-header">
+    <h1>🐄 Gestión de Animales</h1>
+    <p>Administre y visualice todos los animales registrados en el sistema</p>
+</div>
+
+<div class="header-actions">
+    <div>
+        <h2 style="margin: 0;">Lista de Animales</h2>
+        <p style="margin: 0.5rem 0 0; color: #6c757d;">Total: @Model.Count()</p>
     </div>
+    <a asp-action="Create" class="btn-primary">
+        ➕ Registrar Nuevo Animal
+    </a>
+</div>
 
+<!-- Estadísticas -->
+<div class="stats-cards">
+    <div class="stat-card">
+        <div class="stat-number">@Model.Count()</div>
+        <div class="stat-label">Total Animales</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">@Model.Count(a => a.Sexo == "M")</div>
+        <div class="stat-label">Machos</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">@Model.Count(a => a.Sexo == "H")</div>
+        <div class="stat-label">Hembras</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-number">@Model.Count(a => a.Estado == "Activo")</div>
+        <div class="stat-label">Activos</div>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="search-filter">
+    <input type="text" class="search-box" placeholder="🔍 Buscar por arete o nombre..." id="searchInput">
+    <select class="filter-select" id="statusFilter">
+        <option value="">Todos los estados</option>
+        <option value="Activo">Activos</option>
+        <option value="Vendido">Vendidos</option>
+        <option value="Muerto">Muertos</option>
+    </select>
+    <select class="filter-select" id="sexFilter">
+        <option value="">Todos los sexos</option>
+        <option value="M">Machos</option>
+        <option value="H">Hembras</option>
+    </select>
+</div>
+
+<!-- Tabla -->
+<div class="table-container">
+    @if (Model.Any())
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Arete</th>
+                    <th>Nombre</th>
+                    <th>Sexo</th>
+                    <th>Nacimiento</th>
+                    <th>Peso (kg)</th>
+                    <th>Estado</th>
+                    <th>Raza</th>
+                    <th>Valor</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr data-estado="@item.Estado" data-sexo="@item.Sexo">
+                        <td><strong>@item.Arete</strong></td>
+                        <td>@(item.Nombre ?? "-")</td>
+                        <td>
+                            @{
+                                var sexoClass = item.Sexo == "M" ? "sex-male" : "sex-female";
+                                var sexoText = item.Sexo == "M" ? "♂ Macho" : "♀ Hembra";
+                            }
+                            <span class="sex-badge @sexoClass">@sexoText</span>
+                        </td>
+                        <td>@(item.FechaNacimiento?.ToString("dd/MM/yyyy") ?? "-")</td>
+                        <td><strong>@(item.PesoNacimiento?.ToString("0.0") ?? "-")</strong></td>
+                        <td>
+                            @{
+                                var estadoClass = item.Estado switch
+                                {
+                                    "Activo" => "status-active",
+                                    "Vendido" => "status-vendido",
+                                    "Muerto" => "status-muerto",
+                                    _ => "status-muerto"
+                                };
+                            }
+                            <span class="status-badge @estadoClass">@item.Estado</span>
+                        </td>
+                        <td>@(item.Raza?.Nombre ?? "-")</td>
+                        <td>
+                            @if (item.CostoCompra.HasValue)
+                            {
+                                <small style="color: #6c757d;">Costo:</small>
+                    
+                                <br />
+                                <strong>₡@item.CostoCompra.Value.ToString("N0")</strong>
+                            }
+                            @if (item.PrecioVenta.HasValue)
+                            {
+                                <br />
+                                <small style="color: #28a745;">Venta:</small>
+
+                                <br />
+                                <strong style="color: #28a745;">₡@item.PrecioVenta.Value.ToString("N0")</strong>
+                            }
+                            @if (!item.CostoCompra.HasValue && !item.PrecioVenta.HasValue)
+                            {
+                                <span style="color: #6c757d;">-</span>
+                            }
+                        </td>
+                        <td class="actions-column">
+                            <a asp-action="Details" asp-route-id="@item.AnimalId"
+                               class="btn-action btn-info" title="Ver">
+                                👁️
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@item.AnimalId"
+                               class="btn-action btn-warning" title="Editar">
+                                ✏️
+                            </a>
+
+                            @* BOTÓN VENDER - SOLO SI ESTÁ ACTIVO *@
+                            @if (item.Estado == "Activo")
+                            {
+                                <a asp-action="Vender" asp-route-id="@item.AnimalId"
+                                   class="btn-action btn-success" title="Vender">
+                                    💰
+                                </a>
+                            }
+
+                            <a asp-action="Delete" asp-route-id="@item.AnimalId"
+                               class="btn-action btn-danger" title="Eliminar">
+                                🗑️
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="icon">🐄</div>
+            <h3>No hay animales registrados</h3>
+            <p>Comience registrando el primer animal en el sistema.</p>
+            <a asp-action="Create" class="btn-primary">
+                ➕ Registrar Primer Animal
+            </a>
+        </div>
+    }
+</div>
+
+@section Scripts {
     <script>
-        // Funcionalidad de búsqueda y filtros
         document.addEventListener('DOMContentLoaded', function() {
             const searchInput = document.getElementById('searchInput');
             const statusFilter = document.getElementById('statusFilter');
@@ -540,41 +441,45 @@
                 const statusValue = statusFilter.value;
                 const sexValue = sexFilter.value;
 
+                let visibleCount = 0;
+
                 tableRows.forEach(row => {
-                    const nombre = row.cells[2].textContent.toLowerCase();
-                    const arete = row.cells[1].textContent.toLowerCase();
-                    const estado = row.cells[6].textContent;
-                    const sexo = row.cells[3].textContent;
+                    const nombre = row.cells[1]?.textContent.toLowerCase() || '';
+                    const arete = row.cells[0]?.textContent.toLowerCase() || '';
+                    const estado = row.getAttribute('data-estado') || '';
+                    const sexo = row.getAttribute('data-sexo') || '';
 
                     const matchesSearch = nombre.includes(searchTerm) || arete.includes(searchTerm);
-                    const matchesStatus = !statusValue || estado.includes(statusValue);
-                    const matchesSex = !sexValue ||
-                        (sexValue === 'M' && sexo.includes('Macho')) ||
-                        (sexValue === 'H' && sexo.includes('Hembra'));
+                    const matchesStatus = !statusValue || estado === statusValue;
+                    const matchesSex = !sexValue || sexo === sexValue;
 
                     if (matchesSearch && matchesStatus && matchesSex) {
                         row.style.display = '';
+                        visibleCount++;
                     } else {
                         row.style.display = 'none';
                     }
                 });
+
+                // Mensaje si no hay resultados
+                const tbody = document.querySelector('.table tbody');
+                let noResultsRow = document.getElementById('no-results-row');
+
+                if (visibleCount === 0 && tableRows.length > 0) {
+                    if (!noResultsRow) {
+                        noResultsRow = document.createElement('tr');
+                        noResultsRow.id = 'no-results-row';
+                        noResultsRow.innerHTML = '<td colspan="9" style="text-align: center; padding: 2rem; color: #6c757d;">No se encontraron animales</td>';
+                        tbody.appendChild(noResultsRow);
+                    }
+                } else if (noResultsRow) {
+                    noResultsRow.remove();
+                }
             }
 
             searchInput.addEventListener('input', filterTable);
             statusFilter.addEventListener('change', filterTable);
             sexFilter.addEventListener('change', filterTable);
-
-            // Efectos hover mejorados
-            tableRows.forEach(row => {
-                row.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-2px)';
-                });
-
-                row.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0)';
-                });
-            });
         });
     </script>
-</body>
-</html>
+}

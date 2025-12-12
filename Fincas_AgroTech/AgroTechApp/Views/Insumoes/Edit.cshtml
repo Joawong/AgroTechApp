@@ -863,49 +863,35 @@
                 }, 3000);
             }
 
-            // Validación del formulario
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
+                    // Validación del formulario
+        form.addEventListener('submit', function(e) {
+            // Validar campos requeridos ANTES de enviar
+            const nombreInput = form.querySelector('input[name="Nombre"]');
+            const stockMinimoInput = form.querySelector('input[name="StockMinimo"]');
 
-                // Validar campos requeridos
-                const nombre = document.getElementById('nombre').value.trim();
-                const stockMinimo = document.getElementById('stockMinimo').value;
+            if (nombreInput && !nombreInput.value.trim()) {
+                e.preventDefault();  // Solo prevenir si hay error
+                showToast('El nombre del insumo es requerido', true);
+                nombreInput.focus();
+                return;
+            }
 
-                if (!nombre) {
-                    showToast('El nombre del insumo es requerido', true);
-                    document.getElementById('nombre').focus();
-                    return;
-                }
+            if (stockMinimoInput && (parseFloat(stockMinimoInput.value) < 0 || !stockMinimoInput.value)) {
+                e.preventDefault();  // Solo prevenir si hay error
+                showToast('El stock mínimo debe ser mayor o igual a 0', true);
+                stockMinimoInput.focus();
+                return;
+            }
 
-                if (!stockMinimo || parseFloat(stockMinimo) < 0) {
-                    showToast('El stock mínimo debe ser un valor positivo', true);
-                    document.getElementById('stockMinimo').focus();
-                    return;
-                }
-
-                // Simular guardado
-                const submitBtn = form.querySelector('button[type="submit"]');
-                const originalText = submitBtn.innerHTML;
+            // ✅ Si pasan las validaciones, mostrar loading y PERMITIR el envío
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
                 submitBtn.disabled = true;
+            }
 
-                setTimeout(() => {
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                    showToast('Insumo actualizado exitosamente');
-
-                    // Aquí iría la lógica real de guardado
-                    console.log('Datos guardados:', {
-                        insumoId: document.getElementById('insumoId').value,
-                        fincaId: document.getElementById('fincaId').value,
-                        categoriaId: document.getElementById('categoriaId').value,
-                        unidadId: document.getElementById('unidadId').value,
-                        nombre: nombre,
-                        stockMinimo: stockMinimo,
-                        activo: document.getElementById('activo').checked
-                    });
-                }, 1500);
-            });
+            // ✅ El formulario SE ENVIARÁ al servidor (sin e.preventDefault)
+        });
 
             // Restablecer formulario
             resetBtn.addEventListener('click', function() {

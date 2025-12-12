@@ -1,55 +1,261 @@
 ﻿@model AgroTechApp.Models.DB.Ingreso
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Registrar Ingreso";
 }
 
-<h1>Create</h1>
+<style>
+    :root {
+        --primary: #2E8B57;
+        --primary-light: #3CB371;
+        --primary-dark: #1E6B47;
+        --secondary: #F4A460;
+        --success: #28a745;
+        --warning: #ffc107;
+        --danger: #dc3545;
+        --info: #17a2b8;
+        --light: #f8f9fa;
+        --dark: #343a40;
+        --white: #ffffff;
+        --border: #e1e5e9;
+        --shadow: rgba(46, 139, 87, 0.1);
+        --gray: #6c757d;
+    }
 
-<h4>Ingreso</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="FincaId" class="control-label"></label>
-                <select asp-for="FincaId" class ="form-control" asp-items="ViewBag.FincaId"></select>
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #e3f2fd 100%);
+        font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    }
+
+    .form-card {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 15px 40px var(--shadow);
+        overflow: hidden;
+        border: 1px solid var(--border);
+        animation: fadeIn 0.5s ease-out;
+        max-width: 900px;
+        margin: 2rem auto;
+    }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .form-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+    }
+
+        .form-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.3rem;
+        }
+
+    .form-body {
+        padding: 2.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .required {
+        color: var(--danger);
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.9rem 1.2rem;
+        border: 2px solid var(--border);
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(46,139,87,0.15);
+        }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    textarea.form-control {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        padding-top: 2rem;
+        border-top: 2px solid var(--border);
+        margin-top: 2rem;
+    }
+
+    .btn-custom {
+        padding: 0.9rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 1rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color: var(--white);
+    }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(46,139,87,0.35);
+        }
+
+    .btn-secondary {
+        background: var(--white);
+        border: 2px solid var(--border);
+        color: var(--gray);
+    }
+
+        .btn-secondary:hover {
+            background: var(--light);
+        }
+
+    .hidden {
+        display: none;
+    }
+
+    @@media (max-width: 768px) {
+        .form-row
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn-custom {
+        width: 100%;
+        justify-content: center;
+    }
+
+    }
+</style>
+
+<div class="form-card">
+    <!-- HEADER -->
+    <div class="form-header">
+        <h1><i class="fas fa-coins"></i> Registrar Nuevo Ingreso</h1>
+        <p>Complete los datos del ingreso manual</p>
+    </div>
+
+    <div class="form-body">
+
+        <form asp-action="Create" method="post">
+
+            <!-- FILA 1: Rubro - Fecha -->
+            <div class="form-row">
+                <div>
+                    <label class="form-label">Rubro de Ingreso <span class="required">*</span></label>
+                    <select asp-for="RubroIngresoId" class="form-control" asp-items="ViewBag.RubroIngresoId">
+                        <option value="">Seleccione un rubro</option>
+                    </select>
+                    <span asp-validation-for="RubroIngresoId" class="text-danger"></span>
+                </div>
+
+                <div>
+                    <label class="form-label">Fecha <span class="required">*</span></label>
+                    <input asp-for="Fecha" type="date" class="form-control" />
+                    <span asp-validation-for="Fecha" class="text-danger"></span>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="RubroIngresoId" class="control-label"></label>
-                <select asp-for="RubroIngresoId" class ="form-control" asp-items="ViewBag.RubroIngresoId"></select>
+
+            <!-- FILA 2: Monto -->
+            <div class="form-row">
+                <div>
+                    <label class="form-label">Monto (₡) <span class="required">*</span></label>
+                    <input asp-for="Monto" type="number" class="form-control" step="0.01" min="0.01" placeholder="0.00" />
+                    <span asp-validation-for="Monto" class="text-danger"></span>
+                </div>
             </div>
+
+            <!-- Descripción -->
             <div class="form-group">
-                <label asp-for="Fecha" class="control-label"></label>
-                <input asp-for="Fecha" class="form-control" />
-                <span asp-validation-for="Fecha" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Monto" class="control-label"></label>
-                <input asp-for="Monto" class="form-control" />
-                <span asp-validation-for="Monto" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Descripcion" class="control-label"></label>
-                <input asp-for="Descripcion" class="form-control" />
+                <label class="form-label">Descripción</label>
+                <textarea asp-for="Descripcion" class="form-control"
+                          placeholder="Ejemplo: Venta de ternero, venta de leche, etc."></textarea>
                 <span asp-validation-for="Descripcion" class="text-danger"></span>
             </div>
+
+            <!-- Asignación a Animal -->
             <div class="form-group">
-                <label asp-for="AnimalId" class="control-label"></label>
-                <select asp-for="AnimalId" class ="form-control" asp-items="ViewBag.AnimalId"></select>
+                <label class="form-label">
+                    <i class="fas fa-paw"></i> Asignar a un Animal (Opcional)
+                </label>
+                <select asp-for="AnimalId" class="form-control" asp-items="ViewBag.AnimalId">
+                    <option value="">Sin asignar</option>
+                </select>
+                <span asp-validation-for="AnimalId" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+
+            <!-- BOTONES -->
+            <div class="form-actions">
+                <a asp-action="Index" class="btn-custom btn-secondary">
+                    <i class="fas fa-times"></i> Cancelar
+                </a>
+                <button type="submit" class="btn-custom btn-primary">
+                    <i class="fas fa-save"></i> Guardar Ingreso
+                </button>
             </div>
+
         </form>
+
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Autocompletar fecha actual por defecto
+        const fecha = document.getElementById("Fecha");
+        if (fecha && !fecha.value) {
+            fecha.value = new Date().toISOString().split("T")[0];
+        }
+    </script>
 }

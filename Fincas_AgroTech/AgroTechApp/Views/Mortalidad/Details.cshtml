@@ -1,0 +1,374 @@
+﻿@model AgroTechApp.Models.DB.Mortalidad
+
+@{
+    ViewData["Title"] = "Detalles de Mortalidad";
+    var gastoPerdida = ViewBag.GastoPerdida as AgroTechApp.Models.DB.Gasto;
+}
+
+<style>
+    :root {
+        --primary: #2E8B57;
+        --danger: #dc3545;
+        --warning: #ffc107;
+        --info: #17a2b8;
+        --light: #f8f9fa;
+        --dark: #333;
+    }
+
+    .details-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+    }
+
+    .details-header {
+        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+        .details-header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .details-header p {
+            margin: 0.5rem 0 0;
+            opacity: 0.9;
+        }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .info-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border-left: 4px solid;
+    }
+
+        .info-card.animal {
+            border-left-color: var(--info);
+        }
+
+        .info-card.mortalidad {
+            border-left-color: var(--danger);
+        }
+
+        .info-card.financiera {
+            border-left-color: var(--warning);
+        }
+
+        .info-card h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+    .info-label {
+        font-weight: 600;
+        color: #6c757d;
+    }
+
+    .info-value {
+        color: var(--dark);
+        font-weight: 500;
+        text-align: right;
+    }
+
+    .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-block;
+    }
+
+    .badge-danger {
+        background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+        color: white;
+    }
+
+    .badge-warning {
+        background: linear-gradient(135deg, #ffd93d, #f6c23e);
+        color: #333;
+    }
+
+    .badge-info {
+        background: linear-gradient(135deg, #74b9ff, #0984e3);
+        color: white;
+    }
+
+    .badge-secondary {
+        background: linear-gradient(135deg, #b2bec3, #636e72);
+        color: white;
+    }
+
+    .observaciones-card {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+
+        .observaciones-card h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+    .alert-info {
+        background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+        border: 2px solid var(--info);
+        border-radius: 10px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+        .alert-info i {
+            font-size: 2rem;
+            color: var(--info);
+        }
+
+    .btn-group {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+    .btn-danger {
+        background-color: var(--danger);
+        color: white;
+    }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+    @@media (max-width: 768px) {
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .btn-group {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="details-container">
+    <div class="details-header">
+        <h1>☠️ Detalles de Mortalidad</h1>
+        <p>Información completa del registro</p>
+    </div>
+
+    @if (gastoPerdida != null)
+    {
+        <div class="alert-info">
+            <i class="fas fa-info-circle"></i>
+            <div>
+                <strong>Pérdida Registrada:</strong>
+                Este registro generó automáticamente un gasto de
+                <strong>₡@gastoPerdida.Monto.ToString("N2")</strong>
+                en el rubro "@gastoPerdida.RubroGasto?.Nombre"
+            </div>
+        </div>
+    }
+
+    <div class="info-grid">
+        <!-- Card: Información del Animal -->
+        <div class="info-card animal">
+            <h3>
+                <i class="fas fa-cow"></i>
+                Información del Animal
+            </h3>
+            <div class="info-row">
+                <span class="info-label">Arete:</span>
+                <span class="info-value"><strong>@Model.Animal?.Arete</strong></span>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(Model.Animal?.Nombre))
+            {
+                <div class="info-row">
+                    <span class="info-label">Nombre:</span>
+                    <span class="info-value">@Model.Animal.Nombre</span>
+                </div>
+            }
+            <div class="info-row">
+                <span class="info-label">Raza:</span>
+                <span class="info-value">@(Model.Animal?.Raza?.Nombre ?? "N/A")</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Sexo:</span>
+                <span class="info-value">@(Model.Animal?.Sexo == "M" ? "Macho" : "Hembra")</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Estado:</span>
+                <span class="info-value">
+                    <span class="badge badge-danger">Muerto</span>
+                </span>
+            </div>
+        </div>
+
+        <!-- Card: Detalles de la Mortalidad -->
+        <div class="info-card mortalidad">
+            <h3>
+                <i class="fas fa-calendar-alt"></i>
+                Detalles de la Mortalidad
+            </h3>
+            <div class="info-row">
+                <span class="info-label">Fecha:</span>
+                <span class="info-value">
+                    <strong>@Model.Fecha.ToString("dd/MM/yyyy")</strong>
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Hora:</span>
+                <span class="info-value">@Model.Fecha.ToString("HH:mm")</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Causa:</span>
+                <span class="info-value">
+                    @if (!string.IsNullOrWhiteSpace(Model.Causa))
+                    {
+                        @if (Model.Causa == "Enfermedad")
+                        {
+                            <span class="badge badge-danger">🦠 @Model.Causa</span>
+                        }
+                        else if (Model.Causa == "Accidente")
+                        {
+                            <span class="badge badge-warning">⚠️ @Model.Causa</span>
+                        }
+                        else if (Model.Causa == "Vejez")
+                        {
+                            <span class="badge badge-info">⏰ @Model.Causa</span>
+                        }
+                        else
+                        {
+                            <span class="badge badge-secondary">@Model.Causa</span>
+                        }
+                    }
+                    else
+                    {
+                        <span class="text-muted">Desconocida</span>
+                    }
+                </span>
+            </div>
+        </div>
+
+        <!-- Card: Impacto Financiero -->
+        <div class="info-card financiera">
+            <h3>
+                <i class="fas fa-coins"></i>
+                Impacto Financiero
+            </h3>
+            <div class="info-row">
+                <span class="info-label">Costo de Compra:</span>
+                <span class="info-value">
+                    @if (Model.Animal?.CostoCompra.HasValue == true)
+                    {
+                        <strong>₡@Model.Animal.CostoCompra.Value.ToString("N2")</strong>
+                    }
+                    else
+                    {
+                        <span class="text-muted">Sin costo registrado</span>
+                    }
+                </span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Pérdida Total:</span>
+                <span class="info-value">
+                    @if (gastoPerdida != null)
+                    {
+                        <strong style="color: var(--danger); font-size: 1.3rem;">
+                            ₡@gastoPerdida.Monto.ToString("N2")
+                        </strong>
+                    }
+                    else
+                    {
+                        <span class="text-muted">₡0.00</span>
+                    }
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Observaciones -->
+    @if (!string.IsNullOrWhiteSpace(Model.Observacion))
+    {
+        <div class="observaciones-card">
+            <h3>
+                <i class="fas fa-file-alt"></i>
+                Observaciones
+            </h3>
+            <p style="margin: 0; line-height: 1.6; color: #555;">
+                @Model.Observacion
+            </p>
+        </div>
+    }
+
+    <!-- Acciones -->
+    <div class="btn-group">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver al Listado
+        </a>
+        <a asp-action="Delete" asp-route-id="@Model.MortalidadId" class="btn btn-danger">
+            <i class="fas fa-trash"></i> Eliminar Registro
+        </a>
+    </div>
+</div>
