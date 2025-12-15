@@ -1,3 +1,0 @@
-﻿CREATE SCHEMA [agro]
-    AUTHORIZATION [dbo];
-

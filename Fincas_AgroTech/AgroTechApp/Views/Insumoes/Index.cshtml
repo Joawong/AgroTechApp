@@ -298,139 +298,296 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header de página -->
-        <div class="page-header">
-            <div class="page-title"><i class="fas fa-boxes"></i> Gestión de Insumos</div>
-            <div class="page-actions">
-                <a asp-controller="Insumoes" asp-action="Create" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Nuevo Insumo
-                </a>
-                <a asp-controller="Insumoes" asp-action="Index" asp-route-fincaId="@(selFinca)" class="btn btn-outline">
-                    <i class="fas fa-sync-alt"></i> Actualizar
-                </a>
+        <div class="admin-card">
+            <!-- Header -->
+            <div class="admin-header">
+                <i class="fas fa-boxes admin-header-icon"></i>
+                <h1><i class="fas fa-boxes"></i> Gestión de Insumos</h1>
+                <p>Administre el inventario de insumos y productos veterinarios</p>
             </div>
-        </div>
 
-        <!-- KPIs -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon primary"><i class="fas fa-box"></i></div>
-                <div><div style="font-weight:800;font-size:1.3rem">@kTotal</div><div style="color:var(--gray)">Activos</div></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon warning"><i class="fas fa-exclamation-triangle"></i></div>
-                <div><div style="font-weight:800;font-size:1.3rem">@kBajo</div><div style="color:var(--gray)">Stock bajo</div></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon danger"><i class="fas fa-times-circle"></i></div>
-                <div><div style="font-weight:800;font-size:1.3rem">@kAgotados</div><div style="color:var(--gray)">Agotados</div></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon info"><i class="fas fa-tags"></i></div>
-                <div><div style="font-weight:800;font-size:1.3rem">@kCategorias</div><div style="color:var(--gray)">Categorías</div></div>
-            </div>
-        </div>
+            <!-- Body -->
+            <div class="admin-body">
+                <!-- Header Actions -->
+                <div class="header-actions">
+                    <div class="header-title">
+                        <h2>Lista de Insumos</h2>
+                        <p id="totalCount">Total: @Model.Count() insumos</p>
+                    </div>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus-circle"></i>
+                        Registrar Nuevo Insumo
+                    </a>
+                </div>
 
-        <!-- Filtros -->
-        <div class="filters">
-            <form method="get" asp-action="Index">
-                <div class="field">
-                    <label>Finca</label>
-                    <select name="fincaId" asp-items="ViewBag.FincaId">
-                        <option value="">(Todas)</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>Categoría</label>
-                    <select name="categoriaId" asp-items="ViewBag.CategoriaId">
-                        <option value="">(Todas)</option>
-                    </select>
-                </div>
-                <div class="field">
-                    <label>Estado</label>
-                    <select name="estado">
-                        <option value="" selected="@(string.IsNullOrEmpty(selEst) ? "selected" : null)">(Todos)</option>
-                        <option value="activo" selected="@(selEst == "activo" ? "selected" : null)">Activo</option>
-                        <option value="inactivo" selected="@(selEst == "inactivo" ? "selected" : null)">Inactivo</option>
-                        <option value="bajo" selected="@(selEst == "bajo" ? "selected" : null)">Stock Bajo</option>
-                        <option value="agotado" selected="@(selEst == "agotado" ? "selected" : null)">Agotado</option>
-                    </select>
-                </div>
-                <div class="field" style="grid-column: span 2;">
-                    <label>Buscar</label>
-                    <input type="text" name="q" value="@q" placeholder="Nombre o categoría..." />
-                </div>
-                <div class="field">
-                    <button type="submit" class="btn btn-outline"><i class="fas fa-filter"></i> Aplicar</button>
-                </div>
-            </form>
-        </div>
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-box stat-icon icon-primary"></i>
+                        <div class="stat-number">@ViewBag.TotalActivos</div>
+                        <div class="stat-label">Insumos Activos</div>
+                    </div>
 
-        <!-- Tabla -->
-        <div class="table-card">
-            <div class="table-header">
-                <div style="font-weight:800">Lista de Insumos</div>
-                <div class="row-actions">
-                    <!-- botón columnas / export si quieres más tarde -->
-                    <a asp-controller="Insumoes" asp-action="Create" class="btn btn-outline btn-sm"><i class="fas fa-plus"></i> Nuevo</a>
+                    <div class="stat-card" style="border-left-color: #ffc107;">
+                        <i class="fas fa-exclamation-triangle stat-icon" style="color: #ffc107; background: rgba(255, 193, 7, 0.1);"></i>
+                        <div class="stat-number">@ViewBag.PorAcabarse</div>
+                        <div class="stat-label">Por Acabarse</div>
+                    </div>
+
+                    <div class="stat-card" style="border-left-color: #dc3545;">
+                        <i class="fas fa-times-circle stat-icon" style="color: #dc3545; background: rgba(220, 53, 69, 0.1);"></i>
+                        <div class="stat-number">@ViewBag.Agotados</div>
+                        <div class="stat-label">Agotados</div>
+                    </div>
+
+                    <div class="stat-card" style="border-left-color: #17a2b8;">
+                        <i class="fas fa-tags stat-icon" style="color: #17a2b8; background: rgba(23, 162, 184, 0.1);"></i>
+                        <div class="stat-number">@ViewBag.Categorias</div>
+                        <div class="stat-label">Categorías</div>
+                    </div>
                 </div>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width:110px;">Código</th>
-                            <th>Nombre</th>
-                            <th>Categoría</th>
-                            <th style="width:110px;">Stock</th>
-                            <th style="width:120px;">Unidad</th>
-                            <th style="width:120px;">Estado</th>
-                            <th style="width:340px;">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var i in Model)
+
+                <!-- Search & Filters -->
+                <div class="search-filter-container">
+                    <div class="filter-row">
+                        <input type="text"
+                               id="searchInput"
+                               class="search-input"
+                               placeholder="🔍 Buscar por nombre...">
+
+                        <select id="categoriaFilter" class="filter-select">
+                            <option value="">📁 Todas las categorías</option>
+                            @if (ViewBag.CategoriaId != null)
+                            {
+                                @foreach (var cat in ViewBag.CategoriaId as SelectList)
+                                {
+                                    <option value="@cat.Value">@cat.Text</option>
+                                }
+                            }
+                        </select>
+
+                        <select id="stockFilter" class="filter-select">
+                            <option value="">📊 Todos los stocks</option>
+                            <option value="ok">✅ Stock OK</option>
+                            <option value="bajo">⚠️ Stock Bajo</option>
+                            <option value="agotado">❌ Agotado</option>
+                        </select>
+
+                        <select id="estadoFilter" class="filter-select">
+                            <option value="">🔘 Todos los estados</option>
+                            <option value="activo">✅ Activos</option>
+                            <option value="inactivo">⭕ Inactivos</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-wrapper">
+                    <div class="table-container">
+                        @if (Model.Any())
                         {
-                            var stockActual = S(i.InsumoId);
-                            var statusCss = i.Activo ? (stockActual == 0 ? "zero" : (stockActual <= i.StockMinimo ? "low" : "ok")) : "off";
-                            var statusTxt = i.Activo ? (stockActual == 0 ? "Agotado" : (stockActual <= i.StockMinimo ? "Stock Bajo" : "OK")) : "Inactivo";
-                            var codigo = $"INS-{i.InsumoId:D4}";
-                            <tr>
-                                <td>@codigo</td>
-                                <td>@i.Nombre</td>
-                                <td>@i.Categoria?.Nombre</td>
-                                <td>@stockActual</td>
-                                <td>@i.Unidad?.Codigo</td>
-                                <td><span class="status @statusCss">@statusTxt</span></td>
-                                <td>
-                                    <div class="row-actions">
-                                        <a class="btn btn-primary btn-sm" asp-controller="Inventario" asp-action="Entrada"
-                                           asp-route-insumoId="@i.InsumoId" asp-route-fincaId="@i.FincaId" title="Registrar entrada">
-                                            <i class="fas fa-arrow-down-wide-short"></i> 
-                                        </a>
-                                        <a class="btn btn-warning btn-sm" asp-controller="Inventario" asp-action="Consumo"
-                                           asp-route-insumoId="@i.InsumoId" asp-route-fincaId="@i.FincaId" title="Registrar consumo">
-                                            <i class="fas fa-arrow-up-wide-short"></i> 
-                                        </a>
-                                        <a class="btn btn-outline btn-sm" asp-action="Edit" asp-route-id="@i.InsumoId" title="Editar">
-                                            <i class="fas fa-edit"></i> 
-                                        </a>
-                                        <a class="btn btn-outline btn-sm" asp-action="Details" asp-route-id="@i.InsumoId" title="Detalles">
-                                            <i class="fas fa-eye"></i> 
-                                        </a>
-                                        <a class="btn btn-danger btn-sm" asp-action="Delete" asp-route-id="@i.InsumoId" title="Eliminar">
-                                            <i class="fas fa-trash"></i> 
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th><i class="fas fa-tag"></i> Nombre</th>
+                                        <th><i class="fas fa-folder"></i> Categoría</th>
+                                        <th><i class="fas fa-ruler"></i> Unidad</th>
+                                        <th><i class="fas fa-boxes"></i> Stock Actual</th>
+                                        <th><i class="fas fa-exclamation-triangle"></i> Stock Mínimo</th>
+                                        <th><i class="fas fa-traffic-light"></i> Estado Stock</th>
+                                        <th><i class="fas fa-toggle-on"></i> Activo</th>
+                                        <th><i class="fas fa-cogs"></i> Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody">
+                                    @{
+                                        var stock = ViewBag.StockPorInsumo as Dictionary<long, decimal> ?? new Dictionary<long, decimal>();
+                                    }
+                                    @foreach (var item in Model)
+                                    {
+                                        var stockActual = stock.ContainsKey(item.InsumoId) ? stock[item.InsumoId] : 0m;
+                                        var estadoStock = stockActual == 0 ? "agotado" :
+                                        stockActual < item.StockMinimo ? "bajo" : "ok";
+                                        var estadoActivo = item.Activo ? "activo" : "inactivo";
+
+                                        <tr class="item-row"
+                                            data-nombre="@item.Nombre.ToLower()"
+                                            data-categoria="@item.CategoriaId"
+                                            data-stock="@estadoStock"
+                                            data-estado="@estadoActivo">
+
+                                            <td><strong>@item.Nombre</strong></td>
+                                            <td>@(item.Categoria?.Nombre ?? "-")</td>
+                                            <td>@(item.Unidad?.Nombre ?? "-")</td>
+                                            <td><strong>@stockActual.ToString("N2")</strong></td>
+                                            <td>@item.StockMinimo.ToString("N2")</td>
+                                            <td>
+                                                @if (estadoStock == "ok")
+                                                {
+                                                    <span class="status-badge status-active">
+                                                        <i class="fas fa-check-circle"></i> OK
+                                                    </span>
+                                                }
+                                                else if (estadoStock == "bajo")
+                                                {
+                                                    <span class="status-badge" style="background: linear-gradient(135deg, #fff3cd, #ffe69c); color: #856404;">
+                                                        <i class="fas fa-exclamation-triangle"></i> Bajo
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="status-badge" style="background: linear-gradient(135deg, #f8d7da, #f5c6cb); color: #721c24;">
+                                                        <i class="fas fa-times-circle"></i> Agotado
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (item.Activo)
+                                                {
+                                                    <span class="status-badge status-active">
+                                                        <i class="fas fa-check"></i> Sí
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="status-badge" style="background: #e2e3e5; color: #383d41;">
+                                                        <i class="fas fa-times"></i> No
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td class="actions-column">
+                                                <div class="actions-group">
+                                                    <a asp-action="Details" asp-route-id="@item.InsumoId"
+                                                       class="btn btn-info btn-sm" title="Ver detalles">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a asp-action="Edit" asp-route-id="@item.InsumoId"
+                                                       class="btn btn-warning btn-sm" title="Editar">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a asp-action="Delete" asp-route-id="@item.InsumoId"
+                                                       class="btn btn-danger btn-sm" title="Eliminar">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
                         }
-                    </tbody>
-                </table>
+                        else
+                        {
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-boxes"></i>
+                                </div>
+                                <h3>No hay insumos registrados</h3>
+                                <p>Comience registrando el primer insumo del inventario.</p>
+                                <a asp-action="Create" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-plus-circle"></i> Registrar Primer Insumo
+                                </a>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Table Footer -->
+                    @if (Model.Any())
+                    {
+                        <div class="table-footer">
+                            <div class="pagination-info">
+                                Mostrando <span id="visibleCount">@Model.Count()</span> de @Model.Count() insumos
+                            </div>
+                            <div class="export-actions">
+                                <a href="#" class="btn-export" onclick="exportToCSV(); return false;">
+                                    <i class="fas fa-file-export"></i> Exportar CSV
+                                </a>
+                                <a href="#" class="btn-export" onclick="window.print(); return false;">
+                                    <i class="fas fa-print"></i> Imprimir
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
             </div>
         </div>
-
-        <div style="height:24px"></div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchInput');
+            const categoriaFilter = document.getElementById('categoriaFilter');
+            const stockFilter = document.getElementById('stockFilter');
+            const estadoFilter = document.getElementById('estadoFilter');
+            const rows = document.querySelectorAll('.item-row');
+            const visibleCount = document.getElementById('visibleCount');
+
+            function filterTable() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const categoriaValue = categoriaFilter.value;
+                const stockValue = stockFilter.value;
+                const estadoValue = estadoFilter.value;
+
+                let visible = 0;
+
+                rows.forEach(row => {
+                    const nombre = row.getAttribute('data-nombre') || '';
+                    const categoria = row.getAttribute('data-categoria') || '';
+                    const stock = row.getAttribute('data-stock') || '';
+                    const estado = row.getAttribute('data-estado') || '';
+
+                    const matchesSearch = !searchTerm || nombre.includes(searchTerm);
+                    const matchesCategoria = !categoriaValue || categoria === categoriaValue;
+                    const matchesStock = !stockValue || stock === stockValue;
+                    const matchesEstado = !estadoValue || estado === estadoValue;
+
+                    if (matchesSearch && matchesCategoria && matchesStock && matchesEstado) {
+                        row.style.display = '';
+                        visible++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                if (visibleCount) {
+                    visibleCount.textContent = visible;
+                }
+            }
+
+            searchInput.addEventListener('input', filterTable);
+            categoriaFilter.addEventListener('change', filterTable);
+            stockFilter.addEventListener('change', filterTable);
+            estadoFilter.addEventListener('change', filterTable);
+
+            filterTable();
+        });
+
+        function exportToCSV() {
+            const rows = document.querySelectorAll('.item-row:not([style*="display: none"])');
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "Nombre,Categoría,Unidad,Stock Actual,Stock Mínimo,Estado Stock,Activo\n";
+
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const nombre = cells[0].textContent.trim();
+                const categoria = cells[1].textContent.trim();
+                const unidad = cells[2].textContent.trim();
+                const stockActual = cells[3].textContent.trim();
+                const stockMinimo = cells[4].textContent.trim();
+                const estadoStock = cells[5].textContent.trim();
+                const activo = cells[6].textContent.trim();
+
+                csvContent += `"${nombre}","${categoria}","${unidad}","${stockActual}","${stockMinimo}","${estadoStock}","${activo}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "insumos_agrotech.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
 </body>
 </html>

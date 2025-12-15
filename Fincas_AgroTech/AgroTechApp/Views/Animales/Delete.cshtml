@@ -2,422 +2,383 @@
 
 @{
     ViewData["Title"] = "Eliminar Animal";
-    var primaryColor = "#2E8B57";
-    var secondaryColor = "#F4A460";
-    var dangerColor = "#dc3545";
 }
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - AgroTech</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: @primaryColor;
-            --secondary: @secondaryColor;
-            --danger: @dangerColor;
+            --primary: #2E8B57;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
             --light: #f8f9fa;
-            --dark: #333;
+            --dark: #343a40;
+            --white: #ffffff;
+            --border: #e1e5e9;
+            --gray: #6c757d;
         }
 
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            margin: 0;
             padding: 20px;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 20px;
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
         }
 
-        .delete-modal {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            max-width: 600px;
-            width: 100%;
+        .delete-card {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(220, 53, 69, 0.15);
             overflow: hidden;
-            animation: modalAppear 0.3s ease-out;
+            border: 2px solid #f8d7da;
+            animation: fadeIn 0.5s ease-out;
         }
 
-        @@keyframes modalAppear {
-            from {
-                opacity: 0;
-                transform: scale(0.9) translateY(-20px);
-            }
+        @@keyframes fadeIn {
+            from
 
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
+        {
+            opacity: 0;
+            transform: translateY(10px);
         }
 
-        .modal-header {
-            background: linear-gradient(135deg, var(--danger), #e74c3c);
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        .delete-header {
+            background: linear-gradient(135deg, var(--danger), #e4606d);
             color: white;
-            padding: 2rem;
+            padding: 2.5rem;
             text-align: center;
             position: relative;
+            overflow: hidden;
         }
 
-        .warning-icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            display: block;
+            .delete-header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -50%;
+                width: 100%;
+                height: 200%;
+                background: rgba(255, 255, 255, 0.1);
+                transform: rotate(30deg);
+            }
+
+            .delete-header h1 {
+                font-size: 2.2rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+                position: relative;
+                z-index: 1;
+            }
+
+            .delete-header p {
+                font-size: 1rem;
+                opacity: 0.95;
+                position: relative;
+                z-index: 1;
+            }
+
+        .delete-header-icon {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3.5rem;
+            opacity: 0.2;
+            z-index: 0;
         }
 
-        .modal-header h1 {
-            margin: 0;
-            font-size: 1.8rem;
-            font-weight: 600;
+        .delete-body {
+            padding: 2.5rem;
         }
 
-        .modal-header p {
-            margin: 0.5rem 0 0;
-            opacity: 0.9;
-            font-size: 1rem;
-        }
-
-        .modal-body {
-            padding: 2rem;
-        }
-
-        .animal-summary {
+        .breadcrumb {
             display: flex;
-            align-items: center;
-            gap: 1.5rem;
+            gap: 0.5rem;
             margin-bottom: 2rem;
-            padding: 1.5rem;
-            background: #fff5f5;
+            padding: 0.8rem 1.2rem;
+            background: var(--light);
             border-radius: 10px;
-            border-left: 4px solid var(--danger);
+            font-size: 0.9rem;
         }
 
-        .animal-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--danger), #e74c3c);
+            .breadcrumb a {
+                color: var(--primary);
+                text-decoration: none;
+                font-weight: 500;
+            }
+
+                .breadcrumb a:hover {
+                    text-decoration: underline;
+                }
+
+            .breadcrumb span {
+                color: var(--gray);
+            }
+
+        .warning-banner {
+            background: linear-gradient(135deg, #fff3cd, #ffe69c);
+            border: 2px solid var(--warning);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
             display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 2.5rem;
+            align-items: flex-start;
+            gap: 1rem;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @@keyframes pulse {
+            0%, 100%
+
+        {
+            box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+        }
+
+        50% {
+            box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
+        }
+
+        }
+
+        .warning-banner i {
+            font-size: 2rem;
+            color: #856404;
             flex-shrink: 0;
         }
 
-        .animal-info h3 {
-            margin: 0 0 0.5rem;
-            color: var(--dark);
-            font-size: 1.3rem;
+        .warning-content {
+            flex: 1;
         }
 
-        .animal-details {
-            color: #666;
-            font-size: 0.9rem;
-            line-height: 1.4;
-        }
+            .warning-content h3 {
+                color: #856404;
+                margin-bottom: 0.5rem;
+                font-size: 1.2rem;
+            }
 
-        .details-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
+            .warning-content p {
+                color: #856404;
+                margin: 0;
+                line-height: 1.6;
+            }
+
+        .info-section {
+            background: var(--white);
+            border: 2px solid var(--border);
+            border-radius: 15px;
+            padding: 2rem;
             margin-bottom: 2rem;
         }
 
-        .detail-group {
-            margin-bottom: 1rem;
-        }
-
-        .detail-label {
-            font-weight: 600;
-            color: var(--dark);
-            font-size: 0.9rem;
-            margin-bottom: 0.25rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .detail-value {
-            color: #555;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-
-        .warning-message {
-            background: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
-        }
-
-            .warning-message strong {
-                color: #856404;
-            }
-
-        .btn-group {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 0.75rem 2rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            text-decoration: none;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            min-width: 140px;
-            justify-content: center;
-        }
-
-        .btn-danger {
-            background-color: var(--danger);
-            color: white;
-        }
-
-            .btn-danger:hover {
-                background-color: #c82333;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
-            }
-
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-
-            .btn-secondary:hover {
-                background-color: #5a6268;
-                transform: translateY(-2px);
-            }
-
-        .btn-outline {
-            background-color: transparent;
-            border: 2px solid #6c757d;
-            color: #6c757d;
-        }
-
-            .btn-outline:hover {
-                background-color: #6c757d;
-                color: white;
-                transform: translateY(-2px);
-            }
-
-        .badge {
-            padding: 0.3rem 0.8rem;
-            border-radius: 50px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .badge-danger {
-            background-color: #f8d7da;
-            color: var(--danger);
-        }
-
-        .badge-info {
-            background-color: #d1ecf1;
-            color: #17a2b8;
-        }
-
-        .badge-success {
-            background-color: #d4edda;
-            color: #28a745;
-        }
-
-        /* Responsive */
-        @@media (max-width: 768px) {
-            body {
-                padding: 10px;
-            }
-
-            .delete-modal {
-                max-width: 100%;
-            }
-
-            .modal-header {
-                padding: 1.5rem;
-            }
-
-                .modal-header h1 {
-                    font-size: 1.5rem;
-                }
-
-            .modal-body {
-                padding: 1.5rem;
-            }
-
-            .animal-summary {
-                flex-direction: column;
-                text-align: center;
-                gap: 1rem;
-            }
-
-            .details-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .btn-group {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-            }
-        }
-
-        @@media (max-width: 480px) {
-            .modal-header h1 {
+            .info-section h3 {
+                color: var(--dark);
+                margin-bottom: 1.5rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
                 font-size: 1.3rem;
             }
 
-            .modal-body {
-                padding: 1rem;
+                .info-section h3 i {
+                    color: var(--primary);
+                }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-value {
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--light);
+        }
+
+        .btn {
+            padding: 0.9rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #e4606d);
+            color: var(--white);
+        }
+
+            .btn-danger:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
+                background: linear-gradient(135deg, #c82333, var(--danger));
             }
 
-            .animal-avatar {
-                width: 60px;
-                height: 60px;
-                font-size: 2rem;
+        .btn-secondary {
+            background: var(--white);
+            color: var(--dark);
+            border: 2px solid var(--border);
+            box-shadow: none;
+        }
+
+            .btn-secondary:hover {
+                background: var(--light);
+                border-color: var(--dark);
             }
 
-            .animal-info h3 {
-                font-size: 1.1rem;
+        @@media (max-width: 768px) {
+            .delete-header h1
+
+        {
+            font-size: 1.8rem;
+        }
+
+        .delete-body {
+            padding: 1.5rem;
+        }
+
+        .info-grid {
+            grid-template-columns: 1fr;
+            gap: 0.5rem;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+            .form-actions .btn {
+                width: 100%;
+                justify-content: center;
             }
+
         }
     </style>
 </head>
+
 <body>
-    <div class="modal-overlay">
-        <div class="delete-modal">
-            <div class="modal-header">
-                <span class="warning-icon">⚠️</span>
-                <h1>Eliminar Animal</h1>
-                <p>Esta acción no se puede deshacer</p>
+    <div class="container">
+        <div class="delete-card">
+            <div class="delete-header">
+                <i class="fas fa-exclamation-triangle delete-header-icon"></i>
+                <h1><i class="fas fa-trash-alt"></i> Eliminar Animal</h1>
+                <p>¿Está seguro de que desea eliminar este animal?</p>
             </div>
 
-            <div class="modal-body">
-                <!-- Resumen del Animal -->
-                <div class="animal-summary">
-                    <div class="animal-avatar">
-                        @if (Model.Sexo == "M" || Model.Sexo == "Macho")
-                        {
-                            @:🐂
-                        }
-                        else
-                        {
-                            @:🐄
-                        }
+            <div class="delete-body">
+                <div class="breadcrumb">
+                    <a asp-action="Index"><i class="fas fa-list"></i> Lista de Animales</a>
+                    <span>/</span>
+                    <a asp-action="Details" asp-route-id="@Model.AnimalId">
+                        <i class="fas fa-info-circle"></i> @(Model.Nombre ?? Model.Arete)
+                    </a>
+                    <span>/</span>
+                    <span><strong>Eliminar</strong></span>
+                </div>
+
+                <div class="warning-banner">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div class="warning-content">
+                        <h3>¡Atención! Acción Irreversible</h3>
+                        <p>
+                            Está a punto de eliminar permanentemente este animal del sistema.
+                            Esta acción eliminará todos los registros asociados (tratamientos, pesajes, etc.)
+                            y NO se puede deshacer.
+                        </p>
                     </div>
-                    <div class="animal-info">
-                        <h3>@Model.Nombre</h3>
-                        <div class="animal-details">
-                            <strong>Arete:</strong> @Model.Arete |
-                            <strong>ID:</strong> @Model.AnimalId |
-                            <strong>Sexo:</strong>
-                            @if (Model.Sexo == "M" || Model.Sexo == "Macho")
-                            {
-                                <span class="badge badge-info">Macho</span>
-                            }
-                            else
-                            {
-                                <span class="badge badge-info">Hembra</span>
-                            }
+                </div>
+
+                <div class="info-section">
+                    <h3><i class="fas fa-info-circle"></i> Información del Animal a Eliminar</h3>
+
+                    <div class="info-grid">
+                        <div class="info-label"><i class="fas fa-hashtag"></i> ID:</div>
+                        <div class="info-value"><strong>#@Model.AnimalId</strong></div>
+
+                        <div class="info-label"><i class="fas fa-tag"></i> Arete:</div>
+                        <div class="info-value"><strong>@Model.Arete</strong></div>
+
+                        <div class="info-label"><i class="fas fa-signature"></i> Nombre:</div>
+                        <div class="info-value">@(Model.Nombre ?? "-")</div>
+
+                        <div class="info-label"><i class="fas fa-venus-mars"></i> Sexo:</div>
+                        <div class="info-value">@(Model.Sexo == "M" ? "Macho" : "Hembra")</div>
+
+                        <div class="info-label"><i class="fas fa-heartbeat"></i> Estado:</div>
+                        <div class="info-value">@Model.Estado</div>
+
+                        <div class="info-label"><i class="fas fa-paw"></i> Raza:</div>
+                        <div class="info-value">@(Model.Raza?.Nombre ?? "-")</div>
+
+                        <div class="info-label"><i class="fas fa-calendar"></i> Nacimiento:</div>
+                        <div class="info-value">
+                            @(Model.FechaNacimiento?.ToString("dd/MM/yyyy") ?? "-")
                         </div>
                     </div>
                 </div>
 
-                <!-- Mensaje de Advertencia -->
-                <div class="warning-message">
-                    <strong>⚠️ ADVERTENCIA:</strong> Está a punto de eliminar permanentemente este animal del sistema.
-                    Esta acción no se puede deshacer y se perderán todos los datos asociados.
-                </div>
-
-                <!-- Información Detallada -->
-                <div class="details-grid">
-                    <div>
-                        <div class="detail-group">
-                            <div class="detail-label">📅 Fecha de Nacimiento</div>
-                            <div class="detail-value">@Model.FechaNacimiento?.ToString("dd/MM/yyyy")</div>
-                        </div>
-                        <div class="detail-group">
-                            <div class="detail-label">⚖️ Peso al Nacer</div>
-                            <div class="detail-value">@Model.PesoNacimiento kg</div>
-                        </div>
-                        <div class="detail-group">
-                            <div class="detail-label">📈 Estado</div>
-                            <div class="detail-value">
-                                <span class="badge @((Model.Estado == "Activo" || Model.Estado == "1") ? "badge-success" : "badge-danger")">
-                                    @((Model.Estado == "Activo" || Model.Estado == "1") ? "Activo" : "Inactivo")
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="detail-group">
-                            <div class="detail-label">🏠 Finca</div>
-                            <div class="detail-value">@Model.Finca?.FincaId</div>
-                        </div>
-                        <div class="detail-group">
-                            <div class="detail-label">🐂 Raza</div>
-                            <div class="detail-value">@Model.Raza?.RazaId</div>
-                        </div>
-                        <div class="detail-group">
-                            <div class="detail-label">📦 Lote</div>
-                            <div class="detail-value">@Model.LoteAnimal?.LoteAnimalId</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Formulario de Eliminación -->
-                <form asp-action="Delete" id="deleteForm">
+                <form asp-action="Delete" method="post">
                     <input type="hidden" asp-for="AnimalId" />
 
-                    <div class="btn-group">
-                        <a asp-action="Details" asp-route-id="@Model.AnimalId" class="btn btn-outline">
-                            <span>👁️</span> Ver Detalles
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-trash-alt"></i>
+                            Sí, Eliminar Permanentemente
+                        </button>
+                        <a asp-action="Details" asp-route-id="@Model.AnimalId" class="btn btn-secondary">
+                            <i class="fas fa-eye"></i>
+                            Ver Detalles
                         </a>
                         <a asp-action="Index" class="btn btn-secondary">
-                            <span>←</span> Cancelar
+                            <i class="fas fa-times"></i>
+                            Cancelar
                         </a>
-                        <button type="submit" class="btn btn-danger" onclick="return confirmDelete()">
-                            <span>🗑️</span> Eliminar Permanentemente
-                        </button>
                     </div>
                 </form>
             </div>
@@ -425,51 +386,12 @@
     </div>
 
     <script>
-        function confirmDelete() {
-            const animalName = '@Model.Nombre';
-            const arete = '@Model.Arete';
-
-            return confirm(`¿ESTÁ ABSOLUTAMENTE SEGURO?\n\nEstá a punto de eliminar permanentemente:\n\n"${animalName}" (Arete: ${arete})\n\n✅ Esta acción NO se puede deshacer\n✅ Se perderán todos los datos\n✅ No habrá forma de recuperarlos\n\n¿Continuar con la eliminación?`);
-        }
-
-        // Cerrar modal al hacer clic fuera de él
-        document.addEventListener('DOMContentLoaded', function() {
-            const overlay = document.querySelector('.modal-overlay');
-
-            overlay.addEventListener('click', function(e) {
-                if (e.target === overlay) {
-                    window.location.href = '@Url.Action("Index")';
-                }
-            });
-
-            // Cerrar con tecla Escape
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    window.location.href = '@Url.Action("Index")';
-                }
-            });
-
-            // Efecto de shake en el botón de eliminar al pasar el mouse
-            const deleteBtn = document.querySelector('.btn-danger');
-            deleteBtn.addEventListener('mouseenter', function() {
-                this.style.animation = 'shake 0.5s ease-in-out';
-            });
-
-            deleteBtn.addEventListener('animationend', function() {
-                this.style.animation = '';
-            });
-        });
-
-        // Animación de shake
-        const style = document.createElement('style');
-        style.textContent = `
-            @@keyframes shake {
-                0%, 100% { transform: translateX(0); }
-                25% { transform: translateX(-5px); }
-                75% { transform: translateX(5px); }
+        document.querySelector('form').addEventListener('submit', function (e) {
+            const confirmed = confirm('¿Está COMPLETAMENTE seguro de eliminar el animal "@(Model.Nombre ?? Model.Arete)"?\n\nEsta acción es PERMANENTE y eliminará TODOS los registros asociados.');
+            if (!confirmed) {
+                e.preventDefault();
             }
-        `;
-        document.head.appendChild(style);
+        });
     </script>
 </body>
 </html>
