@@ -378,18 +378,21 @@
 
                                 <!-- Estado -->
                                 <div class="form-group">
-                                    <label asp-for="Estado">
+                                    <label>
                                         <i class="fas fa-heartbeat"></i>
                                         Estado
-                                        <span style="color: var(--danger);">*</span>
                                     </label>
-                                    <select asp-for="Estado" class="form-control" required>
-                                        <option value="Activo" selected>Activo</option>
-                                        <option value="Vendido">Vendido</option>
-                                        <option value="Muerto">Muerto</option>
-                                    </select>
-                                    <span asp-validation-for="Estado" class="text-danger"></span>
+
+                                    <!-- Campo visible (bloqueado) -->
+                                    <input type="text"
+                                           class="form-control"
+                                           value="Activo"
+                                           readonly />
+
+                                    <!-- Campo real que se envía al backend -->
+                                    <input type="hidden" asp-for="Estado" value="Activo" />
                                 </div>
+
                             </div>
                         </div>
 

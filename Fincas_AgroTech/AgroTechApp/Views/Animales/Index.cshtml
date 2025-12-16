@@ -320,6 +320,7 @@
             border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+
         }
 
         .table-container {
@@ -427,10 +428,76 @@
             gap: 1rem;
         }
 
-        .pagination-info {
-            color: var(--gray);
+        /* AGREGAR ESTO: */
+        .pagination {
+            display: flex;
+            list-style: none;
+            gap: 0.5rem;
+            padding: 0;
+            margin: 0;
+        }
+
+        .page-item {
+            display: inline-block;
+        }
+
+        .page-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.6rem 0.9rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
             font-size: 0.9rem;
-            font-weight: 500;
+            transition: all 0.3s ease;
+            background: var(--white);
+            cursor: pointer;
+        }
+
+            .page-link:hover {
+                background: var(--primary);
+                color: white;
+                border-color: var(--primary);
+                transform: translateY(-2px);
+            }
+
+        .page-item.active .page-link {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
+        }
+
+        .page-item.disabled .page-link {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+            background: #f8f9fa;
+            color: var(--gray);
+        }
+
+            .page-item.disabled .page-link:hover {
+                background: #f8f9fa;
+                transform: none;
+            }
+
+        /* Responsive paginación */
+        @@media (max-width: 768px) {
+            .pagination
+
+        {
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .page-link {
+            padding: 0.5rem 0.7rem;
+            font-size: 0.85rem;
+        }
+
         }
 
         .export-actions {
@@ -741,12 +808,105 @@
                     </div>
 
                     <!-- Table Footer -->
+                    <!-- Table Footer -->
                     @if (Model.Any())
                     {
                         <div class="table-footer">
                             <div class="pagination-info">
-                                Mostrando <span id="visibleCount">@Model.Count()</span> de @Model.Count() animales
+                                Mostrando @((ViewBag.PaginaActual - 1) * 10 + 1)-@(Math.Min(ViewBag.PaginaActual * 10, ViewBag.TotalRegistros)) de @ViewBag.TotalRegistros animales
                             </div>
+
+                            <!-- PAGINACIÓN -->
+                            @if (ViewBag.TotalPaginas > 1)
+                            {
+                                <nav>
+                                    <ul class="pagination">
+                                        <!-- Primera -->
+                                        <li class="page-item @(ViewBag.PaginaActual == 1 ? "disabled" : "")">
+                                            <a class="page-link"
+                                               asp-action="Index"
+                                               asp-route-pagina="1"
+                                               asp-route-buscar="@ViewBag.BuscarTexto"
+                                               asp-route-sexo="@ViewBag.SexoFiltro"
+                                               asp-route-estado="@ViewBag.EstadoFiltro"
+                                               asp-route-razaId="@ViewBag.RazaIdFiltro">
+                                                <i class="fas fa-angle-double-left"></i>
+                                            </a>
+                                        </li>
+
+                                        <!-- Anterior -->
+                                        <li class="page-item @(ViewBag.PaginaActual == 1 ? "disabled" : "")">
+                                            <a class="page-link"
+                                               asp-action="Index"
+                                               asp-route-pagina="@(ViewBag.PaginaActual - 1)"
+                                               asp-route-buscar="@ViewBag.BuscarTexto"
+                                               asp-route-sexo="@ViewBag.SexoFiltro"
+                                               asp-route-estado="@ViewBag.EstadoFiltro"
+                                               asp-route-razaId="@ViewBag.RazaIdFiltro">
+                                                <i class="fas fa-angle-left"></i> Anterior
+                                            </a>
+                                        </li>
+
+                                        <!-- Números de página -->
+                                        @{
+                                            int startPage = Math.Max(1, ViewBag.PaginaActual - 2);
+                                            int endPage = Math.Min(ViewBag.TotalPaginas, ViewBag.PaginaActual + 2);
+                                        }
+
+                                        @if (startPage > 1)
+                                        {
+                                            <li class="page-item"><span class="page-link">...</span></li>
+                                        }
+
+                                        @for (int i = startPage; i <= endPage; i++)
+                                        {
+                                            <li class="page-item @(ViewBag.PaginaActual == i ? "active" : "")">
+                                                <a class="page-link"
+                                                   asp-action="Index"
+                                                   asp-route-pagina="@i"
+                                                   asp-route-buscar="@ViewBag.BuscarTexto"
+                                                   asp-route-sexo="@ViewBag.SexoFiltro"
+                                                   asp-route-estado="@ViewBag.EstadoFiltro"
+                                                   asp-route-razaId="@ViewBag.RazaIdFiltro">
+                                                    @i
+                                                </a>
+                                            </li>
+                                        }
+
+                                        @if (endPage < ViewBag.TotalPaginas)
+                                        {
+                                            <li class="page-item"><span class="page-link">...</span></li>
+                                        }
+
+                                        <!-- Siguiente -->
+                                        <li class="page-item @(ViewBag.PaginaActual >= ViewBag.TotalPaginas ? "disabled" : "")">
+                                            <a class="page-link"
+                                               asp-action="Index"
+                                               asp-route-pagina="@(ViewBag.PaginaActual + 1)"
+                                               asp-route-buscar="@ViewBag.BuscarTexto"
+                                               asp-route-sexo="@ViewBag.SexoFiltro"
+                                               asp-route-estado="@ViewBag.EstadoFiltro"
+                                               asp-route-razaId="@ViewBag.RazaIdFiltro">
+                                                Siguiente <i class="fas fa-angle-right"></i>
+                                            </a>
+                                        </li>
+
+                                        <!-- Última -->
+                                        <li class="page-item @(ViewBag.PaginaActual >= ViewBag.TotalPaginas ? "disabled" : "")">
+                                            <a class="page-link"
+                                               asp-action="Index"
+                                               asp-route-pagina="@ViewBag.TotalPaginas"
+                                               asp-route-buscar="@ViewBag.BuscarTexto"
+                                               asp-route-sexo="@ViewBag.SexoFiltro"
+                                               asp-route-estado="@ViewBag.EstadoFiltro"
+                                               asp-route-razaId="@ViewBag.RazaIdFiltro">
+                                                <i class="fas fa-angle-double-right"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            }
+
                             <div class="export-actions">
                                 <a href="#" class="btn-export" onclick="exportToCSV(); return false;">
                                     <i class="fas fa-file-export"></i> Exportar CSV

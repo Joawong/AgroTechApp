@@ -2,134 +2,315 @@
 
 @{
     ViewData["Title"] = "Gestión de Fincas";
-    var primaryColor = "#2E8B57";
-    var secondaryColor = "#F4A460";
-    var lightColor = "#f8f9fa";
 }
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - AgroTech</title>
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: @primaryColor;
-            --secondary: @secondaryColor;
-            --light: @lightColor;
-            --dark: #333;
+            --primary: #2E8B57;
+            --primary-light: #3CB371;
+            --primary-dark: #1E6B47;
+            --secondary: #F4A460;
             --success: #28a745;
             --warning: #ffc107;
             --danger: #dc3545;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #ffffff;
+            --border: #e1e5e9;
+            --shadow: rgba(46, 139, 87, 0.1);
+            --gray: #6c757d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            margin: 0;
             padding: 20px;
             min-height: 100vh;
         }
 
-        .fincas-container {
-            max-width: 1400px;
+        .container {
+            max-width: 1600px;
             margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .admin-card {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px var(--shadow);
+            overflow: hidden;
+            border: 1px solid #e1e5e9;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
             overflow: hidden;
         }
 
-        /* HEADER */
-        .fincas-header {
-            background: linear-gradient(135deg, var(--primary), #3CB371);
-            color: white;
-            padding: 2rem;
-            text-align: center;
+            .admin-header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -50%;
+                width: 100%;
+                height: 200%;
+                background: rgba(255, 255, 255, 0.1);
+                transform: rotate(30deg);
+            }
+
+            .admin-header h1 {
+                font-size: 2.5rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+                position: relative;
+                z-index: 1;
+            }
+
+            .admin-header p {
+                font-size: 1.1rem;
+                opacity: 0.9;
+                position: relative;
+                z-index: 1;
+            }
+
+        .admin-header-icon {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 4rem;
+            opacity: 0.2;
+            z-index: 0;
         }
 
-            .fincas-header h1 {
-                margin: 0;
-                font-size: 2.2rem;
-                font-weight: 600;
-            }
-
-            .fincas-header p {
-                opacity: 0.9;
-                margin-top: .5rem;
-            }
-
-        .fincas-body {
-            padding: 2rem;
+        .admin-body {
+            padding: 2.5rem;
         }
 
         .header-actions {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
-            gap: 1rem;
+            margin-bottom: 2.5rem;
             flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-title h2 {
+            color: var(--dark);
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-title p {
+            color: var(--gray);
+            font-size: 0.95rem;
         }
 
         .btn {
-            padding: .75rem 1.5rem;
-            border-radius: 8px;
+            padding: 0.85rem 1.8rem;
             border: none;
-            color: white;
-            font-weight: 600;
+            border-radius: 12px;
             font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            background: var(--primary);
-            text-decoration: none;
             display: inline-flex;
             align-items: center;
-            gap: .5rem;
-            transition: .3s ease;
+            gap: 0.7rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            font-family: 'Poppins', sans-serif;
         }
 
-            .btn:hover {
-                background-color: #26734d;
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+        }
+
+            .btn-primary:hover {
                 transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(46, 139, 87, 0.3);
             }
 
-        /* STATS */
-        .stats-cards {
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #34ce57);
+            color: var(--white);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #ffd351);
+            color: var(--dark);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #e4606d);
+            color: var(--white);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, var(--info), #36b9cc);
+            color: var(--white);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--gray), #7d8590);
+            color: white !important;
+        }
+
+        .btn-sm {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.85rem;
+        }
+
+        .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
         }
 
         .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border-left: 4px solid var(--primary);
-            text-align: center;
+            background: var(--white);
+            padding: 1.8rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid var(--primary);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            }
+
+            .stat-card.stat-active {
+                border-left-color: #28a745;
+            }
+
+            .stat-card.stat-inactive {
+                border-left-color: #dc3545;
+            }
+
+        .stat-icon {
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            opacity: 0.15;
         }
 
         .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
+            font-size: 2.5rem;
+            font-weight: 700;
             color: var(--primary);
+            margin-bottom: 0.3rem;
         }
 
         .stat-label {
-            color: var(--dark);
-            font-size: .9rem;
-            font-weight: 600;
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-weight: 500;
         }
 
-        /* TABLE */
-        .table-container {
-            background: white;
+        .search-filter-container {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 0.85rem 1.2rem;
+            padding-left: 2.8rem;
+            border: 2px solid var(--border);
             border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            font-family: 'Poppins', sans-serif;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%236c757d" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>') no-repeat 1rem center;
+        }
+
+            .search-input:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+            }
+
+        .filter-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.85rem 1.2rem;
+            background: var(--light);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .filter-checkbox:hover {
+                background: #e2e6ea;
+            }
+
+            .filter-checkbox input[type="checkbox"] {
+                width: 20px;
+                height: 20px;
+                cursor: pointer;
+            }
+
+        .table-wrapper {
+            background: var(--white);
+            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .table-container {
+            overflow-x: auto;
         }
 
         table {
@@ -138,227 +319,446 @@
         }
 
         thead {
-            background: linear-gradient(135deg, var(--primary), #3CB371);
-            color: white;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
         }
 
-        th, td {
+        th {
+            padding: 1.2rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        td {
             padding: 1rem;
-            border-bottom: 1px solid #e1e5e9;
-            font-size: .95rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
         }
 
-        tbody tr:hover {
-            background-color: #f8f9fa;
-            transform: translateY(-1px);
-            transition: .2s ease;
-            box-shadow: 0 2px 8px rgba(0,0,0,.1);
+        tbody tr {
+            transition: all 0.2s ease;
         }
+
+            tbody tr:hover {
+                background-color: #f8fffe;
+                transform: translateX(3px);
+            }
 
         .status-badge {
-            padding: .35rem .75rem;
-            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
             font-weight: 600;
-            font-size: .8rem;
         }
 
-        .active-badge {
-            background-color: #d4edda;
+        .status-active {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
             color: var(--success);
         }
 
-        .inactive-badge {
-            background-color: #f8d7da;
+        .status-inactive {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
             color: var(--danger);
+        }
+
+        .actions-column {
+            white-space: nowrap;
         }
 
         .actions-group {
             display: flex;
-            gap: .5rem;
-            justify-content: center;
+            gap: 0.5rem;
+            justify-content: flex-start;
         }
 
-        .btn-sm {
-            padding: .5rem 1rem;
-            font-size: .85rem;
-        }
-
-        /* SEARCH FILTER */
-        .search-filter {
+        .table-footer {
             display: flex;
-            gap: 1rem;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-top: 1px solid var(--border);
             flex-wrap: wrap;
-            margin-bottom: 1.5rem;
+            gap: 1rem;
         }
 
-        .search-box {
-            flex: 1;
-            min-width: 250px;
-            padding: .75rem 1rem;
-            border: 2px solid #e1e5e9;
+        .pagination-info {
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .pagination {
+            display: flex;
+            list-style: none;
+            gap: 0.5rem;
+            padding: 0;
+            margin: 0;
+        }
+
+        .page-item {
+            display: inline-block;
+        }
+
+        .page-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.6rem 0.9rem;
+            border: 2px solid var(--border);
             border-radius: 8px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: var(--white);
+            cursor: pointer;
         }
 
-        select {
-            padding: .75rem;
-            border-radius: 8px;
-            border: 2px solid #e1e5e9;
+            .page-link:hover {
+                background: var(--primary);
+                color: white;
+                border-color: var(--primary);
+                transform: translateY(-2px);
+            }
+
+        .page-item.active .page-link {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
         }
 
-        /* EMPTY STATE */
+        .page-item.disabled .page-link {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+            background: #f8f9fa;
+            color: var(--gray);
+        }
+
         .empty-state {
             text-align: center;
-            padding: 3rem;
-            color: #6c757d;
+            padding: 4rem 2rem;
+            color: var(--gray);
+        }
+
+        .empty-state-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+        }
+
+            .empty-state-icon i {
+                color: var(--primary);
+            }
+
+        .empty-state h3 {
+            color: var(--dark);
+            margin-bottom: 0.8rem;
+            font-size: 1.5rem;
+        }
+
+        .empty-state p {
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        @@media (max-width: 768px) {
+            .admin-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-row {
+                flex-direction: column;
+            }
+
+                .filter-row > * {
+                    width: 100%;
+                }
+
+            .pagination {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .page-link {
+                padding: 0.5rem 0.7rem;
+                font-size: 0.85rem;
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="fincas-container">
-        <div class="fincas-header">
-            <h1>🏡 Gestión de Fincas</h1>
-            <p>Administre todas sus fincas registradas</p>
-        </div>
-
-        <div class="fincas-body">
-
-            <div class="header-actions">
-                <div>
-                    <h2 style="margin: 0;">Lista de Fincas</h2>
-                    <p style="margin: .5rem 0 0;">Total registradas: @Model.Count()</p>
-                </div>
-                <a asp-action="Create" class="btn">
-                    ➕ Crear Nueva Finca
-                </a>
+    <div class="container">
+        <div class="admin-card">
+            <!-- Header -->
+            <div class="admin-header">
+                <i class="fas fa-map-marked-alt admin-header-icon"></i>
+                <h1><i class="fas fa-home"></i> Gestión de Fincas</h1>
+                <p>Administre y visualice todas las fincas registradas en el sistema</p>
             </div>
 
-            <div class="stats-cards">
-                <div class="stat-card">
-                    <div class="stat-number">@Model.Count()</div>
-                    <div class="stat-label">Total de Fincas</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-number">@Model.Count(f => f.Activa)</div>
-                    <div class="stat-label">Fincas Activas</div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="stat-number">@Model.Count(f => !f.Activa)</div>
-                    <div class="stat-label">Fincas Inactivas</div>
-                </div>
-            </div>
-
-            <!-- Buscador -->
-            <div class="search-filter">
-                <input id="searchInput" type="text" class="search-box" placeholder="🔍 Buscar finca por nombre...">
-                <select id="statusFilter">
-                    <option value="">Todos los estados</option>
-                    <option value="true">Activas</option>
-                    <option value="false">Inactivas</option>
-                </select>
-            </div>
-
-            <div class="table-container">
-                @if (Model.Any())
-                {
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Nombre</th>
-                                <th>Ubicación</th>
-                                <th>Estado</th>
-                                <th>Fecha Creación</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var finca in Model)
-                            {
-                                <tr data-nombre="@finca.Nombre.ToLower()" data-activo="@finca.Activa">
-                                    <td><strong>@finca.Nombre</strong></td>
-                                    <td>@(finca.Ubicacion ?? "Sin especificar")</td>
-                                    <td>
-                                        @if (finca.Activa)
-                                        {
-                                            <span class="status-badge active-badge">Activa</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="status-badge inactive-badge">Inactiva</span>
-                                        }
-                                    </td>
-                                    <td>@finca.FechaCreacion.ToString("dd/MM/yyyy")</td>
-                                    <td>
-                                        <div class="actions-group">
-                                            <a asp-action="Edit" asp-route-id="@finca.FincaId"
-                                               class="btn btn-sm" style="background: var(--warning); color: #333;">✏️</a>
-
-                                            <a asp-action="Details" asp-route-id="@finca.FincaId"
-                                               class="btn btn-sm" style="background: var(--success);">👁️</a>
-
-                                            @if (finca.Activa)
-                                            {
-                                                <a asp-action="Delete" asp-route-id="@finca.FincaId"
-                                                   class="btn btn-sm" style="background: var(--danger);">⏻</a>
-                                            }
-                                            else
-                                            {
-                                                <form asp-action="Activar" method="post" style="display:inline;">
-                                                    @Html.AntiForgeryToken()
-                                                    <input type="hidden" name="id" value="@finca.FincaId" />
-                                                    <button type="submit" class="btn btn-sm"
-                                                            style="background: var(--primary); color: white;">
-                                                        🔄
-                                                    </button>
-                                                </form>
-                                            }
-                                        </div>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                }
-                else
-                {
-                    <div class="empty-state">
-                        <div style="font-size: 4rem;">🏡</div>
-                        <h3>No hay fincas registradas</h3>
-                        <p>Comience creando la primera finca asociada a su cuenta.</p>
-                        <a asp-action="Create" class="btn">➕ Crear Primera Finca</a>
+            <!-- Body -->
+            <div class="admin-body">
+                <!-- Header Actions -->
+                <div class="header-actions">
+                    <div class="header-title">
+                        <h2>Lista de Fincas</h2>
+                        <p>Total: @ViewBag.TotalRegistros fincas registradas</p>
                     </div>
-                }
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus-circle"></i>
+                        Registrar Nueva Finca
+                    </a>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-list-ol stat-icon" style="color: var(--primary);"></i>
+                        <div class="stat-number">@ViewBag.TotalRegistros</div>
+                        <div class="stat-label">Total Fincas</div>
+                    </div>
+
+                    <div class="stat-card stat-active">
+                        <i class="fas fa-check-circle stat-icon" style="color: #28a745;"></i>
+                        <div class="stat-number" style="color: #28a745;">@Model.Count(f => f.Activa)</div>
+                        <div class="stat-label">Fincas Activas</div>
+                    </div>
+
+                    <div class="stat-card stat-inactive">
+                        <i class="fas fa-times-circle stat-icon" style="color: #dc3545;"></i>
+                        <div class="stat-number" style="color: #dc3545;">@Model.Count(f => !f.Activa)</div>
+                        <div class="stat-label">Fincas Inactivas</div>
+                    </div>
+                </div>
+
+                <!-- Search & Filters -->
+                <div class="search-filter-container">
+                    <form method="get" asp-action="Index">
+                        <div class="filter-row">
+                            <input type="text"
+                                   name="buscar"
+                                   value="@ViewBag.BuscarTexto"
+                                   class="search-input"
+                                   placeholder="Buscar por nombre o ubicación...">
+
+                            <label class="filter-checkbox">
+                                <input type="checkbox"
+                                       name="soloActivas"
+                                       value="true"
+                                       @(ViewBag.SoloActivas ? "checked" : "")
+                                       onchange="this.form.submit()">
+                                <span>Solo fincas activas</span>
+                            </label>
+
+                            <button type="submit" class="btn btn-primary btn-sm">
+                                <i class="fas fa-search"></i> Buscar
+                            </button>
+
+                            <a asp-action="Index" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-times"></i> Limpiar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Table -->
+                <div class="table-wrapper">
+                    <div class="table-container">
+                        @if (Model.Any())
+                        {
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th><i class="fas fa-signature"></i> Nombre</th>
+                                        <th><i class="fas fa-map-marker-alt"></i> Ubicación</th>
+                                        <th><i class="fas fa-heartbeat"></i> Estado</th>
+                                        <th><i class="fas fa-cogs"></i> Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td><strong>@item.Nombre</strong></td>
+                                            <td>@(item.Ubicacion ?? "-")</td>
+                                            <td>
+                                                @if (item.Activa)
+                                                {
+                                                    <span class="status-badge status-active">
+                                                        <i class="fas fa-check-circle"></i>
+                                                        Activa
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="status-badge status-inactive">
+                                                        <i class="fas fa-times-circle"></i>
+                                                        Inactiva
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td class="actions-column">
+                                                <div class="actions-group">
+                                                    <a asp-action="Details" asp-route-id="@item.FincaId" class="btn btn-info btn-sm" title="Ver detalles">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a asp-action="Edit" asp-route-id="@item.FincaId" class="btn btn-warning btn-sm" title="Editar">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+
+                                                    @if (item.Activa)
+                                                    {
+                                                        <!-- Botón Desactivar -->
+                                                        <a asp-action="Delete" asp-route-id="@item.FincaId" class="btn btn-danger btn-sm" title="Desactivar">
+                                                            <i class="fas fa-power-off"></i>
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <!-- Botón Activar -->
+                                                        <form method="post" asp-action="Activar" asp-route-id="@item.FincaId" style="display: inline;">
+                                                            @Html.AntiForgeryToken()
+                                                            <button type="submit" class="btn btn-success btn-sm" title="Activar">
+                                                                <i class="fas fa-check-circle"></i>
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-home"></i>
+                                </div>
+                                <h3>No hay fincas registradas</h3>
+                                <p>Comience registrando la primera finca en el sistema.</p>
+                                <a asp-action="Create" class="btn btn-primary">
+                                    <i class="fas fa-plus-circle"></i> Registrar Primera Finca
+                                </a>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Table Footer con Paginación -->
+                    @if (Model.Any())
+                    {
+                        <div class="table-footer">
+                            <div class="pagination-info">
+                                Mostrando @((ViewBag.PaginaActual - 1) * 10 + 1)-@(Math.Min(ViewBag.PaginaActual * 10, ViewBag.TotalRegistros)) de @ViewBag.TotalRegistros fincas
+                            </div>
+
+                            <!-- PAGINACIÓN -->
+                            @if (ViewBag.TotalPaginas > 1)
+                            {
+                                <nav>
+                                    <ul class="pagination">
+                                        <!-- Primera -->
+                                        <li class="page-item @(ViewBag.PaginaActual == 1 ? "disabled" : "")">
+                                            <a class="page-link"
+                                               asp-action="Index"
+                                               asp-route-pagina="1"
+                                               asp-route-buscar="@ViewBag.BuscarTexto"
+                                               asp-route-soloActivas="@ViewBag.SoloActivas">
+                                                <i class="fas fa-angle-double-left"></i>
+                                            </a>
+                                        </li>
+
+                                        <!-- Anterior -->
+                                        <li class="page-item @(ViewBag.PaginaActual == 1 ? "disabled" : "")">
+                                            <a class="page-link"
+                                               asp-action="Index"
+                                               asp-route-pagina="@(ViewBag.PaginaActual - 1)"
+                                               asp-route-buscar="@ViewBag.BuscarTexto"
+                                               asp-route-soloActivas="@ViewBag.SoloActivas">
+                                                <i class="fas fa-angle-left"></i> Anterior
+                                            </a>
+                                        </li>
+
+                                        <!-- Números de página -->
+                                        @{
+                                            int startPage = Math.Max(1, ViewBag.PaginaActual - 2);
+                                            int endPage = Math.Min(ViewBag.TotalPaginas, ViewBag.PaginaActual + 2);
+                                        }
+
+                                        @if (startPage > 1)
+                                        {
+                                            <li class="page-item"><span class="page-link">...</span></li>
+                                        }
+
+                                        @for (int i = startPage; i <= endPage; i++)
+                                        {
+                                            <li class="page-item @(ViewBag.PaginaActual == i ? "active" : "")">
+                                                <a class="page-link"
+                                                   asp-action="Index"
+                                                   asp-route-pagina="@i"
+                                                   asp-route-buscar="@ViewBag.BuscarTexto"
+                                                   asp-route-soloActivas="@ViewBag.SoloActivas">
+                                                    @i
+                                                </a>
+                                            </li>
+                                        }
+
+                                        @if (endPage < ViewBag.TotalPaginas)
+                                        {
+                                            <li class="page-item"><span class="page-link">...</span></li>
+                                        }
+
+                                        <!-- Siguiente -->
+                                        <li class="page-item @(ViewBag.PaginaActual >= ViewBag.TotalPaginas ? "disabled" : "")">
+                                            <a class="page-link"
+                                               asp-action="Index"
+                                               asp-route-pagina="@(ViewBag.PaginaActual + 1)"
+                                               asp-route-buscar="@ViewBag.BuscarTexto"
+                                               asp-route-soloActivas="@ViewBag.SoloActivas">
+                                                Siguiente <i class="fas fa-angle-right"></i>
+                                            </a>
+                                        </li>
+
+                                        <!-- Última -->
+                                        <li class="page-item @(ViewBag.PaginaActual >= ViewBag.TotalPaginas ? "disabled" : "")">
+                                            <a class="page-link"
+                                               asp-action="Index"
+                                               asp-route-pagina="@ViewBag.TotalPaginas"
+                                               asp-route-buscar="@ViewBag.BuscarTexto"
+                                               asp-route-soloActivas="@ViewBag.SoloActivas">
+                                                <i class="fas fa-angle-double-right"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            }
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const searchInput = document.getElementById("searchInput");
-            const statusFilter = document.getElementById("statusFilter");
-            const rows = document.querySelectorAll("tbody tr");
-
-            function filter() {
-                const term = searchInput.value.toLowerCase();
-                const estado = statusFilter.value; // "true" | "false" | ""
-
-                rows.forEach(row => {
-                    const nombre = row.dataset.nombre;
-                    const activo = row.dataset.activo.toLowerCase(); // "true" | "false"
-
-                    const matchNombre = nombre.includes(term);
-                    const matchEstado = !estado || activo === estado;
-
-                    row.style.display = matchNombre && matchEstado ? "" : "none";
-                });
-            }
-
-            searchInput.addEventListener("input", filter);
-            statusFilter.addEventListener("change", filter);
-        });
-    </script>
-
 </body>
 </html>

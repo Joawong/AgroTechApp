@@ -27,33 +27,80 @@ namespace AgroTechApp.Controllers
         }
 
         // GET: Animales
-        public async Task<IActionResult> Index()
+        // GET: Animales
+        public async Task<IActionResult> Index(int? pagina, string? buscar, string? sexo, string? estado, int? razaId)
         {
             try
             {
                 var fincaId = GetFincaId();
 
-                var animals = await _context.Animals
+                // Query base
+                var query = _context.Animals
                     .Where(a => a.FincaId == fincaId)
                     .Include(a => a.Finca)
                     .Include(a => a.LoteAnimal)
                     .Include(a => a.Madre)
                     .Include(a => a.Padre)
                     .Include(a => a.Raza)
-                    .OrderByDescending(a => a.AnimalId)
+                    .AsQueryable();
+
+                // Filtros
+                if (!string.IsNullOrWhiteSpace(buscar))
+                {
+                    query = query.Where(a =>
+                        a.Arete.Contains(buscar) ||
+                        (a.Nombre != null && a.Nombre.Contains(buscar)));
+                }
+
+                if (!string.IsNullOrWhiteSpace(sexo))
+                {
+                    query = query.Where(a => a.Sexo == sexo);
+                }
+
+                if (!string.IsNullOrWhiteSpace(estado))
+                {
+                    query = query.Where(a => a.Estado == estado);
+                }
+
+                if (razaId.HasValue)
+                {
+                    query = query.Where(a => a.RazaId == razaId.Value);
+                }
+
+                // Contar total antes de paginar
+                var totalRegistros = await query.CountAsync();
+
+                // ORDEN: Más recientes primero (por ID descendente)
+                query = query.OrderByDescending(a => a.AnimalId);
+
+                // PAGINACIÓN
+                int registrosPorPagina = 10;
+                int paginaActual = pagina ?? 1;
+                int totalPaginas = (int)Math.Ceiling(totalRegistros / (double)registrosPorPagina);
+
+                var animales = await query
+                    .Skip((paginaActual - 1) * registrosPorPagina)
+                    .Take(registrosPorPagina)
                     .ToListAsync();
 
-                return View(animals);
+                // ViewBags para la vista
+                ViewBag.PaginaActual = paginaActual;
+                ViewBag.TotalPaginas = totalPaginas;
+                ViewBag.TotalRegistros = totalRegistros;
+                ViewBag.BuscarTexto = buscar;
+                ViewBag.SexoFiltro = sexo;
+                ViewBag.EstadoFiltro = estado;
+                ViewBag.RazaIdFiltro = razaId;
+
+                // Dropdown de razas para filtro
+                ViewBag.RazaId = new SelectList(_context.Razas, "RazaId", "Nombre");
+
+                return View(animales);
             }
             catch (UnauthorizedAccessException ex)
             {
                 _logger.LogWarning(ex, "Acceso no autorizado en AnimalesController.Index");
                 return RedirectToAction("Login", "Account", new { area = "Identity" });
-            }
-            catch (InvalidOperationException ex)
-            {
-                _logger.LogError(ex, "Error obteniendo finca del usuario");
-                return ErrorView(ex.Message);
             }
         }
 
@@ -450,19 +497,20 @@ namespace AgroTechApp.Controllers
                     return View(animal);
                 }
 
+                // INICIO DE TRANSACCIÓN
                 using var tx = await _context.Database.BeginTransactionAsync();
 
                 try
                 {
-                    // Actualizar el animal
+                    // 1. Actualizar el animal
                     animal.Estado = "Vendido";
                     animal.PrecioVenta = PrecioVenta;
                     animal.FechaVenta = DateOnly.FromDateTime(FechaVenta ?? DateTime.UtcNow);
 
                     _context.Update(animal);
-                    await _context.SaveChangesAsync();
+                    // NO GUARDAR AÚN - Esperar a que el servicio también agregue sus cambios
 
-                    // Registrar ingreso automatico
+                    // 2. Registrar ingreso automático
                     string nombreAnimal = string.IsNullOrWhiteSpace(animal.Nombre)
                         ? animal.Arete
                         : $"{animal.Arete} - {animal.Nombre}";
@@ -476,6 +524,10 @@ namespace AgroTechApp.Controllers
                         pesoVenta: PesoVenta
                     );
 
+                    // 3. AHORA SÍ guardamos todo junto (animal + ingreso)
+                    await _context.SaveChangesAsync();
+
+                    // 4. Commit de la transacción
                     await tx.CommitAsync();
 
                     _logger.LogInformation(
@@ -500,10 +552,11 @@ namespace AgroTechApp.Controllers
                 }
                 catch (Exception ex)
                 {
+                    // Rollback SOLO si algo falló
                     await tx.RollbackAsync();
                     _logger.LogError(ex, "Error al vender animal {AnimalId}", id);
-                    ModelState.AddModelError(string.Empty, "Ocurrió un error al registrar la venta.");
-                    return View(animal);
+                    MostrarError("Ocurrió un error al registrar la venta. Por favor, intente nuevamente.");
+                    return RedirectToAction(nameof(Index));
                 }
             }
             catch (UnauthorizedAccessException ex)
@@ -512,7 +565,6 @@ namespace AgroTechApp.Controllers
                 return RedirectToAction("Login", "Account", new { area = "Identity" });
             }
         }
-
         // GET: Animales/Delete/5
         public async Task<IActionResult> Delete(long? id)
         {

@@ -507,7 +507,7 @@
 
                         <div class="info-row">
                             <span class="info-label">
-                                <i class="fas fa-weight"></i> Peso Nacimiento:
+                                <i class="fas fa-weight"></i> Peso Inicial:
                             </span>
                             <span class="info-value">
                                 @if (Model.PesoNacimiento.HasValue)
@@ -576,41 +576,41 @@
                             <span class="info-value">@(Model.LoteAnimal?.Nombre ?? "-")</span>
                         </div>
 
-                        <div class="info-row">
-                            <span class="info-label">
-                                <i class="fas fa-venus"></i> Madre:
-                            </span>
-                            <span class="info-value">
-                                @if (Model.MadreId.HasValue && Model.Madre != null)
+                            <dt><i class="fas fa-venus" style="color: #e83e8c;"></i> Madre</dt>
+                            <dd>
+                                @if (Model.Madre != null)
                                 {
-                                    <a asp-action="Details" asp-route-id="@Model.MadreId" style="color: var(--primary); text-decoration: none;">
-                                        @(Model.Madre.Nombre ?? Model.Madre.Arete)
+                                    <a asp-action="Details" asp-route-id="@Model.Madre.AnimalId" class="animal-link">
+                                        <strong>@Model.Madre.Arete</strong>
+                                        @if (!string.IsNullOrWhiteSpace(Model.Madre.Nombre))
+                                        {
+                                            <span> - @Model.Madre.Nombre</span>
+                                        }
                                     </a>
                                 }
                                 else
                                 {
-                                    <span style="color: var(--gray);">-</span>
+                                    <span class="text-muted">No registrada</span>
                                 }
-                            </span>
-                        </div>
+                            </dd>
 
-                        <div class="info-row">
-                            <span class="info-label">
-                                <i class="fas fa-mars"></i> Padre:
-                            </span>
-                            <span class="info-value">
-                                @if (Model.PadreId.HasValue && Model.Padre != null)
+                            <dt><i class="fas fa-mars" style="color: #17a2b8;"></i> Padre</dt>
+                            <dd>
+                                @if (Model.Padre != null)
                                 {
-                                    <a asp-action="Details" asp-route-id="@Model.PadreId" style="color: var(--primary); text-decoration: none;">
-                                        @(Model.Padre.Nombre ?? Model.Padre.Arete)
+                                    <a asp-action="Details" asp-route-id="@Model.Padre.AnimalId" class="animal-link">
+                                        <strong>@Model.Padre.Arete</strong>
+                                        @if (!string.IsNullOrWhiteSpace(Model.Padre.Nombre))
+                                        {
+                                            <span> - @Model.Padre.Nombre</span>
+                                        }
                                     </a>
                                 }
                                 else
                                 {
-                                    <span style="color: var(--gray);">-</span>
+                                    <span class="text-muted">No registrado</span>
                                 }
-                            </span>
-                        </div>
+                            </dd>
                     </div>
 
                     <!-- Información Económica -->

@@ -20,13 +20,52 @@ namespace AgroTechApp.Controllers
         // =======================================================
         // GET: Fincas (lista solo las fincas del usuario)
         // =======================================================
-        public async Task<IActionResult> Index()
+        // GET: Fincas (lista solo las fincas del usuario con paginación)
+        public async Task<IActionResult> Index(int? pagina, string? buscar, bool? soloActivas)
         {
             try
             {
-                var fincas = GetFincasUsuarioTodas();
-                return View(fincas);
+                // Obtener TODAS las fincas del usuario (activas e inactivas)
+                var fincasQuery = GetFincasUsuarioTodas().AsQueryable();
 
+                // Filtro de búsqueda
+                if (!string.IsNullOrWhiteSpace(buscar))
+                {
+                    fincasQuery = fincasQuery.Where(f =>
+                        f.Nombre.Contains(buscar) ||
+                        (f.Ubicacion != null && f.Ubicacion.Contains(buscar)));
+                }
+
+                // Filtro de estado (solo activas)
+                if (soloActivas.HasValue && soloActivas.Value)
+                {
+                    fincasQuery = fincasQuery.Where(f => f.Activa);
+                }
+
+                // Contar total antes de paginar
+                var totalRegistros = fincasQuery.Count();
+
+                // ORDEN: Más recientes primero (por FincaId descendente)
+                var fincasOrdenadas = fincasQuery.OrderByDescending(f => f.FincaId).ToList();
+
+                // PAGINACIÓN
+                int registrosPorPagina = 10;
+                int paginaActual = pagina ?? 1;
+                int totalPaginas = (int)Math.Ceiling(totalRegistros / (double)registrosPorPagina);
+
+                var fincasPaginadas = fincasOrdenadas
+                    .Skip((paginaActual - 1) * registrosPorPagina)
+                    .Take(registrosPorPagina)
+                    .ToList();
+
+                // ViewBags para la vista
+                ViewBag.PaginaActual = paginaActual;
+                ViewBag.TotalPaginas = totalPaginas;
+                ViewBag.TotalRegistros = totalRegistros;
+                ViewBag.BuscarTexto = buscar;
+                ViewBag.SoloActivas = soloActivas ?? false;
+
+                return View(fincasPaginadas);
             }
             catch (UnauthorizedAccessException)
             {
@@ -150,6 +189,7 @@ namespace AgroTechApp.Controllers
         // =======================================================
         // GET: Edit
         // =======================================================
+        // GET: Edit
         public async Task<IActionResult> Edit(long? id)
         {
             if (id == null) return NotFound();
@@ -163,6 +203,15 @@ namespace AgroTechApp.Controllers
                 var finca = await _context.Fincas.FindAsync(id);
 
                 if (finca == null) return NotFound();
+
+                // Cargar estadísticas de la finca para mostrar en la vista
+                ViewBag.TotalAnimales = await _context.Animals
+                    .Where(a => a.FincaId == id && a.Estado == "Activo")
+                    .CountAsync();
+
+                ViewBag.TotalInsumos = await _context.Insumos
+                    .Where(i => i.FincaId == id)
+                    .CountAsync();
 
                 return View(finca);
             }
@@ -179,7 +228,7 @@ namespace AgroTechApp.Controllers
         // =======================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(long id, Finca finca)
+        public async Task<IActionResult> Edit(long id, [Bind("FincaId,Nombre,Ubicacion,AreaTotal,Telefono,Email")] Finca finca)
         {
             if (id != finca.FincaId)
                 return NotFound();
@@ -188,17 +237,42 @@ namespace AgroTechApp.Controllers
             if (!fincasUsuario.Contains(id))
                 return Unauthorized();
 
-            finca.Activa = true; // Forzar que quede activa
+            // Recuperar finca original para mantener datos importantes
+            var fincaOriginal = await _context.Fincas
+                .AsNoTracking()
+                .FirstOrDefaultAsync(f => f.FincaId == id);
+
+            if (fincaOriginal == null)
+                return NotFound();
+
+            // Mantener valores que no deben cambiar
+            finca.Activa = fincaOriginal.Activa;
+            finca.FechaCreacion = fincaOriginal.FechaCreacion;
+
+            // Trimear espacios
+            finca.Nombre = finca.Nombre?.Trim();
+            finca.Ubicacion = finca.Ubicacion?.Trim();
 
             ModelState.Remove("Usuarios");
-            ModelState.Remove("Animales");
+            ModelState.Remove("Animals");
             ModelState.Remove("Potreros");
 
             if (!ModelState.IsValid)
+            {
+                // Recargar estadísticas
+                ViewBag.TotalAnimales = await _context.Animals
+                    .Where(a => a.FincaId == id && a.Estado == "Activo")
+                    .CountAsync();
+                ViewBag.TotalInsumos = await _context.Insumos
+                    .Where(i => i.FincaId == id)
+                    .CountAsync();
+
                 return View(finca);
+            }
 
             try
             {
+                // Validar nombre duplicado
                 var existe = await _context.Fincas
                     .AnyAsync(f => f.Nombre.ToLower() == finca.Nombre.ToLower() &&
                                    f.FincaId != finca.FincaId);
@@ -206,6 +280,15 @@ namespace AgroTechApp.Controllers
                 if (existe)
                 {
                     ModelState.AddModelError("Nombre", "Ya existe otra finca con ese nombre.");
+
+                    // Recargar estadísticas
+                    ViewBag.TotalAnimales = await _context.Animals
+                        .Where(a => a.FincaId == id && a.Estado == "Activo")
+                        .CountAsync();
+                    ViewBag.TotalInsumos = await _context.Insumos
+                        .Where(i => i.FincaId == id)
+                        .CountAsync();
+
                     return View(finca);
                 }
 
@@ -213,7 +296,7 @@ namespace AgroTechApp.Controllers
                 await _context.SaveChangesAsync();
 
                 MostrarExito("Finca actualizada correctamente.");
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Details), new { id = finca.FincaId });
             }
             catch (Exception ex)
             {

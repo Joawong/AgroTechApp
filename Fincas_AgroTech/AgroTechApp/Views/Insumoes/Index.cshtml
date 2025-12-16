@@ -643,14 +643,14 @@
                                             <td>@(item.Unidad?.Nombre ?? "-")</td>
                                             <td>
                                                 <span class="stock-number
-                                                    @(estadoStock == "ok" ? "stock-ok" :
-                                                      estadoStock == "bajo" ? "stock-low" : "stock-zero")">
-                                                    @stockActual.ToString("N2")
-                                                </span>
-                                            </td>
-                                            <td>@item.StockMinimo.ToString("N2")</td>
-                                            <td>
-                                                @if (estadoStock == "ok")
+                                                                    @(estadoStock == "ok" ? "stock-ok" :
+                                                                                                                                                                  estadoStock == "bajo" ? "stock-low" : "stock-zero")">
+                                            @stockActual.ToString("N2")
+                                        </span>
+                                    </td>
+                                    <td>@item.StockMinimo.ToString("N2")</td>
+                                    <td>
+                                        @if (estadoStock == "ok")
                                                 {
                                                     <span class="status-badge status-active">
                                                         <i class="fas fa-check-circle"></i> OK
