@@ -1,35 +1,157 @@
 ﻿@model AgroTechApp.Models.DB.Finca
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Crear Nueva Finca";
 }
 
-<h1>Create</h1>
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow border-0">
+                <div class="card-header bg-gradient-primary text-white py-3">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-tractor fa-2x me-3"></i>
+                        <div>
+                            <h1 class="h3 mb-0">Crear Nueva Finca</h1>
+                            <p class="mb-0 opacity-75">Complete los datos para registrar una nueva finca en el sistema</p>
+                        </div>
+                    </div>
+                </div>
 
-<h4>Finca</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Nombre" class="control-label"></label>
-                <input asp-for="Nombre" class="form-control" />
-                <span asp-validation-for="Nombre" class="text-danger"></span>
+                <div class="card-body p-4 p-lg-5">
+                    <form asp-action="Create" class="needs-validation" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="row">
+                            <div class="col-md-12 mb-4">
+                                <div class="form-floating">
+                                    <input asp-for="Nombre" class="form-control form-control-lg"
+                                           placeholder="Nombre de la finca"
+                                           style="border-left: 4px solid #28a745;" />
+                                    <label asp-for="Nombre" class="form-label">
+                                        <i class="fas fa-signature me-2 text-primary"></i>Nombre de la Finca
+                                    </label>
+                                    <span asp-validation-for="Nombre" class="text-danger small mt-1 d-block"></span>
+                                    <div class="form-text">Ejemplo: Finca La Esperanza, Hacienda San José</div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 mb-4">
+                                <div class="form-floating">
+                                    <input asp-for="Ubicacion" class="form-control form-control-lg"
+                                           placeholder="Ubicación geográfica"
+                                           style="border-left: 4px solid #17a2b8;" />
+                                    <label asp-for="Ubicacion" class="form-label">
+                                        <i class="fas fa-map-marker-alt me-2 text-info"></i>Ubicación
+                                    </label>
+                                    <span asp-validation-for="Ubicacion" class="text-danger small mt-1 d-block"></span>
+                                    <div class="form-text">Dirección completa, ciudad o coordenadas</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
+                            <a asp-action="Index" class="btn btn-danger px-4">
+                                <i class="fas fa-arrow-left me-2"></i>Volver al Listado
+                            </a>
+
+                            <button type="submit" class="btn btn-success btn-lg px-5 py-3 fw-bold">
+                                <i class="fas fa-plus-circle me-2"></i>Crear Finca
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="card-footer bg-light py-3">
+                    <div class="text-center text-muted small">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Todos los campos son requeridos para el registro correcto
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Ubicacion" class="control-label"></label>
-                <input asp-for="Ubicacion" class="form-control" />
-                <span asp-validation-for="Ubicacion" class="text-danger"></span>
+
+            <!-- Tarjeta informativa -->
+            <div class="card border-info mt-4">
+                <div class="card-body">
+                    <div class="d-flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-lightbulb text-info fa-2x"></i>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h5 class="card-title text-info">¿Por qué registrar fincas?</h5>
+                            <p class="card-text mb-0">El registro de fincas permite organizar mejor sus cultivos, gestionar recursos eficientemente y llevar un control preciso de la producción agrícola.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 
+    <!-- Font Awesome para iconos (si no los tienes incluidos) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        }
+
+        .card {
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .form-control-lg {
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .form-control:focus {
+            box-shadow: 0 0 0 0.25rem rgba(40, 167, 69, 0.25);
+            border-color: #28a745;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+            .btn-success:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+            }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+            .btn-danger:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+                color: white;
+                background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+            }
+
+        .form-floating > .form-control {
+            height: calc(3.5rem + 2px);
+            line-height: 1.25;
+        }
+
+        .form-floating > label {
+            padding: 1rem 1.5rem;
+        }
+    </style>
+}

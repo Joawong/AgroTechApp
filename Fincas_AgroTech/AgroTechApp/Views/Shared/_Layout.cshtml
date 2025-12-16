@@ -75,6 +75,45 @@
             border: 1px solid var(--light-blue);
         }
 
+        /* Estilos para el dropdown de usuario */
+        .user-avatar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.5rem 1rem;
+        }
+
+        .avatar-circle {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-green));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: 600;
+            border: 2px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: var(--primary-blue);
+            font-size: 0.95rem;
+        }
+
+        .user-email {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
         /* ====== FOOTER MEJORADO ====== */
         .footer-enhanced {
             background: linear-gradient(135deg, #1a2a3a 0%, #2d4a5f 50%, #1a2a3a 100%);
@@ -299,6 +338,16 @@
                     left: 50%;
                     transform: translateX(-50%);
                 }
+
+            .user-avatar {
+                padding: 0.5rem;
+            }
+
+            .avatar-circle {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+            }
         }
 
         @@media (max-width: 576px) {
@@ -314,6 +363,16 @@
             .social-link {
                 width: 35px;
                 height: 35px;
+            }
+
+            .avatar-circle {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9rem;
+            }
+
+            .user-name {
+                font-size: 0.85rem;
             }
         }
 
@@ -356,7 +415,6 @@
                     </div>
                 }
 
-
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
                         aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -377,16 +435,18 @@
                         </li>
 
                         <!-- Gestión Animal -->
-                        <li class="nav-item dropdown"> 
-                            <a class="nav-link dropdown-toggle text-dark fw-semibold" href="#" id="animalDropdown" 
-                            role="button" data-bs-toggle="dropdown" aria-expanded="false"> 
-                            <i class="fas fa-cow me-1"></i>
-                            Gestión Animal </a> <ul class="dropdown-menu" aria-labelledby="animalDropdown"> 
-                                <li><a class="dropdown-item" asp-controller="Animales" asp-action="Index"><i class="fas fa-list me-2"></i>Registro de Animales</a></li> 
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark fw-semibold" href="#" id="animalDropdown"
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-cow me-1"></i>
+                                Gestión Animal
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="animalDropdown">
+                                <li><a class="dropdown-item" asp-controller="Animales" asp-action="Index"><i class="fas fa-list me-2"></i>Registro de Animales</a></li>
                                 <li><a class="dropdown-item" asp-controller="Animales" asp-action="Create"><i class="fas fa-plus-circle me-2"></i>Nuevo Animal</a></li>
                                 <li><a class="dropdown-item" asp-controller="Mortalidad" asp-action="Index"><i class="fas fa-plus-circle me-2"></i>Mortalidad</a></li>
-                            </ul> 
-                            </li>
+                            </ul>
+                        </li>
 
                         <!-- Pesajes -->
                         <li class="nav-item dropdown">
@@ -445,7 +505,57 @@
 
                     </ul>
 
-                    <partial name="_LoginPartial" />
+                    <!-- REEMPLAZO DEL LOGIN PARTIAL CON AVATAR DE USUARIO -->
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <div class="dropdown">
+                            <a href="#" class="nav-link dropdown-toggle text-dark d-flex align-items-center" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="avatar-circle">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                                <span class="ms-2 fw-semibold">@User.Identity.Name.Split('@')[0]</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <div class="user-avatar">
+                                        <div class="avatar-circle">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                        <div class="user-info">
+                                            <span class="user-name">@User.Identity.Name.Split('@')[0]</span>
+                                            <small class="user-email">@User.Identity.Name</small>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="/Identity/Account/Manage">
+                                        <i class="fas fa-user-cog me-2"></i>Mi Perfil
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout"
+                                          asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                                        <button type="submit" class="dropdown-item">
+                                            <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                    else
+                    {
+                        <ul class="navbar-nav">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">
+                                    <i class="fas fa-sign-in-alt me-1"></i>Ingresar
+                                </a>
+                            </li>
+                        </ul>
+                    }
                 </div>
             </div>
         </nav>
@@ -743,46 +853,37 @@
         }
 
         @@keyframes slideIn {
-            from
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
 
-        {
-            transform: translateX(400px);
-            opacity: 0;
-        }
-
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
 
         @@keyframes slideOut {
-            from
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
 
-        {
-            transform: translateX(0);
-            opacity: 1;
-        }
-
-        to {
-            transform: translateX(400px);
-            opacity: 0;
-        }
-
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
         }
 
         /* Responsive */
         @@media (max-width: 768px) {
-            .alert-toast
-
-        {
-            left: 10px;
-            right: 10px;
-            min-width: auto;
-            top: 10px;
-        }
-
+            .alert-toast {
+                left: 10px;
+                right: 10px;
+                min-width: auto;
+                top: 10px;
+            }
         }
     </style>
 

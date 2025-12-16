@@ -64,13 +64,16 @@
     }
 
     .btn-secondary {
-        background: #ddd;
+        background: linear-gradient(135deg, var(--danger), #e74c3c);
+        border: 2px solid var(--danger);
+        color: var(--white);
     }
 
-    .btn-danger {
-        background: #dc3545;
-        color: white;
-    }
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #c82333, var(--danger));
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(220, 53, 69, 0.35);
+        }
 </style>
 
 <div class="delete-card">

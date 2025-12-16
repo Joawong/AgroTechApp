@@ -1,45 +1,311 @@
 ﻿@model AgroTechApp.Models.DB.Finca
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Desactivar Finca";
 }
 
-<h1>Delete</h1>
+<div class="container mt-4">
+    <!-- Botón para abrir el modal de desactivación -->
+    <div class="d-flex justify-content-end mb-4">
+        <button type="button" class="btn btn-outline-warning" data-bs-toggle="modal" data-bs-target="#deactivateModal">
+            <i class="fas fa-power-off me-2"></i>Desactivar Finca
+        </button>
+    </div>
 
-<h3>Seguro que quieres desactivar la finca?</h3>
-<div>
-    <h4>Finca</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nombre)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nombre)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Ubicacion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Ubicacion)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Activa)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Activa)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FechaCreacion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FechaCreacion)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="FincaId" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+    <!-- Vista normal de detalles -->
+    <div class="card shadow border-0 mb-4">
+        <div class="card-header bg-gradient-warning text-white py-4">
+            <div class="d-flex align-items-center">
+                <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                <div>
+                    <h1 class="h3 mb-0">Finca: @Model.Nombre</h1>
+                    <p class="mb-0 opacity-75">Información completa de la finca</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-5">
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-light p-3 rounded-circle me-3">
+                            <i class="fas fa-signature fa-2x text-primary"></i>
+                        </div>
+                        <div>
+                            <h3 class="h5 text-dark fw-bold mb-1">Nombre</h3>
+                            <p class="lead mb-0">@Model.Nombre</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-light p-3 rounded-circle me-3">
+                            <i class="fas fa-map-marker-alt fa-2x text-info"></i>
+                        </div>
+                        <div>
+                            <h3 class="h5 text-dark fw-bold mb-1">Ubicación</h3>
+                            <p class="lead mb-0">@Model.Ubicacion</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-light p-3 rounded-circle me-3">
+                            <i class="fas fa-power-off fa-2x text-warning"></i>
+                        </div>
+                        <div>
+                            <h3 class="h5 text-dark fw-bold mb-1">Estado Actual</h3>
+                            <span class="badge @(Model.Activa ? "bg-success" : "bg-danger") px-3 py-2 fs-6">
+                                @if (Model.Activa)
+                                {
+                                    <i class="fas fa-check-circle me-1"></i>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-times-circle me-1"></i>
+                                }
+                                @(Model.Activa ? "Activa" : "Inactiva")
+                            </span>
+                            @if (!Model.Activa)
+                            {
+                                <div class="mt-2">
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-info-circle me-1"></i>Esta finca ya está desactivada
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-light p-3 rounded-circle me-3">
+                            <i class="fas fa-calendar-alt fa-2x text-secondary"></i>
+                        </div>
+                        <div>
+                            <h3 class="h5 text-dark fw-bold mb-1">Fecha de Creación</h3>
+                            <p class="lead mb-0">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
+                <a asp-action="Edit" asp-route-id="@Model.FincaId" class="btn btn-warning btn-lg px-4 py-3 fw-bold">
+                    <i class="fas fa-edit me-2"></i>Editar Finca
+                </a>
+
+                <a asp-action="Index" class="btn btn-danger px-4 py-3 fw-bold">
+                    <i class="fas fa-arrow-left me-2"></i>Volver al Listado
+                </a>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Modal de Confirmación de Desactivación -->
+<div class="modal fade" id="deactivateModal" tabindex="-1" aria-labelledby="deactivateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-gradient-warning text-white">
+                <h5 class="modal-title" id="deactivateModalLabel">
+                    <i class="fas fa-power-off me-2"></i>Confirmar Desactivación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <div class="bg-warning bg-opacity-10 p-4 rounded-circle d-inline-block">
+                        <i class="fas fa-toggle-off fa-3x text-warning"></i>
+                    </div>
+                </div>
+
+                <h4 class="text-center text-dark fw-bold mb-3">¿Desactivar esta finca?</h4>
+
+                <div class="alert alert-warning" role="alert">
+                    <div class="d-flex">
+                        <i class="fas fa-exclamation-triangle me-2 mt-1"></i>
+                        <div>
+                            <strong>Importante:</strong> Al desactivar la finca "@Model.Nombre":
+                            <ul class="mb-0 mt-2">
+                                <li>No aparecerá en los listados activos</li>
+                                <li>No podrá asignársele nuevos cultivos</li>
+                                <li>La información se mantendrá para consultas históricas</li>
+                                <li>Puede reactivarla posteriormente si es necesario</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card border-warning mb-3">
+                    <div class="card-body">
+                        <h6 class="card-title text-warning">
+                            <i class="fas fa-info-circle me-2"></i>Finca a desactivar:
+                        </h6>
+                        <ul class="list-unstyled mb-0">
+                            <li class="mb-2"><i class="fas fa-farm me-2 text-primary"></i><strong>Nombre:</strong> @Model.Nombre</li>
+                            <li class="mb-2"><i class="fas fa-map-pin me-2 text-info"></i><strong>Ubicación:</strong> @Model.Ubicacion</li>
+                            <li class="mb-2">
+                                <i class="fas fa-power-off me-2 text-success"></i>
+                                <strong>Estado actual:</strong>
+                                <span class="badge bg-success">Activa</span>
+                                <i class="fas fa-arrow-right mx-2 text-muted"></i>
+                                <span class="badge bg-danger">Inactiva</span>
+                            </li>
+                            <li><i class="fas fa-calendar me-2 text-secondary"></i><strong>Fecha creación:</strong> @Model.FechaCreacion.ToString("dd/MM/yyyy")</li>
+                        </ul>
+                    </div>
+                </div>
+
+                @if (!Model.Activa)
+                {
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Nota:</strong> Esta finca ya se encuentra desactivada. Puede reactivarla desde la opción de edición.
+                    </div>
+                }
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancelar
+                </button>
+
+                <!-- Formulario de desactivación dentro del modal -->
+                <form asp-action="Delete" method="post" class="d-inline">
+                    <input type="hidden" asp-for="FincaId" />
+                    <button type="submit" class="btn btn-warning px-4" @(Model.Activa ? "" : "disabled")>
+                        <i class="fas fa-power-off me-2"></i>@(Model.Activa ? "Sí, Desactivar Finca" : "Ya está desactivada")
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <!-- Bootstrap JS para modales -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        .bg-gradient-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+        }
+
+        .card {
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .rounded-circle {
+            border-radius: 50% !important;
+        }
+
+        .bg-light {
+            background-color: #f8f9fa !important;
+        }
+
+        .modal-content {
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            border: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            color: #212529;
+        }
+
+            .btn-warning:hover:not(:disabled) {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3);
+                color: #212529;
+            }
+
+            .btn-warning:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+            }
+
+        .btn-outline-warning {
+            border-radius: 10px;
+            padding: 0.75rem 1.5rem;
+            border-width: 2px;
+            color: #ffc107;
+            border-color: #ffc107;
+        }
+
+            .btn-outline-warning:hover {
+                background-color: #ffc107;
+                color: #212529;
+            }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            border: none;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+            .btn-danger:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+                color: white;
+                background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+            }
+
+        .badge {
+            border-radius: 20px;
+            font-size: 1rem;
+            padding: 0.5rem 1.5rem;
+        }
+
+            .badge.bg-success {
+                background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+            }
+
+            .badge.bg-danger {
+                background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+            }
+
+        .modal-backdrop {
+            backdrop-filter: blur(5px);
+        }
+
+        .btn-close-white {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        .alert-warning {
+            border-left: 4px solid #ffc107;
+        }
+
+        .alert-info {
+            border-left: 4px solid #17a2b8;
+        }
+
+        .card-border-warning {
+            border: 1px solid #ffc107;
+        }
+    </style>
+}
