@@ -7,76 +7,123 @@
 <style>
     :root {
         --primary: #2E8B57;
-        --danger: #dc3545;
+        --primary-light: #3CB371;
+        --primary-dark: #1E6B47;
+        --secondary: #F4A460;
+        --success: #28a745;
         --warning: #ffc107;
+        --danger: #dc3545;
+        --info: #17a2b8;
         --light: #f8f9fa;
-        --dark: #333;
+        --dark: #343a40;
+        --white: #ffffff;
+        --border: #e1e5e9;
+        --shadow: rgba(46, 139, 87, 0.1);
+        --gray: #6c757d;
     }
 
     .create-container {
         max-width: 900px;
         margin: 2rem auto;
-        background: white;
-        border-radius: 15px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 15px 40px var(--shadow);
         overflow: hidden;
+        border: 1px solid var(--border);
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .create-header {
-        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
         color: white;
-        padding: 2rem;
+        padding: 2.5rem;
         text-align: center;
+        position: relative;
+        overflow: hidden;
     }
+
+        .create-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg);
+        }
 
         .create-header h1 {
             margin: 0;
-            font-size: 2rem;
-            font-weight: 600;
+            font-size: 2.2rem;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
         }
 
         .create-header p {
             margin: 0.5rem 0 0;
             opacity: 0.9;
+            position: relative;
+            z-index: 1;
+            font-size: 1.1rem;
         }
 
     .create-body {
-        padding: 2rem;
+        padding: 2.5rem;
     }
 
     .alert-warning {
-        background: linear-gradient(135deg, #fff3cd, #ffe8a1);
+        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
         border: 2px solid var(--warning);
-        border-radius: 10px;
-        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        padding: 1.5rem;
         margin-bottom: 2rem;
         display: flex;
         align-items: center;
         gap: 1rem;
+        border-left: 4px solid var(--warning);
     }
 
         .alert-warning i {
             font-size: 2rem;
-            color: #f57c00;
+            color: var(--warning);
         }
 
     .form-section {
         background: var(--light);
         padding: 1.5rem;
-        border-radius: 10px;
+        border-radius: 12px;
         margin-bottom: 1.5rem;
         border-left: 4px solid var(--primary);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
     }
 
         .form-section h3 {
             color: var(--primary);
             margin-top: 0;
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
     .form-group {
-        margin-bottom: 1.2rem;
+        margin-bottom: 1.5rem;
     }
 
     .form-label {
@@ -84,6 +131,7 @@
         margin-bottom: 0.5rem;
         font-weight: 600;
         color: var(--dark);
+        font-size: 0.95rem;
     }
 
         .form-label.required::after {
@@ -93,17 +141,19 @@
 
     .form-control, .form-select {
         width: 100%;
-        padding: 0.75rem 1rem;
-        border: 2px solid #e1e5e9;
-        border-radius: 8px;
+        padding: 0.85rem 1rem;
+        border: 2px solid var(--border);
+        border-radius: 10px;
         font-size: 1rem;
         transition: all 0.3s ease;
+        background: var(--white);
     }
 
         .form-control:focus, .form-select:focus {
             outline: none;
             border-color: var(--primary);
             box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+            transform: translateY(-1px);
         }
 
     .text-danger {
@@ -114,45 +164,70 @@
     }
 
     .text-muted {
-        color: #6c757d;
+        color: var(--gray);
         font-size: 0.9rem;
         margin-top: 0.3rem;
         display: block;
     }
 
     .perdida-preview {
-        background: linear-gradient(135deg, #ffebee, #ffcdd2);
+        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
         border: 2px solid var(--danger);
-        border-radius: 10px;
+        border-radius: 12px;
         padding: 1.5rem;
-        margin: 1.5rem 0;
+        margin: 2rem 0;
         display: none;
+        border-left: 4px solid var(--danger);
+        box-shadow: 0 4px 15px rgba(220, 53, 69, 0.1);
     }
 
         .perdida-preview.show {
             display: block;
+            animation: slideDown 0.3s ease-out;
         }
 
-        .perdida-preview h4 {
-            margin: 0 0 1rem;
-            color: var(--danger);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+    @@keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
         }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .perdida-preview h4 {
+        margin: 0 0 1.2rem;
+        color: var(--danger);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 1.2rem;
+        font-weight: 600;
+    }
 
     .perdida-info {
-        background: white;
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 0.75rem;
+        background: var(--white);
+        border-radius: 10px;
+        padding: 1.2rem;
+        margin-bottom: 1rem;
     }
 
     .perdida-row {
         display: flex;
         justify-content: space-between;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border);
     }
+
+        .perdida-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
 
     .perdida-total {
         border-top: 2px solid var(--danger);
@@ -160,19 +235,22 @@
         margin-top: 0.75rem;
         font-weight: 700;
         font-size: 1.5rem;
+        color: var(--danger);
     }
 
     .btn-group {
         display: flex;
         gap: 1rem;
         justify-content: flex-end;
-        margin-top: 2rem;
+        margin-top: 2.5rem;
+        padding-top: 2rem;
+        border-top: 2px solid var(--border);
     }
 
     .btn {
-        padding: 0.75rem 2rem;
+        padding: 0.85rem 2rem;
         border: none;
-        border-radius: 8px;
+        border-radius: 10px;
         font-size: 1rem;
         font-weight: 600;
         text-decoration: none;
@@ -181,32 +259,44 @@
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     .btn-danger {
-        background-color: var(--danger);
-        color: white;
+        background: linear-gradient(135deg, var(--danger), #e4606d);
+        color: var(--white);
     }
 
         .btn-danger:hover {
-            background-color: #c82333;
+            background: linear-gradient(135deg, #c82333, var(--danger));
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+            box-shadow: 0 6px 20px rgba(220, 53, 69, 0.3);
         }
 
     .btn-secondary {
-        background-color: #6c757d;
-        color: white;
+        background: var(--white);
+        color: var(--gray);
+        border: 2px solid var(--border);
     }
 
         .btn-secondary:hover {
-            background-color: #5a6268;
+            background: var(--light);
+            border-color: var(--gray);
             transform: translateY(-2px);
         }
 
     @@media (max-width: 768px) {
         .create-container {
             margin: 1rem;
+            border-radius: 15px;
+        }
+
+        .create-header {
+            padding: 2rem;
+        }
+
+        .create-body {
+            padding: 1.5rem;
         }
 
         .btn-group {
@@ -222,7 +312,7 @@
 
 <div class="create-container">
     <div class="create-header">
-        <h1>☠️ Registrar Mortalidad</h1>
+        <h1><i class="fas fa-skull"></i> Registrar Mortalidad</h1>
         <p>Complete la información del animal fallecido</p>
     </div>
 
@@ -240,7 +330,7 @@
 
             <!-- Sección: Información del Animal -->
             <div class="form-section">
-                <h3>🐄 Animal Fallecido</h3>
+                <h3><i class="fas fa-cow"></i> Animal Fallecido</h3>
 
                 <div class="form-group">
                     <label asp-for="AnimalId" class="form-label required">Animal</label>
@@ -257,7 +347,7 @@
 
             <!-- Sección: Detalles de la Mortalidad -->
             <div class="form-section">
-                <h3>📋 Detalles de la Mortalidad</h3>
+                <h3><i class="fas fa-clipboard-list"></i> Detalles de la Mortalidad</h3>
 
                 <div class="form-group">
                     <label asp-for="Fecha" class="form-label required">Fecha y Hora</label>
@@ -272,12 +362,12 @@
                     <label asp-for="Causa" class="form-label">Causa de Muerte</label>
                     <select asp-for="Causa" class="form-select">
                         <option value="">-- Seleccione causa --</option>
-                        <option value="Enfermedad">🦠 Enfermedad</option>
-                        <option value="Accidente">⚠️ Accidente</option>
-                        <option value="Vejez">⏰ Vejez</option>
-                        <option value="Depredación">🐺 Depredación</option>
-                        <option value="Parto">🤰 Complicaciones de Parto</option>
-                        <option value="Desconocida">❓ Desconocida</option>
+                        <option value="Enfermedad"><i class="fas fa-virus"></i> Enfermedad</option>
+                        <option value="Accidente"><i class="fas fa-car-crash"></i> Accidente</option>
+                        <option value="Vejez"><i class="fas fa-hourglass-end"></i> Vejez</option>
+                        <option value="Depredación"><i class="fas fa-paw"></i> Depredación</option>
+                        <option value="Parto"><i class="fas fa-baby"></i> Complicaciones de Parto</option>
+                        <option value="Desconocida"><i class="fas fa-question-circle"></i> Desconocida</option>
                     </select>
                     <span asp-validation-for="Causa" class="text-danger"></span>
                 </div>
@@ -313,7 +403,7 @@
                     </div>
                     <div class="perdida-row perdida-total">
                         <span>Pérdida Total:</span>
-                        <span id="previewPerdida" style="color: var(--danger);">₡0.00</span>
+                        <span id="previewPerdida">₡0.00</span>
                     </div>
                 </div>
                 <small class="text-muted">

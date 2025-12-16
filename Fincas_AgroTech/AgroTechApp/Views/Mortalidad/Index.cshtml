@@ -6,320 +6,826 @@
     var totalMortalidades = ViewBag.TotalMortalidades as int? ?? 0;
 }
 
-<style>
-    :root {
-        --primary: #2E8B57;
-        --danger: #dc3545;
-        --warning: #ffc107;
-        --info: #17a2b8;
-        --light: #f8f9fa;
-        --dark: #333;
-    }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --primary-light: #3CB371;
+            --primary-dark: #1E6B47;
+            --secondary: #F4A460;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #ffffff;
+            --border: #e1e5e9;
+            --shadow: rgba(46, 139, 87, 0.1);
+            --gray: #6c757d;
+        }
 
-    .mortalidad-header {
-        background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-        color: white;
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    }
-
-        .mortalidad-header h1 {
+        * {
+            box-sizing: border-box;
             margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .admin-card {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px var(--shadow);
+            overflow: hidden;
+            border: 1px solid #e1e5e9;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .admin-header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -50%;
+                width: 100%;
+                height: 200%;
+                background: rgba(255, 255, 255, 0.1);
+                transform: rotate(30deg);
+            }
+
+            .admin-header h1 {
+                font-size: 2.5rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+                position: relative;
+                z-index: 1;
+            }
+
+            .admin-header p {
+                font-size: 1.1rem;
+                opacity: 0.9;
+                position: relative;
+                z-index: 1;
+            }
+
+        .admin-header-icon {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 4rem;
+            opacity: 0.2;
+            z-index: 0;
+        }
+
+        .admin-body {
+            padding: 2.5rem;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-title h2 {
+            color: var(--dark);
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-title p {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        .btn {
+            padding: 0.85rem 1.8rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(46, 139, 87, 0.3);
+                background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #34ce57);
+            color: var(--white);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #ffd351);
+            color: var(--dark);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #e4606d);
+            color: var(--white);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, var(--info), #36b9cc);
+            color: var(--white);
+        }
+
+        .btn-sm {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.85rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 1.8rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid var(--primary);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            }
+
+            .stat-card.stat-danger {
+                border-left-color: var(--danger);
+            }
+
+            .stat-card.stat-warning {
+                border-left-color: var(--warning);
+            }
+
+        .stat-icon {
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            opacity: 0.15;
+        }
+
+            .stat-icon.icon-danger {
+                color: var(--danger);
+            }
+
+            .stat-icon.icon-warning {
+                color: var(--warning);
+            }
+
+        .stat-number {
             font-size: 2.5rem;
             font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.3rem;
         }
 
-        .mortalidad-header p {
-            margin: 0.5rem 0 0;
-            opacity: 0.9;
-            font-size: 1.1rem;
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-weight: 500;
         }
 
-    .stats-container {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .stat-card {
-        background: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        border-left: 4px solid;
-    }
-
-        .stat-card.perdidas {
-            border-left-color: var(--danger);
+        .search-filter-container {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
         }
 
-        .stat-card.total {
-            border-left-color: var(--warning);
+        .filter-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
-    .stat-label {
-        font-size: 0.9rem;
-        color: #6c757d;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 0.5rem;
-    }
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 0.85rem 1.2rem;
+            padding-left: 2.8rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%236c757d" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>') no-repeat 1rem center;
+        }
 
-    .stat-value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--dark);
-    }
+            .search-input:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+            }
 
-        .stat-value.danger {
+        .filter-select {
+            padding: 0.85rem 1.2rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            min-width: 180px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--white);
+        }
+
+            .filter-select:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+            }
+
+        .table-wrapper {
+            background: var(--white);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+        }
+
+        th {
+            padding: 1.2rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        tbody tr {
+            transition: all 0.2s ease;
+        }
+
+            tbody tr:hover {
+                background-color: #f8fffe;
+                transform: scale(1.002);
+            }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-danger {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
             color: var(--danger);
         }
 
-    .table-container {
-        background: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
+        .badge-warning {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            color: #856404;
+        }
 
-    .table {
-        margin-bottom: 0;
-    }
+        .badge-info {
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            color: #0c5460;
+        }
 
-        .table thead th {
-            background: var(--light);
-            color: var(--dark);
-            font-weight: 600;
-            border: none;
-            padding: 1rem;
-            text-transform: uppercase;
+        .badge-secondary {
+            background: linear-gradient(135deg, #e2e3e5, #d6d8db);
+            color: #383d41;
+        }
+
+        .actions-column {
+            white-space: nowrap;
+        }
+
+        .actions-group {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-start;
+        }
+
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .pagination-info {
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .export-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .btn-export {
+            padding: 0.6rem 1.2rem;
+            background: var(--white);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--gray);
             font-size: 0.85rem;
-            letter-spacing: 0.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
         }
 
-        .table tbody td {
-            padding: 1rem;
-            vertical-align: middle;
+            .btn-export:hover {
+                border-color: var(--primary);
+                color: var(--primary);
+                transform: translateY(-2px);
+            }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--gray);
         }
 
-    .badge {
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 0.85rem;
-    }
-
-    .badge-danger {
-        background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
-    }
-
-    .badge-warning {
-        background: linear-gradient(135deg, #ffd93d, #f6c23e);
-        color: #333;
-    }
-
-    .badge-info {
-        background: linear-gradient(135deg, #74b9ff, #0984e3);
-    }
-
-    .badge-secondary {
-        background: linear-gradient(135deg, #b2bec3, #636e72);
-    }
-
-    .btn-action {
-        padding: 0.5rem 1rem;
-        margin: 0 0.25rem;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        text-decoration: none;
-    }
-
-    .btn-info {
-        background: var(--info);
-        color: white;
-    }
-
-        .btn-info:hover {
-            background: #138496;
-            transform: translateY(-2px);
+        .empty-state-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
         }
 
-    .btn-danger {
-        background: var(--danger);
-        color: white;
-    }
+            .empty-state-icon i {
+                color: var(--primary);
+            }
 
-        .btn-danger:hover {
-            background: #c82333;
-            transform: translateY(-2px);
+        .empty-state h3 {
+            color: var(--dark);
+            margin-bottom: 0.8rem;
+            font-size: 1.5rem;
         }
 
-    .btn-primary-custom {
-        background: linear-gradient(135deg, var(--primary), #3CB371);
-        color: white;
-        padding: 0.75rem 2rem;
-        border-radius: 10px;
-        font-weight: 600;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.75rem;
-        box-shadow: 0 4px 15px rgba(46, 139, 87, 0.3);
-        transition: all 0.3s ease;
-    }
-
-        .btn-primary-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(46, 139, 87, 0.4);
+        .empty-state p {
+            margin-bottom: 2rem;
+            font-size: 1rem;
         }
 
-    .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        color: #6c757d;
-    }
-
-        .empty-state i {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-            opacity: 0.3;
+        .perdida-value {
+            font-weight: 700;
+            color: var(--danger);
+            font-size: 1.1rem;
         }
 
-    @@media (max-width: 768px) {
-        .stats-container {
-            grid-template-columns: 1fr;
+        .date-cell {
+            color: var(--gray);
+            font-size: 0.9rem;
         }
 
-        .table-responsive {
-            overflow-x: auto;
+        .causa-icon {
+            font-size: 0.9rem;
+            margin-right: 0.3rem;
         }
-    }
-</style>
 
-<div class="mortalidad-header">
-    <h1>☠️ Registro de Mortalidad</h1>
-    <p>Control y seguimiento de pérdidas por mortalidad animal</p>
-</div>
+        @@media (max-width: 768px) {
+            .admin-header h1 {
+                font-size: 1.8rem;
+            }
 
-<!-- Estadísticas -->
-<div class="stats-container">
-    <div class="stat-card perdidas">
-        <div class="stat-label">💰 Total Pérdidas</div>
-        <div class="stat-value danger">₡@totalPerdidas.ToString("N0")</div>
-    </div>
-    <div class="stat-card total">
-        <div class="stat-label">📊 Total Mortalidades</div>
-        <div class="stat-value">@totalMortalidades</div>
-    </div>
-</div>
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
 
-<!-- Acciones -->
-<div style="margin-bottom: 1.5rem;">
-    <a asp-action="Create" class="btn-primary-custom">
-        <i class="fas fa-plus"></i> Registrar Nueva Mortalidad
-    </a>
-</div>
+            .header-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
 
-<!-- Tabla -->
-<div class="table-container">
-    @if (Model.Any())
-    {
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Animal</th>
-                        <th>Raza</th>
-                        <th>Causa</th>
-                        <th>Pérdida</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
+            .filter-row {
+                flex-direction: column;
+            }
+
+                .filter-row > * {
+                    width: 100%;
+                }
+
+            .table-container {
+                overflow-x: scroll;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="admin-card">
+            <!-- Header -->
+            <div class="admin-header">
+                <i class="fas fa-skull-crossbones admin-header-icon"></i>
+                <h1><i class="fas fa-skull"></i> Registro de Mortalidad</h1>
+                <p>Control y seguimiento de pérdidas por mortalidad animal</p>
+            </div>
+
+            <!-- Body -->
+            <div class="admin-body">
+                <!-- Header Actions -->
+                <div class="header-actions">
+                    <div class="header-title">
+                        <h2>Lista de Mortalidades</h2>
+                        <p id="mortalidadCount">Total: @Model.Count() registros de mortalidad</p>
+                    </div>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus-circle"></i>
+                        Registrar Nueva Mortalidad
+                    </a>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card stat-danger">
+                        <i class="fas fa-money-bill-wave stat-icon icon-danger"></i>
+                        <div class="stat-number" style="color: var(--danger);">₡@totalPerdidas.ToString("N0")</div>
+                        <div class="stat-label">Total Pérdidas</div>
+                    </div>
+
+                    <div class="stat-card stat-warning">
+                        <i class="fas fa-chart-bar stat-icon icon-warning"></i>
+                        <div class="stat-number" style="color: var(--warning);">@totalMortalidades</div>
+                        <div class="stat-label">Total Mortalidades</div>
+                    </div>
+                </div>
+
+                <!-- Search & Filters -->
+                <div class="search-filter-container">
+                    <div class="filter-row">
+                        <input type="text"
+                               id="searchInput"
+                               class="search-input"
+                               placeholder="Buscar por animal o causa...">
+
+                        <select id="causaFilter" class="filter-select">
+                            <option value="">Todas las causas</option>
+                            @if (Model != null && Model.Any())
+                            {
+                                @foreach (var causa in Model.Select(m => m.Causa).Distinct().Where(c => !string.IsNullOrEmpty(c)))
+                                {
+                                    <option value="@causa">@causa</option>
+                                }
+                            }
+                        </select>
+
+                        <select id="dateFilter" class="filter-select">
+                            <option value="">Todos los tiempos</option>
+                            <option value="today">Hoy</option>
+                            <option value="week">Esta semana</option>
+                            <option value="month">Este mes</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-wrapper">
+                    <div class="table-container">
+                        @if (Model.Any())
+                        {
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th><i class="fas fa-calendar"></i> Fecha</th>
+                                        <th><i class="fas fa-cow"></i> Animal</th>
+                                        <th><i class="fas fa-dna"></i> Raza</th>
+                                        <th><i class="fas fa-exclamation-triangle"></i> Causa</th>
+                                        <th><i class="fas fa-money-bill-wave"></i> Pérdida</th>
+                                        <th><i class="fas fa-cogs"></i> Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mortalidadTableBody">
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr class="mortalidad-row"
+                                            data-search="@($"{item.Animal?.Arete} {item.Animal?.Nombre} {item.Causa}".ToLower())"
+                                            data-causa="@item.Causa"
+                                            data-fecha="@item.Fecha.ToString("yyyy-MM-dd")">
+                                            <td class="date-cell">
+                                                <strong>@item.Fecha.ToString("dd/MM/yyyy")</strong>
+                                                <br />
+                                                <small>@item.Fecha.ToString("HH:mm")</small>
+                                            </td>
+                                            <td>
+                                                <strong>@item.Animal?.Arete</strong>
+                                                @if (!string.IsNullOrWhiteSpace(item.Animal?.Nombre))
+                                                {
+                                                    <br />
+                                                    <small style="color: var(--gray);">@item.Animal.Nombre</small>
+                                                }
+                                            </td>
+                                            <td>@(item.Animal?.Raza?.Nombre ?? "-")</td>
+                                            <td>
+                                                @if (!string.IsNullOrWhiteSpace(item.Causa))
+                                                {
+                                                    @if (item.Causa == "Enfermedad")
+                                                    {
+                                                        <span class="badge badge-danger">
+                                                            <i class="fas fa-virus causa-icon"></i> @item.Causa
+                                                        </span>
+                                                    }
+                                                    else if (item.Causa == "Accidente")
+                                                    {
+                                                        <span class="badge badge-warning">
+                                                            <i class="fas fa-car-crash causa-icon"></i> @item.Causa
+                                                        </span>
+                                                    }
+                                                    else if (item.Causa == "Vejez")
+                                                    {
+                                                        <span class="badge badge-info">
+                                                            <i class="fas fa-hourglass-end causa-icon"></i> @item.Causa
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-secondary">
+                                                            <i class="fas fa-question-circle causa-icon"></i> @item.Causa
+                                                        </span>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span style="color: var(--gray); font-style: italic;">Desconocida</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (item.Animal?.CostoCompra.HasValue == true)
+                                                {
+                                                    <span class="perdida-value">₡@item.Animal.CostoCompra.Value.ToString("N0")</span>
+                                                }
+                                                else
+                                                {
+                                                    <span style="color: var(--gray); font-style: italic;">-</span>
+                                                }
+                                            </td>
+                                            <td class="actions-column">
+                                                <div class="actions-group">
+                                                    <a asp-action="Details" asp-route-id="@item.MortalidadId"
+                                                       class="btn btn-info btn-sm" title="Ver detalles">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-skull-crossbones"></i>
+                                </div>
+                                <h3>No hay registros de mortalidad</h3>
+                                <p>Comience registrando una nueva mortalidad usando el botón superior</p>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Table Footer -->
+                    @if (Model.Any())
                     {
-                        <tr>
-                            <td>
-                                <strong>@item.Fecha.ToString("dd/MM/yyyy")</strong>
-                                <br />
-                                <small class="text-muted">@item.Fecha.ToString("HH:mm")</small>
-                            </td>
-                            <td>
-                                <strong>@item.Animal?.Arete</strong>
-                                @if (!string.IsNullOrWhiteSpace(item.Animal?.Nombre))
-                                {
-                                    <br />
-                                    <small class="text-muted">@item.Animal.Nombre</small>
-                                }
-                            </td>
-                            <td>@(item.Animal?.Raza?.Nombre ?? "N/A")</td>
-                            <td>
-                                @if (!string.IsNullOrWhiteSpace(item.Causa))
-                                {
-                                    @if (item.Causa == "Enfermedad")
-                                    {
-                                        <span class="badge badge-danger">🦠 @item.Causa</span>
-                                    }
-                                    else if (item.Causa == "Accidente")
-                                    {
-                                        <span class="badge badge-warning">⚠️ @item.Causa</span>
-                                    }
-                                    else if (item.Causa == "Vejez")
-                                    {
-                                        <span class="badge badge-info">⏰ @item.Causa</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge badge-secondary">@item.Causa</span>
-                                    }
-                                }
-                                else
-                                {
-                                    <span class="text-muted">Desconocida</span>
-                                }
-                            </td>
-                            <td>
-                                @if (item.Animal?.CostoCompra.HasValue == true)
-                                {
-                                    <strong class="text-danger">₡@item.Animal.CostoCompra.Value.ToString("N0")</strong>
-                                }
-                                else
-                                {
-                                    <span class="text-muted">-</span>
-                                }
-                            </td>
-                            <td>
-                                <a asp-action="Details" asp-route-id="@item.MortalidadId"
-                                   class="btn-action btn-info" title="Ver Detalles">
-                                    <i class="fas fa-eye"></i>
+                        <div class="table-footer">
+                            <div class="pagination-info">
+                                Mostrando <span id="visibleCount">@Model.Count()</span> de @Model.Count() registros
+                            </div>
+                            <div class="export-actions">
+                                <a href="#" class="btn-export" onclick="exportToCSV(); return false;">
+                                    <i class="fas fa-file-export"></i> Exportar CSV
                                 </a>
-                                <a asp-action="Delete" asp-route-id="@item.MortalidadId"
-                                   class="btn-action btn-danger" title="Eliminar">
-                                    <i class="fas fa-trash"></i>
+                                <a href="#" class="btn-export" onclick="window.print(); return false;">
+                                    <i class="fas fa-print"></i> Imprimir
                                 </a>
-                            </td>
-                        </tr>
+                            </div>
+                        </div>
                     }
-                </tbody>
-            </table>
+                </div>
+            </div>
         </div>
-    }
-    else
-    {
-        <div class="empty-state">
-            <i class="fas fa-inbox"></i>
-            <h3>No hay registros de mortalidad</h3>
-            <p>Comience registrando una nueva mortalidad usando el botón superior</p>
-        </div>
-    }
-</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchInput');
+            const causaFilter = document.getElementById('causaFilter');
+            const dateFilter = document.getElementById('dateFilter');
+            const mortalidadRows = document.querySelectorAll('.mortalidad-row');
+            const mortalidadCount = document.getElementById('mortalidadCount');
+            const visibleCount = document.getElementById('visibleCount');
+
+            function getDateRange(filterValue) {
+                const today = new Date();
+                switch (filterValue) {
+                    case 'today':
+                        return {
+                            start: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+                            end: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1)
+                        };
+                    case 'week':
+                        const firstDayOfWeek = new Date(today);
+                        firstDayOfWeek.setDate(today.getDate() - today.getDay());
+                        return {
+                            start: firstDayOfWeek,
+                            end: new Date(firstDayOfWeek.getFullYear(), firstDayOfWeek.getMonth(), firstDayOfWeek.getDate() + 7)
+                        };
+                    case 'month':
+                        return {
+                            start: new Date(today.getFullYear(), today.getMonth(), 1),
+                            end: new Date(today.getFullYear(), today.getMonth() + 1, 1)
+                        };
+                    default:
+                        return null;
+                }
+            }
+
+            function filterTable() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const causaValue = causaFilter.value;
+                const dateValue = dateFilter.value;
+                const dateRange = getDateRange(dateValue);
+
+                let visible = 0;
+
+                mortalidadRows.forEach(row => {
+                    const searchData = row.getAttribute('data-search') || '';
+                    const causa = row.getAttribute('data-causa') || '';
+                    const fechaStr = row.getAttribute('data-fecha');
+
+                    const rowDate = new Date(fechaStr + 'T00:00:00');
+
+                    // Filtros
+                    const matchesSearch = !searchTerm || searchData.includes(searchTerm);
+                    const matchesCausa = !causaValue || causa === causaValue;
+
+                    let matchesDate = true;
+                    if (dateRange) {
+                        matchesDate = rowDate >= dateRange.start && rowDate < dateRange.end;
+                    }
+
+                    if (matchesSearch && matchesCausa && matchesDate) {
+                        row.style.display = '';
+                        visible++;
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+
+                // Actualizar contadores
+                if (mortalidadCount) {
+                    mortalidadCount.textContent = `Mostrando ${visible} de ${mortalidadRows.length} registros`;
+                }
+                if (visibleCount) {
+                    visibleCount.textContent = visible;
+                }
+            }
+
+            // Event listeners
+            searchInput.addEventListener('input', filterTable);
+            causaFilter.addEventListener('change', filterTable);
+            dateFilter.addEventListener('change', filterTable);
+
+            // Efectos hover en las filas
+            mortalidadRows.forEach(row => {
+                row.addEventListener('mouseenter', function () {
+                    this.style.transform = 'translateX(5px)';
+                });
+
+                row.addEventListener('mouseleave', function () {
+                    this.style.transform = 'translateX(0)';
+                });
+            });
+
+            // Inicializar filtros
+            filterTable();
+        });
+
+        // Función para exportar a CSV
+        function exportToCSV() {
+            const rows = document.querySelectorAll('.mortalidad-row:not([style*="display: none"])');
+            let csvContent = "data:text/csv;charset=utf-8,";
+
+            // Encabezados
+            csvContent += "Fecha,Hora,Animal Arete,Animal Nombre,Raza,Causa,Pérdida (₡)\n";
+
+            // Datos
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const fechaParts = cells[0].textContent.trim().split('\n');
+                const fecha = fechaParts[0].trim();
+                const hora = fechaParts[1].trim();
+                const animalParts = cells[1].textContent.trim().split('\n');
+                const animalArete = animalParts[0].trim();
+                const animalNombre = animalParts.length > 1 ? animalParts[1].trim() : "";
+                const raza = cells[2].textContent.trim();
+                const causa = cells[3].textContent.trim();
+                const perdida = cells[4].textContent.trim().replace('₡', '');
+
+                csvContent += `"${fecha}","${hora}","${animalArete}","${animalNombre}","${raza}","${causa}","${perdida}"\n`;
+            });
+
+            // Descargar archivo
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "mortalidad_agrotech.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
