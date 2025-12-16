@@ -1,0 +1,138 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Mi perfil";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    .profile-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 15px 40px rgba(0,0,0,.1);
+        overflow: hidden;
+        animation: fadeIn .5s ease-out;
+    }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .profile-header {
+        background: linear-gradient(135deg, #2E8B57, #3CB371);
+        color: #fff;
+        padding: 2rem;
+        position: relative;
+    }
+
+        .profile-header i {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            opacity: .2;
+        }
+
+        .profile-header h3 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.8rem;
+        }
+
+        .profile-header p {
+            margin-top: .5rem;
+            opacity: .9;
+        }
+
+    .profile-body {
+        padding: 2.5rem;
+    }
+
+    .profile-input {
+        border-radius: 12px !important;
+        padding: 1rem;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .profile-btn {
+        background: linear-gradient(135deg, #2E8B57, #3CB371);
+        border: none;
+        border-radius: 14px;
+        font-weight: 600;
+        padding: 1rem;
+        transition: all .3s ease;
+    }
+
+        .profile-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(46,139,87,.3);
+        }
+
+    .profile-readonly {
+        background: #f1f3f5;
+        cursor: not-allowed;
+    }
+</style>
+
+<div class="profile-card">
+
+    <!-- HEADER -->
+    <div class="profile-header">
+        <i class="fas fa-user-circle"></i>
+        <h3>Mi perfil</h3>
+        <p>Actualiza tu información de contacto</p>
+    </div>
+
+    <!-- BODY -->
+    <div class="profile-body">
+
+        <partial name="_StatusMessage" for="StatusMessage" />
+
+        <form id="profile-form" method="post">
+
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+            <div class="form-floating mb-4">
+                <input asp-for="Username"
+                       class="form-control profile-input profile-readonly"
+                       disabled />
+                <label asp-for="Username"></label>
+            </div>
+
+            <div class="form-floating mb-4">
+                <input asp-for="Input.PhoneNumber"
+                       class="form-control profile-input"
+                       placeholder="Número de teléfono" />
+                <label asp-for="Input.PhoneNumber"></label>
+                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+            </div>
+
+            <button id="update-profile-button"
+                    type="submit"
+                    class="btn profile-btn w-100">
+                <i class="fas fa-save me-2"></i>
+                Guardar cambios
+            </button>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

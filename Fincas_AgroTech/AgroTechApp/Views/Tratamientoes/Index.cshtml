@@ -10,757 +10,815 @@
     var animalesUnicos = Model.Select(t => t.AnimalId).Distinct().Count();
 }
 
-<style>
-    :root {
-        --primary: #6f42c1;
-        --primary-light: #8c5cd4;
-        --primary-dark: #5a32a3;
-        --success: #28a745;
-        --warning: #ffc107;
-        --danger: #dc3545;
-        --info: #17a2b8;
-        --light: #f8f9fa;
-        --dark: #343a40;
-        --white: #ffffff;
-        --border: #e1e5e9;
-        --shadow: rgba(111, 66, 193, 0.1);
-        --gray: #6c757d;
-    }
-
-    * {
-        box-sizing: border-box;
-    }
-
-    body {
-        background: linear-gradient(135deg, #f5f7fa 0%, #e8e6f5 100%);
-        font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-    }
-
-    .admin-card {
-        background: var(--white);
-        border-radius: 20px;
-        box-shadow: 0 15px 40px var(--shadow);
-        overflow: hidden;
-        border: 1px solid var(--border);
-        animation: fadeIn 0.5s ease-out;
-        margin-bottom: 2rem;
-    }
-
-    @@keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --primary-light: #3CB371;
+            --primary-dark: #1E6B47;
+            --secondary: #F4A460;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #ffffff;
+            --border: #e1e5e9;
+            --shadow: rgba(46, 139, 87, 0.1);
+            --gray: #6c757d;
         }
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .admin-header {
-        background: linear-gradient(135deg, var(--primary), var(--primary-light));
-        color: white;
-        padding: 2.5rem;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-    }
-
-        .admin-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 100%;
-            height: 200%;
-            background: rgba(255, 255, 255, 0.1);
-            transform: rotate(30deg);
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        .admin-header h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            position: relative;
-            z-index: 1;
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            min-height: 100vh;
         }
 
-        .admin-header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            position: relative;
-            z-index: 1;
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
         }
 
-    .admin-header-icon {
-        position: absolute;
-        right: 2rem;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 3rem;
-        opacity: 0.2;
-        z-index: 0;
-    }
+        .admin-card {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px var(--shadow);
+            overflow: hidden;
+            border: 1px solid #e1e5e9;
+            animation: fadeIn 0.5s ease-out;
+        }
 
-    .admin-body {
-        padding: 2.5rem;
-    }
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
 
-    .header-actions {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2.5rem;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-    .header-title h2 {
-        color: var(--dark);
-        font-size: 1.8rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-    }
-
-    .header-title p {
-        color: var(--gray);
-        font-size: 0.95rem;
-    }
-
-    .btn-custom {
-        padding: 0.85rem 1.8rem;
-        border: none;
-        border-radius: 12px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.7rem;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .btn-primary-custom {
-        background: linear-gradient(135deg, var(--primary), var(--primary-light));
-        color: var(--white);
-    }
-
-        .btn-primary-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(111, 66, 193, 0.3);
-            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
             color: white;
-        }
-
-    .btn-sm {
-        padding: 0.6rem 1.2rem;
-        font-size: 0.85rem;
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2.5rem;
-    }
-
-    .stat-card {
-        background: var(--white);
-        padding: 1.8rem;
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        border-left: 5px solid var(--primary);
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        }
-
-    .stat-icon {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        font-size: 2.5rem;
-        opacity: 0.2;
-        color: var(--primary);
-    }
-
-    .stat-number {
-        font-size: 2.2rem;
-        font-weight: 700;
-        color: var(--primary);
-        margin-bottom: 0.5rem;
-    }
-
-    .stat-label {
-        color: var(--dark);
-        font-size: 0.95rem;
-        font-weight: 600;
-    }
-
-    .search-section {
-        background: linear-gradient(to right, rgba(111, 66, 193, 0.05), rgba(140, 92, 212, 0.05));
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        border: 2px solid var(--border);
-    }
-
-    .search-container {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-
-    .search-box {
-        flex: 1;
-        min-width: 300px;
-        padding: 1rem 1.5rem;
-        border: 2px solid var(--border);
-        border-radius: 12px;
-        font-size: 1rem;
-        background: var(--white);
-        transition: all 0.3s ease;
-    }
-
-        .search-box:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.1);
-            transform: translateY(-1px);
-        }
-
-    .filter-select {
-        padding: 1rem 1.5rem;
-        border: 2px solid var(--border);
-        border-radius: 12px;
-        background: var(--white);
-        font-size: 1rem;
-        min-width: 150px;
-        cursor: pointer;
-    }
-
-    .table-container {
-        background: var(--white);
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-        margin-top: 1rem;
-    }
-
-    .table-custom {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 0;
-    }
-
-        .table-custom thead {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: white;
-        }
-
-        .table-custom th {
-            padding: 1.2rem 1rem;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            padding: 2.5rem;
+            text-align: center;
             position: relative;
+            overflow: hidden;
         }
 
-            .table-custom th::after {
+            .admin-header::before {
                 content: '';
                 position: absolute;
-                right: 0;
-                top: 25%;
-                height: 50%;
-                width: 1px;
-                background: rgba(255, 255, 255, 0.2);
+                top: -50%;
+                right: -50%;
+                width: 100%;
+                height: 200%;
+                background: rgba(255, 255, 255, 0.1);
+                transform: rotate(30deg);
             }
 
-            .table-custom th:last-child::after {
-                display: none;
+            .admin-header h1 {
+                font-size: 2.5rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+                position: relative;
+                z-index: 1;
             }
 
-        .table-custom td {
-            padding: 1.2rem 1rem;
-            border-bottom: 1px solid var(--border);
-            vertical-align: middle;
+            .admin-header p {
+                font-size: 1.1rem;
+                opacity: 0.9;
+                position: relative;
+                z-index: 1;
+            }
+
+        .admin-header-icon {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 4rem;
+            opacity: 0.2;
+            z-index: 0;
         }
 
-        .table-custom tbody tr {
+        .admin-body {
+            padding: 2.5rem;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-title h2 {
+            color: var(--dark);
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-title p {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        .btn {
+            padding: 0.85rem 1.8rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
             transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-            .table-custom tbody tr:hover {
-                background: linear-gradient(to right, rgba(111, 66, 193, 0.03), rgba(140, 92, 212, 0.03));
-                transform: translateX(5px);
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(46, 139, 87, 0.3);
+                background: linear-gradient(135deg, var(--primary-dark), var(--primary));
             }
 
-                .table-custom tbody tr:hover td {
-                    border-color: rgba(111, 66, 193, 0.2);
-                }
-
-    .badge-tipo {
-        padding: 0.4rem 1rem;
-        border-radius: 50px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .badge-con-insumo {
-        background: linear-gradient(135deg, #d1ecf1, #bee5eb);
-        color: #0c5460;
-        border-left: 3px solid var(--info);
-    }
-
-    .badge-sin-insumo {
-        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-        color: #856404;
-        border-left: 3px solid var(--warning);
-    }
-
-    .badge-tratamiento {
-        padding: 0.3rem 0.8rem;
-        border-radius: 50px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        background: linear-gradient(135deg, #e7d4ff, #d4b5ff);
-        color: #5a32a3;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.3rem;
-    }
-
-    .actions-group {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-
-    .btn {
-        padding: 0.5rem 1rem;
-        border: none;
-        border-radius: 8px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        cursor: pointer;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.2s ease;
-    }
-
-    .btn-info {
-        background: var(--info);
-        color: white;
-    }
-
-        .btn-info:hover {
-            background: #138496;
-            transform: translateY(-1px);
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #34ce57);
+            color: var(--white);
         }
 
-    .btn-warning {
-        background: var(--warning);
-        color: #212529;
-    }
-
-        .btn-warning:hover {
-            background: #e0a800;
-            transform: translateY(-1px);
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #ffd351);
+            color: var(--dark);
         }
 
-    .btn-danger {
-        background: var(--danger);
-        color: white;
-    }
-
-        .btn-danger:hover {
-            background: #c82333;
-            transform: translateY(-1px);
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #e4606d);
+            color: var(--white);
         }
 
-    .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        color: var(--gray);
-    }
-
-    .empty-state-icon {
-        font-size: 5rem;
-        margin-bottom: 1.5rem;
-        opacity: 0.3;
-        color: var(--primary);
-    }
-
-    .empty-state h3 {
-        font-size: 1.5rem;
-        margin-bottom: 0.5rem;
-        color: var(--dark);
-    }
-
-    .table-footer {
-        padding: 1.5rem;
-        background: var(--light);
-        border-top: 1px solid var(--border);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-
-    .pagination-info {
-        color: var(--gray);
-        font-size: 0.9rem;
-        font-weight: 500;
-    }
-
-    .alert-custom {
-        padding: 1rem 1.5rem;
-        border-radius: 12px;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        animation: slideDown 0.3s ease-out;
-    }
-
-    @@keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
+        .btn-info {
+            background: linear-gradient(135deg, var(--info), #36b9cc);
+            color: var(--white);
         }
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
+        .btn-sm {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.85rem;
         }
-    }
 
-    .alert-success {
-        background: linear-gradient(135deg, #d4edda, #c3e6cb);
-        border-left: 4px solid var(--success);
-        color: #155724;
-    }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
 
-    .alert-danger {
-        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
-        border-left: 4px solid var(--danger);
-        color: #721c24;
-    }
+        .stat-card {
+            background: var(--white);
+            padding: 1.8rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid var(--primary);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
 
-    .info-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.3rem;
-        padding: 0.2rem 0.6rem;
-        background: rgba(111, 66, 193, 0.1);
-        border-radius: 8px;
-        font-size: 0.85rem;
-        color: var(--primary);
-        margin-top: 0.3rem;
-    }
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            }
 
-    @@media (max-width: 1200px) {
+            .stat-card.stat-con-insumo {
+                border-left-color: var(--info);
+            }
+
+            .stat-card.stat-sin-insumo {
+                border-left-color: var(--warning);
+            }
+
+            .stat-card.stat-animales {
+                border-left-color: var(--success);
+            }
+
+        .stat-icon {
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            opacity: 0.15;
+        }
+
+            .stat-icon.icon-primary {
+                color: var(--primary);
+            }
+
+            .stat-icon.icon-con-insumo {
+                color: var(--info);
+            }
+
+            .stat-icon.icon-sin-insumo {
+                color: var(--warning);
+            }
+
+            .stat-icon.icon-animales {
+                color: var(--success);
+            }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .search-filter-container {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 0.85rem 1.2rem;
+            padding-left: 2.8rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%236c757d" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>') no-repeat 1rem center;
+        }
+
+            .search-input:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+            }
+
+        .filter-select {
+            padding: 0.85rem 1.2rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            min-width: 180px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--white);
+        }
+
+            .filter-select:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+            }
+
+        .table-wrapper {
+            background: var(--white);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+        }
+
         .table-container {
             overflow-x: auto;
         }
 
-        .table-custom {
-            min-width: 1000px;
-        }
-    }
-
-    @@media (max-width: 768px) {
-        .admin-header {
-            padding: 2rem;
+        table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-            .admin-header h1 {
-                font-size: 2rem;
+        thead {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+        }
+
+        th {
+            padding: 1.2rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        tbody tr {
+            transition: all 0.2s ease;
+        }
+
+            tbody tr:hover {
+                background-color: #f8fffe;
+                transform: scale(1.002);
             }
 
-        .admin-body {
+        .badge-tipo {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .badge-con-insumo {
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            color: #0c5460;
+        }
+
+        .badge-sin-insumo {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            color: #856404;
+        }
+
+        .badge-tratamiento {
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: var(--success);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .actions-column {
+            white-space: nowrap;
+        }
+
+        .actions-group {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-start;
+        }
+
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             padding: 1.5rem;
+            background: #f8f9fa;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
-        .stats-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-</style>
-
-<div class="admin-card">
-    <!-- Encabezado -->
-    <div class="admin-header">
-        <div class="admin-header-icon">
-            <i class="fas fa-syringe"></i>
-        </div>
-        <h1>💉 Gestión de Tratamientos</h1>
-        <p>Administre y registre tratamientos veterinarios</p>
-    </div>
-
-    <!-- Cuerpo Principal -->
-    <div class="admin-body">
-        <!-- Alerts -->
-        @if (TempData["Success"] != null)
-        {
-            <div class="alert-custom alert-success">
-                <i class="fas fa-check-circle" style="font-size: 1.5rem;"></i>
-                <span>@TempData["Success"]</span>
-            </div>
-        }
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert-custom alert-danger">
-                <i class="fas fa-exclamation-circle" style="font-size: 1.5rem;"></i>
-                <span>@TempData["Error"]</span>
-            </div>
+        .pagination-info {
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-weight: 500;
         }
 
-        <!-- Encabezado con acciones -->
-        <div class="header-actions">
-            <div class="header-title">
-                <h2>Lista de Tratamientos</h2>
-                <p id="tratamientoCount">Total de tratamientos registrados: @totalTratamientos</p>
-            </div>
-            <a asp-action="Create" class="btn-custom btn-primary-custom">
-                <i class="fas fa-plus"></i> Nuevo Tratamiento
-            </a>
-        </div>
+        .export-actions {
+            display: flex;
+            gap: 0.8rem;
+        }
 
-        <!-- Estadísticas -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-clipboard-list"></i>
-                </div>
-                <div class="stat-number">@totalTratamientos</div>
-                <div class="stat-label">Total Tratamientos</div>
-            </div>
-            <div class="stat-card" style="border-left-color: var(--info);">
-                <div class="stat-icon" style="color: var(--info);">
-                    <i class="fas fa-flask"></i>
-                </div>
-                <div class="stat-number" style="color: var(--info);">@tratamientosConInsumo</div>
-                <div class="stat-label">Con Insumo</div>
-            </div>
-            <div class="stat-card" style="border-left-color: var(--warning);">
-                <div class="stat-icon" style="color: var(--warning);">
-                    <i class="fas fa-hand-paper"></i>
-                </div>
-                <div class="stat-number" style="color: var(--warning);">@tratamientosSinInsumo</div>
-                <div class="stat-label">Sin Insumo</div>
-            </div>
-            <div class="stat-card" style="border-left-color: var(--success);">
-                <div class="stat-icon" style="color: var(--success);">
-                    <i class="fas fa-paw"></i>
-                </div>
-                <div class="stat-number" style="color: var(--success);">@animalesUnicos</div>
-                <div class="stat-label">Animales Tratados</div>
-            </div>
-        </div>
+        .btn-export {
+            padding: 0.6rem 1.2rem;
+            background: var(--white);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--gray);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
 
-        <!-- Búsqueda y Filtros -->
-        <div class="search-section">
-            <div class="search-container">
-                <input type="text" class="search-box" placeholder="🔍 Buscar por animal, tipo o responsable..." id="searchInput">
-                <select class="filter-select" id="tipoFilter">
-                    <option value="">Todos los tipos</option>
-                    @if (Model != null && Model.Any())
-                    {
-                        @foreach (var tipo in Model.Select(t => t.TipoTrat?.Nombre).Distinct().Where(t => t != null))
-                        {
-                            <option value="@tipo">@tipo</option>
-                        }
-                    }
-                </select>
-                <select class="filter-select" id="insumoFilter">
-                    <option value="">Todos</option>
-                    <option value="con-insumo">Con Insumo</option>
-                    <option value="sin-insumo">Sin Insumo</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Tabla de Tratamientos -->
-        <div class="table-container">
-            @if (Model != null && Model.Any())
-            {
-                <table class="table-custom">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Animal</th>
-                            <th>Tipo</th>
-                            <th>Insumo</th>
-                            <th>Dosis</th>
-                            <th>Responsable</th>
-                            <th>Estado</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tratamientosTableBody">
-                        @foreach (var tratamiento in Model)
-                        {
-                            var searchData = $"{tratamiento.Animal?.Arete} {tratamiento.Animal?.Nombre} {tratamiento.TipoTrat?.Nombre} {tratamiento.Responsable}".ToLower();
-                            var tieneInsumo = tratamiento.InsumoId.HasValue ? "con-insumo" : "sin-insumo";
-
-                            <tr class="tratamiento-row"
-                                data-search="@searchData"
-                                data-tipo="@tratamiento.TipoTrat?.Nombre"
-                                data-insumo="@tieneInsumo">
-                                <td>
-                                    <strong>@tratamiento.Fecha.ToString("dd/MM/yyyy")</strong>
-                                    <br />
-                                    <small style="color: var(--gray);">@tratamiento.Fecha.ToString("HH:mm")</small>
-                                </td>
-                                <td>
-                                    <strong>@tratamiento.Animal?.Arete</strong>
-                                    @if (!string.IsNullOrWhiteSpace(tratamiento.Animal?.Nombre))
-                                    {
-                                        <br />
-                                        <small style="color: var(--gray);">@tratamiento.Animal.Nombre</small>
-                                    }
-                                </td>
-                                <td>
-                                    <span class="badge-tratamiento">
-                                        <i class="fas fa-notes-medical"></i> @tratamiento.TipoTrat?.Nombre
-                                    </span>
-                                </td>
-                                <td>
-                                    @if (tratamiento.InsumoId.HasValue)
-                                    {
-                                        <strong>@tratamiento.Insumo?.Nombre</strong>
-                                        @if (tratamiento.Lote != null)
-                                        {
-                                            <div class="info-tag">
-                                                <i class="fas fa-barcode"></i> @tratamiento.Lote.CodigoLote
-                                            </div>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <span style="color: var(--gray); font-style: italic;">Sin insumo</span>
-                                    }
-                                </td>
-                                <td>
-                                    @if (!string.IsNullOrWhiteSpace(tratamiento.Dosis))
-                                    {
-                                        <strong style="color: var(--primary);">@tratamiento.Dosis</strong>
-                                        @if (!string.IsNullOrWhiteSpace(tratamiento.Via))
-                                        {
-                                            <br />
-                                            <small style="color: var(--gray);">
-                                                <i class="fas fa-syringe"></i> @tratamiento.Via
-                                            </small>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <span style="color: var(--gray); font-style: italic;">N/A</span>
-                                    }
-                                </td>
-                                <td>
-                                    @if (!string.IsNullOrWhiteSpace(tratamiento.Responsable))
-                                    {
-                                        <span>@tratamiento.Responsable</span>
-                                    }
-                                    else
-                                    {
-                                        <span style="color: var(--gray); font-style: italic;">No especificado</span>
-                                    }
-                                </td>
-                                <td>
-                                    @if (tratamiento.InsumoId.HasValue)
-                                    {
-                                        <span class="badge-tipo badge-con-insumo">
-                                            <i class="fas fa-flask"></i> Con Insumo
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge-tipo badge-sin-insumo">
-                                            <i class="fas fa-hand-paper"></i> Sin Insumo
-                                        </span>
-                                    }
-                                </td>
-                                <td>
-                                    <div class="actions-group">
-                                        <a asp-action="Details" asp-route-id="@tratamiento.TratamientoId"
-                                           class="btn btn-info btn-sm" title="Ver detalles">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a asp-action="Edit" asp-route-id="@tratamiento.TratamientoId"
-                                           class="btn btn-warning btn-sm" title="Editar">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a asp-action="Delete" asp-route-id="@tratamiento.TratamientoId"
-                                           class="btn btn-danger btn-sm" title="Eliminar">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-
-                <!-- Pie de tabla -->
-                <div class="table-footer">
-                    <div class="pagination-info" id="paginationInfo">
-                        Mostrando @Model.Count() de @Model.Count() tratamientos
-                    </div>
-                </div>
+            .btn-export:hover {
+                border-color: var(--primary);
+                color: var(--primary);
+                transform: translateY(-2px);
             }
-            else
-            {
-                <div class="empty-state">
-                    <div class="empty-state-icon">
-                        <i class="fas fa-syringe"></i>
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--gray);
+        }
+
+        .empty-state-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+        }
+
+            .empty-state-icon i {
+                color: var(--primary);
+            }
+
+        .empty-state h3 {
+            color: var(--dark);
+            margin-bottom: 0.8rem;
+            font-size: 1.5rem;
+        }
+
+        .empty-state p {
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        .alert-custom {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @@keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-left: 4px solid var(--success);
+            color: #155724;
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border-left: 4px solid var(--danger);
+            color: #721c24;
+        }
+
+        .info-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.2rem 0.6rem;
+            background: rgba(46, 139, 87, 0.1);
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: var(--primary);
+            margin-top: 0.3rem;
+        }
+
+        @@media (max-width: 768px) {
+            .admin-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-row {
+                flex-direction: column;
+            }
+
+                .filter-row > * {
+                    width: 100%;
+                }
+
+            .table-container {
+                overflow-x: scroll;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="admin-card">
+            <!-- Header -->
+            <div class="admin-header">
+                <i class="fas fa-syringe admin-header-icon"></i>
+                <h1><i class="fas fa-stethoscope"></i> Gestión de Tratamientos</h1>
+                <p>Administre y registre tratamientos veterinarios</p>
+            </div>
+
+            <!-- Body -->
+            <div class="admin-body">
+                <!-- Alerts -->
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert-custom alert-success">
+                        <i class="fas fa-check-circle" style="font-size: 1.5rem;"></i>
+                        <span>@TempData["Success"]</span>
                     </div>
-                    <h3>No hay tratamientos registrados</h3>
-                    <p>Comience registrando el primer tratamiento veterinario.</p>
-                    <a asp-action="Create" class="btn-custom btn-primary-custom">
-                        <i class="fas fa-plus"></i> Registrar Primer Tratamiento
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert-custom alert-danger">
+                        <i class="fas fa-exclamation-circle" style="font-size: 1.5rem;"></i>
+                        <span>@TempData["Error"]</span>
+                    </div>
+                }
+
+                <!-- Header Actions -->
+                <div class="header-actions">
+                    <div class="header-title">
+                        <h2>Lista de Tratamientos</h2>
+                        <p id="tratamientoCount">Total: @totalTratamientos tratamientos registrados</p>
+                    </div>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus-circle"></i>
+                        Registrar Nuevo Tratamiento
                     </a>
                 </div>
-            }
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-clipboard-list stat-icon icon-primary"></i>
+                        <div class="stat-number">@totalTratamientos</div>
+                        <div class="stat-label">Total Tratamientos</div>
+                    </div>
+
+                    <div class="stat-card stat-con-insumo">
+                        <i class="fas fa-flask stat-icon icon-con-insumo"></i>
+                        <div class="stat-number" style="color: var(--info);">@tratamientosConInsumo</div>
+                        <div class="stat-label">Con Insumo</div>
+                    </div>
+
+                    <div class="stat-card stat-sin-insumo">
+                        <i class="fas fa-hand-paper stat-icon icon-sin-insumo"></i>
+                        <div class="stat-number" style="color: var(--warning);">@tratamientosSinInsumo</div>
+                        <div class="stat-label">Sin Insumo</div>
+                    </div>
+
+                    <div class="stat-card stat-animales">
+                        <i class="fas fa-paw stat-icon icon-animales"></i>
+                        <div class="stat-number" style="color: var(--success);">@animalesUnicos</div>
+                        <div class="stat-label">Animales Tratados</div>
+                    </div>
+                </div>
+
+                <!-- Search & Filters -->
+                <div class="search-filter-container">
+                    <div class="filter-row">
+                        <input type="text"
+                               id="searchInput"
+                               class="search-input"
+                               placeholder="Buscar por animal, tipo o responsable...">
+
+                        <select id="tipoFilter" class="filter-select">
+                            <option value="">Todos los tipos</option>
+                            @if (Model != null && Model.Any())
+                            {
+                                @foreach (var tipo in Model.Select(t => t.TipoTrat?.Nombre).Distinct().Where(t => t != null))
+                                {
+                                    <option value="@tipo">@tipo</option>
+                                }
+                            }
+                        </select>
+
+                        <select id="insumoFilter" class="filter-select">
+                            <option value="">Todos</option>
+                            <option value="con-insumo">Con Insumo</option>
+                            <option value="sin-insumo">Sin Insumo</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-wrapper">
+                    <div class="table-container">
+                        @if (Model != null && Model.Any())
+                        {
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th><i class="fas fa-calendar"></i> Fecha</th>
+                                        <th><i class="fas fa-cow"></i> Animal</th>
+                                        <th><i class="fas fa-notes-medical"></i> Tipo</th>
+                                        <th><i class="fas fa-flask"></i> Insumo</th>
+                                        <th><i class="fas fa-syringe"></i> Dosis</th>
+                                        <th><i class="fas fa-user-md"></i> Responsable</th>
+                                        <th><i class="fas fa-info-circle"></i> Estado</th>
+                                        <th><i class="fas fa-cogs"></i> Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tratamientosTableBody">
+                                    @foreach (var tratamiento in Model)
+                                    {
+                                        var searchData = $"{tratamiento.Animal?.Arete} {tratamiento.Animal?.Nombre} {tratamiento.TipoTrat?.Nombre} {tratamiento.Responsable}".ToLower();
+                                        var tieneInsumo = tratamiento.InsumoId.HasValue ? "con-insumo" : "sin-insumo";
+
+                                        <tr class="tratamiento-row"
+                                            data-search="@searchData"
+                                            data-tipo="@tratamiento.TipoTrat?.Nombre"
+                                            data-insumo="@tieneInsumo">
+                                            <td>
+                                                <strong>@tratamiento.Fecha.ToString("dd/MM/yyyy")</strong>
+                                                <br />
+                                                <small style="color: var(--gray);">@tratamiento.Fecha.ToString("HH:mm")</small>
+                                            </td>
+                                            <td>
+                                                <strong>@tratamiento.Animal?.Arete</strong>
+                                                @if (!string.IsNullOrWhiteSpace(tratamiento.Animal?.Nombre))
+                                                {
+                                                    <br />
+                                                    <small style="color: var(--gray);">@tratamiento.Animal.Nombre</small>
+                                                }
+                                            </td>
+                                            <td>
+                                                <span class="badge-tratamiento">
+                                                    <i class="fas fa-notes-medical"></i> @tratamiento.TipoTrat?.Nombre
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @if (tratamiento.InsumoId.HasValue)
+                                                {
+                                                    <strong>@tratamiento.Insumo?.Nombre</strong>
+                                                    @if (tratamiento.Lote != null)
+                                                    {
+                                                        <div class="info-tag">
+                                                            <i class="fas fa-barcode"></i> @tratamiento.Lote.CodigoLote
+                                                        </div>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span style="color: var(--gray); font-style: italic;">Sin insumo</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrWhiteSpace(tratamiento.Dosis))
+                                                {
+                                                    <strong style="color: var(--primary);">@tratamiento.Dosis</strong>
+                                                    @if (!string.IsNullOrWhiteSpace(tratamiento.Via))
+                                                    {
+                                                        <br />
+                                                        <small style="color: var(--gray);">
+                                                            <i class="fas fa-syringe"></i> @tratamiento.Via
+                                                        </small>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span style="color: var(--gray); font-style: italic;">N/A</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrWhiteSpace(tratamiento.Responsable))
+                                                {
+                                                    <span>@tratamiento.Responsable</span>
+                                                }
+                                                else
+                                                {
+                                                    <span style="color: var(--gray); font-style: italic;">No especificado</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (tratamiento.InsumoId.HasValue)
+                                                {
+                                                    <span class="badge-tipo badge-con-insumo">
+                                                        <i class="fas fa-flask"></i> Con Insumo
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge-tipo badge-sin-insumo">
+                                                        <i class="fas fa-hand-paper"></i> Sin Insumo
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td class="actions-column">
+                                                <div class="actions-group">
+                                                    <a asp-action="Details" asp-route-id="@tratamiento.TratamientoId" class="btn btn-info btn-sm" title="Ver detalles">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a asp-action="Edit" asp-route-id="@tratamiento.TratamientoId" class="btn btn-warning btn-sm" title="Editar">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a asp-action="Delete" asp-route-id="@tratamiento.TratamientoId" class="btn btn-danger btn-sm" title="Eliminar">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-syringe"></i>
+                                </div>
+                                <h3>No hay tratamientos registrados</h3>
+                                <p>Comience registrando el primer tratamiento veterinario.</p>
+                                <a asp-action="Create" class="btn btn-primary">
+                                    <i class="fas fa-plus-circle"></i> Registrar Primer Tratamiento
+                                </a>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Table Footer -->
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="table-footer">
+                            <div class="pagination-info">
+                                Mostrando <span id="visibleCount">@Model.Count()</span> de @Model.Count() tratamientos
+                            </div>
+                            <div class="export-actions">
+                                <a href="#" class="btn-export" onclick="exportToCSV(); return false;">
+                                    <i class="fas fa-file-export"></i> Exportar CSV
+                                </a>
+                                <a href="#" class="btn-export" onclick="window.print(); return false;">
+                                    <i class="fas fa-print"></i> Imprimir
+                                </a>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-@section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const searchInput = document.getElementById('searchInput');
             const tipoFilter = document.getElementById('tipoFilter');
             const insumoFilter = document.getElementById('insumoFilter');
             const tratamientoRows = document.querySelectorAll('.tratamiento-row');
-            const totalTratamientos = @totalTratamientos;
+            const tratamientoCount = document.getElementById('tratamientoCount');
+            const visibleCount = document.getElementById('visibleCount');
 
             function filterTable() {
                 const searchTerm = searchInput.value.toLowerCase();
                 const tipoValue = tipoFilter.value;
                 const insumoValue = insumoFilter.value;
 
-                let visibleCount = 0;
+                let visible = 0;
 
                 tratamientoRows.forEach(row => {
                     const searchData = row.getAttribute('data-search') || '';
@@ -773,21 +831,36 @@
 
                     if (matchesSearch && matchesTipo && matchesInsumo) {
                         row.style.display = '';
-                        visibleCount++;
+                        visible++;
                     } else {
                         row.style.display = 'none';
                     }
                 });
 
                 // Actualizar contadores
-                document.getElementById('tratamientoCount').textContent = `Mostrando ${visibleCount} de ${totalTratamientos} tratamientos`;
-                document.getElementById('paginationInfo').textContent = `Mostrando ${visibleCount} de ${totalTratamientos} tratamientos`;
+                if (tratamientoCount) {
+                    tratamientoCount.textContent = `Mostrando ${visible} de ${tratamientoRows.length} tratamientos`;
+                }
+                if (visibleCount) {
+                    visibleCount.textContent = visible;
+                }
             }
 
             // Event listeners
             searchInput.addEventListener('input', filterTable);
             tipoFilter.addEventListener('change', filterTable);
             insumoFilter.addEventListener('change', filterTable);
+
+            // Efectos hover en las filas
+            tratamientoRows.forEach(row => {
+                row.addEventListener('mouseenter', function () {
+                    this.style.transform = 'translateX(5px)';
+                });
+
+                row.addEventListener('mouseleave', function () {
+                    this.style.transform = 'translateX(0)';
+                });
+            });
 
             // Auto-hide alerts
             setTimeout(() => {
@@ -799,6 +872,43 @@
                     setTimeout(() => alert.remove(), 500);
                 });
             }, 5000);
+
+            // Inicializar filtros
+            filterTable();
         });
+
+        // Función para exportar a CSV
+        function exportToCSV() {
+            const rows = document.querySelectorAll('.tratamiento-row:not([style*="display: none"])');
+            let csvContent = "data:text/csv;charset=utf-8,";
+
+            // Encabezados
+            csvContent += "Fecha,Hora,Animal,Tipo,Insumo,Dosis,Via,Responsable,Estado\n";
+
+            // Datos
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                const fecha = cells[0].querySelector('strong').textContent.trim();
+                const hora = cells[0].querySelector('small').textContent.trim();
+                const animal = cells[1].querySelector('strong').textContent.trim();
+                const tipo = cells[2].textContent.trim();
+                const insumo = cells[3].textContent.trim();
+                const dosis = cells[4].textContent.trim();
+                const responsable = cells[5].textContent.trim();
+                const estado = row.getAttribute('data-insumo') === 'con-insumo' ? 'Con Insumo' : 'Sin Insumo';
+
+                csvContent += `"${fecha}","${hora}","${animal}","${tipo}","${insumo}","${dosis}","${responsable}","${estado}"\n`;
+            });
+
+            // Descargar archivo
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "tratamientos_agrotech.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
     </script>
-}
+</body>
+</html>

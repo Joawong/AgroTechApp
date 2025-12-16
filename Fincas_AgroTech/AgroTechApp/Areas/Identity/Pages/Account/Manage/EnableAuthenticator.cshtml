@@ -1,0 +1,222 @@
+﻿@page
+@model EnableAuthenticatorModel
+@{
+    ViewData["Title"] = "Configurar autenticador";
+    ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    .auth-card {
+        background: #fff;
+        border-radius: 22px;
+        box-shadow: 0 15px 40px rgba(0,0,0,.1);
+        overflow: hidden;
+        animation: fadeIn .5s ease-out;
+    }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .auth-header {
+        background: linear-gradient(135deg, #0d6efd, #5dade2);
+        color: #fff;
+        padding: 2rem;
+        position: relative;
+    }
+
+        .auth-header i {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            opacity: .25;
+        }
+
+        .auth-header h3 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.8rem;
+        }
+
+        .auth-header p {
+            margin-top: .5rem;
+            opacity: .95;
+        }
+
+    .auth-body {
+        padding: 2.5rem;
+    }
+
+    .step {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        align-items: flex-start;
+    }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #0d6efd;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .step-content p {
+        margin-bottom: .5rem;
+    }
+
+    .qr-box {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        margin-top: 1rem;
+    }
+
+    .shared-key {
+        font-size: 1.1rem;
+        font-weight: 600;
+        background: #e9ecef;
+        padding: .4rem .7rem;
+        border-radius: 8px;
+        display: inline-block;
+        margin-top: .5rem;
+    }
+
+    #qrCode {
+        margin: 1rem auto;
+    }
+
+    .verify-card {
+        background: #f8f9fa;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-top: 1.5rem;
+    }
+
+    .btn-verify {
+        border-radius: 14px;
+        font-weight: 600;
+        transition: all .3s ease;
+    }
+
+        .btn-verify:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(13,110,253,.3);
+        }
+</style>
+
+<partial name="_StatusMessage" for="StatusMessage" />
+
+<div class="auth-card">
+
+    <!-- HEADER -->
+    <div class="auth-header">
+        <i class="fas fa-qrcode"></i>
+        <h3>Configurar autenticador</h3>
+        <p>Agrega una aplicación autenticadora para mayor seguridad</p>
+    </div>
+
+    <!-- BODY -->
+    <div class="auth-body">
+
+        <!-- PASO 1 -->
+        <div class="step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <p>
+                    Descarga una aplicación autenticadora como
+                    <strong>Microsoft Authenticator</strong> o
+                    <strong>Google Authenticator</strong>.
+                </p>
+                <p>
+                    <a href="https://go.microsoft.com/fwlink/?Linkid=825072" target="_blank">Android</a> ·
+                    <a href="https://go.microsoft.com/fwlink/?Linkid=825073" target="_blank">iOS</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- PASO 2 -->
+        <div class="step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <p>
+                    Escanea el código QR o ingresa manualmente la siguiente clave:
+                </p>
+
+                <span class="shared-key">@Model.SharedKey</span>
+
+                <div class="qr-box">
+                    <div id="qrCode"></div>
+                    <div id="qrCodeData" data-url="@Model.AuthenticatorUri"></div>
+                </div>
+
+                <div class="alert alert-info mt-3">
+                    Aprende cómo <a href="https://go.microsoft.com/fwlink/?Linkid=852423" target="_blank">
+                        habilitar la generación del código QR
+                    </a>.
+                </div>
+            </div>
+        </div>
+
+        <!-- PASO 3 -->
+        <div class="step">
+            <div class="step-number">3</div>
+            <div class="step-content w-100">
+                <p>
+                    Ingresa el código generado por la aplicación para finalizar la configuración:
+                </p>
+
+                <div class="verify-card">
+                    <form id="send-code" method="post">
+                        <div class="form-floating mb-3">
+                            <input asp-for="Input.Code"
+                                   class="form-control"
+                                   autocomplete="off"
+                                   placeholder="Código de verificación" />
+                            <label asp-for="Input.Code">Código de verificación</label>
+                            <span asp-validation-for="Input.Code" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit"
+                                class="w-100 btn btn-lg btn-primary btn-verify">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Verificar y activar
+                        </button>
+
+                        <div asp-validation-summary="ModelOnly"
+                             class="text-danger mt-3"
+                             role="alert"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

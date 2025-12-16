@@ -1,4 +1,4 @@
-﻿using AgroTechApp.Data;
+using AgroTechApp.Data;
 using AgroTechApp.Models.DB;
 using AgroTechApp.Services;
 using AgroTechApp.Services.Inventario;

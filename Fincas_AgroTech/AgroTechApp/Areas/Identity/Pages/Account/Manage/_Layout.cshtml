@@ -1,0 +1,144 @@
+﻿@{
+    if (ViewData.TryGetValue("ParentLayout", out var parentLayout) && parentLayout != null)
+    {
+        Layout = parentLayout.ToString();
+    }
+    else
+    {
+        Layout = "/Areas/Identity/Pages/_Layout.cshtml";
+    }
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    }
+
+    .manage-container {
+        max-width: 1200px;
+        margin: 30px auto;
+        padding: 15px;
+    }
+
+    .manage-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        animation: fadeIn .5s ease-out;
+    }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .manage-header {
+        background: linear-gradient(135deg, #2E8B57, #3CB371);
+        color: #fff;
+        padding: 2.5rem;
+        position: relative;
+        text-align: center;
+    }
+
+        .manage-header i {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3.5rem;
+            opacity: 0.2;
+        }
+
+        .manage-header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: .5rem;
+        }
+
+        .manage-header p {
+            opacity: .9;
+            margin: 0;
+        }
+
+    .manage-body {
+        padding: 2.5rem;
+    }
+
+    .manage-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 2rem;
+    }
+
+    .manage-nav {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 1.5rem;
+        border-left: 5px solid #2E8B57;
+    }
+
+    .manage-content {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 2rem;
+        border-left: 5px solid #3CB371;
+    }
+
+    @@media (max-width: 768px) {
+        .manage-layout
+
+    {
+        grid-template-columns: 1fr;
+    }
+
+    }
+</style>
+
+<div class="manage-container">
+    <div class="manage-card">
+
+        <!-- HEADER -->
+        <div class="manage-header">
+            <i class="fas fa-user-cog"></i>
+            <h1>Mi Cuenta</h1>
+            <p>Administra tu perfil y seguridad</p>
+        </div>
+
+        <!-- BODY -->
+        <div class="manage-body">
+            <div class="manage-layout">
+
+                <!-- SIDEBAR -->
+                <div class="manage-nav">
+                    <partial name="_ManageNav" />
+                </div>
+
+                <!-- CONTENIDO -->
+                <div class="manage-content">
+                    @RenderBody()
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    @RenderSection("Scripts", required: false)
+}

@@ -1,0 +1,231 @@
+﻿@page
+@using Microsoft.AspNetCore.Http.Features
+@model TwoFactorAuthenticationModel
+@{
+    ViewData["Title"] = "Autenticación en dos pasos (2FA)";
+    ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    .tfa-card {
+        background: #fff;
+        border-radius: 20px;
+        box-shadow: 0 15px 40px rgba(0,0,0,.1);
+        overflow: hidden;
+        animation: fadeIn .5s ease-out;
+    }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .tfa-header {
+        background: linear-gradient(135deg, #0d6efd, #5dade2);
+        color: #fff;
+        padding: 2rem;
+        position: relative;
+    }
+
+        .tfa-header i {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            opacity: .25;
+        }
+
+        .tfa-header h3 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.8rem;
+        }
+
+        .tfa-header p {
+            margin-top: .5rem;
+            opacity: .95;
+        }
+
+    .tfa-body {
+        padding: 2.5rem;
+    }
+
+    .tfa-section {
+        margin-bottom: 2.5rem;
+    }
+
+        .tfa-section h4 {
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+    .tfa-actions {
+        display: flex;
+        gap: .8rem;
+        flex-wrap: wrap;
+        margin-top: 1rem;
+    }
+
+    .tfa-btn {
+        border-radius: 14px;
+        padding: .8rem 1.3rem;
+        font-weight: 600;
+        transition: all .3s ease;
+    }
+
+    .tfa-btn-primary {
+        background: linear-gradient(135deg, #0d6efd, #5dade2);
+        border: none;
+        color: #fff;
+    }
+
+    .tfa-btn-warning {
+        background: linear-gradient(135deg, #ffc107, #ffdd57);
+        border: none;
+        color: #000;
+    }
+
+    .tfa-btn-danger {
+        background: linear-gradient(135deg, #dc3545, #ff6b6b);
+        border: none;
+        color: #fff;
+    }
+
+    .tfa-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,.15);
+    }
+</style>
+
+<partial name="_StatusMessage" for="StatusMessage" />
+
+<div class="tfa-card">
+
+    <!-- HEADER -->
+    <div class="tfa-header">
+        <i class="fas fa-shield-alt"></i>
+        <h3>Autenticación en dos pasos</h3>
+        <p>Protege tu cuenta agregando una capa adicional de seguridad</p>
+    </div>
+
+    <!-- BODY -->
+    <div class="tfa-body">
+
+        @{
+            var consentFeature = HttpContext.Features.Get<ITrackingConsentFeature>();
+
+            if (consentFeature?.CanTrack ?? true)
+            {
+                if (Model.Is2faEnabled)
+                {
+                    if (Model.RecoveryCodesLeft == 0)
+                    {
+                        <div class="alert alert-danger">
+                            <strong>No tienes códigos de recuperación.</strong>
+                            <p>
+                                Debes <a asp-page="./GenerateRecoveryCodes">generar nuevos códigos</a>
+                                antes de iniciar sesión con uno de ellos.
+                            </p>
+                        </div>
+                    }
+                    else if (Model.RecoveryCodesLeft == 1)
+                    {
+                        <div class="alert alert-danger">
+                            <strong>Tienes 1 código de recuperación.</strong>
+                            <p>
+                                Puedes <a asp-page="./GenerateRecoveryCodes">generar nuevos códigos</a>.
+                            </p>
+                        </div>
+                    }
+                    else if (Model.RecoveryCodesLeft <= 3)
+                    {
+                        <div class="alert alert-warning">
+                            <strong>Tienes @Model.RecoveryCodesLeft códigos de recuperación.</strong>
+                            <p>
+                                Se recomienda <a asp-page="./GenerateRecoveryCodes">generar nuevos códigos</a>.
+                            </p>
+                        </div>
+                    }
+
+                    <div class="tfa-actions">
+                        @if (Model.IsMachineRemembered)
+                        {
+                            <form method="post">
+                                <button type="submit" class="btn tfa-btn tfa-btn-warning">
+                                    <i class="fas fa-laptop me-2"></i>
+                                    Olvidar este navegador
+                                </button>
+                            </form>
+                        }
+
+                        <a asp-page="./Disable2fa" class="btn tfa-btn tfa-btn-danger">
+                            <i class="fas fa-ban me-2"></i>
+                            Desactivar 2FA
+                        </a>
+
+                        <a asp-page="./GenerateRecoveryCodes" class="btn tfa-btn tfa-btn-primary">
+                            <i class="fas fa-sync-alt me-2"></i>
+                            Restablecer códigos
+                        </a>
+                    </div>
+                }
+
+                <div class="tfa-section">
+                    <h4>
+                        <i class="fas fa-mobile-alt me-2 text-primary"></i>
+                        Aplicación autenticadora
+                    </h4>
+
+                    <div class="tfa-actions">
+                        @if (!Model.HasAuthenticator)
+                        {
+                            <a asp-page="./EnableAuthenticator" class="btn tfa-btn tfa-btn-primary">
+                                <i class="fas fa-plus-circle me-2"></i>
+                                Agregar aplicación autenticadora
+                            </a>
+                        }
+                        else
+                        {
+                            <a asp-page="./EnableAuthenticator" class="btn tfa-btn tfa-btn-primary">
+                                <i class="fas fa-cog me-2"></i>
+                                Configurar aplicación
+                            </a>
+
+                            <a asp-page="./ResetAuthenticator" class="btn tfa-btn tfa-btn-danger">
+                                <i class="fas fa-redo me-2"></i>
+                                Restablecer aplicación
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-danger">
+                    <strong>Política de privacidad no aceptada.</strong>
+                    <p>
+                        Debes aceptar la política de cookies antes de habilitar la autenticación en dos pasos.
+                    </p>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

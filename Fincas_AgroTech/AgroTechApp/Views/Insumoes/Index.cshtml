@@ -1,308 +1,533 @@
 ﻿@model IEnumerable<AgroTechApp.Models.DB.Insumo>
 @{
     ViewData["Title"] = "Gestión de Insumos";
-    // Helpers locales
     var stock = ViewBag.StockPorInsumo as Dictionary<long, decimal> ?? new();
     decimal S(long id) => stock.TryGetValue(id, out var s) ? s : 0m;
 
-    // Filtros actuales
-    long? selFinca = ViewBag?.FincaId?.SelectedValue as long?;
-    int? selCat = ViewBag?.CategoriaId?.SelectedValue as int?;
-    string selEst = ViewBag?.Estado as string ?? "";
-    string q = ViewBag?.Q as string ?? "";
-
-    int kTotal = ViewBag.TotalActivos ?? 0;
-    int kBajo = ViewBag.PorAcabarse ?? 0;
-    int kAgotados = ViewBag.Agotados ?? 0;
-    int kCategorias = ViewBag.Categorias ?? 0;
+    var totalActivos = ViewBag.TotalActivos ?? 0;
+    var porAcabarse = ViewBag.PorAcabarse ?? 0;
+    var agotados = ViewBag.Agotados ?? 0;
+    var categorias = ViewBag.Categorias ?? 0;
 }
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="utf-8" />
     <title>@ViewData["Title"] - AgroTech</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #2E8B57;
-            --primary-dark: #26734d;
             --primary-light: #3CB371;
-            --light: #f8f9fa;
-            --dark: #2C3E50;
-            --gray: #6c757d;
-            --border: #dee2e6;
-            --shadow: rgba(0,0,0,.08);
-            --shadow-hover: rgba(0,0,0,.15);
+            --primary-dark: #1E6B47;
+            --secondary: #F4A460;
             --success: #28a745;
             --warning: #ffc107;
             --danger: #dc3545;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #ffffff;
+            --border: #e1e5e9;
+            --shadow: rgba(46, 139, 87, 0.1);
+            --gray: #6c757d;
         }
 
         * {
-            box-sizing: border-box
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            background: linear-gradient(135deg,#f5f7fa 0%,#e3f2fd 100%);
-            color: var(--dark);
-            font-family: Inter, Segoe UI, Arial, sans-serif;
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            min-height: 100vh;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
-            padding: 0 20px;
         }
 
-        .page-header {
+        .admin-card {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px var(--shadow);
+            overflow: hidden;
+            border: 1px solid #e1e5e9;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .admin-header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -50%;
+                width: 100%;
+                height: 200%;
+                background: rgba(255, 255, 255, 0.1);
+                transform: rotate(30deg);
+            }
+
+            .admin-header h1 {
+                font-size: 2.5rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+                position: relative;
+                z-index: 1;
+            }
+
+            .admin-header p {
+                font-size: 1.1rem;
+                opacity: 0.9;
+                position: relative;
+                z-index: 1;
+            }
+
+        .admin-header-icon {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 4rem;
+            opacity: 0.2;
+            z-index: 0;
+        }
+
+        .admin-body {
+            padding: 2.5rem;
+        }
+
+        .header-actions {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin: 24px 0;
-            gap: 12px;
+            margin-bottom: 2.5rem;
             flex-wrap: wrap;
+            gap: 1rem;
         }
 
-        .page-title {
-            font-size: 28px;
-            font-weight: 800;
-            display: flex;
-            gap: 10px;
-            align-items: center
+        .header-title h2 {
+            color: var(--dark);
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
         }
 
-            .page-title i {
-                color: var(--primary)
-            }
-
-        .page-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap
+        .header-title p {
+            color: var(--gray);
+            font-size: 0.95rem;
         }
 
         .btn {
-            padding: .6rem 1rem;
+            padding: 0.85rem 1.8rem;
             border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            display: inline-flex;
-            gap: .5rem;
-            align-items: center;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
-            text-decoration: none
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .btn-primary {
-            background: var(--primary);
-            color: #fff
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
         }
 
             .btn-primary:hover {
-                background: var(--primary-dark)
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(46, 139, 87, 0.3);
+                background: linear-gradient(135deg, var(--primary-dark), var(--primary));
             }
 
-        .btn-outline {
-            background: #fff;
-            border: 1px solid var(--primary);
-            color: var(--primary)
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #34ce57);
+            color: var(--white);
         }
 
-            .btn-outline:hover {
-                background: var(--primary);
-                color: #fff
-            }
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #ffd351);
+            color: var(--dark);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #e4606d);
+            color: var(--white);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, var(--info), #36b9cc);
+            color: var(--white);
+        }
+
+        .btn-sm {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.85rem;
+        }
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
-            gap: 16px;
-            margin-bottom: 20px
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
         }
 
         .stat-card {
-            background: #fff;
-            border-radius: 12px;
-            padding: 16px;
-            box-shadow: 0 4px 16px var(--shadow);
-            display: flex;
-            gap: 14px;
-            align-items: center
+            background: var(--white);
+            padding: 1.8rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid var(--primary);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            }
+
+            .stat-card.stat-warning {
+                border-left-color: var(--warning);
+            }
+
+            .stat-card.stat-danger {
+                border-left-color: var(--danger);
+            }
+
+            .stat-card.stat-info {
+                border-left-color: var(--info);
+            }
 
         .stat-icon {
-            width: 54px;
-            height: 54px;
-            border-radius: 12px;
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            opacity: 0.15;
+        }
+
+            .stat-icon.icon-primary {
+                color: var(--primary);
+            }
+
+            .stat-icon.icon-warning {
+                color: var(--warning);
+            }
+
+            .stat-icon.icon-danger {
+                color: var(--danger);
+            }
+
+            .stat-icon.icon-info {
+                color: var(--info);
+            }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .search-filter-container {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .filter-row {
             display: flex;
+            gap: 1rem;
             align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 20px
+            flex-wrap: wrap;
         }
 
-            .stat-icon.primary {
-                background: linear-gradient(135deg,var(--primary-light),var(--primary))
-            }
-
-            .stat-icon.warning {
-                background: linear-gradient(135deg,#FFD166,var(--warning))
-            }
-
-            .stat-icon.danger {
-                background: linear-gradient(135deg,#FF9E7D,var(--danger))
-            }
-
-            .stat-icon.info {
-                background: linear-gradient(135deg,#118AB2,#2A9FD6)
-            }
-
-        .filters {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 16px var(--shadow);
-            padding: 16px;
-            margin-bottom: 18px
+        .search-input {
+            flex: 1;
+            min-width: 250px;
+            padding: 0.85rem 1.2rem;
+            padding-left: 2.8rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%236c757d" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>') no-repeat 1rem center;
         }
 
-            .filters form {
-                display: grid;
-                grid-template-columns: repeat(5,1fr);
-                gap: 10px;
-                align-items: end
+            .search-input:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
             }
 
-            .filters .field {
-                display: flex;
-                flex-direction: column;
-                gap: 6px
-            }
-
-            .filters select, .filters input {
-                padding: .6rem .8rem;
-                border: 1px solid var(--border);
-                border-radius: 8px
-            }
-
-        .table-card {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px var(--shadow)
+        .filter-select {
+            padding: 0.85rem 1.2rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.95rem;
+            min-width: 180px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--white);
         }
 
-        .table-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px;
-            border-bottom: 1px solid var(--border)
+            .filter-select:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
+            }
+
+        .table-wrapper {
+            background: var(--white);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
         }
 
         .table-container {
-            overflow-x: auto
+            overflow-x: auto;
         }
 
         table {
             width: 100%;
-            border-collapse: collapse
+            border-collapse: collapse;
+        }
+
+        thead {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
         }
 
         th {
-            background: var(--light);
-            padding: 12px;
+            padding: 1.2rem 1rem;
             text-align: left;
-            border-bottom: 1px solid var(--border);
-            font-weight: 700
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
         }
 
         td {
-            padding: 12px;
-            border-bottom: 1px solid var(--border)
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
         }
 
-        .status {
-            padding: .25rem .6rem;
-            border-radius: 999px;
-            font-size: .75rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: .4px;
-            display: inline-block
+        tbody tr {
+            transition: all 0.2s ease;
         }
 
-        .ok {
-            background: #d4edda;
-            color: #155724
+            tbody tr:hover {
+                background-color: #f8fffe;
+                transform: scale(1.002);
+            }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
         }
 
-        .low {
-            background: #fff3cd;
-            color: #856404
+        .status-active {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: var(--success);
         }
 
-        .zero {
-            background: #f8d7da;
-            color: #721c24
+        .status-warning {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            color: #856404;
         }
 
-        .off {
-            background: #e2e3e5;
-            color: #383d41
+        .status-danger {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: var(--danger);
         }
 
-        .row-actions {
+        .status-inactive {
+            background: linear-gradient(135deg, #e2e3e5, #d6d8db);
+            color: var(--gray);
+        }
+
+        .actions-column {
+            white-space: nowrap;
+        }
+
+        .actions-group {
             display: flex;
-            gap: 6px;
-            flex-wrap: wrap
+            gap: 0.5rem;
+            justify-content: flex-start;
         }
 
-        .btn-sm {
-            padding: .35rem .6rem;
-            border-radius: 6px;
-            font-weight: 700
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
-        .btn-success {
-            background: var(--success);
-            color: #fff
+        .pagination-info {
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-weight: 500;
         }
 
-        .btn-warning {
-            background: var(--warning);
-            color: #212529
+        .export-actions {
+            display: flex;
+            gap: 0.8rem;
         }
 
-        .btn-danger {
-            background: var(--danger);
-            color: #fff
-        }
-        @@media (max-width: 992px) {
-            .filters form
-
-        {
-            grid-template-columns: repeat(2,1fr)
-        }
-
-        }
-        @@media (max-width: 560px) {
-            .filters form
-
-        {
-            grid-template-columns: 1fr
+        .btn-export {
+            padding: 0.6rem 1.2rem;
+            background: var(--white);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--gray);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
         }
 
+            .btn-export:hover {
+                border-color: var(--primary);
+                color: var(--primary);
+                transform: translateY(-2px);
+            }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--gray);
+        }
+
+        .empty-state-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+        }
+
+            .empty-state-icon i {
+                color: var(--primary);
+            }
+
+        .empty-state h3 {
+            color: var(--dark);
+            margin-bottom: 0.8rem;
+            font-size: 1.5rem;
+        }
+
+        .empty-state p {
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        .stock-number {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .stock-low {
+            color: var(--warning);
+        }
+
+        .stock-ok {
+            color: var(--success);
+        }
+
+        .stock-zero {
+            color: var(--danger);
+        }
+
+        @@media (max-width: 768px) {
+            .admin-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-row {
+                flex-direction: column;
+            }
+
+                .filter-row > * {
+                    width: 100%;
+                }
+
+            .table-container {
+                overflow-x: scroll;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="admin-card">
             <!-- Header -->
             <div class="admin-header">
                 <i class="fas fa-boxes admin-header-icon"></i>
-                <h1><i class="fas fa-boxes"></i> Gestión de Insumos</h1>
+                <h1><i class="fas fa-flask"></i> Gestión de Insumos</h1>
                 <p>Administre el inventario de insumos y productos veterinarios</p>
             </div>
 
@@ -312,7 +537,7 @@
                 <div class="header-actions">
                     <div class="header-title">
                         <h2>Lista de Insumos</h2>
-                        <p id="totalCount">Total: @Model.Count() insumos</p>
+                        <p id="totalCount">Total: @Model.Count() insumos registrados</p>
                     </div>
                     <a asp-action="Create" class="btn btn-primary">
                         <i class="fas fa-plus-circle"></i>
@@ -323,26 +548,26 @@
                 <!-- Stats Cards -->
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <i class="fas fa-box stat-icon icon-primary"></i>
-                        <div class="stat-number">@ViewBag.TotalActivos</div>
+                        <i class="fas fa-boxes stat-icon icon-primary"></i>
+                        <div class="stat-number">@totalActivos</div>
                         <div class="stat-label">Insumos Activos</div>
                     </div>
 
-                    <div class="stat-card" style="border-left-color: #ffc107;">
-                        <i class="fas fa-exclamation-triangle stat-icon" style="color: #ffc107; background: rgba(255, 193, 7, 0.1);"></i>
-                        <div class="stat-number">@ViewBag.PorAcabarse</div>
+                    <div class="stat-card stat-warning">
+                        <i class="fas fa-exclamation-triangle stat-icon icon-warning"></i>
+                        <div class="stat-number" style="color: var(--warning);">@porAcabarse</div>
                         <div class="stat-label">Por Acabarse</div>
                     </div>
 
-                    <div class="stat-card" style="border-left-color: #dc3545;">
-                        <i class="fas fa-times-circle stat-icon" style="color: #dc3545; background: rgba(220, 53, 69, 0.1);"></i>
-                        <div class="stat-number">@ViewBag.Agotados</div>
+                    <div class="stat-card stat-danger">
+                        <i class="fas fa-times-circle stat-icon icon-danger"></i>
+                        <div class="stat-number" style="color: var(--danger);">@agotados</div>
                         <div class="stat-label">Agotados</div>
                     </div>
 
-                    <div class="stat-card" style="border-left-color: #17a2b8;">
-                        <i class="fas fa-tags stat-icon" style="color: #17a2b8; background: rgba(23, 162, 184, 0.1);"></i>
-                        <div class="stat-number">@ViewBag.Categorias</div>
+                    <div class="stat-card stat-info">
+                        <i class="fas fa-tags stat-icon icon-info"></i>
+                        <div class="stat-number" style="color: var(--info);">@categorias</div>
                         <div class="stat-label">Categorías</div>
                     </div>
                 </div>
@@ -353,10 +578,10 @@
                         <input type="text"
                                id="searchInput"
                                class="search-input"
-                               placeholder="🔍 Buscar por nombre...">
+                               placeholder="Buscar por nombre...">
 
                         <select id="categoriaFilter" class="filter-select">
-                            <option value="">📁 Todas las categorías</option>
+                            <option value="">Todas las categorías</option>
                             @if (ViewBag.CategoriaId != null)
                             {
                                 @foreach (var cat in ViewBag.CategoriaId as SelectList)
@@ -367,14 +592,14 @@
                         </select>
 
                         <select id="stockFilter" class="filter-select">
-                            <option value="">📊 Todos los stocks</option>
+                            <option value="">Todos los stocks</option>
                             <option value="ok">✅ Stock OK</option>
                             <option value="bajo">⚠️ Stock Bajo</option>
                             <option value="agotado">❌ Agotado</option>
                         </select>
 
                         <select id="estadoFilter" class="filter-select">
-                            <option value="">🔘 Todos los estados</option>
+                            <option value="">Todos los estados</option>
                             <option value="activo">✅ Activos</option>
                             <option value="inactivo">⭕ Inactivos</option>
                         </select>
@@ -400,12 +625,9 @@
                                     </tr>
                                 </thead>
                                 <tbody id="tableBody">
-                                    @{
-                                        var stock = ViewBag.StockPorInsumo as Dictionary<long, decimal> ?? new Dictionary<long, decimal>();
-                                    }
                                     @foreach (var item in Model)
                                     {
-                                        var stockActual = stock.ContainsKey(item.InsumoId) ? stock[item.InsumoId] : 0m;
+                                        var stockActual = S(item.InsumoId);
                                         var estadoStock = stockActual == 0 ? "agotado" :
                                         stockActual < item.StockMinimo ? "bajo" : "ok";
                                         var estadoActivo = item.Activo ? "activo" : "inactivo";
@@ -419,7 +641,13 @@
                                             <td><strong>@item.Nombre</strong></td>
                                             <td>@(item.Categoria?.Nombre ?? "-")</td>
                                             <td>@(item.Unidad?.Nombre ?? "-")</td>
-                                            <td><strong>@stockActual.ToString("N2")</strong></td>
+                                            <td>
+                                                <span class="stock-number
+                                                    @(estadoStock == "ok" ? "stock-ok" :
+                                                      estadoStock == "bajo" ? "stock-low" : "stock-zero")">
+                                                    @stockActual.ToString("N2")
+                                                </span>
+                                            </td>
                                             <td>@item.StockMinimo.ToString("N2")</td>
                                             <td>
                                                 @if (estadoStock == "ok")
@@ -430,13 +658,13 @@
                                                 }
                                                 else if (estadoStock == "bajo")
                                                 {
-                                                    <span class="status-badge" style="background: linear-gradient(135deg, #fff3cd, #ffe69c); color: #856404;">
+                                                    <span class="status-badge status-warning">
                                                         <i class="fas fa-exclamation-triangle"></i> Bajo
                                                     </span>
                                                 }
                                                 else
                                                 {
-                                                    <span class="status-badge" style="background: linear-gradient(135deg, #f8d7da, #f5c6cb); color: #721c24;">
+                                                    <span class="status-badge status-danger">
                                                         <i class="fas fa-times-circle"></i> Agotado
                                                     </span>
                                                 }
@@ -450,7 +678,7 @@
                                                 }
                                                 else
                                                 {
-                                                    <span class="status-badge" style="background: #e2e3e5; color: #383d41;">
+                                                    <span class="status-badge status-inactive">
                                                         <i class="fas fa-times"></i> No
                                                     </span>
                                                 }
@@ -484,7 +712,7 @@
                                 </div>
                                 <h3>No hay insumos registrados</h3>
                                 <p>Comience registrando el primer insumo del inventario.</p>
-                                <a asp-action="Create" class="btn btn-primary btn-lg">
+                                <a asp-action="Create" class="btn btn-primary">
                                     <i class="fas fa-plus-circle"></i> Registrar Primer Insumo
                                 </a>
                             </div>
@@ -520,6 +748,7 @@
             const stockFilter = document.getElementById('stockFilter');
             const estadoFilter = document.getElementById('estadoFilter');
             const rows = document.querySelectorAll('.item-row');
+            const totalCount = document.getElementById('totalCount');
             const visibleCount = document.getElementById('visibleCount');
 
             function filterTable() {
@@ -549,24 +778,45 @@
                     }
                 });
 
+                // Actualizar contadores
+                if (totalCount) {
+                    totalCount.textContent = `Mostrando ${visible} de ${rows.length} insumos`;
+                }
                 if (visibleCount) {
                     visibleCount.textContent = visible;
                 }
             }
 
+            // Event listeners
             searchInput.addEventListener('input', filterTable);
             categoriaFilter.addEventListener('change', filterTable);
             stockFilter.addEventListener('change', filterTable);
             estadoFilter.addEventListener('change', filterTable);
 
+            // Efectos hover en las filas
+            rows.forEach(row => {
+                row.addEventListener('mouseenter', function () {
+                    this.style.transform = 'translateX(5px)';
+                });
+
+                row.addEventListener('mouseleave', function () {
+                    this.style.transform = 'translateX(0)';
+                });
+            });
+
+            // Inicializar filtros
             filterTable();
         });
 
+        // Función para exportar a CSV
         function exportToCSV() {
             const rows = document.querySelectorAll('.item-row:not([style*="display: none"])');
             let csvContent = "data:text/csv;charset=utf-8,";
+
+            // Encabezados
             csvContent += "Nombre,Categoría,Unidad,Stock Actual,Stock Mínimo,Estado Stock,Activo\n";
 
+            // Datos
             rows.forEach(row => {
                 const cells = row.querySelectorAll('td');
                 const nombre = cells[0].textContent.trim();
@@ -580,6 +830,7 @@
                 csvContent += `"${nombre}","${categoria}","${unidad}","${stockActual}","${stockMinimo}","${estadoStock}","${activo}"\n`;
             });
 
+            // Descargar archivo
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);

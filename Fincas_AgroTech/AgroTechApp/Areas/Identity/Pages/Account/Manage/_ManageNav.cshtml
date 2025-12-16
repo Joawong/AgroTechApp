@@ -1,0 +1,114 @@
+﻿@inject SignInManager<IdentityUser> SignInManager
+@{
+    var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
+}
+
+<style>
+    .manage-menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+        .manage-menu li {
+            margin-bottom: .6rem;
+        }
+
+        .manage-menu .nav-link {
+            display: flex;
+            align-items: center;
+            gap: .8rem;
+            padding: .85rem 1.2rem;
+            border-radius: 12px;
+            font-weight: 500;
+            color: #343a40;
+            background: transparent;
+            transition: all .3s ease;
+        }
+
+            .manage-menu .nav-link i {
+                font-size: 1.1rem;
+                color: #2E8B57;
+                width: 20px;
+                text-align: center;
+            }
+
+            .manage-menu .nav-link:hover {
+                background: rgba(46, 139, 87, 0.1);
+                transform: translateX(5px);
+            }
+
+            .manage-menu .nav-link.active {
+                background: linear-gradient(135deg, #2E8B57, #3CB371);
+                color: #fff !important;
+                box-shadow: 0 6px 18px rgba(46, 139, 87, 0.3);
+            }
+
+                .manage-menu .nav-link.active i {
+                    color: #fff;
+                }
+
+        .manage-menu hr {
+            margin: 1.2rem 0;
+            border-color: #dee2e6;
+        }
+</style>
+
+<ul class="manage-menu">
+    <li>
+        <a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)"
+           id="profile"
+           asp-page="./Index">
+            <i class="fas fa-user"></i>
+            Perfil
+        </a>
+    </li>
+
+    <li>
+        <a class="nav-link @ManageNavPages.EmailNavClass(ViewContext)"
+           id="email"
+           asp-page="./Email">
+            <i class="fas fa-envelope"></i>
+            Correo electrónico
+        </a>
+    </li>
+
+    <li>
+        <a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)"
+           id="change-password"
+           asp-page="./ChangePassword">
+            <i class="fas fa-lock"></i>
+            Contraseña
+        </a>
+    </li>
+
+    @if (hasExternalLogins)
+    {
+        <li>
+            <a class="nav-link @ManageNavPages.ExternalLoginsNavClass(ViewContext)"
+               id="external-login"
+               asp-page="./ExternalLogins">
+                <i class="fas fa-plug"></i>
+                Accesos externos
+            </a>
+        </li>
+    }
+
+    <li>
+        <a class="nav-link @ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)"
+           id="two-factor"
+           asp-page="./TwoFactorAuthentication">
+            <i class="fas fa-shield-alt"></i>
+            Autenticación 2FA
+        </a>
+    </li>
+
+    <li>
+        <a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)"
+           id="personal-data"
+           asp-page="./PersonalData">
+            <i class="fas fa-database"></i>
+            Datos personales
+        </a>
+    </li>
+</ul>
