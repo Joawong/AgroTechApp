@@ -2,63 +2,62 @@
 
 @{
     ViewData["Title"] = "Editar Pesaje";
-    var primaryColor = "#2E8B57";
-    var secondaryColor = "#F4A460";
-    var lightColor = "#f8f9fa";
 }
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Pesaje - AgroTech</title>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: @primaryColor;
-            --secondary-color: @secondaryColor;
-            --accent-color: #ff7e5f;
-            --light-color: @lightColor;
-            --dark-color: #2c3e50;
-            --success-color: #2ecc71;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --primary: #2E8B57;
+            --primary-light: #3CB371;
+            --primary-dark: #1E6B47;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #ffffff;
+            --border: #e1e5e9;
+            --shadow: rgba(46, 139, 87, 0.1);
+            --gray: #6c757d;
         }
 
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            color: var(--dark-color);
-            line-height: 1.6;
-            min-height: 100vh;
             padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            min-height: 100vh;
         }
 
         .container {
-            max-width: 800px;
-            width: 100%;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .form-card {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px var(--shadow);
             overflow: hidden;
-            animation: fadeIn 0.6s ease-out;
+            border: 1px solid #e1e5e9;
+            animation: fadeIn 0.5s ease-out;
         }
 
         @@keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: translateY(10px);
             }
 
             to {
@@ -67,223 +66,233 @@
             }
         }
 
-        header {
-            background: linear-gradient(135deg, var(--primary-color), #3CB371);
-            color: white;
+        .form-header {
+            background: linear-gradient(135deg, var(--warning), #ffd351);
+            color: var(--dark);
             padding: 2.5rem;
             text-align: center;
             position: relative;
             overflow: hidden;
         }
 
-            header::before {
+            .form-header::before {
                 content: '';
                 position: absolute;
                 top: -50%;
-                left: -50%;
-                width: 200%;
+                right: -50%;
+                width: 100%;
                 height: 200%;
-                background: radial-gradient(circle, rgba(255,255,255,0.1) 1%, transparent 1%);
-                background-size: 20px 20px;
+                background: rgba(255, 255, 255, 0.2);
                 transform: rotate(30deg);
             }
 
-        h1 {
-            font-size: 2.2rem;
-            margin-bottom: 10px;
-            font-weight: 700;
-            position: relative;
-            z-index: 2;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .subtitle {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            position: relative;
-            z-index: 2;
-        }
-
-        .form-section {
-            background-color: white;
-            border-radius: 0;
-            padding: 2.5rem;
-            position: relative;
-        }
-
-        .section-title {
-            font-size: 1.4rem;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--light-color);
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-            .section-title i {
-                color: var(--primary-color);
+            .form-header h1 {
+                font-size: 2.2rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+                position: relative;
+                z-index: 1;
             }
 
+            .form-header p {
+                font-size: 1rem;
+                opacity: 0.9;
+                position: relative;
+                z-index: 1;
+            }
+
+        .form-header-icon {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            opacity: 0.2;
+            z-index: 0;
+        }
+
+        .form-body {
+            padding: 2.5rem;
+        }
+
+        .breadcrumb {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            padding: 0.8rem 1.2rem;
+            background: var(--light);
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+            .breadcrumb a {
+                color: var(--primary);
+                text-decoration: none;
+                font-weight: 500;
+            }
+
+                .breadcrumb a:hover {
+                    text-decoration: underline;
+                }
+
+            .breadcrumb span {
+                color: var(--gray);
+            }
+
+        .info-banner {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            border-left: 5px solid #2196f3;
+            padding: 1.2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+            .info-banner i {
+                font-size: 1.5rem;
+                color: #1976d2;
+            }
+
+            .info-banner div {
+                flex: 1;
+            }
+
+            .info-banner strong {
+                display: block;
+                color: var(--dark);
+                margin-bottom: 0.3rem;
+            }
+
+            .info-banner p {
+                margin: 0;
+                color: var(--gray);
+                font-size: 0.9rem;
+            }
+
+        .form-section {
+            background: var(--light);
+            padding: 2rem;
+            border-radius: 15px;
+            border-left: 5px solid var(--primary);
+            margin-bottom: 2rem;
+        }
+
+            .form-section h3 {
+                color: var(--primary);
+                margin-bottom: 1.5rem;
+                font-size: 1.3rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
         .form-group {
-            margin-bottom: 25px;
-            position: relative;
+            margin-bottom: 1.5rem;
         }
 
         label {
             display: block;
-            margin-bottom: 10px;
             font-weight: 600;
-            color: var(--dark-color);
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            color: var(--dark);
+            margin-bottom: 0.6rem;
+            font-size: 0.95rem;
         }
 
             label i {
-                color: var(--primary-color);
-                width: 20px;
+                color: var(--primary);
+                margin-right: 0.4rem;
             }
 
-        input, textarea, select {
+        .form-control {
             width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e1e5e9;
-            border-radius: var(--border-radius);
+            padding: 0.9rem 1.2rem;
+            border: 2px solid var(--border);
+            border-radius: 10px;
             font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
             transition: all 0.3s ease;
-            background-color: white;
+            background: var(--white);
         }
 
-            input:focus, textarea:focus, select:focus {
+            .form-control:focus {
                 outline: none;
-                border-color: var(--primary-color);
+                border-color: var(--primary);
                 box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
-                transform: translateY(-1px);
             }
 
-        textarea {
-            min-height: 120px;
-            resize: vertical;
-            line-height: 1.5;
-        }
-
-        select {
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 16px center;
-            background-repeat: no-repeat;
-            background-size: 1.5em 1.5em;
-            padding-right: 3rem;
-        }
-
-        .btn {
-            padding: 14px 28px;
-            border: none;
-            border-radius: var(--border-radius);
-            font-size: 1rem;
-            font-weight: 600;
+        select.form-control {
             cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-            text-align: center;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), #3CB371);
-            color: white;
-            box-shadow: 0 4px 15px rgba(46, 139, 87, 0.3);
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
         }
 
-            .btn-primary:hover {
-                background: linear-gradient(135deg, #26734d, var(--primary-color));
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(46, 139, 87, 0.4);
-            }
-
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
+        .text-danger {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 0.4rem;
+            display: block;
         }
 
-            .btn-secondary:hover {
-                background-color: #5a6268;
-                transform: translateY(-2px);
-            }
-
-        .btn-outline {
-            background-color: transparent;
-            border: 2px solid #6c757d;
-            color: #6c757d;
+        .form-help {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-top: 0.4rem;
         }
-
-            .btn-outline:hover {
-                background-color: #6c757d;
-                color: white;
-                transform: translateY(-2px);
-            }
 
         .form-actions {
             display: flex;
-            gap: 15px;
-            margin-top: 30px;
-            padding-top: 25px;
-            border-top: 1px solid #e1e5e9;
-            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 2.5rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--light);
         }
 
-            .form-actions .btn {
-                flex: 1;
-                min-width: 140px;
-                justify-content: center;
-            }
-
-        .text-danger {
-            color: var(--danger-color);
-            font-size: 0.85rem;
-            margin-top: 6px;
-            display: block;
-            font-weight: 500;
-            display: flex;
+        .btn {
+            padding: 0.9rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 0.7rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-            .text-danger::before {
-                content: "⚠";
-                font-size: 0.8rem;
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #34ce57);
+            color: var(--white);
+        }
+
+            .btn-success:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
             }
 
-        .validation-summary {
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
-            border-radius: var(--border-radius);
-            padding: 1rem 1.5rem;
-            margin-bottom: 2rem;
-            color: #721c24;
+        .btn-secondary {
+            background: var(--white);
+            color: var(--dark);
+            border: 2px solid var(--border);
+            box-shadow: none;
         }
 
-            .validation-summary ul {
-                margin: 0.5rem 0 0 1rem;
-            }
-
-        .input-hint {
-            font-size: 0.85rem;
-            color: #6c757d;
-            margin-top: 6px;
-            font-style: italic;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-            .input-hint::before {
-                content: "💡";
-                font-size: 0.8rem;
+            .btn-secondary:hover {
+                background: var(--light);
+                border-color: var(--dark);
             }
 
         .weight-input-container {
@@ -292,30 +301,14 @@
 
         .weight-unit {
             position: absolute;
-            right: 16px;
+            right: 1.2rem;
             top: 50%;
             transform: translateY(-50%);
-            color: #6c757d;
+            color: var(--gray);
             font-weight: 600;
-            background: white;
+            background: var(--white);
             padding: 0 5px;
         }
-
-        .current-info {
-            background: var(--light-color);
-            padding: 1.5rem;
-            border-radius: var(--border-radius);
-            border-left: 4px solid var(--primary-color);
-            margin-bottom: 1.5rem;
-        }
-
-            .current-info h4 {
-                color: var(--primary-color);
-                margin-bottom: 0.5rem;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-            }
 
         .current-details {
             display: grid;
@@ -328,42 +321,29 @@
             display: flex;
             justify-content: space-between;
             padding: 0.5rem 0;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .detail-label {
             font-weight: 600;
-            color: var(--dark-color);
+            color: var(--dark);
         }
 
         .detail-value {
             color: #555;
         }
 
-
-
-        /* Responsive */
         @@media (max-width: 768px) {
-            body {
-                padding: 10px;
-                align-items: flex-start;
-            }
-
-            .container {
-                margin: 0;
-                border-radius: 10px;
-            }
-
-            header {
-                padding: 2rem 1.5rem;
-            }
-
-            h1 {
+            .form-header h1 {
                 font-size: 1.8rem;
             }
 
-            .form-section {
-                padding: 2rem 1.5rem;
+            .form-body {
+                padding: 1.5rem;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
             }
 
             .form-actions {
@@ -372,244 +352,135 @@
 
                 .form-actions .btn {
                     width: 100%;
+                    justify-content: center;
                 }
 
             .current-details {
                 grid-template-columns: 1fr;
             }
         }
-
-        @@media (max-width: 480px) {
-            header {
-                padding: 1.5rem 1rem;
-            }
-
-            h1 {
-                font-size: 1.5rem;
-            }
-
-            .form-section {
-                padding: 1.5rem 1rem;
-            }
-
-            .section-title {
-                font-size: 1.2rem;
-            }
-        }
     </style>
 </head>
+
 <body>
     <div class="container">
-        <header>
-            <h1>✏️ Editar Pesaje</h1>
-            <p class="subtitle">Actualice la información del registro de pesaje #@Model.PesajeId</p>
-        </header>
-
-        <div class="form-section">
-            <!-- Información Actual -->
-            <div class="current-info">
-                <h4><i class="fas fa-info-circle"></i> Información Actual</h4>
-                <div class="current-details">
-                    <div class="detail-item">
-                        <span class="detail-label">Animal:</span>
-                        <span class="detail-value">@Model.Animal?.Arete - @(Model.Animal?.Nombre ?? "Sin nombre")</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Fecha:</span>
-                        <span class="detail-value">@Model.Fecha.ToString("dd/MM/yyyy")</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Peso Actual:</span>
-                        <span class="detail-value" style="color: var(--primary-color); font-weight: 600;">@Model.PesoKg kg</span>
-                    </div>
-                </div>
+        <div class="form-card">
+            <!-- Header -->
+            <div class="form-header">
+                <i class="fas fa-weight-hanging form-header-icon"></i>
+                <h1><i class="fas fa-edit"></i> Editar Pesaje</h1>
+                <p>Actualice la información del registro de pesaje existente</p>
             </div>
 
-            <form asp-action="Edit" id="editForm">
-                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
-                <input type="hidden" asp-for="PesajeId" />
-
-                <h2 class="section-title">
-                    <i class="fas fa-edit"></i>
-                    Modificar Datos del Pesaje
-                </h2>
-
-                <div class="form-group">
-                    <label asp-for="AnimalId">
-                        <i class="fas fa-cow"></i>
-                        Animal
-                    </label>
-                    <select asp-for="AnimalId" class="form-control" asp-items="ViewBag.AnimalId">
-                        <option value="">-- Seleccionar Animal --</option>
-                    </select>
-                    <span asp-validation-for="AnimalId" class="text-danger"></span>
-                    <div class="input-hint">Seleccione el animal al que pertenece este pesaje</div>
-                </div>
-
-                <div class="form-group">
-                    <label asp-for="Fecha">
-                        <i class="fas fa-calendar-day"></i>
-                        Fecha de Pesaje
-                    </label>
-                    <input asp-for="Fecha" type="datetime-local" class="form-control"
-                           value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" readonly />
-                    <span asp-validation-for="Fecha" class="text-danger"></span>
-                    <div class="input-hint">Fecha y hora en que se realizó el pesaje</div>
-                </div>
-
-                <div class="form-group">
-                    <label asp-for="PesoKg">
-                        <i class="fas fa-weight-hanging"></i>
-                        Peso del Animal
-                    </label>
-                    <div class="weight-input-container">
-                        <input asp-for="PesoKg" type="number" class="form-control" step="1" min="1" max="2000"
-                               placeholder="Ingrese el peso en kilogramos" />
-                        <span class="weight-unit">kg</span>
-                    </div>
-                    <span asp-validation-for="PesoKg" class="text-danger"></span>
-                    <div class="input-hint">El peso debe estar entre 1 y 2000 kg. Ejemplo: 450.5</div>
-                </div>
-
-                <div class="form-group">
-                    <label asp-for="Observacion">
-                        <i class="fas fa-comment-medical"></i>
-                        Observaciones
-                    </label>
-                    <textarea asp-for="Observacion" class="form-control"
-                              placeholder="Ingrese observaciones relevantes sobre el pesaje, condición del animal, etc..."></textarea>
-                    <span asp-validation-for="Observacion" class="text-danger"></span>
-                    <div class="input-hint">Observaciones adicionales sobre el pesaje (opcional)</div>
-                </div>
-
-                <div class="form-actions">
-                    <a asp-action="Index" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i>
-                        Cancelar
+            <!-- Body -->
+            <div class="form-body">
+                <!-- Breadcrumb -->
+                <div class="breadcrumb">
+                    <a asp-action="Index">
+                        <i class="fas fa-list"></i> Lista de Pesajes
                     </a>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i>
-                        Guardar Cambios
-                    </button>
+                    <span>/</span>
+                    <span><strong>Editar Pesaje #@Model.PesajeId</strong></span>
                 </div>
-            </form>
+
+                <!-- Info Banner -->
+                <div class="info-banner">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <strong>Editando: Pesaje #@Model.PesajeId</strong>
+                        <p>Animal: @(Model.Animal?.Arete ?? "N/A") - @(Model.Animal?.Nombre ?? "Sin nombre") | Fecha: @Model.Fecha.ToString("dd/MM/yyyy")</p>
+                    </div>
+                </div>
+
+                <!-- Validation Summary -->
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <!-- Form -->
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="PesajeId" />
+
+                    <!-- Información del Pesaje -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-weight-hanging"></i> Información del Pesaje</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label asp-for="AnimalId"><i class="fas fa-cow"></i> Animal <span style="color: var(--danger);">*</span></label>
+                                <select asp-for="AnimalId" class="form-control" asp-items="ViewBag.AnimalId" required>
+                                    <option value="">Seleccione un animal</option>
+                                </select>
+                                <span asp-validation-for="AnimalId" class="text-danger"></span>
+                                <div class="form-help">Seleccione el animal al que pertenece este pesaje</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="Fecha"><i class="fas fa-calendar"></i> Fecha de Pesaje <span style="color: var(--danger);">*</span></label>
+                                <input asp-for="Fecha" type="datetime-local" class="form-control" required />
+                                <span asp-validation-for="Fecha" class="text-danger"></span>
+                                <div class="form-help">Fecha y hora en que se realizó el pesaje</div>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="PesoKg"><i class="fas fa-weight"></i> Peso (kg) <span style="color: var(--danger);">*</span></label>
+                                <div class="weight-input-container">
+                                    <input asp-for="PesoKg" type="number" step="0.1" class="form-control" min="1" max="2000" required />
+                                    <span class="weight-unit">kg</span>
+                                </div>
+                                <span asp-validation-for="PesoKg" class="text-danger"></span>
+                                <div class="form-help">El peso debe estar entre 1 y 2000 kg</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Observaciones -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-comment-medical"></i> Observaciones</h3>
+                        <div class="form-group">
+                            <label asp-for="Observacion"><i class="fas fa-sticky-note"></i> Observaciones</label>
+                            <textarea asp-for="Observacion" class="form-control" rows="4" placeholder="Ingrese observaciones relevantes sobre el pesaje..."></textarea>
+                            <span asp-validation-for="Observacion" class="text-danger"></span>
+                            <div class="form-help">Observaciones adicionales sobre el pesaje (opcional)</div>
+                        </div>
+                    </div>
+
+                    <!-- Información Actual -->
+                    <div class="form-section">
+                        <h3><i class="fas fa-info-circle"></i> Información Actual</h3>
+                        <div class="current-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Animal:</span>
+                                <span class="detail-value">@(Model.Animal?.Arete ?? "N/A") - @(Model.Animal?.Nombre ?? "Sin nombre")</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Fecha:</span>
+                                <span class="detail-value">@Model.Fecha.ToString("dd/MM/yyyy HH:mm")</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Peso Actual:</span>
+                                <span class="detail-value" style="color: var(--primary); font-weight: 600;">@Model.PesoKg kg</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i>
+                            Guardar Cambios
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-times"></i>
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
         </div>
-
-
     </div>
-
-    @section Scripts {
-        @{
-            await Html.RenderPartialAsync("_ValidationScriptsPartial");
-        }
-
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const form = document.getElementById('editForm');
-                const fechaInput = document.querySelector('input[name="Fecha"]');
-                const pesoInput = document.querySelector('input[name="PesoKg"]');
-
-                // Formatear fecha para el input datetime-local
-                if (fechaInput && fechaInput.value) {
-                    const fecha = new Date(fechaInput.value);
-                    const offset = fecha.getTimezoneOffset();
-                    fecha.setMinutes(fecha.getMinutes() - offset);
-                    fechaInput.value = fecha.toISOString().slice(0, 16);
-                }
-
-                // Validación en tiempo real del peso
-                if (pesoInput) {
-                    pesoInput.addEventListener('input', function() {
-                        const peso = parseFloat(this.value);
-                        const min = parseFloat(this.min) || 1;
-                        const max = parseFloat(this.max) || 2000;
-
-                        if (peso < min) {
-                            this.style.borderColor = 'var(--danger-color)';
-                            this.title = `El peso debe ser mayor o igual a ${min} kg`;
-                        } else if (peso > max) {
-                            this.style.borderColor = 'var(--danger-color)';
-                            this.title = `El peso debe ser menor o igual a ${max} kg`;
-                        } else {
-                            this.style.borderColor = '';
-                            this.title = '';
-                        }
-                    });
-                }
-
-                // Validación de fecha (no puede ser futura)
-                if (fechaInput) {
-                    fechaInput.addEventListener('change', function() {
-                        const fechaSeleccionada = new Date(this.value);
-                        const fechaActual = new Date();
-
-                        if (fechaSeleccionada > fechaActual) {
-                            alert('La fecha y hora del pesaje no pueden ser futuras');
-                            const now = new Date();
-                            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-                            this.value = now.toISOString().slice(0, 16);
-                        }
-                    });
-                }
-
-                // Mejorar experiencia de focus
-                const inputs = document.querySelectorAll('input, textarea, select');
-                inputs.forEach(input => {
-                    input.addEventListener('focus', function() {
-                        this.parentElement.classList.add('focused');
-                    });
-
-                    input.addEventListener('blur', function() {
-                        this.parentElement.classList.remove('focused');
-                    });
-                });
-
-                // Efectos hover en botones
-                const buttons = document.querySelectorAll('.btn');
-                buttons.forEach(button => {
-                    button.addEventListener('mouseenter', function() {
-                        this.style.transform = 'translateY(-2px)';
-                    });
-
-                    button.addEventListener('mouseleave', function() {
-                        this.style.transform = 'translateY(0)';
-                    });
-                });
-
-                // Validación antes del envío
-                form.addEventListener('submit', function(e) {
-                    const animalId = document.querySelector('select[name="AnimalId"]').value;
-                    const peso = pesoInput.value;
-                    const fecha = fechaInput.value;
-
-                    let isValid = true;
-                    let errorMessage = '';
-
-                    if (!animalId) {
-                        isValid = false;
-                        errorMessage += '• Debe seleccionar un animal\n';
-                    }
-
-                    if (!peso || parseFloat(peso) <= 0) {
-                        isValid = false;
-                        errorMessage += '• El peso debe ser mayor a 0\n';
-                    }
-
-                    if (!fecha) {
-                        isValid = false;
-                        errorMessage += '• La fecha es requerida\n';
-                    }
-
-                    if (!isValid) {
-                        e.preventDefault();
-                        alert('Por favor corrija los siguientes errores:\n\n' + errorMessage);
-                    }
-                });
-            });
-        </script>
-    }
-
-    <!-- Font Awesome para íconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </body>
 </html>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}   
