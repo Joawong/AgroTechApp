@@ -230,6 +230,11 @@ namespace AgroTechApp.Controllers
         }
 
 
+        protected void MostrarInfo(string mensaje)
+        {
+            TempData["InfoMessage"] = mensaje;
+        }
+
         protected List<Finca> GetFincasUsuarioTodas()
         {
             var userId = GetAspNetUserId();

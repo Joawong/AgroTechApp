@@ -3,11 +3,11 @@
 @{
     ViewData["Title"] = "Gestión de Ingresos";
 
-    // Calcular estadísticas
-    var totalIngresos = Model.Sum(i => i.Monto);
-    var totalRegistros = Model.Count();
-    var ingresosAutomaticos = Model.Count(i => i.EsAutomatico);
-    var ingresosManuales = Model.Count(i => !i.EsAutomatico);
+    // Calcular estadísticas de la PÁGINA ACTUAL
+    var totalIngresosPagina = Model.Sum(i => i.Monto);
+    var registrosPagina = Model.Count();
+    var ingresosAutomaticosPagina = Model.Count(i => i.EsAutomatico);
+    var ingresosManualesPagina = Model.Count(i => !i.EsAutomatico);
 }
 
 <style>
@@ -48,14 +48,18 @@
     }
 
     @@keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
     }
 
     .admin-header {
@@ -67,31 +71,31 @@
         overflow: hidden;
     }
 
-    .admin-header::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -50%;
-        width: 100%;
-        height: 200%;
-        background: rgba(255, 255, 255, 0.1);
-        transform: rotate(30deg);
-    }
+        .admin-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(30deg);
+        }
 
-    .admin-header h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        position: relative;
-        z-index: 1;
-    }
+        .admin-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
 
-    .admin-header p {
-        font-size: 1.1rem;
-        opacity: 0.9;
-        position: relative;
-        z-index: 1;
-    }
+        .admin-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
 
     .admin-header-icon {
         position: absolute;
@@ -148,12 +152,12 @@
         color: var(--white);
     }
 
-    .btn-primary-custom:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
-        background: linear-gradient(135deg, #218838, var(--success));
-        color: white;
-    }
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(40, 167, 69, 0.3);
+            background: linear-gradient(135deg, #218838, var(--success));
+            color: white;
+        }
 
     .btn-sm {
         padding: 0.6rem 1.2rem;
@@ -178,10 +182,10 @@
         overflow: hidden;
     }
 
-    .stat-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
 
     .stat-icon {
         position: absolute;
@@ -205,49 +209,6 @@
         font-weight: 600;
     }
 
-    .search-section {
-        background: linear-gradient(to right, rgba(40, 167, 69, 0.05), rgba(72, 199, 116, 0.05));
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        border: 2px solid var(--border);
-    }
-
-    .search-container {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-
-    .search-box {
-        flex: 1;
-        min-width: 300px;
-        padding: 1rem 1.5rem;
-        border: 2px solid var(--border);
-        border-radius: 12px;
-        font-size: 1rem;
-        background: var(--white);
-        transition: all 0.3s ease;
-    }
-
-    .search-box:focus {
-        outline: none;
-        border-color: var(--success);
-        box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
-        transform: translateY(-1px);
-    }
-
-    .filter-select {
-        padding: 1rem 1.5rem;
-        border: 2px solid var(--border);
-        border-radius: 12px;
-        background: var(--white);
-        font-size: 1rem;
-        min-width: 150px;
-        cursor: pointer;
-    }
-
     .table-container {
         background: var(--white);
         border-radius: 15px;
@@ -262,53 +223,53 @@
         margin: 0;
     }
 
-    .table-custom thead {
-        background: linear-gradient(135deg, var(--success), var(--success-light));
-        color: white;
-    }
+        .table-custom thead {
+            background: linear-gradient(135deg, var(--success), var(--success-light));
+            color: white;
+        }
 
-    .table-custom th {
-        padding: 1.2rem 1rem;
-        text-align: left;
-        font-weight: 600;
-        font-size: 0.9rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        position: relative;
-    }
+        .table-custom th {
+            padding: 1.2rem 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+        }
 
-    .table-custom th::after {
-        content: '';
-        position: absolute;
-        right: 0;
-        top: 25%;
-        height: 50%;
-        width: 1px;
-        background: rgba(255, 255, 255, 0.2);
-    }
+            .table-custom th::after {
+                content: '';
+                position: absolute;
+                right: 0;
+                top: 25%;
+                height: 50%;
+                width: 1px;
+                background: rgba(255, 255, 255, 0.2);
+            }
 
-    .table-custom th:last-child::after {
-        display: none;
-    }
+            .table-custom th:last-child::after {
+                display: none;
+            }
 
-    .table-custom td {
-        padding: 1.2rem 1rem;
-        border-bottom: 1px solid var(--border);
-        vertical-align: middle;
-    }
+        .table-custom td {
+            padding: 1.2rem 1rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
 
-    .table-custom tbody tr {
-        transition: all 0.3s ease;
-    }
+        .table-custom tbody tr {
+            transition: all 0.3s ease;
+        }
 
-    .table-custom tbody tr:hover {
-        background: linear-gradient(to right, rgba(40, 167, 69, 0.03), rgba(72, 199, 116, 0.03));
-        transform: translateX(5px);
-    }
+            .table-custom tbody tr:hover {
+                background: linear-gradient(to right, rgba(40, 167, 69, 0.03), rgba(72, 199, 116, 0.03));
+                transform: translateX(5px);
+            }
 
-    .table-custom tbody tr:hover td {
-        border-color: rgba(40, 167, 69, 0.2);
-    }
+                .table-custom tbody tr:hover td {
+                    border-color: rgba(40, 167, 69, 0.2);
+                }
 
     .badge-tipo {
         padding: 0.4rem 1rem;
@@ -370,30 +331,30 @@
         color: white;
     }
 
-    .btn-success:hover {
-        background: #218838;
-        transform: translateY(-1px);
-    }
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
 
     .btn-warning {
         background: var(--warning);
         color: #212529;
     }
 
-    .btn-warning:hover {
-        background: #e0a800;
-        transform: translateY(-1px);
-    }
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-1px);
+        }
 
     .btn-danger {
         background: var(--danger);
         color: white;
     }
 
-    .btn-danger:hover {
-        background: #c82333;
-        transform: translateY(-1px);
-    }
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
 
     .btn-disabled {
         background: #e9ecef;
@@ -438,6 +399,60 @@
         font-weight: 500;
     }
 
+    /* ESTILOS DE PAGINACIÓN */
+    .pagination {
+        display: flex;
+        list-style: none;
+        gap: 0.5rem;
+        padding: 0;
+        margin: 0;
+        flex-wrap: wrap;
+    }
+
+    .page-item {
+        display: inline-block;
+    }
+
+    .page-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.6rem 0.9rem;
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        color: var(--success);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        background: var(--white);
+        cursor: pointer;
+        min-width: 40px;
+        justify-content: center;
+    }
+
+        .page-link:hover:not(.page-item.disabled .page-link) {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+            transform: translateY(-2px);
+        }
+
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, var(--success), var(--success-light));
+        color: white;
+        border-color: var(--success);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+
+    .page-item.disabled .page-link {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+        background: #f8f9fa;
+        color: var(--gray);
+    }
+
     .alert-custom {
         padding: 1rem 1.5rem;
         border-radius: 12px;
@@ -449,14 +464,18 @@
     }
 
     @@keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
     }
 
     .alert-success {
@@ -472,27 +491,47 @@
     }
 
     @@media (max-width: 1200px) {
-        .table-container {
-            overflow-x: auto;
-        }
-        .table-custom {
-            min-width: 1000px;
-        }
+        .table-container
+
+    {
+        overflow-x: auto;
+    }
+
+    .table-custom {
+        min-width: 1000px;
+    }
+
     }
 
     @@media (max-width: 768px) {
-        .admin-header {
-            padding: 2rem;
-        }
-        .admin-header h1 {
-            font-size: 2rem;
-        }
-        .admin-body {
-            padding: 1.5rem;
-        }
-        .stats-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
+        .admin-header
+
+    {
+        padding: 2rem;
+    }
+
+    .admin-header h1 {
+        font-size: 2rem;
+    }
+
+    .admin-body {
+        padding: 1.5rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .table-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .pagination {
+        width: 100%;
+        justify-content: center;
+    }
+
     }
 </style>
 
@@ -528,64 +567,42 @@
         <div class="header-actions">
             <div class="header-title">
                 <h2>Lista de Ingresos</h2>
-                <p id="ingresoCount">Total de ingresos registrados: @totalRegistros</p>
+                <p>Total: @ViewBag.TotalRegistros ingresos registrados</p>
             </div>
             <a asp-action="Create" class="btn-custom btn-primary-custom">
                 <i class="fas fa-plus"></i> Nuevo Ingreso
             </a>
         </div>
 
-        <!-- Estadísticas -->
+        <!-- Estadísticas (Página Actual) -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-receipt"></i>
                 </div>
-                <div class="stat-number">@totalRegistros</div>
-                <div class="stat-label">Total Registros</div>
+                <div class="stat-number">@registrosPagina</div>
+                <div class="stat-label">Registros (Pág. actual)</div>
             </div>
             <div class="stat-card" style="border-left-color: var(--success);">
                 <div class="stat-icon">
                     <i class="fas fa-coins"></i>
                 </div>
-                <div class="stat-number">₡@totalIngresos.ToString("N2")</div>
-                <div class="stat-label">Total Ingresos</div>
+                <div class="stat-number">₡@totalIngresosPagina.ToString("N2")</div>
+                <div class="stat-label">Total (Pág. actual)</div>
             </div>
             <div class="stat-card" style="border-left-color: var(--info);">
                 <div class="stat-icon">
                     <i class="fas fa-robot"></i>
                 </div>
-                <div class="stat-number">@ingresosAutomaticos</div>
-                <div class="stat-label">Ingresos Automáticos</div>
+                <div class="stat-number">@ingresosAutomaticosPagina</div>
+                <div class="stat-label">Automáticos</div>
             </div>
             <div class="stat-card" style="border-left-color: var(--gray);">
                 <div class="stat-icon">
                     <i class="fas fa-hand-paper"></i>
                 </div>
-                <div class="stat-number">@ingresosManuales</div>
-                <div class="stat-label">Ingresos Manuales</div>
-            </div>
-        </div>
-
-        <!-- Búsqueda y Filtros -->
-        <div class="search-section">
-            <div class="search-container">
-                <input type="text" class="search-box" placeholder="🔍 Buscar por descripción..." id="searchInput">
-                <select class="filter-select" id="tipoFilter">
-                    <option value="">Todos los tipos</option>
-                    <option value="automatico">Automáticos</option>
-                    <option value="manual">Manuales</option>
-                </select>
-                <select class="filter-select" id="rubroFilter">
-                    <option value="">Todos los rubros</option>
-                    @if (Model != null && Model.Any())
-                    {
-                        @foreach (var rubro in Model.Select(i => i.RubroIngreso?.Nombre).Distinct().Where(r => r != null))
-                        {
-                            <option value="@rubro">@rubro</option>
-                        }
-                    }
-                </select>
+                <div class="stat-number">@ingresosManualesPagina</div>
+                <div class="stat-label">Manuales</div>
             </div>
         </div>
 
@@ -605,13 +622,10 @@
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="ingresosTableBody">
+                    <tbody>
                         @foreach (var ingreso in Model)
                         {
-                            <tr class="ingreso-row"
-                                data-descripcion="@ingreso.Descripcion?.ToLower()"
-                                data-tipo="@(ingreso.EsAutomatico ? "automatico" : "manual")"
-                                data-rubro="@ingreso.RubroIngreso?.Nombre">
+                            <tr>
                                 <td>
                                     <strong>@ingreso.Fecha.ToString("dd/MM/yyyy")</strong>
                                 </td>
@@ -700,11 +714,73 @@
                     </tbody>
                 </table>
 
-                <!-- Pie de tabla -->
+                <!-- ============================================ -->
+                <!-- PIE DE TABLA CON PAGINACIÓN -->
+                <!-- ============================================ -->
                 <div class="table-footer">
-                    <div class="pagination-info" id="paginationInfo">
-                        Mostrando @Model.Count() de @Model.Count() ingresos
+                    <!-- Información de registros -->
+                    <div class="pagination-info">
+                        Mostrando @((ViewBag.PaginaActual - 1) * 10 + 1)-@(Math.Min(ViewBag.PaginaActual * 10, ViewBag.TotalRegistros)) de @ViewBag.TotalRegistros ingresos
                     </div>
+
+                    <!-- Controles de paginación -->
+                    @if (ViewBag.TotalPaginas > 1)
+                    {
+                        <nav>
+                            <ul class="pagination">
+                                <!-- Primera página -->
+                                <li class="page-item @(ViewBag.PaginaActual == 1 ? "disabled" : "")">
+                                    <a class="page-link" asp-action="Index" asp-route-pagina="1">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+
+                                <!-- Anterior -->
+                                <li class="page-item @(ViewBag.PaginaActual == 1 ? "disabled" : "")">
+                                    <a class="page-link" asp-action="Index" asp-route-pagina="@(ViewBag.PaginaActual - 1)">
+                                        <i class="fas fa-angle-left"></i> Anterior
+                                    </a>
+                                </li>
+
+                                <!-- Números de página -->
+                                @{
+                                    int startPage = Math.Max(1, ViewBag.PaginaActual - 2);
+                                    int endPage = Math.Min(ViewBag.TotalPaginas, ViewBag.PaginaActual + 2);
+                                }
+
+                                @if (startPage > 1)
+                                {
+                                    <li class="page-item"><span class="page-link">...</span></li>
+                                }
+
+                                @for (int i = startPage; i <= endPage; i++)
+                                {
+                                    <li class="page-item @(ViewBag.PaginaActual == i ? "active" : "")">
+                                        <a class="page-link" asp-action="Index" asp-route-pagina="@i">@i</a>
+                                    </li>
+                                }
+
+                                @if (endPage < ViewBag.TotalPaginas)
+                                {
+                                    <li class="page-item"><span class="page-link">...</span></li>
+                                }
+
+                                <!-- Siguiente -->
+                                <li class="page-item @(ViewBag.PaginaActual >= ViewBag.TotalPaginas ? "disabled" : "")">
+                                    <a class="page-link" asp-action="Index" asp-route-pagina="@(ViewBag.PaginaActual + 1)">
+                                        Siguiente <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+
+                                <!-- Última página -->
+                                <li class="page-item @(ViewBag.PaginaActual >= ViewBag.TotalPaginas ? "disabled" : "")">
+                                    <a class="page-link" asp-action="Index" asp-route-pagina="@ViewBag.TotalPaginas">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    }
                 </div>
             }
             else
@@ -724,59 +800,17 @@
     </div>
 </div>
 
-@section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const searchInput = document.getElementById('searchInput');
-            const tipoFilter = document.getElementById('tipoFilter');
-            const rubroFilter = document.getElementById('rubroFilter');
-            const ingresoRows = document.querySelectorAll('.ingreso-row');
-            const totalIngresos = @totalRegistros;
-
-            function filterTable() {
-                const searchTerm = searchInput.value.toLowerCase();
-                const tipoValue = tipoFilter.value;
-                const rubroValue = rubroFilter.value;
-
-                let visibleCount = 0;
-
-                ingresoRows.forEach(row => {
-                    const descripcion = row.getAttribute('data-descripcion') || '';
-                    const tipo = row.getAttribute('data-tipo');
-                    const rubro = row.getAttribute('data-rubro');
-
-                    const matchesSearch = !searchTerm || descripcion.includes(searchTerm);
-                    const matchesTipo = !tipoValue || tipo === tipoValue;
-                    const matchesRubro = !rubroValue || rubro === rubroValue;
-
-                    if (matchesSearch && matchesTipo && matchesRubro) {
-                        row.style.display = '';
-                        visibleCount++;
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-
-                // Actualizar contadores
-                document.getElementById('ingresoCount').textContent = `Mostrando ${visibleCount} de ${totalIngresos} ingresos`;
-                document.getElementById('paginationInfo').textContent = `Mostrando ${visibleCount} de ${totalIngresos} ingresos`;
-            }
-
-            // Event listeners
-            searchInput.addEventListener('input', filterTable);
-            tipoFilter.addEventListener('change', filterTable);
-            rubroFilter.addEventListener('change', filterTable);
-
-            // Auto-hide alerts
-            setTimeout(() => {
-                const alerts = document.querySelectorAll('.alert-custom');
-                alerts.forEach(alert => {
-                    alert.style.transition = 'opacity 0.5s, transform 0.5s';
-                    alert.style.opacity = '0';
-                    alert.style.transform = 'translateY(-10px)';
-                    setTimeout(() => alert.remove(), 500);
-                });
-            }, 5000);
-        });
-    </script>
-}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Auto-hide alerts
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert-custom');
+            alerts.forEach(alert => {
+                alert.style.transition = 'opacity 0.5s, transform 0.5s';
+                alert.style.opacity = '0';
+                alert.style.transform = 'translateY(-10px)';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000);
+    });
+</script>

@@ -38,6 +38,24 @@ builder.Services.AddScoped<IFinanzasService, FinanzasService>();
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    // Migraciones SOLO para Identity
+    var identityContext = services.GetRequiredService<ApplicationDbContext>();
+    if (identityContext.Database.IsRelational())
+    {
+        identityContext.Database.Migrate();
+    }
+
+    // Log útil (local / Azure)
+    var connection = identityContext.Database.GetDbConnection();
+    Console.WriteLine($"✅ Conectado a BD: {connection.Database} en {connection.DataSource}");
+}
+
+
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

@@ -28,25 +28,25 @@ namespace AgroTechApp.Controllers
 
         // GET: Insumoes
         public async Task<IActionResult> Index(
-            long? fincaId = null,            // se ignorará y se usará la finca del usuario
-            int? categoriaId = null,
-            string? estado = null,           // "activo" | "inactivo" | "bajo" | "agotado"
-            string? q = null,                // búsqueda por nombre o categoría
-            CancellationToken ct = default)
+    int? pagina = null,
+    int? categoriaId = null,
+    string? estado = null,
+    string? q = null,
+    CancellationToken ct = default)
         {
             try
             {
                 var usuarioFincaId = GetFincaId();
 
-                // Base query + includes
                 var query = _context.Insumos
                     .AsNoTracking()
                     .Include(i => i.Categoria)
                     .Include(i => i.Unidad)
                     .Include(i => i.Finca)
-                    .Where(i => i.FincaId == usuarioFincaId) // ✅ filtro multi-tenant
+                    .Where(i => i.FincaId == usuarioFincaId)
                     .AsQueryable();
 
+                // Filtros existentes (mantener igual)
                 if (categoriaId.HasValue && categoriaId > 0)
                     query = query.Where(i => i.CategoriaId == categoriaId);
 
@@ -58,32 +58,32 @@ namespace AgroTechApp.Controllers
                         i.Categoria!.Nombre.Contains(term));
                 }
 
-                // Lista provisional para KPIs y stock
-                var insumos = await query.OrderBy(i => i.Nombre).ToListAsync(ct);
+                // Contar total ANTES de estado (para KPIs)
+                var todosInsumos = await query.ToListAsync(ct);
 
-                // Stock actual por insumo (solo finca del usuario)
+                // Stock actual por insumo
                 var stockDict = await _inv.GetStockPorInsumoAsync(usuarioFincaId, null, ct);
 
                 // Filtro por estado
                 if (!string.IsNullOrEmpty(estado))
                 {
                     estado = estado.ToLowerInvariant();
-                    insumos = estado switch
+                    todosInsumos = estado switch
                     {
-                        "activo" => insumos.Where(i => i.Activo).ToList(),
-                        "inactivo" => insumos.Where(i => !i.Activo).ToList(),
-                        "bajo" => insumos.Where(i =>
+                        "activo" => todosInsumos.Where(i => i.Activo).ToList(),
+                        "inactivo" => todosInsumos.Where(i => !i.Activo).ToList(),
+                        "bajo" => todosInsumos.Where(i =>
                             (stockDict.TryGetValue(i.InsumoId, out var s) ? s : 0m) > 0 &&
                             (stockDict.TryGetValue(i.InsumoId, out var s2) ? s2 : 0m) <= i.StockMinimo).ToList(),
-                        "agotado" => insumos.Where(i =>
+                        "agotado" => todosInsumos.Where(i =>
                             (stockDict.TryGetValue(i.InsumoId, out var s) ? s : 0m) == 0m).ToList(),
-                        _ => insumos
+                        _ => todosInsumos
                     };
                 }
 
-                // KPIs
+                // KPIs (mantener igual)
                 var (activos, porAcabarse, agotados, categorias) =
-                    await _inv.GetKpisInsumosAsync(insumos, stockDict, ct);
+                    await _inv.GetKpisInsumosAsync(todosInsumos, stockDict, ct);
 
                 ViewBag.TotalActivos = activos;
                 ViewBag.PorAcabarse = porAcabarse;
@@ -91,19 +91,35 @@ namespace AgroTechApp.Controllers
                 ViewBag.Categorias = categorias;
                 ViewBag.StockPorInsumo = stockDict;
 
-                // Filtros (finca al final es solo informativo, no editable)
+                // PAGINACIÓN
+                var totalRegistros = todosInsumos.Count;
+                var insumosOrdenados = todosInsumos
+                    .OrderBy(i => i.Activo ? 0 : 1)  // Activos primero
+                    .ThenByDescending(i => i.InsumoId)  // Más recientes primero
+                    .ToList();
+
+                int registrosPorPagina = 10;
+                int paginaActual = pagina ?? 1;
+                int totalPaginas = (int)Math.Ceiling(totalRegistros / (double)registrosPorPagina);
+
+                var insumosPaginados = insumosOrdenados
+                    .Skip((paginaActual - 1) * registrosPorPagina)
+                    .Take(registrosPorPagina)
+                    .ToList();
+
+                ViewBag.PaginaActual = paginaActual;
+                ViewBag.TotalPaginas = totalPaginas;
+                ViewBag.TotalRegistros = totalRegistros;
+                ViewBag.CategoriaIdFiltro = categoriaId;
+                ViewBag.EstadoFiltro = estado;
+                ViewBag.QFiltro = q;
+
+                // Filtros (mantener igual)
                 var finca = await _context.Fincas
                     .AsNoTracking()
                     .FirstOrDefaultAsync(f => f.FincaId == usuarioFincaId, ct);
 
                 ViewBag.FincaNombre = finca?.Nombre ?? $"Finca #{usuarioFincaId}";
-
-                ViewBag.FincaId = new SelectList(
-                    new[]
-                    {
-                        new { FincaId = usuarioFincaId, Nombre = finca?.Nombre ?? $"Finca #{usuarioFincaId}" }
-                    },
-                    "FincaId", "Nombre", usuarioFincaId);
 
                 ViewBag.CategoriaId = new SelectList(
                     await _context.CategoriaInsumos.AsNoTracking()
@@ -114,7 +130,7 @@ namespace AgroTechApp.Controllers
                 ViewBag.Estado = estado;
                 ViewBag.Q = q;
 
-                return View(insumos);
+                return View(insumosPaginados);
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -140,11 +156,11 @@ namespace AgroTechApp.Controllers
                 if (insumo == null)
                     return NotFound();
 
-                // ✅ CALCULAR STOCK ACTUAL usando el servicio de inventario
+                // CALCULAR STOCK ACTUAL usando el servicio de inventario
                 var stockDict = await _inv.GetStockPorInsumoAsync(fincaId, id, CancellationToken.None);
                 var stockActual = stockDict.TryGetValue(insumo.InsumoId, out var stock) ? stock : 0m;
 
-                // ✅ OBTENER ACTIVIDAD RECIENTE (últimos 5 movimientos)
+                // OBTENER ACTIVIDAD RECIENTE (últimos 5 movimientos)
                 var actividadReciente = await _context.MovimientoInventarios
                     .Where(m => m.InsumoId == id && m.FincaId == fincaId)
                     .OrderByDescending(m => m.Fecha)
@@ -157,19 +173,19 @@ namespace AgroTechApp.Controllers
                     })
                     .ToListAsync();
 
-                // ✅ CONTAR TOTAL DE MOVIMIENTOS
+                // CONTAR TOTAL DE MOVIMIENTOS
                 var totalMovimientos = await _context.MovimientoInventarios
                     .Where(m => m.InsumoId == id && m.FincaId == fincaId)
                     .CountAsync();
 
-                // ✅ OBTENER ÚLTIMO MOVIMIENTO
+                // OBTENER ÚLTIMO MOVIMIENTO
                 var ultimoMovimiento = await _context.MovimientoInventarios
                     .Where(m => m.InsumoId == id && m.FincaId == fincaId)
                     .OrderByDescending(m => m.Fecha)
                     .Select(m => m.Fecha)
                     .FirstOrDefaultAsync();
 
-                // ✅ PASAR DATOS A LA VISTA
+                // PASAR DATOS A LA VISTA
                 ViewBag.StockActual = stockActual;
                 ViewBag.ActividadReciente = actividadReciente;
                 ViewBag.TotalMovimientos = totalMovimientos;
@@ -223,9 +239,8 @@ namespace AgroTechApp.Controllers
         {
             try
             {
-                var fincaId = GetFincaId();       // ✅ fija la finca
-                vm.FincaId = fincaId;             // ignoramos cualquier valor que venga del cliente
-                // ✅ CORRECCIÓN: Remover validaciones de navegación
+                var fincaId = GetFincaId();       
+                vm.FincaId = fincaId;             
                 ModelState.Remove("FincaId");
                 ModelState.Remove("Finca");
                 ModelState.Remove("Categoria");
@@ -418,12 +433,14 @@ namespace AgroTechApp.Controllers
             try
             {
                 var fincaId = GetFincaId();
-                // ✅ CORRECCIÓN: Remover validaciones de navegación
+
+                // Remover validaciones de navegación
                 ModelState.Remove("FincaId");
                 ModelState.Remove("Finca");
                 ModelState.Remove("Categoria");
                 ModelState.Remove("Unidad");
 
+                dto.Activo = true;
 
                 if (!ModelState.IsValid)
                 {
@@ -432,7 +449,7 @@ namespace AgroTechApp.Controllers
                 }
 
                 var insumo = await _context.Insumos
-                    .FirstOrDefaultAsync(i => i.InsumoId == id && i.FincaId == fincaId, ct); // ✅ filtro
+                    .FirstOrDefaultAsync(i => i.InsumoId == id && i.FincaId == fincaId, ct); // filtro
 
                 if (insumo is null) return NotFound();
 
@@ -564,7 +581,7 @@ namespace AgroTechApp.Controllers
         {
             try
             {
-                var usuarioFincaId = GetFincaId(); // ✅ usamos la finca del usuario
+                var usuarioFincaId = GetFincaId(); // usamos la finca del usuario
 
                 var dict = await _inv.GetStockPorInsumoAsync(usuarioFincaId);
                 var stock = dict.TryGetValue(insumoId, out var s) ? s : 0m;
@@ -577,5 +594,7 @@ namespace AgroTechApp.Controllers
                 return Unauthorized();
             }
         }
+
+
     }
 }

@@ -35,13 +35,62 @@ namespace AgroTechApp.Controllers
             {
                 var fincaId = GetFincaId();
 
-                await CargarCombosAsync(insumoId, fincaId, ct);
-
-                return View(new EntradaVM
+                var vm = new EntradaVM
                 {
                     FincaId = fincaId,
-                    InsumoId = insumoId ?? 0
-                });
+                    InsumoId = insumoId ?? 0,
+                    Fecha = DateTime.Today
+                };
+
+                // Si viene insumoId por URL, cargar datos del insumo
+                if (insumoId.HasValue && insumoId > 0)
+                {
+                    var insumo = await _context.Insumos
+                        .Include(i => i.Categoria)
+                        .Include(i => i.Unidad)
+                        .FirstOrDefaultAsync(i => i.InsumoId == insumoId && i.FincaId == fincaId, ct);
+
+                    if (insumo != null)
+                    {
+                        // Nombre completo para mostrar en dropdown bloqueado
+                        ViewBag.InsumoNombre = $"{insumo.Nombre} ({insumo.Categoria?.Nombre})";
+
+                        // Stock actual
+                        var stockDict = await _inv.GetStockPorInsumoAsync(fincaId, null, ct);
+                        ViewBag.StockActual = stockDict.TryGetValue(insumoId.Value, out var s) ? s : 0m;
+                    }
+                    else
+                    {
+                        // Insumo no encontrado o no pertenece a la finca
+                        MostrarError("El insumo seleccionado no es válido o no pertenece a su finca.");
+                        return RedirectToAction("Index", "Insumoes");
+                    }
+                }
+                else
+                {
+                    // Si NO viene insumoId, cargar dropdown completo
+                    var insumos = await _context.Insumos
+                        .AsNoTracking()
+                        .Include(i => i.Categoria)
+                        .Where(i => i.FincaId == fincaId && i.Activo)
+                        .OrderBy(i => i.Nombre)
+                        .Select(i => new
+                        {
+                            i.InsumoId,
+                            Texto = i.Nombre + " (" + i.Categoria!.Nombre + ")"
+                        })
+                        .ToListAsync(ct);
+
+                    ViewBag.InsumoSelect = new SelectList(insumos, "InsumoId", "Texto");
+                }
+
+                // Nombre de finca
+                ViewBag.FincaNombre = await _context.Fincas
+                    .Where(f => f.FincaId == fincaId)
+                    .Select(f => f.Nombre)
+                    .FirstOrDefaultAsync(ct) ?? $"Finca #{fincaId}";
+
+                return View(vm);
             }
             catch (UnauthorizedAccessException)
             {
@@ -149,8 +198,6 @@ namespace AgroTechApp.Controllers
             {
                 var fincaId = GetFincaId();
 
-                await CargarCombosConsumoAsync(insumoId, fincaId, ct);
-
                 var vm = new ConsumoVM
                 {
                     FincaId = fincaId,
@@ -158,21 +205,65 @@ namespace AgroTechApp.Controllers
                     Fecha = DateTime.Today
                 };
 
+                // ✅ Si viene insumoId por URL, cargar datos del insumo
                 if (insumoId.HasValue && insumoId > 0)
                 {
-                    var stockDict = await _inv.GetStockPorInsumoAsync(fincaId, null, ct);
-                    vm.StockDisponible = stockDict.TryGetValue(insumoId.Value, out var s) ? s : 0m;
-
                     var insumo = await _context.Insumos
+                        .Include(i => i.Categoria)
                         .Include(i => i.Unidad)
                         .FirstOrDefaultAsync(i => i.InsumoId == insumoId && i.FincaId == fincaId, ct);
 
                     if (insumo != null)
                     {
+                        // Nombre completo para mostrar en dropdown bloqueado
+                        ViewBag.InsumoNombre = $"{insumo.Nombre} ({insumo.Categoria?.Nombre})";
+
+                        // Stock actual
+                        var stockDict = await _inv.GetStockPorInsumoAsync(fincaId, null, ct);
+                        var stockActual = stockDict.TryGetValue(insumoId.Value, out var s) ? s : 0m;
+                        ViewBag.StockActual = stockActual;
+
+                        // Info adicional para el ViewModel
+                        vm.StockDisponible = stockActual;
                         vm.NombreInsumo = insumo.Nombre;
                         vm.Unidad = insumo.Unidad?.Codigo ?? insumo.Unidad?.Nombre;
                     }
+                    else
+                    {
+                        // Insumo no encontrado o no pertenece a la finca
+                        MostrarError("El insumo seleccionado no es válido o no pertenece a su finca.");
+                        return RedirectToAction("Index", "Insumoes");
+                    }
                 }
+                else
+                {
+                    // ✅ Si NO viene insumoId, cargar dropdown completo con stock
+                    var stockDict = await _inv.GetStockPorInsumoAsync(fincaId, null, ct);
+
+                    var insumosConStock = await _context.Insumos
+                        .AsNoTracking()
+                        .Include(i => i.Categoria)
+                        .Include(i => i.Unidad)
+                        .Where(i => i.FincaId == fincaId && i.Activo)
+                        .OrderBy(i => i.Nombre)
+                        .ToListAsync(ct);
+
+                    var listaInsumos = insumosConStock
+                        .Select(i => new
+                        {
+                            i.InsumoId,
+                            Texto = $"{i.Nombre} ({i.Categoria?.Nombre}) - Stock: {(stockDict.TryGetValue(i.InsumoId, out var s) ? s : 0):N2} {i.Unidad?.Codigo}"
+                        })
+                        .ToList();
+
+                    ViewBag.InsumoSelect = new SelectList(listaInsumos, "InsumoId", "Texto");
+                }
+
+                // Nombre de finca
+                ViewBag.FincaNombre = await _context.Fincas
+                    .Where(f => f.FincaId == fincaId)
+                    .Select(f => f.Nombre)
+                    .FirstOrDefaultAsync(ct) ?? $"Finca #{fincaId}";
 
                 return View(vm);
             }
@@ -192,50 +283,110 @@ namespace AgroTechApp.Controllers
                 var fincaId = GetFincaId();
                 vm.FincaId = fincaId;
 
+                // ✅ Función helper para recargar vista en caso de error
                 async Task RecargarVista()
                 {
-                    await CargarCombosConsumoAsync(vm.InsumoId, fincaId, ct);
-                    var stockDict = await _inv.GetStockPorInsumoAsync(fincaId, null, ct);
-                    vm.StockDisponible = stockDict.TryGetValue(vm.InsumoId, out var s) ? s : 0m;
+                    // Si viene insumoId pre-seleccionado
+                    if (vm.InsumoId > 0)
+                    {
+                        var insumoRecarga = await _context.Insumos
+                            .Include(i => i.Categoria)
+                            .Include(i => i.Unidad)
+                            .FirstOrDefaultAsync(i => i.InsumoId == vm.InsumoId && i.FincaId == fincaId, ct);
+
+                        if (insumoRecarga != null)
+                        {
+                            ViewBag.InsumoNombre = $"{insumoRecarga.Nombre} ({insumoRecarga.Categoria?.Nombre})";
+
+                            var stockDict = await _inv.GetStockPorInsumoAsync(fincaId, null, ct);
+                            var stock = stockDict.TryGetValue(vm.InsumoId, out var s) ? s : 0m;
+                            ViewBag.StockActual = stock;
+
+                            vm.StockDisponible = stock;
+                            vm.NombreInsumo = insumoRecarga.Nombre;
+                            vm.Unidad = insumoRecarga.Unidad?.Codigo ?? insumoRecarga.Unidad?.Nombre;
+                        }
+                    }
+                    else
+                    {
+                        // Cargar dropdown completo
+                        await CargarCombosConsumoAsync(vm.InsumoId, fincaId, ct);
+                        var stockDict = await _inv.GetStockPorInsumoAsync(fincaId, null, ct);
+                        vm.StockDisponible = stockDict.TryGetValue(vm.InsumoId, out var s) ? s : 0m;
+                    }
                 }
 
+                // ✅ VALIDACIÓN 1: Verificar que el insumo existe y pertenece a la finca
                 var insumo = await _context.Insumos
                     .Include(i => i.Unidad)
+                    .Include(i => i.Categoria)
                     .FirstOrDefaultAsync(i => i.InsumoId == vm.InsumoId && i.FincaId == fincaId, ct);
 
                 if (insumo == null)
                 {
-                    ModelState.AddModelError("InsumoId", "El insumo seleccionado no es válido.");
+                    ModelState.AddModelError("InsumoId", "El insumo seleccionado no es válido o no pertenece a su finca.");
                     await RecargarVista();
                     return View(vm);
                 }
 
-                vm.NombreInsumo = insumo.Nombre;
-                vm.Unidad = insumo.Unidad?.Codigo;
+                // ✅ VALIDACIÓN 2: Verificar que el insumo está activo
+                if (!insumo.Activo)
+                {
+                    ModelState.AddModelError("InsumoId", "El insumo seleccionado está inactivo y no se puede consumir.");
+                    await RecargarVista();
+                    return View(vm);
+                }
 
+                // Actualizar info del ViewModel
+                vm.NombreInsumo = insumo.Nombre;
+                vm.Unidad = insumo.Unidad?.Codigo ?? insumo.Unidad?.Nombre ?? "unidad";
+
+                // ✅ VALIDACIÓN 3: Obtener stock actual y validar disponibilidad
                 var stockDict = await _inv.GetStockPorInsumoAsync(fincaId, null, ct);
                 var stockActual = stockDict.TryGetValue(vm.InsumoId, out var stock) ? stock : 0m;
                 vm.StockDisponible = stockActual;
 
-                if (vm.Cantidad > stockActual)
+                // ✅ VALIDACIÓN 4: Verificar que hay stock disponible
+                if (stockActual <= 0)
                 {
                     ModelState.AddModelError("Cantidad",
-                        $"Stock insuficiente. Disponible: {stockActual:N2} {vm.Unidad}");
+                        $"No hay stock disponible para el insumo '{insumo.Nombre}'. Stock actual: 0 {vm.Unidad}");
+                    MostrarError($"No se puede registrar el consumo: El insumo '{insumo.Nombre}' no tiene existencias disponibles.");
                     await RecargarVista();
                     return View(vm);
                 }
 
+                // ✅ VALIDACIÓN 5: Verificar que la cantidad no excede el stock
+                if (vm.Cantidad > stockActual)
+                {
+                    ModelState.AddModelError("Cantidad",
+                        $"Stock insuficiente. Disponible: {stockActual:N2} {vm.Unidad}, Solicitado: {vm.Cantidad:N2} {vm.Unidad}");
+                    MostrarError($"No se puede registrar el consumo: La cantidad solicitada ({vm.Cantidad:N2} {vm.Unidad}) excede el stock disponible ({stockActual:N2} {vm.Unidad}).");
+                    await RecargarVista();
+                    return View(vm);
+                }
+
+                // ✅ VALIDACIÓN 6: Verificar que la cantidad es positiva
+                if (vm.Cantidad <= 0)
+                {
+                    ModelState.AddModelError("Cantidad", "La cantidad debe ser mayor a cero.");
+                    await RecargarVista();
+                    return View(vm);
+                }
+
+                // ✅ Validar ModelState después de todas las validaciones
                 if (!ModelState.IsValid)
                 {
                     await RecargarVista();
                     return View(vm);
                 }
 
+                // ✅ TODO VALIDADO - Proceder con la transacción
                 using var tx = await _context.Database.BeginTransactionAsync(ct);
 
                 try
                 {
-                    //Registrar consumo de inventario
+                    // Registrar consumo de inventario
                     await _inv.RegistrarConsumoAsync(
                         fincaId: fincaId,
                         insumoId: vm.InsumoId,
@@ -246,7 +397,7 @@ namespace AgroTechApp.Controllers
                         ct: ct
                     );
 
-                    //Obtener el MovimientoInventario recien creado
+                    // Obtener el MovimientoInventario recién creado
                     var movimientoCreado = await _context.MovimientoInventarios
                         .Where(m => m.FincaId == fincaId &&
                                     m.InsumoId == vm.InsumoId &&
@@ -254,7 +405,7 @@ namespace AgroTechApp.Controllers
                         .OrderByDescending(m => m.MovId)
                         .FirstOrDefaultAsync(ct);
 
-                    //Registrar gasto automatico
+                    // Registrar gasto automático
                     if (movimientoCreado != null)
                     {
                         await _finanzasService.RegistrarGastoConsumoInsumo(
@@ -262,46 +413,85 @@ namespace AgroTechApp.Controllers
                             insumoId: vm.InsumoId,
                             nombreInsumo: insumo.Nombre,
                             cantidad: vm.Cantidad,
-                            unidad: insumo.Unidad?.Codigo ?? insumo.Unidad?.Nombre ?? "unidad",
+                            unidad: vm.Unidad,
                             fecha: vm.Fecha ?? DateTime.UtcNow,
                             movimientoId: movimientoCreado.MovId,
                             observacion: vm.Observaciones
                         );
 
                         _logger.LogInformation(
-                            "Gasto automático de consumo registrado para {Insumo}",
-                            insumo.Nombre);
+                            "Consumo registrado: {Cantidad} {Unidad} de {Insumo} (FincaId: {FincaId}, Stock restante: {StockRestante})",
+                            vm.Cantidad, vm.Unidad, insumo.Nombre, fincaId, stockActual - vm.Cantidad);
                     }
 
                     await tx.CommitAsync(ct);
-                    MostrarExito($"Consumo registrado: {vm.Cantidad:N2} {vm.Unidad} de {insumo.Nombre} y gasto automático creado.");
+
+                    // Calcular stock restante
+                    var stockRestante = stockActual - vm.Cantidad;
+
+                    // ✅ Mensaje de éxito con advertencia si el stock queda bajo
+                    if (stockRestante <= insumo.StockMinimo && stockRestante > 0)
+                    {
+                        MostrarAdvertencia(
+                            $"Consumo registrado: {vm.Cantidad:N2} {vm.Unidad} de {insumo.Nombre}. " +
+                            $"⚠️ ADVERTENCIA: Stock restante ({stockRestante:N2} {vm.Unidad}) está por debajo del mínimo ({insumo.StockMinimo:N2} {vm.Unidad}).");
+                    }
+                    else if (stockRestante == 0)
+                    {
+                        MostrarAdvertencia(
+                            $"Consumo registrado: {vm.Cantidad:N2} {vm.Unidad} de {insumo.Nombre}. " +
+                            $"⚠️ ADVERTENCIA: El insumo se ha agotado completamente.");
+                    }
+                    else
+                    {
+                        MostrarExito(
+                            $"Consumo registrado exitosamente: {vm.Cantidad:N2} {vm.Unidad} de {insumo.Nombre}. " +
+                            $"Stock restante: {stockRestante:N2} {vm.Unidad}");
+                    }
+
                     return RedirectToAction("Index", "Insumoes");
                 }
                 catch (InvalidOperationException ex)
                 {
+                    // Error específico del servicio de inventario
                     await tx.RollbackAsync(ct);
+                    _logger.LogWarning(ex, "Error de operación al registrar consumo");
                     ModelState.AddModelError(string.Empty, ex.Message);
+                    MostrarError($"Error: {ex.Message}");
+                    await RecargarVista();
+                    return View(vm);
+                }
+                catch (DbUpdateException ex)
+                {
+                    // Error de base de datos
+                    await tx.RollbackAsync(ct);
+                    _logger.LogError(ex, "Error de base de datos al registrar consumo");
+                    ModelState.AddModelError(string.Empty, "Error al guardar en la base de datos. Por favor, intente nuevamente.");
+                    MostrarError("Ocurrió un error al guardar el consumo en la base de datos.");
                     await RecargarVista();
                     return View(vm);
                 }
                 catch (Exception ex)
                 {
+                    // Error genérico
                     await tx.RollbackAsync(ct);
-                    _logger.LogError(ex, "Error registrando consumo");
-                    ModelState.AddModelError(string.Empty, "Ocurrió un error al registrar el consumo.");
+                    _logger.LogError(ex, "Error inesperado al registrar consumo");
+                    ModelState.AddModelError(string.Empty, "Ocurrió un error inesperado al registrar el consumo.");
+                    MostrarError("Ocurrió un error inesperado. Por favor, contacte al administrador.");
                     await RecargarVista();
                     return View(vm);
                 }
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException ex)
             {
+                _logger.LogWarning(ex, "Acceso no autorizado en Inventario.Consumo (POST)");
                 return RedirectToAction("Login", "Account", new { area = "Identity" });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error registrando consumo");
-                ModelState.AddModelError(string.Empty, "Ocurrió un error al registrar el consumo.");
-                return View(vm);
+                _logger.LogError(ex, "Error crítico en Inventario.Consumo (POST)");
+                MostrarError("Ocurrió un error crítico. Por favor, contacte al administrador.");
+                return RedirectToAction("Index", "Insumoes");
             }
         }
 
@@ -521,7 +711,7 @@ namespace AgroTechApp.Controllers
                 })
                 .ToListAsync(ct);
 
-            ViewData["InsumoSelect"] = new SelectList(insumosBase, "InsumoId", "Texto", insumoId);
+            ViewBag.InsumoSelect = new SelectList(insumosBase, "InsumoId", "Texto", insumoId);
         }
 
         private async Task CargarCombosConsumoAsync(long? insumoId, long fincaId, CancellationToken ct)

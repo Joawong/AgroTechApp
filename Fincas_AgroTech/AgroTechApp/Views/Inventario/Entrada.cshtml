@@ -2,6 +2,7 @@
 
 @{
     ViewData["Title"] = "Registrar Entrada de Insumo";
+    var insumoPreseleccionado = Model.InsumoId > 0;
 }
 
 <!DOCTYPE html>
@@ -10,28 +11,21 @@
     <meta charset="utf-8" />
     <title>@ViewData["Title"] - AgroTech</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #2E8B57;
             --primary-light: #3CB371;
             --primary-dark: #1E6B47;
-            --secondary: #6c757d;
-            --secondary-light: #868e96;
             --success: #28a745;
-            --danger: #dc3545;
             --warning: #ffc107;
-            --info: #17a2b8;
+            --danger: #dc3545;
             --light: #f8f9fa;
             --dark: #343a40;
             --white: #ffffff;
             --border: #e1e5e9;
-            --border-light: #edf2f7;
             --shadow: rgba(46, 139, 87, 0.1);
-            --shadow-light: rgba(0, 0, 0, 0.05);
             --gray: #6c757d;
-            --gray-light: #adb5bd;
-            --background: #f8fafc;
         }
 
         * {
@@ -41,225 +35,253 @@
         }
 
         body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             padding: 20px;
-            font-family: 'Poppins', 'Segoe UI', Arial, sans-serif;
             min-height: 100vh;
         }
 
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        @@keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .form-card {
             background: var(--white);
-            border-radius: 18px;
-            padding: 2.5rem;
-            box-shadow: 0 10px 30px var(--shadow);
-            border: 1px solid var(--border-light);
-            transition: transform 0.3s ease;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px var(--shadow);
+            overflow: hidden;
+            border: 1px solid #e1e5e9;
+            animation: fadeIn 0.5s ease-out;
         }
 
-            .form-card:hover {
-                transform: translateY(-2px);
-            }
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
 
         .form-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .form-header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -50%;
+                width: 100%;
+                height: 200%;
+                background: rgba(255, 255, 255, 0.1);
+                transform: rotate(30deg);
+            }
+
+            .form-header h1 {
+                font-size: 2.2rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+                position: relative;
+                z-index: 1;
+            }
+
+            .form-header p {
+                font-size: 1rem;
+                opacity: 0.9;
+                position: relative;
+                z-index: 1;
+            }
+
+        .form-header-icon {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            opacity: 0.2;
+            z-index: 0;
+        }
+
+        .form-body {
+            padding: 2.5rem;
+        }
+
+        .breadcrumb {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            padding: 0.8rem 1.2rem;
+            background: var(--light);
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+            .breadcrumb a {
+                color: var(--primary);
+                text-decoration: none;
+                font-weight: 500;
+            }
+
+                .breadcrumb a:hover {
+                    text-decoration: underline;
+                }
+
+            .breadcrumb span {
+                color: var(--gray);
+            }
+
+        /* KPI de Stock Actual */
+        .stock-kpi {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 2px solid var(--border-light);
-        }
-
-        .form-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--dark);
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-            .form-title i {
-                background: linear-gradient(135deg, var(--primary), var(--primary-light));
-                color: white;
-                width: 48px;
-                height: 48px;
-                border-radius: 12px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 1.4rem;
-                box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
-            }
-
-        .stock-info {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border-radius: 12px;
-            display: flex;
-            gap: 0.8rem;
-            align-items: center;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
             animation: pulse 2s infinite;
         }
 
         @@keyframes pulse {
-            0% {
-                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-            }
+            0%, 100%
 
-            50% {
-                box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
-            }
-
-            100% {
-                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-            }
+        {
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
         }
 
-        .stock-info i {
-            font-size: 1.2rem;
+        50% {
+            box-shadow: 0 8px 30px rgba(102, 126, 234, 0.5);
         }
 
-        .stock-amount {
-            font-weight: 800;
-            font-size: 1.3rem;
-            margin-left: 5px;
         }
 
-        .form-body {
+        .stock-kpi-icon {
+            font-size: 3rem;
+            opacity: 0.3;
+        }
+
+        .stock-kpi-content {
+            flex: 1;
+            text-align: left;
+            margin-left: 1.5rem;
+        }
+
+        .stock-kpi-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.3rem;
+        }
+
+        .stock-kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .form-sections {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem 2rem;
-            margin-bottom: 1.5rem;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .form-section {
+            background: var(--light);
+            padding: 2rem;
+            border-radius: 15px;
+            border-left: 5px solid var(--primary);
+        }
+
+            .form-section h3 {
+                color: var(--primary);
+                margin-bottom: 1.5rem;
+                font-size: 1.3rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
         }
 
         .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.6rem;
-            position: relative;
-        }
-
-        .full {
-            grid-column: 1 / -1;
+            margin-bottom: 1.5rem;
         }
 
         label {
+            display: block;
             font-weight: 600;
             color: var(--dark);
+            margin-bottom: 0.6rem;
             font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
         }
 
             label i {
                 color: var(--primary);
-                font-size: 0.9rem;
+                margin-right: 0.4rem;
             }
 
-        input, select, textarea {
+        .form-control {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
             border: 2px solid var(--border);
             border-radius: 10px;
-            padding: 0.85rem 1rem;
             font-size: 1rem;
-            background: var(--white);
+            font-family: 'Poppins', sans-serif;
             transition: all 0.3s ease;
-            font-family: 'Roboto', sans-serif;
+            background: var(--white);
         }
 
-            input:focus, select:focus, textarea:focus {
+            .form-control:focus {
                 outline: none;
                 border-color: var(--primary);
                 box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
-                transform: translateY(-1px);
             }
 
-            input:hover, select:hover {
-                border-color: var(--primary-light);
+            .form-control:disabled {
+                background-color: #e9ecef;
+                cursor: not-allowed;
+                opacity: 0.7;
             }
 
-        .search-container {
-            position: relative;
-            display: flex;
-            gap: 0.8rem;
-        }
-
-        #insumoSearch {
-            flex: 1;
-            padding-left: 2.5rem;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--gray);
-            z-index: 2;
-        }
-
-        #btnBuscar {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: white;
-            border: none;
-            border-radius: 10px;
-            padding: 0 1.5rem;
-            font-weight: 600;
+        select.form-control {
             cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            box-shadow: 0 4px 6px rgba(46, 139, 87, 0.2);
         }
 
-            #btnBuscar:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 12px rgba(46, 139, 87, 0.3);
-                background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            select.form-control:disabled {
+                cursor: not-allowed;
             }
 
-        .hint {
-            font-size: 0.85rem;
-            color: var(--gray);
-            margin-top: 0.3rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
         }
 
-            .hint i {
-                color: var(--info);
-            }
-
+        /* Toggle Switch */
         .toggle-container {
             display: flex;
             align-items: center;
             gap: 1rem;
-            background: var(--light);
-            padding: 1rem 1.5rem;
+            background: var(--white);
+            padding: 1.2rem 1.5rem;
             border-radius: 12px;
-            border: 2px solid var(--border-light);
+            border: 2px solid var(--border);
             transition: all 0.3s ease;
         }
 
@@ -288,7 +310,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: var(--gray-light);
+            background-color: #ccc;
             transition: .4s;
             border-radius: 34px;
         }
@@ -314,234 +336,227 @@
             }
 
         #loteGroup {
-            background: linear-gradient(to bottom, rgba(248, 249, 250, 0.8), rgba(240, 242, 245, 0.9));
-            border-radius: 12px;
-            padding: 1.5rem;
-            border: 2px dashed var(--primary-light);
-            margin-top: 1rem;
             animation: slideDown 0.3s ease-out;
         }
 
         @@keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
+            from
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        {
+            opacity: 0;
+            transform: translateY(-10px);
         }
 
-        .lote-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
 
-        .actions {
+        }
+
+        .text-danger {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 0.4rem;
+            display: block;
+        }
+
+        .form-help {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-top: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .form-actions {
             display: flex;
             gap: 1rem;
             margin-top: 2.5rem;
-            border-top: 2px solid var(--border-light);
-            padding-top: 1.5rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--light);
         }
 
         .btn {
+            padding: 0.9rem 2rem;
             border: none;
             border-radius: 12px;
-            padding: 0.9rem 1.8rem;
+            font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
             display: inline-flex;
-            gap: 0.7rem;
             align-items: center;
+            gap: 0.7rem;
             transition: all 0.3s ease;
-            font-size: 1rem;
             text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .btn-primary {
             background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: var(--white);
-            box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
         }
 
             .btn-primary:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 6px 18px rgba(46, 139, 87, 0.4);
+                box-shadow: 0 8px 20px rgba(46, 139, 87, 0.3);
                 background: linear-gradient(135deg, var(--primary-dark), var(--primary));
             }
 
         .btn-secondary {
-            background: linear-gradient(135deg, var(--secondary), var(--secondary-light));
-            color: var(--white);
-            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+            background: var(--white);
+            color: var(--dark);
+            border: 2px solid var(--border);
+            box-shadow: none;
         }
 
             .btn-secondary:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 18px rgba(108, 117, 125, 0.4);
-                background: linear-gradient(135deg, var(--secondary-light), var(--secondary));
+                background: var(--light);
+                border-color: var(--dark);
             }
 
-        /* ESTILOS PARA LOS MENSAJES DE ERROR - CORREGIDOS */
-        .field-validation-error {
-            color: var(--danger);
-            font-size: 0.9rem;
-            margin-top: 0.3rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            opacity: 0;
-            transform: translateY(-5px);
-            transition: all 0.3s ease;
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            color: var(--primary);
         }
 
-            .field-validation-error:not(:empty) {
-                opacity: 1;
-                transform: translateY(0);
+            .loading i {
+                animation: spin 1s linear infinite;
+                font-size: 2rem;
             }
 
-            .field-validation-error i {
-                font-size: 0.8rem;
-                color: var(--danger);
-            }
+        @@keyframes spin {
+            0%
+
+        {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+
+        }
+
+        .input-validation-error {
+            border-color: var(--danger) !important;
+            background-color: rgba(220, 53, 69, 0.05);
+        }
+
+        .field-validation-error {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 0.4rem;
+            display: block;
+        }
 
         .validation-summary-errors {
             background: rgba(220, 53, 69, 0.1);
-            border: 1px solid rgba(220, 53, 69, 0.3);
-            border-radius: 10px;
-            padding: 1rem 1.5rem;
-            margin-bottom: 1.5rem;
+            border: 2px solid var(--danger);
+            border-radius: 12px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 2rem;
         }
 
             .validation-summary-errors ul {
                 list-style: none;
-                padding-left: 0;
+                padding: 0;
                 margin: 0;
             }
 
             .validation-summary-errors li {
                 display: flex;
                 align-items: center;
-                gap: 0.7rem;
-                margin-bottom: 0.5rem;
+                gap: 0.5rem;
                 color: var(--danger);
+                margin-bottom: 0.5rem;
             }
 
-                .validation-summary-errors li:last-child {
-                    margin-bottom: 0;
-                }
-
-                .validation-summary-errors li i {
-                    font-size: 0.9rem;
-                }
-
-        .text-danger {
-            color: var(--danger);
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 1rem;
-            color: var(--primary);
-        }
-
-            .loading i {
-                animation: spin 1s linear infinite;
-            }
-
-        @@keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        .success-message {
-            background: rgba(40, 167, 69, 0.1);
-            border: 1px solid rgba(40, 167, 69, 0.3);
-            border-radius: 10px;
-            padding: 1rem 1.5rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.7rem;
-            color: var(--success);
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        /* Responsive */
         @@media (max-width: 768px) {
-            .form-body {
-                grid-template-columns: 1fr;
-            }
+            .form-header h1
 
-            .lote-grid {
-                grid-template-columns: 1fr;
-            }
+        {
+            font-size: 1.8rem;
+        }
 
-            .form-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
+        .form-body {
+            padding: 1.5rem;
+        }
 
-            .actions {
-                flex-direction: column;
-            }
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
 
-            .btn {
+        .form-actions {
+            flex-direction: column;
+        }
+
+            .form-actions .btn {
+                width: 100%;
                 justify-content: center;
             }
+
+        .stock-kpi {
+            flex-direction: column;
+            text-align: center;
         }
 
-        /* Efectos para campos inválidos */
-        input.input-validation-error,
-        select.input-validation-error,
-        textarea.input-validation-error {
-            border-color: var(--danger);
-            background-color: rgba(220, 53, 69, 0.05);
+        .stock-kpi-icon {
+            font-size: 2rem;
         }
 
-            input.input-validation-error:focus,
-            select.input-validation-error:focus,
-            textarea.input-validation-error:focus {
-                box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
-            }
+        .stock-kpi-content {
+            margin-left: 0;
+            margin-top: 1rem;
+        }
+
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="form-card">
+            <!-- Header -->
             <div class="form-header">
-                <div class="form-title">
-                    <i class="fas fa-arrow-down-wide-short"></i>
-                    <div>
-                        <h1>Registrar entrada a inventario</h1>
-                        <p class="hint" style="font-weight: normal; margin-top: 0.2rem;">
-                            <i class="fas fa-info-circle"></i> Complete los datos para registrar una nueva entrada de insumos
-                        </p>
-                    </div>
-                </div>
-                <div class="stock-info">
-                    <i class="fas fa-boxes-stacked"></i>
-                    <div>
-                        <div>Stock actual</div>
-                        <div class="stock-amount" id="stockActual">—</div>
-                    </div>
-                </div>
+                <i class="fas fa-box-open form-header-icon"></i>
+                <h1><i class="fas fa-arrow-down"></i> Registrar Entrada de Insumo</h1>
+                <p>Complete el formulario para agregar existencias al inventario</p>
             </div>
 
-            <form asp-action="Entrada" method="post" id="entradaForm">
-                @Html.AntiForgeryToken()
+            <!-- Body -->
+            <div class="form-body">
+                <!-- Breadcrumb -->
+                <div class="breadcrumb">
+                    <a asp-controller="Insumoes" asp-action="Index">
+                        <i class="fas fa-boxes"></i> Inventario de Insumos
+                    </a>
+                    <span>/</span>
+                    <span><strong>Nueva Entrada</strong></span>
+                </div>
 
+                <!-- KPI Stock Actual -->
+                <div class="stock-kpi">
+                    <i class="fas fa-warehouse stock-kpi-icon"></i>
+                    <div class="stock-kpi-content">
+                        <div class="stock-kpi-label">Stock Actual del Insumo</div>
+                        <div class="stock-kpi-value" id="stockActual">
+                            @if (ViewBag.StockActual != null)
+                            {
+                                @(((decimal)ViewBag.StockActual).ToString("N2"))
+                            }
+                            else
+                            {
+                                @:—
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Validation Summary -->
                 @if (ViewData.ModelState.ErrorCount > 0)
                 {
                     <div class="validation-summary-errors">
@@ -549,117 +564,209 @@
                     </div>
                 }
 
-                <div class="form-body">
-                    
-
-                    <!-- Buscador + Select de Insumo -->
-                    <div class="form-group">
-                        <label>
-                            <i class="fas fa-search"></i> Buscar Insumo
-                        </label>
-                        <div class="search-container">
-                            <i class="fas fa-search search-icon"></i>
-                            <input type="text" id="insumoSearch" placeholder="Buscar por nombre o categoría..." />
-                            <button type="button" id="btnBuscar" class="btn">
-                                <i class="fas fa-search"></i> Buscar
-                            </button>
-                        </div>
-
-                        <label for="insumoSelect" style="margin-top: 1rem;">
-                            <i class="fas fa-box"></i> Seleccionar Insumo
-                        </label>
-                        <select id="insumoSelect" class="select-style">
-                            <option value="">Seleccione un insumo</option>
-                        </select>
-                        <input type="hidden" asp-for="InsumoId" id="InsumoId" />
-                        <span asp-validation-for="InsumoId" class="field-validation-error"></span>
-                        <div class="hint">
-                            <i class="fas fa-lightbulb"></i> Escriba el nombre del insumo y presione "Buscar", luego selecciónelo de la lista.
-                        </div>
-                    </div>
-
-                    <!-- Cantidad -->
-                    <div class="form-group">
-                        <label asp-for="Cantidad">
-                            <i class="fas fa-balance-scale"></i> Cantidad
-                        </label>
-                        <input asp-for="Cantidad" type="number" step="1" min="1" placeholder="Ejemplo. 10" />
-                        <span asp-validation-for="Cantidad" class="field-validation-error"></span>
-                    </div>
-
-                    <!-- Precio Unitario -->
-                    <div class="form-group">
-                        <label asp-for="PrecioUnitario">
-                            <i class="fas fa-dollar-sign"></i> Precio unitario (opcional)
-                        </label>
-                        <input asp-for="PrecioUnitario" type="number" step="0.01" min="0" placeholder="Ej. 25.99" />
-                        <span asp-validation-for="PrecioUnitario" class="field-validation-error"></span>
-                    </div>
-
-                    <!-- Fecha -->
-                    <div class="form-group">
-                        <label asp-for="Fecha">
-                            <i class="fas fa-calendar-alt"></i> Fecha
-                        </label>
-                        <input asp-for="Fecha" type="date" id="Fecha" />
-                        <span asp-validation-for="Fecha" class="field-validation-error"></span>
-                    </div>
-
-                    <!-- Toggle Lote -->
-                    <div class="toggle-container full">
-                        <div class="toggle-switch">
-                            <input asp-for="UsarLote" type="checkbox" id="UsarLote" />
-                            <span class="slider"></span>
-                        </div>
-                        <label for="UsarLote" style="margin-bottom: 0; cursor: pointer;">
-                            <i class="fas fa-tags"></i> Gestionar por lote (opcional)
-                        </label>
-                    </div>
-
-                    <!-- Lote (colapsable) -->
-                    <div id="loteGroup" class="full" style="display:none;">
-                        <div class="lote-grid">
-                            <div class="form-group">
-                                <label asp-for="CodigoLote">
-                                    <i class="fas fa-barcode"></i> Código de lote
-                                </label>
-                                <input asp-for="CodigoLote" placeholder="Ej. LOTE-2023-001" />
-                                <span asp-validation-for="CodigoLote" class="field-validation-error"></span>
-                            </div>
-                            <div class="form-group">
-                                <label asp-for="FechaVencimiento">
-                                    <i class="fas fa-calendar-times"></i> Fecha de vencimiento
-                                </label>
-                                <input asp-for="FechaVencimiento" type="date" id="FechaVencimiento" />
-                                <span asp-validation-for="FechaVencimiento" class="field-validation-error"></span>
-                            </div>
-                            <div class="form-group">
-                                <label asp-for="Observaciones">
-                                    <i class="fas fa-sticky-note"></i> Observaciones
-                                </label>
-                                <input asp-for="Observaciones" placeholder="Observaciones adicionales" />
-                                <span asp-validation-for="Observaciones" class="field-validation-error"></span>
-                            </div>
-                        </div>
-                        <div class="hint">
-                            <i class="fas fa-info-circle"></i> Use lote para medicamentos, vacunas, semillas o insumos con vencimiento. Para combustibles o granel, déjelo apagado.
-                        </div>
-                    </div>
-
-                    <div class="loading full" id="loadingIndicator">
-                        <i class="fas fa-spinner"></i> Cargando datos...
-                    </div>
+                <!-- Loading Indicator -->
+                <div class="loading" id="loadingIndicator">
+                    <i class="fas fa-spinner"></i>
+                    <p>Cargando información...</p>
                 </div>
 
-                <div class="actions">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> Guardar entrada
-                    </button>
-                    <a asp-controller="Insumoes" asp-action="Index" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Volver al inventario
-                    </a>
-                </div>
-            </form>
+                <!-- Form -->
+                <form asp-action="Entrada" method="post" id="entradaForm">
+                    @Html.AntiForgeryToken()
+
+                    <div class="form-sections">
+                        <!-- Selección de Insumo -->
+                        <div class="form-section">
+                            <h3>
+                                <i class="fas fa-box"></i>
+                                Insumo Seleccionado
+                            </h3>
+
+                            <div class="form-group">
+                                <label asp-for="InsumoId">
+                                    <i class="fas fa-box-open"></i>
+                                    Insumo
+                                    <span style="color: var(--danger);">*</span>
+                                </label>
+
+                                @if (insumoPreseleccionado)
+                                {
+                                    <!-- Dropdown bloqueado (solo visual) -->
+                                    <select class="form-control" disabled>
+                                        <option selected>@ViewBag.InsumoNombre</option>
+                                    </select>
+
+                                    <!-- Hidden input con el valor real -->
+                                    <input type="hidden" asp-for="InsumoId" />
+
+                                    <small class="form-help">
+                                        <i class="fas fa-lock"></i>
+                                        El insumo fue preseleccionado desde el inventario
+                                    </small>
+                                }
+                                else
+                                {
+                                    <!-- Dropdown activo (si no viene insumoId) -->
+                                    <select asp-for="InsumoId"
+                                            id="insumoSelect"
+                                            class="form-control"
+                                            asp-items="ViewBag.InsumoSelect"
+                                            required>
+                                        <option value="">Seleccione un insumo</option>
+                                    </select>
+
+                                    <span asp-validation-for="InsumoId" class="text-danger"></span>
+
+                                    <small class="form-help">
+                                        <i class="fas fa-info-circle"></i>
+                                        Seleccione el insumo al que desea agregar existencias
+                                    </small>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Datos de la Entrada -->
+                        <div class="form-section">
+                            <h3>
+                                <i class="fas fa-clipboard-list"></i>
+                                Datos de la Entrada
+                            </h3>
+                            <div class="form-grid">
+                                <!-- Cantidad -->
+                                <div class="form-group">
+                                    <label asp-for="Cantidad">
+                                        <i class="fas fa-balance-scale"></i>
+                                        Cantidad
+                                        <span style="color: var(--danger);">*</span>
+                                    </label>
+                                    <input asp-for="Cantidad"
+                                           type="number"
+                                           step="0.01"
+                                           min="0.01"
+                                           class="form-control"
+                                           placeholder="Ej: 100"
+                                           required />
+                                    <span asp-validation-for="Cantidad" class="text-danger"></span>
+                                </div>
+
+                                <!-- Precio Unitario -->
+                                <div class="form-group">
+                                    <label asp-for="PrecioUnitario">
+                                        <i class="fas fa-dollar-sign"></i>
+                                        Precio Unitario (₡)
+                                    </label>
+                                    <input asp-for="PrecioUnitario"
+                                           type="number"
+                                           step="0.01"
+                                           min="0"
+                                           class="form-control"
+                                           placeholder="Ej: 2500.50" />
+                                    <span asp-validation-for="PrecioUnitario" class="text-danger"></span>
+                                    <small class="form-help">
+                                        <i class="fas fa-info-circle"></i>
+                                        Opcional - Precio por unidad
+                                    </small>
+                                </div>
+
+                                <!-- Fecha -->
+                                <div class="form-group">
+                                    <label asp-for="Fecha">
+                                        <i class="fas fa-calendar"></i>
+                                        Fecha de Entrada
+                                        <span style="color: var(--danger);">*</span>
+                                    </label>
+                                    <input asp-for="Fecha"
+                                           type="date"
+                                           id="Fecha"
+                                           class="form-control"
+                                           required />
+                                    <span asp-validation-for="Fecha" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gestión de Lote (Opcional) -->
+                        <div class="form-section">
+                            <h3>
+                                <i class="fas fa-tags"></i>
+                                Gestión de Lote (Opcional)
+                            </h3>
+
+                            <!-- Toggle -->
+                            <div class="toggle-container">
+                                <div class="toggle-switch">
+                                    <input asp-for="UsarLote" type="checkbox" id="UsarLote" />
+                                    <span class="slider"></span>
+                                </div>
+                                <label for="UsarLote" style="margin-bottom: 0; cursor: pointer;">
+                                    <i class="fas fa-tag"></i>
+                                    Activar gestión por lote
+                                </label>
+                            </div>
+
+                            <small class="form-help" style="margin-top: 0.8rem; display: block;">
+                                <i class="fas fa-lightbulb"></i>
+                                Use lote para medicamentos, vacunas o productos con vencimiento
+                            </small>
+
+                            <!-- Campos de Lote (Ocultos por defecto) -->
+                            <div id="loteGroup" style="display: none; margin-top: 1.5rem;">
+                                <div class="form-grid">
+                                    <!-- Código de Lote -->
+                                    <div class="form-group">
+                                        <label asp-for="CodigoLote">
+                                            <i class="fas fa-barcode"></i>
+                                            Código de Lote
+                                        </label>
+                                        <input asp-for="CodigoLote"
+                                               class="form-control"
+                                               placeholder="Ej: LOTE-2025-001" />
+                                        <span asp-validation-for="CodigoLote" class="text-danger"></span>
+                                    </div>
+
+                                    <!-- Fecha de Vencimiento -->
+                                    <div class="form-group">
+                                        <label asp-for="FechaVencimiento">
+                                            <i class="fas fa-calendar-times"></i>
+                                            Fecha de Vencimiento
+                                        </label>
+                                        <input asp-for="FechaVencimiento"
+                                               type="date"
+                                               id="FechaVencimiento"
+                                               class="form-control" />
+                                        <span asp-validation-for="FechaVencimiento" class="text-danger"></span>
+                                    </div>
+
+                                    <!-- Observaciones -->
+                                    <div class="form-group">
+                                        <label asp-for="Observaciones">
+                                            <i class="fas fa-sticky-note"></i>
+                                            Observaciones
+                                        </label>
+                                        <textarea asp-for="Observaciones"
+                                                  class="form-control"
+                                                  rows="3"
+                                                  placeholder="Observaciones adicionales del lote..."></textarea>
+                                        <span asp-validation-for="Observaciones" class="text-danger"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Guardar Entrada
+                        </button>
+                        <a asp-controller="Insumoes" asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-times"></i>
+                            Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -667,210 +774,69 @@
         <partial name="_ValidationScriptsPartial" />
         <script>
             (function () {
-                // Elementos del DOM
-                const FincaId = document.getElementById('FincaId');
-                const insumoSearch = document.getElementById('insumoSearch');
-                const btnBuscar = document.getElementById('btnBuscar');
-                const insumoSelect = document.getElementById('insumoSelect');
-                const InsumoIdHidden = document.getElementById('InsumoId');
-                const stockActual = document.getElementById('stockActual');
                 const UsarLote = document.getElementById('UsarLote');
                 const loteGroup = document.getElementById('loteGroup');
-                const loadingIndicator = document.getElementById('loadingIndicator');
                 const fechaInput = document.getElementById('Fecha');
 
                 // Fecha por defecto: hoy
                 if (fechaInput && !fechaInput.value) {
                     const today = new Date();
-                    const yyyy = today.getFullYear();
-                    const mm = String(today.getMonth() + 1).padStart(2, '0');
-                    const dd = String(today.getDate()).padStart(2, '0');
-                    fechaInput.value = `${yyyy}-${mm}-${dd}`;
+                    fechaInput.value = today.toISOString().split('T')[0];
                 }
 
-                // Toggle para la gestión de lotes
+                // Toggle lote
                 function toggleLote() {
-                    if (UsarLote.checked) {
-                        loteGroup.style.display = 'block';
-                        loteGroup.style.animation = 'slideDown 0.3s ease-out';
-                    } else {
-                        loteGroup.style.display = 'none';
-                    }
+                    loteGroup.style.display = UsarLote.checked ? 'block' : 'none';
                 }
 
                 UsarLote.addEventListener('change', toggleLote);
                 toggleLote();
 
-                // Mostrar/ocultar loading
-                function showLoading(show) {
-                    loadingIndicator.style.display = show ? 'block' : 'none';
-                }
+                @if (!insumoPreseleccionado)
+                {
+                        <text>
+                        // Solo si NO está preseleccionado, permitir cambio y actualizar stock
+                        const insumoSelect = document.getElementById('insumoSelect');
+                        const stockActual = document.getElementById('stockActual');
+                        const loadingIndicator = document.getElementById('loadingIndicator');
 
-                // Buscar insumos
-                async function buscarInsumos() {
-                    const term = (insumoSearch.value || '').trim();
-                    const finca = FincaId.value || '';
+                        function showLoading(show) {
+                            loadingIndicator.style.display = show ? 'block' : 'none';
+                        }
 
-                    if (!term) {
-                        alert('Por favor, ingrese un término de búsqueda.');
-                        insumoSearch.focus();
-                        return;
-                    }
+                        insumoSelect.addEventListener('change', async function() {
+                            const insumoId = this.value;
 
-                    showLoading(true);
-                    const url = `/Inventario/BuscarInsumos?term=${encodeURIComponent(term)}&fincaId=${encodeURIComponent(finca)}`;
-
-                    try {
-                        const res = await fetch(url);
-                        const data = await res.json();
-
-                        insumoSelect.innerHTML = '<option value="">Seleccione un insumo</option>';
-
-                        if (data && data.length > 0) {
-                            data.forEach(item => {
-                                const opt = document.createElement('option');
-                                opt.value = item.insumoId || item.InsumoId;
-                                opt.textContent = item.texto || item.Texto;
-                                insumoSelect.appendChild(opt);
-                            });
-
-                            if (insumoSelect.options.length > 1) {
-                                insumoSelect.selectedIndex = 1;
-                                InsumoIdHidden.value = insumoSelect.value;
-                                await actualizarStock();
-                                showSuccessMessage(`${data.length} insumos encontrados`);
+                            if (!insumoId) {
+                                stockActual.textContent = '—';
+                                return;
                             }
-                        } else {
-                            showErrorMessage('No se encontraron insumos con ese criterio');
-                        }
-                    } catch (error) {
-                        console.error('Error buscando insumos:', error);
-                        showErrorMessage('Error al buscar insumos');
-                    } finally {
-                        showLoading(false);
-                    }
+
+                            showLoading(true);
+
+                            try {
+                                const res = await fetch(`/Inventario/Stock?insumoId=${insumoId}`);
+
+                                if (!res.ok) {
+                                    console.error(`HTTP error! status: ${res.status}`);
+                                    stockActual.textContent = 'N/A';
+                                    return;
+                                }
+
+                                const data = await res.json();
+                                stockActual.textContent = (data.stock ?? 0).toLocaleString('es-ES', {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2
+                                });
+                            } catch (error) {
+                                console.error('Error:', error);
+                                stockActual.textContent = 'Error';
+                            } finally {
+                                showLoading(false);
+                            }
+                        });
+                        </text>
                 }
-
-                // Actualizar stock actual
-                async function actualizarStock() {
-                    const insumoId = InsumoIdHidden.value;
-                    const fincaId = FincaId.value;
-
-                    if (!insumoId || !fincaId) {
-                        stockActual.textContent = '—';
-                        return;
-                    }
-
-                    showLoading(true);
-                    const url = `/Inventario/Stock?insumoId=${encodeURIComponent(insumoId)}&fincaId=${encodeURIComponent(fincaId)}`;
-
-                    try {
-                        const res = await fetch(url);
-                        const data = await res.json();
-                        stockActual.textContent = (data.stock ?? 0).toLocaleString('es-ES');
-                        stockActual.style.color = '#ffffff';
-                    } catch (error) {
-                        console.error('Error actualizando stock:', error);
-                        stockActual.textContent = 'Error';
-                        stockActual.style.color = '#ff6b6b';
-                    } finally {
-                        showLoading(false);
-                    }
-                }
-
-                // Mensajes de retroalimentación
-                function showSuccessMessage(message) {
-                    const existingMsg = document.querySelector('.success-message');
-                    if (existingMsg) existingMsg.remove();
-
-                    const successMsg = document.createElement('div');
-                    successMsg.className = 'success-message';
-                    successMsg.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
-
-                    const formBody = document.querySelector('.form-body');
-                    formBody.insertBefore(successMsg, formBody.firstChild);
-
-                    setTimeout(() => {
-                        if (successMsg.parentNode) {
-                            successMsg.style.opacity = '0';
-                            successMsg.style.transition = 'opacity 0.5s';
-                            setTimeout(() => successMsg.remove(), 500);
-                        }
-                    }, 3000);
-                }
-
-                function showErrorMessage(message) {
-                    alert(message);
-                }
-
-                // Event Listeners
-                btnBuscar.addEventListener('click', buscarInsumos);
-                insumoSearch.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        e.preventDefault();
-                        buscarInsumos();
-                    }
-                });
-
-                FincaId.addEventListener('change', actualizarStock);
-
-                insumoSelect.addEventListener('change', () => {
-                    InsumoIdHidden.value = insumoSelect.value;
-                    if (insumoSelect.value) {
-                        actualizarStock();
-                    } else {
-                        stockActual.textContent = '—';
-                    }
-                });
-
-                // Validación antes de enviar
-                const form = document.getElementById('entradaForm');
-                form.addEventListener('submit', (e) => {
-                    if (!InsumoIdHidden.value) {
-                        e.preventDefault();
-                        showErrorMessage('Por favor, seleccione un insumo de la lista.');
-                        insumoSelect.focus();
-                        return;
-                    }
-
-                    if (!FincaId.value) {
-                        e.preventDefault();
-                        showErrorMessage('Por favor, seleccione una finca.');
-                        FincaId.focus();
-                        return;
-                    }
-
-                    // Mostrar loading durante el envío
-                    const submitBtn = form.querySelector('button[type="submit"]');
-                    const originalText = submitBtn.innerHTML;
-                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
-                    submitBtn.disabled = true;
-
-                    // Restaurar botón si hay error de validación del lado del cliente
-                    setTimeout(() => {
-                        submitBtn.innerHTML = originalText;
-                        submitBtn.disabled = false;
-                    }, 3000);
-                });
-
-                // Efectos visuales para inputs
-                document.querySelectorAll('input, select').forEach(input => {
-                    input.addEventListener('focus', function() {
-                        this.parentElement.style.transform = 'translateY(-2px)';
-                    });
-
-                    input.addEventListener('blur', function() {
-                        this.parentElement.style.transform = 'translateY(0)';
-                    });
-                });
-
-                // Carga inicial si hay datos en el ViewBag
-                window.addEventListener('DOMContentLoaded', () => {
-                    if (FincaId.options.length > 1) {
-                        FincaId.selectedIndex = 1;
-                    }
-                });
-
             })();
         </script>
     }

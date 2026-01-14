@@ -26,28 +26,45 @@ namespace AgroTechApp.Controllers
         // ============================================================
         // GET: Mortalidad/Index
         // ============================================================
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? pagina)
         {
             try
             {
                 long fincaId = GetFincaId();
 
-                var mortalidades = await _context.Mortalidads
+                var query = _context.Mortalidads
                     .Include(m => m.Animal)
                         .ThenInclude(a => a.Raza)
                     .Where(m => m.Animal.FincaId == fincaId)
-                    .OrderByDescending(m => m.Fecha)
+                    .AsQueryable();
+
+                // Contar total
+                var totalRegistros = await query.CountAsync();
+
+                // Ordenar: Más recientes primero
+                query = query.OrderByDescending(m => m.MortalidadId);
+
+                // Paginación
+                int registrosPorPagina = 10;
+                int paginaActual = pagina ?? 1;
+                int totalPaginas = (int)Math.Ceiling(totalRegistros / (double)registrosPorPagina);
+
+                var mortalidades = await query
+                    .Skip((paginaActual - 1) * registrosPorPagina)
+                    .Take(registrosPorPagina)
                     .ToListAsync();
 
                 // Calcular total de pérdidas
-                // Buscar gastos del modulo Mortalidad
                 var totalPerdidas = await _context.Gastos
                     .Where(g => g.FincaId == fincaId &&
                                 g.OrigenModulo == FinanzasConstants.OrigenModulos.MORTALIDAD)
                     .SumAsync(g => (decimal?)g.Monto) ?? 0;
 
                 ViewBag.TotalPerdidas = totalPerdidas;
-                ViewBag.TotalMortalidades = mortalidades.Count;
+                ViewBag.TotalMortalidades = totalRegistros;
+                ViewBag.PaginaActual = paginaActual;
+                ViewBag.TotalPaginas = totalPaginas;
+                ViewBag.TotalRegistros = totalRegistros;
 
                 return View(mortalidades);
             }

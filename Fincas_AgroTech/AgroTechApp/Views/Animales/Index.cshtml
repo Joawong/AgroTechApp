@@ -324,12 +324,27 @@
         }
 
         .table-container {
-            overflow-x: auto;
+            overflow-x: visible;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            table-layout: auto;
+        }
+
+        /* Hacer columnas más compactas */
+        td:nth-child(8), /* Valor */
+        td:nth-child(9) /* Acciones */ {
+            white-space: nowrap;
+            width: 1%;
+        }
+
+        /* Ajustar nombres largos */
+        td:nth-child(2) /* Nombre */ {
+            max-width: 150px;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         thead {
@@ -770,6 +785,14 @@
                                             </td>
                                             <td class="actions-column">
                                                 <div class="actions-group">
+
+                                                    <a asp-action="Historial"
+                                                       asp-route-id="@item.AnimalId"
+                                                       class="btn btn-info btn-sm"
+                                                       title="Ver historial consolidado">
+                                                        <i class="fas fa-history"></i>
+                                                    </a>
+
                                                     <a asp-action="Details" asp-route-id="@item.AnimalId" class="btn btn-info btn-sm" title="Ver detalles">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
@@ -807,7 +830,6 @@
                         }
                     </div>
 
-                    <!-- Table Footer -->
                     <!-- Table Footer -->
                     @if (Model.Any())
                     {

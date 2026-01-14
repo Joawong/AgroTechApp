@@ -355,28 +355,77 @@
                 opacity: 0.5;
             }
 
-        /* Responsive */
+        /* Responsive general */
         @@media (max-width: 768px) {
-            .container {
-                margin: 10px;
-            }
+            .container
 
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
+        {
+            margin: 10px;
+        }
 
-            .tabs {
-                flex-direction: column;
-                padding: 0;
-            }
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
 
-            .tab-content {
-                padding: 1.5rem;
-            }
+        .tabs {
+            flex-direction: column;
+            padding: 0;
+        }
 
-            .historial-table {
-                font-size: 0.85rem;
-            }
+        .tab-content {
+            padding: 1.5rem;
+        }
+
+        .historial-table {
+            font-size: 0.85rem;
+        }
+
+        }
+
+        /* ===== Footer Detalles ===== */
+        .details-footer {
+            background: linear-gradient(135deg, #f8fafc, #eef2f7);
+            border-top: 1px solid var(--border);
+            padding: 2rem 2.5rem;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .footer-info {
+            color: var(--gray);
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Responsive footer */
+        @@media (max-width: 768px) {
+            .footer-content
+
+        {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .footer-actions {
+            justify-content: center;
+            width: 100%;
+        }
+
+        }
         }
     </style>
 </head>
@@ -624,19 +673,34 @@
             </div>
         </div>
 
-        <!-- Actions -->
-        <div class="actions-section">
-            <div>
-                <a asp-action="Edit" asp-route-id="@Model.PesajeId" class="btn btn-primary">
-                    <i class="fas fa-edit"></i>
-                    Editar Pesaje
-                </a>
-                <a asp-action="Delete" asp-route-id="@Model.PesajeId" class="btn btn-danger">
-                    <i class="fas fa-trash"></i>
-                    Eliminar
-                </a>
+        <!-- Footer Actions -->
+        <div class="details-footer">
+            <div class="footer-content">
+
+                <div class="footer-info">
+                    <i class="fas fa-info-circle"></i>
+                    Acciones disponibles para este pesaje
+                </div>
+
+                <div class="footer-actions">
+                    <a asp-action="Edit"
+                       asp-route-id="@Model.PesajeId"
+                       class="btn btn-primary">
+                        <i class="fas fa-edit"></i>
+                        Editar Pesaje
+                    </a>
+
+                    <a asp-action="Delete"
+                       asp-route-id="@Model.PesajeId"
+                       class="btn btn-danger">
+                        <i class="fas fa-trash"></i>
+                        Eliminar
+                    </a>
+                </div>
+
             </div>
         </div>
+
     </div>
 
     <script>

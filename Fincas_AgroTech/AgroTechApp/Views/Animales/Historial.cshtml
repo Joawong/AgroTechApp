@@ -1,0 +1,1308 @@
+﻿@model AgroTechApp.ViewModels.AnimalHistorialVM
+@{
+    ViewData["Title"] = $"Historial - {Model.Animal.Arete}";
+    var nombreCompleto = string.IsNullOrWhiteSpace(Model.Animal.Nombre)
+        ? Model.Animal.Arete
+        : $"{Model.Animal.Arete} - {Model.Animal.Nombre}";
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --primary-light: #3CB371;
+            --primary-dark: #1E6B47;
+            --secondary: #F4A460;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #ffffff;
+            --border: #e1e5e9;
+            --shadow: rgba(46, 139, 87, 0.1);
+            --gray: #6c757d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .admin-card {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px var(--shadow);
+            overflow: hidden;
+            border: 1px solid #e1e5e9;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .admin-header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -50%;
+                width: 100%;
+                height: 200%;
+                background: rgba(255, 255, 255, 0.1);
+                transform: rotate(30deg);
+            }
+
+            .admin-header h1 {
+                font-size: 2.5rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+                position: relative;
+                z-index: 1;
+            }
+
+            .admin-header p {
+                font-size: 1.1rem;
+                opacity: 0.9;
+                position: relative;
+                z-index: 1;
+            }
+
+        .admin-header-icon {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 4rem;
+            opacity: 0.2;
+            z-index: 0;
+        }
+
+        .admin-body {
+            padding: 2.5rem;
+        }
+
+        /* Badges para el header */
+        .animal-badges {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .animal-badge {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Secciones */
+        .section-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .section-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin: 0;
+        }
+
+        /* KPI Cards */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .kpi-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            border: 2px solid var(--border);
+        }
+
+            .kpi-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .kpi-label {
+            font-size: 0.9rem;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        .kpi-card.success {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-color: var(--success);
+        }
+
+            .kpi-card.success .kpi-value {
+                color: var(--success);
+            }
+
+        .kpi-card.danger {
+            background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+            border-color: var(--danger);
+        }
+
+            .kpi-card.danger .kpi-value {
+                color: var(--danger);
+            }
+
+        .kpi-card.warning {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-color: var(--warning);
+        }
+
+            .kpi-card.warning .kpi-value {
+                color: #856404;
+            }
+
+        /* Alertas */
+        .alert-custom {
+            background: #fff3cd;
+            border-left: 4px solid var(--warning);
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+            .alert-custom.danger {
+                background: #f8d7da;
+                border-left-color: var(--danger);
+            }
+
+            .alert-custom.success {
+                background: #d4edda;
+                border-left-color: var(--success);
+            }
+
+            .alert-custom.info {
+                background: #d1ecf1;
+                border-left-color: var(--info);
+            }
+
+        .alert-icon {
+            font-size: 24px;
+        }
+
+        .alert-message {
+            flex: 1;
+            font-weight: 500;
+            color: #2d3748;
+        }
+
+        /* Tablas */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 15px;
+        }
+
+            .table-custom thead {
+                background: linear-gradient(135deg, var(--primary), var(--primary-light));
+                color: white;
+            }
+
+            .table-custom th {
+                padding: 12px 15px;
+                font-weight: 600;
+                text-align: left;
+                font-size: 0.9rem;
+            }
+
+                .table-custom th:first-child {
+                    border-top-left-radius: 8px;
+                }
+
+                .table-custom th:last-child {
+                    border-top-right-radius: 8px;
+                }
+
+            .table-custom td {
+                padding: 12px 15px;
+                border-bottom: 1px solid #e2e8f0;
+                font-size: 0.9rem;
+            }
+
+            .table-custom tbody tr:hover {
+                background: #f7fafc;
+            }
+
+            .table-custom tbody tr:last-child td {
+                border-bottom: none;
+            }
+
+        /* Badges */
+        .badge-custom {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: var(--success);
+        }
+
+        .badge-info {
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            color: #0c5460;
+        }
+
+        .badge-warning {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            color: #856404;
+        }
+
+        .badge-danger {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: var(--danger);
+        }
+
+        .badge-secondary {
+            background: linear-gradient(135deg, #e2e8f0, #cbd5e0);
+            color: #4a5568;
+        }
+
+        /* Botones */
+        .btn {
+            padding: 0.85rem 1.8rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(46, 139, 87, 0.3);
+                background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+                color: var(--white);
+            }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--gray), #5a6268);
+            color: var(--white);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, var(--info), #36b9cc);
+            color: var(--white);
+        }
+
+        .btn-sm {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.85rem;
+        }
+
+        /* Info Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: var(--gray);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 1.1rem;
+            color: #2d3748;
+            font-weight: 500;
+        }
+
+        /* Genealogía */
+        .genealogy-card {
+            background: #f7fafc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border);
+        }
+
+            .genealogy-card:hover {
+                background: #edf2f7;
+                transform: translateX(5px);
+            }
+
+        .genealogy-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .genealogy-info {
+            flex: 1;
+        }
+
+        .genealogy-label {
+            font-size: 0.75rem;
+            color: #a0aec0;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .genealogy-name {
+            font-size: 1rem;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        /* Gráfica */
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-top: 20px;
+        }
+
+        /* Botones de acción al final */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive */
+        @@media (max-width: 768px) {
+            .admin-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .kpi-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+                .action-buttons .btn {
+                    width: 100%;
+                    justify-content: center;
+                }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="admin-card">
+            <!-- Header -->
+            <div class="admin-header">
+                <i class="fas fa-history admin-header-icon"></i>
+                <h1><i class="fas fa-cow"></i> @nombreCompleto</h1>
+                <p>Historial Consolidado del Animal</p>
+
+                <div class="animal-badges">
+                    <span class="animal-badge">
+                        <i class="fas fa-tag"></i> @Model.Animal.Arete
+                    </span>
+
+                    @if (!string.IsNullOrWhiteSpace(Model.EdadFormateada))
+                    {
+                        <span class="animal-badge">
+                            <i class="fas fa-birthday-cake"></i> @Model.EdadFormateada
+                        </span>
+                    }
+
+                    <span class="animal-badge">
+                        <i class="fas fa-@(Model.Animal.Sexo == "M" ? "mars" : "venus")"></i>
+                        @(Model.Animal.Sexo == "M" ? "Macho" : "Hembra")
+                    </span>
+
+                    <span class="animal-badge">
+                        <i class="fas fa-circle"></i> @Model.Animal.Estado
+                    </span>
+
+                    @if (Model.Animal.Raza != null)
+                    {
+                        <span class="animal-badge">
+                            <i class="fas fa-dna"></i> @Model.Animal.Raza.Nombre
+                        </span>
+                    }
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="admin-body">
+                <!-- Alertas de rendimiento -->
+                @if (Model.TieneAlertaBajoRendimiento && !string.IsNullOrWhiteSpace(Model.MensajeAlerta))
+                {
+                    <div class="alert-custom danger">
+                        <div class="alert-icon">⚠️</div>
+                        <div class="alert-message">
+                            <strong>Alerta de Rendimiento:</strong> @Model.MensajeAlerta
+                        </div>
+                    </div>
+                }
+
+                @if (Model.Animal.Estado == "Vendido")
+                {
+                    <div class="alert-custom success">
+                        <div class="alert-icon">✅</div>
+                        <div class="alert-message">
+                            <strong>Animal Vendido:</strong>
+                            Este animal fue vendido el @Model.Animal.FechaVenta?.ToString("dd/MM/yyyy")
+                            por ₡@Model.Animal.PrecioVenta?.ToString("N2")
+
+                            @if (Model.ROI.HasValue)
+                            {
+                                <span> - ROI: <strong>@Model.ROI.Value.ToString("N1")%</strong></span>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- 1️⃣ INFORMACIÓN GENERAL -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon">📋</div>
+                        <h2 class="section-title">Información General</h2>
+                    </div>
+
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Arete</span>
+                            <span class="info-value">@Model.Animal.Arete</span>
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.Animal.Nombre))
+                        {
+                            <div class="info-item">
+                                <span class="info-label">Nombre</span>
+                                <span class="info-value">@Model.Animal.Nombre</span>
+                            </div>
+                        }
+
+                        <div class="info-item">
+                            <span class="info-label">Sexo</span>
+                            <span class="info-value">@(Model.Animal.Sexo == "M" ? "Macho" : "Hembra")</span>
+                        </div>
+
+                        @if (Model.Animal.Raza != null)
+                        {
+                            <div class="info-item">
+                                <span class="info-label">Raza</span>
+                                <span class="info-value">@Model.Animal.Raza.Nombre</span>
+                            </div>
+                        }
+
+                        <div class="info-item">
+                            <span class="info-label">Estado</span>
+                            <span class="info-value">
+                                @{
+                                    var estadoClass = Model.Animal.Estado switch
+                                    {
+                                        "Activo" => "badge-success",
+                                        "Vendido" => "badge-info",
+                                        "Muerto" => "badge-danger",
+                                        _ => "badge-secondary"
+                                    };
+                                }
+                                <span class="badge-custom @estadoClass">
+                                    @Model.Animal.Estado
+                                </span>
+                            </span>
+                        </div>
+
+                        @if (Model.Animal.FechaNacimiento.HasValue)
+                        {
+                            <div class="info-item">
+                                <span class="info-label">Fecha de Nacimiento</span>
+                                <span class="info-value">@Model.Animal.FechaNacimiento.Value.ToString("dd/MM/yyyy")</span>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrWhiteSpace(Model.EdadFormateada))
+                        {
+                            <div class="info-item">
+                                <span class="info-label">Edad</span>
+                                <span class="info-value">@Model.EdadFormateada (@Model.DiasDeVida días)</span>
+                            </div>
+                        }
+
+                        @if (Model.Animal.LoteAnimal != null)
+                        {
+                            <div class="info-item">
+                                <span class="info-label">Lote</span>
+                                <span class="info-value">@Model.Animal.LoteAnimal.Nombre</span>
+                            </div>
+                        }
+
+                        @if (Model.Animal.CostoCompra.HasValue)
+                        {
+                            <div class="info-item">
+                                <span class="info-label">Costo de Compra</span>
+                                <span class="info-value">₡@Model.Animal.CostoCompra.Value.ToString("N2")</span>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Genealogía -->
+                    @if (Model.Madre != null || Model.Padre != null)
+                    {
+                        <h4 style="margin-top: 30px; margin-bottom: 15px; color: #2d3748; font-weight: 600;">
+                            <i class="fas fa-sitemap"></i> Genealogía
+                        </h4>
+
+                        @if (Model.Madre != null)
+                        {
+                            <div class="genealogy-card">
+                                <div class="genealogy-icon">
+                                    <i class="fas fa-venus"></i>
+                                </div>
+                                <div class="genealogy-info">
+                                    <div class="genealogy-label">Madre</div>
+                                    <div class="genealogy-name">
+                                        @Model.Madre.Arete @(!string.IsNullOrWhiteSpace(Model.Madre.Nombre) ? $"- {Model.Madre.Nombre}" : "")
+                                    </div>
+                                </div>
+                                <a href="@Url.Action("Historial", "Animales", new { id = Model.Madre.AnimalId })"
+                                   class="btn btn-info btn-sm">
+                                    Ver Historial
+                                </a>
+                            </div>
+                        }
+
+                        @if (Model.Padre != null)
+                        {
+                            <div class="genealogy-card">
+                                <div class="genealogy-icon">
+                                    <i class="fas fa-mars"></i>
+                                </div>
+                                <div class="genealogy-info">
+                                    <div class="genealogy-label">Padre</div>
+                                    <div class="genealogy-name">
+                                        @Model.Padre.Arete @(!string.IsNullOrWhiteSpace(Model.Padre.Nombre) ? $"- {Model.Padre.Nombre}" : "")
+                                    </div>
+                                </div>
+                                <a href="@Url.Action("Historial", "Animales", new { id = Model.Padre.AnimalId })"
+                                   class="btn btn-info btn-sm">
+                                    Ver Historial
+                                </a>
+                            </div>
+                        }
+                    }
+
+                    <!-- Crías -->
+                    @if (Model.TotalCrias > 0)
+                    {
+                        <h4 style="margin-top: 30px; margin-bottom: 15px; color: #2d3748; font-weight: 600;">
+                            <i class="fas fa-baby"></i> Crías (@Model.TotalCrias)
+                        </h4>
+
+                        <div class="table-responsive">
+                            <table class="table-custom">
+                                <thead>
+                                    <tr>
+                                        <th>Arete</th>
+                                        <th>Nombre</th>
+                                        <th>Sexo</th>
+                                        <th>Raza</th>
+                                        <th>Fecha Nacimiento</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var cria in Model.Crias)
+                                    {
+                                        <tr>
+                                            <td><strong>@cria.Arete</strong></td>
+                                            <td>@cria.Nombre</td>
+                                            <td>@(cria.Sexo == "M" ? "Macho" : "Hembra")</td>
+                                            <td>@cria.Raza?.Nombre</td>
+                                            <td>@cria.FechaNacimiento?.ToString("dd/MM/yyyy")</td>
+                                            <td>
+                                                @{
+                                                    var criaEstadoClass = cria.Estado switch
+                                                    {
+                                                        "Activo" => "badge-success",
+                                                        "Vendido" => "badge-info",
+                                                        "Muerto" => "badge-danger",
+                                                        _ => "badge-secondary"
+                                                    };
+                                                }
+                                                <span class="badge-custom @criaEstadoClass">
+                                                    @cria.Estado
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a href="@Url.Action("Historial", "Animales", new { id = cria.AnimalId })"
+                                                   class="btn btn-info btn-sm">
+                                                    Ver
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+
+                <!-- 2️⃣ HISTORIAL DE PESAJES -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon">⚖️</div>
+                        <h2 class="section-title">Historial de Pesajes</h2>
+                    </div>
+
+                    @if (Model.Pesajes.Any())
+                    {
+                        <!-- KPIs de Peso -->
+                        <div class="kpi-grid">
+                            <div class="kpi-card">
+                                <div class="kpi-value">@Model.PesoInicial?.ToString("N1") kg</div>
+                                <div class="kpi-label">Peso Inicial</div>
+                            </div>
+
+                            <div class="kpi-card success">
+                                <div class="kpi-value">@Model.PesoActual?.ToString("N1") kg</div>
+                                <div class="kpi-label">Peso Actual</div>
+                            </div>
+
+                            <div class="kpi-card @(Model.GananciaTotal > 0 ? "success" : "warning")">
+                                <div class="kpi-value">
+                                    @(Model.GananciaTotal > 0 ? "+" : "")@Model.GananciaTotal?.ToString("N1") kg
+                                </div>
+                                <div class="kpi-label">Ganancia Total</div>
+                            </div>
+
+                            @if (Model.GananciaDiariaPromedio.HasValue)
+                            {
+                                <div class="kpi-card @(Model.GananciaDiariaPromedio > 0.8m ? "success" :
+                                                                                            Model.GananciaDiariaPromedio > 0.5m ? "warning" : "danger")">
+                            <div class="kpi-value">@Model.GananciaDiariaPromedio.Value.ToString("N2") kg/día</div>
+                            <div class="kpi-label">GDP (Ganancia Diaria Promedio)</div>
+                        </div>
+                                                }
+                        </div>
+
+                        <!-- Mejor Periodo -->
+                        @if (!string.IsNullOrWhiteSpace(Model.MejorPeriodo) && Model.MejorGananciaDiaria.HasValue)
+                        {
+                            <div class="alert-custom success">
+                                <div class="alert-icon">🏆</div>
+                                <div class="alert-message">
+                                    <strong>Mejor Periodo de Ganancia:</strong> @Model.MejorPeriodo
+                                    (@Model.MejorGananciaDiaria.Value.ToString("N2") kg/día)
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Gráfica de Evolución de Peso -->
+                        <h4 style="margin-top: 25px; margin-bottom: 15px; color: #2d3748; font-weight: 600;">
+                            <i class="fas fa-chart-line"></i> Evolución del Peso
+                        </h4>
+                        <div class="chart-container">
+                            <canvas id="pesoChart"></canvas>
+                        </div>
+
+                        <!-- Tabla de Pesajes -->
+                        <h4 style="margin-top: 30px; margin-bottom: 15px; color: #2d3748; font-weight: 600;">
+                            <i class="fas fa-table"></i> Todos los Pesajes
+                        </h4>
+                        <div class="table-responsive">
+                            <table class="table-custom">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Fecha</th>
+                                        <th>Peso (kg)</th>
+                                        <th>Ganancia desde Anterior</th>
+                                        <th>Días desde Anterior</th>
+                                        <th>GDP Periodo</th>
+                                        <th>Observaciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (int i = 0; i < Model.Pesajes.Count; i++)
+                                    {
+                                        var pesaje = Model.Pesajes[i];
+                                        var ganancia = i > 0 ? pesaje.PesoKg - Model.Pesajes[i - 1].PesoKg : (decimal?)null;
+                                        var dias = i > 0 ? (pesaje.Fecha - Model.Pesajes[i - 1].Fecha).Days : (int?)null;
+                                        var gdpPeriodo = (ganancia.HasValue && dias.HasValue && dias.Value > 0)
+                                        ? ganancia.Value / dias.Value
+                                        : (decimal?)null;
+
+                                        <tr>
+                                            <td><strong>@(i + 1)</strong></td>
+                                            <td>@pesaje.Fecha.ToString("dd/MM/yyyy")</td>
+                                            <td><strong>@pesaje.PesoKg.ToString("N1") kg</strong></td>
+                                            <td>
+                                                @if (ganancia.HasValue)
+                                                {
+                                                    <span class="badge-custom @(ganancia > 0 ? "badge-success" : "badge-danger")">
+                                                        @(ganancia > 0 ? "+" : "")@ganancia.Value.ToString("N1") kg
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge-custom badge-secondary">Inicial</span>
+                                                }
+                                            </td>
+                                            <td>@(dias?.ToString() ?? "-")</td>
+                                            <td>
+                                                @if (gdpPeriodo.HasValue)
+                                                {
+                                                    <span class="badge-custom @(gdpPeriodo > 0.8m ? "badge-success" :
+                                                                                                                                          gdpPeriodo > 0.5m ? "badge-warning" : "badge-danger")">
+                                            @gdpPeriodo.Value.ToString("N2") kg/día
+                                        </span>
+                                                                                }
+                                                else
+                                                {
+                                                    <span>-</span>
+                                                }
+                                            </td>
+                                            <td>@pesaje.Observacion</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert-custom warning">
+                            <div class="alert-icon">ℹ️</div>
+                            <div class="alert-message">
+                                No hay pesajes registrados para este animal aún.
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- 3️⃣ HISTORIAL DE TRATAMIENTOS -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon">💉</div>
+                        <h2 class="section-title">Historial de Tratamientos</h2>
+                    </div>
+
+                    @if (Model.Tratamientos.Any())
+                    {
+                        <!-- KPIs de Tratamientos -->
+                        <div class="kpi-grid">
+                            <div class="kpi-card">
+                                <div class="kpi-value">@Model.TotalTratamientos</div>
+                                <div class="kpi-label">Total de Tratamientos</div>
+                            </div>
+
+                            @foreach (var tipo in Model.TratamientosPorTipo.Take(3))
+                            {
+                                <div class="kpi-card">
+                                    <div class="kpi-value">@tipo.Value</div>
+                                    <div class="kpi-label">@tipo.Key</div>
+                                </div>
+                            }
+                        </div>
+
+                        <!-- Tabla de Tratamientos -->
+                        <div class="table-responsive" style="margin-top: 25px;">
+                            <table class="table-custom">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Tipo</th>
+                                        <th>Insumo</th>
+                                        <th>Dosis</th>
+                                        <th>Vía</th>
+                                        <th>Responsable</th>
+                                        <th>Observaciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var tratamiento in Model.Tratamientos)
+                                    {
+                                        <tr>
+                                            <td>@tratamiento.Fecha.ToString("dd/MM/yyyy")</td>
+                                            <td>
+                                                <span class="badge-custom badge-info">@tratamiento.TipoTrat.Nombre</span>
+                                            </td>
+                                            <td>
+                                                @if (tratamiento.Insumo != null)
+                                                {
+                                                    <span>@tratamiento.Insumo.Nombre</span>
+                                                }
+                                                else
+                                                {
+                                                    <span style="color: var(--gray);">-</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrWhiteSpace(tratamiento.Dosis))
+                                                {
+                                                    <strong>@tratamiento.Dosis</strong>
+                                                }
+                                                else
+                                                {
+                                                    <span>-</span>
+                                                }
+                                            </td>
+                                            <td>@tratamiento.Via</td>
+                                            <td>@tratamiento.Responsable</td>
+                                            <td>@tratamiento.Observacion</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert-custom warning">
+                            <div class="alert-icon">ℹ️</div>
+                            <div class="alert-message">
+                                No hay tratamientos registrados para este animal aún.
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- 4️⃣ RESUMEN FINANCIERO -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <div class="section-icon">💰</div>
+                        <h2 class="section-title">Resumen Financiero</h2>
+                    </div>
+
+                    <!-- KPIs Financieros -->
+                    <div class="kpi-grid">
+                        @if (Model.CostoCompra.HasValue)
+                        {
+                            <div class="kpi-card">
+                                <div class="kpi-value">₡@Model.CostoCompra.Value.ToString("N2")</div>
+                                <div class="kpi-label">Costo de Compra</div>
+                            </div>
+                        }
+
+                        <div class="kpi-card danger">
+                            <div class="kpi-value">₡@Model.TotalGastos.ToString("N2")</div>
+                            <div class="kpi-label">Total Gastos</div>
+                        </div>
+
+                        <div class="kpi-card success">
+                            <div class="kpi-value">₡@Model.TotalIngresos.ToString("N2")</div>
+                            <div class="kpi-label">Total Ingresos</div>
+                        </div>
+
+                        <div class="kpi-card @(Model.BalanceFinanciero >= 0 ? "success" : "danger")">
+                            <div class="kpi-value">₡@Model.BalanceFinanciero.ToString("N2")</div>
+                            <div class="kpi-label">Balance</div>
+                        </div>
+
+                        @if (Model.ROI.HasValue)
+                        {
+                            <div class="kpi-card @(Model.ROI >= 0 ? "success" : "danger")">
+                                <div class="kpi-value">@Model.ROI.Value.ToString("N1")%</div>
+                                <div class="kpi-label">ROI</div>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Desglose de Gastos -->
+                    @if (Model.Gastos.Any())
+                    {
+                        <h4 style="margin-top: 30px; margin-bottom: 15px; color: #2d3748; font-weight: 600;">
+                            <i class="fas fa-money-bill-wave"></i> Desglose de Gastos
+                        </h4>
+                        <div class="table-responsive">
+                            <table class="table-custom">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Rubro</th>
+                                        <th>Descripción</th>
+                                        <th>Monto</th>
+                                        <th>Tipo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var gasto in Model.Gastos.OrderByDescending(g => g.Fecha))
+                                    {
+                                        <tr>
+                                            <td>@gasto.Fecha.ToString("dd/MM/yyyy")</td>
+                                            <td>@gasto.RubroGasto?.Nombre</td>
+                                            <td>@gasto.Descripcion</td>
+                                            <td><strong>₡@gasto.Monto.ToString("N2")</strong></td>
+                                            <td>
+                                                @if (gasto.EsAutomatico)
+                                                {
+                                                    <span class="badge-custom badge-info">Automático</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge-custom badge-secondary">Manual</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+
+                    <!-- Desglose de Ingresos -->
+                    @if (Model.Ingresos.Any())
+                    {
+                        <h4 style="margin-top: 30px; margin-bottom: 15px; color: #2d3748; font-weight: 600;">
+                            <i class="fas fa-hand-holding-usd"></i> Desglose de Ingresos
+                        </h4>
+                        <div class="table-responsive">
+                            <table class="table-custom">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Rubro</th>
+                                        <th>Descripción</th>
+                                        <th>Monto</th>
+                                        <th>Tipo</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var ingreso in Model.Ingresos.OrderByDescending(i => i.Fecha))
+                                    {
+                                        <tr>
+                                            <td>@ingreso.Fecha.ToString("dd/MM/yyyy")</td>
+                                            <td>@ingreso.RubroIngreso?.Nombre</td>
+                                            <td>@ingreso.Descripcion</td>
+                                            <td><strong>₡@ingreso.Monto.ToString("N2")</strong></td>
+                                            <td>
+                                                @if (ingreso.EsAutomatico)
+                                                {
+                                                    <span class="badge-custom badge-success">Automático</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge-custom badge-secondary">Manual</span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+
+                <!-- 5️⃣ INDICADORES DE RENDIMIENTO -->
+                @if (Model.PromedioLote.HasValue || Model.AnimalesEnLote.HasValue)
+                {
+                    <div class="section-card">
+                        <div class="section-header">
+                            <div class="section-icon">📈</div>
+                            <h2 class="section-title">Indicadores de Rendimiento</h2>
+                        </div>
+
+                        <!-- KPIs de Rendimiento -->
+                        <div class="kpi-grid">
+                            @if (Model.GananciaDiariaPromedio.HasValue)
+                            {
+                                <div class="kpi-card">
+                                    <div class="kpi-value">@Model.GananciaDiariaPromedio.Value.ToString("N2") kg/día</div>
+                                    <div class="kpi-label">GDP del Animal</div>
+                                </div>
+                            }
+
+                            @if (Model.PromedioLote.HasValue)
+                            {
+                                <div class="kpi-card">
+                                    <div class="kpi-value">@Model.PromedioLote.Value.ToString("N2") kg/día</div>
+                                    <div class="kpi-label">GDP Promedio del Lote</div>
+                                </div>
+                            }
+
+                            @if (Model.PesoPromedioLote.HasValue)
+                            {
+                                <div class="kpi-card">
+                                    <div class="kpi-value">@Model.PesoPromedioLote.Value.ToString("N1") kg</div>
+                                    <div class="kpi-label">Peso Promedio del Lote</div>
+                                </div>
+                            }
+
+                            @if (Model.AnimalesEnLote.HasValue)
+                            {
+                                <div class="kpi-card">
+                                    <div class="kpi-value">@Model.AnimalesEnLote.Value</div>
+                                    <div class="kpi-label">Animales en el Lote</div>
+                                </div>
+                            }
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(Model.ComparativaLote))
+                        {
+                            <div class="alert-custom @(Model.ComparativaLote.Contains("Por encima") ? "success" :
+                                                                                        Model.ComparativaLote.Contains("Por debajo") ? "danger" :
+                                                                                        "info")">
+                        <div class="alert-icon">
+                            @if (Model.ComparativaLote.Contains("Por encima"))
+                                    {
+                                        <span>📈</span>
+                                    }
+                                    else if (Model.ComparativaLote.Contains("Por debajo"))
+                                    {
+                                        <span>📉</span>
+                                    }
+                                    else
+                                    {
+                                        <span>➡️</span>
+                                    }
+                                </div>
+                                <div class="alert-message">
+                                    <strong>Comparativa con el Lote:</strong> @Model.ComparativaLote
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+
+                <!-- BOTONES DE ACCIÓN -->
+                <div class="action-buttons">
+                    <a href="@Url.Action("Details", "Animales", new { id = Model.Animal.AnimalId })" class="btn btn-info">
+                        <i class="fas fa-eye"></i> Ver Detalles
+                    </a>
+                    <a href="@Url.Action("Index", "Animales")" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver a Animales
+                    </a>
+                    @if (Model.Animal.Estado == "Activo")
+                    {
+                        <a href="@Url.Action("Edit", "Animales", new { id = Model.Animal.AnimalId })" class="btn btn-primary">
+                            <i class="fas fa-edit"></i> Editar Animal
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        @if (Model.Pesajes.Any())
+        {
+                <text>
+                // Datos para la gráfica de peso
+                const fechas = @Html.Raw(Json.Serialize(Model.Pesajes.Select(p => p.Fecha.ToString("dd/MM/yyyy"))));
+                const pesos = @Html.Raw(Json.Serialize(Model.Pesajes.Select(p => p.PesoKg)));
+
+                // Crear gráfica
+                const ctx = document.getElementById('pesoChart').getContext('2d');
+                const pesoChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: fechas,
+                        datasets: [{
+                            label: 'Peso (kg)',
+                            data: pesos,
+                            borderColor: 'rgb(46, 139, 87)',
+                            backgroundColor: 'rgba(46, 139, 87, 0.1)',
+                            borderWidth: 3,
+                            pointBackgroundColor: 'rgb(46, 139, 87)',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            title: {
+                                display: false
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                padding: 12,
+                                titleFont: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                bodyFont: {
+                                    size: 13
+                                },
+                                displayColors: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        return 'Peso: ' + context.parsed.y.toFixed(1) + ' kg';
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                title: {
+                                    display: true,
+                                    text: 'Peso (kg)',
+                                    font: {
+                                        size: 14,
+                                        weight: 'bold'
+                                    }
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Fecha',
+                                    font: {
+                                        size: 14,
+                                        weight: 'bold'
+                                    }
+                                },
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        },
+                        interaction: {
+                            intersect: false,
+                            mode: 'index'
+                        }
+                    }
+                });
+                </text>
+        }
+    </script>
+</body>
+</html>

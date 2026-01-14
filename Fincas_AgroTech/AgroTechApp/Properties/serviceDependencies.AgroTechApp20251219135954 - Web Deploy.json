@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "mssql2": {
+      "serviceConnectorResourceId": "/subscriptions/[parameters('subscriptionId')]/resourcegroups/[parameters('serviceConnectorResourceGroupName')]/providers/Microsoft.Web/sites/AgroTechApp20251219135954/providers/Microsoft.ServiceLinker/linkers/ConnectionStringsAgroTechConnection1_A74F56A164",
+      "secretStore": "AzureAppSettings",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourcegroups/[parameters('resourceGroupName')]/providers/Microsoft.Sql/servers/agrotechappdbserver/databases/AgroTechApp_db",
+      "type": "mssql.azure",
+      "connectionId": "ConnectionStrings:AgroTechConnection1",
+      "dynamicId": null
+    }
+  }
+}

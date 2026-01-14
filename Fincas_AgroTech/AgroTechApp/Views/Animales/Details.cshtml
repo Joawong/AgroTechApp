@@ -346,6 +346,8 @@
         }
 
         }
+
+
     </style>
 </head>
 
@@ -382,6 +384,13 @@
 
                 <!-- Action Buttons -->
                 <div class="action-buttons">
+
+                    <a asp-action="Historial"
+                       asp-route-id="@Model.AnimalId"
+                       class="btn btn-primary">
+                        <i class="fas fa-chart-line"></i> Historial Consolidado
+                    </a>
+
                     <a asp-action="Edit" asp-route-id="@Model.AnimalId" class="btn btn-warning">
                         <i class="fas fa-edit"></i>
                         Editar Animal

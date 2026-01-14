@@ -9,6 +9,8 @@ using AgroTechApp.Models;
 using AgroTechApp.Models.DB;
 using AgroTechApp.Services;
 using Microsoft.AspNetCore.Authorization;
+using AgroTechApp.ViewModels;
+
 
 namespace AgroTechApp.Controllers
 {
@@ -26,7 +28,6 @@ namespace AgroTechApp.Controllers
             _finanzasService = finanzasService;
         }
 
-        // GET: Animales
         // GET: Animales
         public async Task<IActionResult> Index(int? pagina, string? buscar, string? sexo, string? estado, int? razaId)
         {
@@ -70,8 +71,11 @@ namespace AgroTechApp.Controllers
                 // Contar total antes de paginar
                 var totalRegistros = await query.CountAsync();
 
-                // ORDEN: Más recientes primero (por ID descendente)
-                query = query.OrderByDescending(a => a.AnimalId);
+                // Más recientes primero (por ID descendente)
+                query = query
+                    .OrderBy(a => a.Estado == "Activo" ? 0 :
+                                  a.Estado == "Vendido" ? 1 : 2)
+                    .ThenByDescending(a => a.AnimalId);
 
                 // PAGINACIÓN
                 int registrosPorPagina = 10;
@@ -159,11 +163,21 @@ namespace AgroTechApp.Controllers
                 ViewData["RazaId"] = new SelectList(_context.Razas, "RazaId", "Nombre");
 
                 ViewData["MadreId"] = new SelectList(
-                    _context.Animals.Where(a => a.FincaId == fincaId && a.Sexo == "H"),
+                    _context.Animals
+                        .Where(a => a.FincaId == fincaId &&
+                               a.Sexo == "H" &&
+                               a.Estado == "Activo")  
+                        .OrderBy(a => a.Arete)
+                        .ToList(),
                     "AnimalId", "Arete");
 
                 ViewData["PadreId"] = new SelectList(
-                    _context.Animals.Where(a => a.FincaId == fincaId && a.Sexo == "M"),
+                    _context.Animals
+                        .Where(a => a.FincaId == fincaId &&
+                               a.Sexo == "M" &&
+                               a.Estado == "Activo") 
+                        .OrderBy(a => a.Arete)
+                        .ToList(),
                     "AnimalId", "Arete");
 
                 return View();
@@ -192,7 +206,7 @@ namespace AgroTechApp.Controllers
                 ModelState.Remove("Padre");
                 ModelState.Remove("LoteAnimal");
 
-                // Validar que padres pertenecen a la misma finca
+                // ✅ VALIDACIÓN: Validar que padres pertenecen a la misma finca
                 if (animal.MadreId.HasValue)
                 {
                     var madre = await _context.Animals
@@ -213,7 +227,7 @@ namespace AgroTechApp.Controllers
                     }
                 }
 
-                // Validar que lote pertenece a la finca
+                // ✅ VALIDACIÓN: Validar que lote pertenece a la finca
                 if (animal.LoteAnimalId.HasValue)
                 {
                     var lote = await _context.LoteAnimals
@@ -230,11 +244,36 @@ namespace AgroTechApp.Controllers
 
                     try
                     {
-                        // Crear el animal
+                        // 1️⃣ CREAR EL ANIMAL
                         _context.Add(animal);
-                        await _context.SaveChangesAsync();
+                        await _context.SaveChangesAsync(); // ✅ Guardar para obtener AnimalId
 
-                        // Si tiene costo de compra, registrar gasto automatico
+                        _logger.LogInformation(
+                            "Animal creado: {AnimalId} - {Arete} (FincaId: {FincaId})",
+                            animal.AnimalId, animal.Arete, fincaId);
+
+                        // 2️⃣ REGISTRAR PESAJE INICIAL (si tiene PesoNacimiento)
+                        if (animal.PesoNacimiento.HasValue && animal.PesoNacimiento.Value > 0)
+                        {
+                            var pesajeInicial = new Pesaje
+                            {
+                                AnimalId = animal.AnimalId,
+                                Fecha = animal.FechaNacimiento.HasValue
+                                    ? animal.FechaNacimiento.Value.ToDateTime(TimeOnly.MinValue)
+                                    : DateTime.Today,
+                                PesoKg = animal.PesoNacimiento.Value,
+                                Observacion = "Peso inicial al registrar el animal"
+                            };
+
+                            _context.Pesajes.Add(pesajeInicial);
+                            await _context.SaveChangesAsync();
+
+                            _logger.LogInformation(
+                                "Pesaje inicial registrado: Animal {AnimalId}, Peso: {Peso} kg, Fecha: {Fecha}",
+                                animal.AnimalId, animal.PesoNacimiento.Value, pesajeInicial.Fecha);
+                        }
+
+                        // 3️⃣ REGISTRAR GASTO AUTOMÁTICO (si tiene costo de compra)
                         if (animal.CostoCompra.HasValue && animal.CostoCompra.Value > 0)
                         {
                             string nombreAnimal = string.IsNullOrWhiteSpace(animal.Nombre)
@@ -254,28 +293,35 @@ namespace AgroTechApp.Controllers
                                 animal.AnimalId, animal.CostoCompra.Value);
                         }
 
+                        // 4️⃣ COMMIT DE TODA LA TRANSACCIÓN
                         await tx.CommitAsync();
+
+                        // ✅ MENSAJE DE ÉXITO INTELIGENTE
+                        var mensajeExito = "Animal creado exitosamente";
+
+                        if (animal.PesoNacimiento.HasValue && animal.PesoNacimiento.Value > 0)
+                        {
+                            mensajeExito += $". Pesaje inicial registrado: {animal.PesoNacimiento.Value:N1} kg";
+                        }
 
                         if (animal.CostoCompra.HasValue && animal.CostoCompra.Value > 0)
                         {
-                            MostrarExito($"Animal creado exitosamente. Gasto de compra registrado: ₡{animal.CostoCompra.Value:N2}");
+                            mensajeExito += $". Gasto de compra registrado: ₡{animal.CostoCompra.Value:N2}";
                         }
-                        else
-                        {
-                            MostrarExito("Animal creado exitosamente");
-                        }
+
+                        MostrarExito(mensajeExito);
 
                         return RedirectToAction(nameof(Index));
                     }
                     catch (Exception ex)
                     {
                         await tx.RollbackAsync();
-                        _logger.LogError(ex, "Error al crear animal con gasto automático");
-                        ModelState.AddModelError(string.Empty, "Ocurrió un error al crear el animal.");
+                        _logger.LogError(ex, "Error al crear animal con pesaje inicial y/o gasto automático");
+                        ModelState.AddModelError(string.Empty, "Ocurrió un error al crear el animal. Por favor, intente nuevamente.");
                     }
                 }
 
-                // Recargar dropdowns si hay error
+                // ❌ SI HAY ERRORES, RECARGAR DROPDOWNS
                 ViewData["LoteAnimalId"] = new SelectList(
                     _context.LoteAnimals.Where(l => l.FincaId == fincaId),
                     "LoteAnimalId", "Nombre", animal.LoteAnimalId);
@@ -283,18 +329,28 @@ namespace AgroTechApp.Controllers
                 ViewData["RazaId"] = new SelectList(_context.Razas, "RazaId", "Nombre", animal.RazaId);
 
                 ViewData["MadreId"] = new SelectList(
-                    _context.Animals.Where(a => a.FincaId == fincaId && a.Sexo == "H"),
+                    _context.Animals
+                        .Where(a => a.FincaId == fincaId &&
+                               a.Sexo == "H" &&
+                               a.Estado == "Activo")
+                        .OrderBy(a => a.Arete)
+                        .ToList(),
                     "AnimalId", "Arete", animal.MadreId);
 
                 ViewData["PadreId"] = new SelectList(
-                    _context.Animals.Where(a => a.FincaId == fincaId && a.Sexo == "M"),
+                    _context.Animals
+                        .Where(a => a.FincaId == fincaId &&
+                               a.Sexo == "M" &&
+                               a.Estado == "Activo")
+                        .OrderBy(a => a.Arete)
+                        .ToList(),
                     "AnimalId", "Arete", animal.PadreId);
 
                 return View(animal);
             }
             catch (UnauthorizedAccessException ex)
             {
-                _logger.LogWarning(ex, "Acceso no autorizado");
+                _logger.LogWarning(ex, "Acceso no autorizado en AnimalesController.Create");
                 return RedirectToAction("Login", "Account", new { area = "Identity" });
             }
         }
@@ -328,12 +384,22 @@ namespace AgroTechApp.Controllers
                 ViewData["RazaId"] = new SelectList(_context.Razas, "RazaId", "Nombre", animal.RazaId);
 
                 ViewData["MadreId"] = new SelectList(
-                    _context.Animals.Where(a => a.FincaId == fincaId && a.Sexo == "H"),
-                    "AnimalId", "Arete", animal.MadreId);
+                    _context.Animals
+                        .Where(a => a.FincaId == fincaId &&
+                               a.Sexo == "H" &&
+                               a.Estado == "Activo") 
+                        .OrderBy(a => a.Arete)
+                        .ToList(),
+                    "AnimalId", "Arete");
 
                 ViewData["PadreId"] = new SelectList(
-                    _context.Animals.Where(a => a.FincaId == fincaId && a.Sexo == "M"),
-                    "AnimalId", "Arete", animal.PadreId);
+                    _context.Animals
+                        .Where(a => a.FincaId == fincaId &&
+                               a.Sexo == "M" &&
+                               a.Estado == "Activo") 
+                        .OrderBy(a => a.Arete)
+                        .ToList(),
+                    "AnimalId", "Arete");
 
                 return View(animal);
             }
@@ -397,12 +463,22 @@ namespace AgroTechApp.Controllers
                 ViewData["RazaId"] = new SelectList(_context.Razas, "RazaId", "Nombre", animal.RazaId);
 
                 ViewData["MadreId"] = new SelectList(
-                    _context.Animals.Where(a => a.FincaId == fincaId && a.Sexo == "H"),
-                    "AnimalId", "Arete", animal.MadreId);
+                    _context.Animals
+                        .Where(a => a.FincaId == fincaId &&
+                               a.Sexo == "H" &&
+                               a.Estado == "Activo")
+                        .OrderBy(a => a.Arete)
+                        .ToList(),
+                    "AnimalId", "Arete");
 
                 ViewData["PadreId"] = new SelectList(
-                    _context.Animals.Where(a => a.FincaId == fincaId && a.Sexo == "M"),
-                    "AnimalId", "Arete", animal.PadreId);
+                    _context.Animals
+                        .Where(a => a.FincaId == fincaId &&
+                               a.Sexo == "M" &&
+                               a.Estado == "Activo")
+                        .OrderBy(a => a.Arete)
+                        .ToList(),
+                    "AnimalId", "Arete");
 
                 return View(animal);
             }
@@ -668,6 +744,325 @@ namespace AgroTechApp.Controllers
         private bool AnimalExists(long id, long fincaId)
         {
             return _context.Animals.Any(e => e.AnimalId == id && e.FincaId == fincaId);
+        }
+
+
+        // ============================================================
+        // AGREGAR ESTE MÉTODO AL AnimalesController
+        // ============================================================
+
+        // GET: Animales/Historial/5
+        public async Task<IActionResult> Historial(long? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            try
+            {
+                var fincaId = GetFincaId();
+
+                // ========================================
+                // 1️⃣ CARGAR EL ANIMAL CON TODAS SUS RELACIONES
+                // ========================================
+                var animal = await _context.Animals
+                    .Where(a => a.FincaId == fincaId && a.AnimalId == id)
+                    .Include(a => a.Finca)
+                    .Include(a => a.Raza)
+                    .Include(a => a.Madre)
+                    .Include(a => a.Padre)
+                    .Include(a => a.LoteAnimal)
+                    .FirstOrDefaultAsync();
+
+                if (animal == null)
+                {
+                    _logger.LogWarning($"Animal {id} no encontrado o no pertenece a finca {fincaId}");
+                    return NotFound();
+                }
+
+                // ========================================
+                // 2️⃣ CREAR EL VIEWMODEL
+                // ========================================
+                var vm = new AgroTechApp.ViewModels.AnimalHistorialVM
+                {
+                    Animal = animal
+                };
+
+                // ========================================
+                // 3️⃣ CALCULAR EDAD
+                // ========================================
+                if (animal.FechaNacimiento.HasValue)
+                {
+                    var hoy = DateOnly.FromDateTime(DateTime.Today);
+                    var nacimiento = animal.FechaNacimiento.Value;
+
+                    var edad = hoy.DayNumber - nacimiento.DayNumber;
+                    vm.DiasDeVida = edad;
+
+                    // Formatear edad legible
+                    if (edad < 30)
+                    {
+                        vm.EdadFormateada = $"{edad} días";
+                    }
+                    else if (edad < 365)
+                    {
+                        var meses = edad / 30;
+                        var diasRestantes = edad % 30;
+                        vm.EdadFormateada = diasRestantes > 0
+                            ? $"{meses} meses y {diasRestantes} días"
+                            : $"{meses} meses";
+                    }
+                    else
+                    {
+                        var años = edad / 365;
+                        var mesesRestantes = (edad % 365) / 30;
+                        vm.EdadFormateada = mesesRestantes > 0
+                            ? $"{años} años y {mesesRestantes} meses"
+                            : $"{años} años";
+                    }
+                }
+
+                // ========================================
+                // 4️⃣ HISTORIAL DE PESAJES Y ESTADÍSTICAS
+                // ========================================
+                vm.Pesajes = await _context.Pesajes
+                    .Where(p => p.AnimalId == id)
+                    .OrderBy(p => p.Fecha)
+                    .ToListAsync();
+
+                if (vm.Pesajes.Any())
+                {
+                    vm.PesoInicial = vm.Pesajes.First().PesoKg;
+                    vm.PesoActual = vm.Pesajes.Last().PesoKg;
+                    vm.GananciaTotal = vm.PesoActual - vm.PesoInicial;
+
+                    // Calcular GDP (Ganancia Diaria Promedio)
+                    if (vm.Pesajes.Count >= 2)
+                    {
+                        var primerPesaje = vm.Pesajes.First();
+                        var ultimoPesaje = vm.Pesajes.Last();
+                        var diasTranscurridos = (ultimoPesaje.Fecha - primerPesaje.Fecha).Days;
+
+                        if (diasTranscurridos > 0)
+                        {
+                            vm.GananciaDiariaPromedio = vm.GananciaTotal / diasTranscurridos;
+                        }
+
+                        // Calcular mejor periodo de ganancia
+                        decimal mejorGDP = 0;
+                        string? mejorPeriodo = null;
+
+                        for (int i = 1; i < vm.Pesajes.Count; i++)
+                        {
+                            var anterior = vm.Pesajes[i - 1];
+                            var actual = vm.Pesajes[i];
+                            var diasPeriodo = (actual.Fecha - anterior.Fecha).Days;
+
+                            if (diasPeriodo > 0)
+                            {
+                                var gdpPeriodo = (actual.PesoKg - anterior.PesoKg) / diasPeriodo;
+
+                                if (gdpPeriodo > mejorGDP)
+                                {
+                                    mejorGDP = gdpPeriodo;
+                                    mejorPeriodo = $"{anterior.Fecha:dd/MM/yyyy} - {actual.Fecha:dd/MM/yyyy}";
+                                }
+                            }
+                        }
+
+                        vm.MejorGananciaDiaria = mejorGDP;
+                        vm.MejorPeriodo = mejorPeriodo;
+                    }
+                }
+
+                // ========================================
+                // 5️⃣ HISTORIAL DE TRATAMIENTOS
+                // ========================================
+                vm.Tratamientos = await _context.Tratamientos
+                    .Where(t => t.AnimalId == id)
+                    .Include(t => t.TipoTrat)
+                    .Include(t => t.Insumo)
+                        .ThenInclude(i => i!.Unidad)
+                    .OrderByDescending(t => t.Fecha)
+                    .ToListAsync();
+
+                vm.TotalTratamientos = vm.Tratamientos.Count;
+
+                // Agrupar tratamientos por tipo
+                vm.TratamientosPorTipo = vm.Tratamientos
+                    .GroupBy(t => t.TipoTrat.Nombre)
+                    .ToDictionary(g => g.Key, g => g.Count());
+
+                // ========================================
+                // 6️⃣ RESUMEN FINANCIERO
+                // ========================================
+                vm.CostoCompra = animal.CostoCompra;
+
+                // Gastos del animal
+                vm.Gastos = await _context.Gastos
+                    .Where(g => g.AnimalId == id)
+                    .Include(g => g.RubroGasto)
+                    .OrderByDescending(g => g.Fecha)
+                    .ToListAsync();
+
+                vm.TotalGastos = vm.Gastos.Sum(g => g.Monto);
+
+                // Ingresos del animal
+                vm.Ingresos = await _context.Ingresos
+                    .Where(i => i.AnimalId == id)
+                    .Include(i => i.RubroIngreso)
+                    .OrderByDescending(i => i.Fecha)
+                    .ToListAsync();
+
+                vm.TotalIngresos = vm.Ingresos.Sum(i => i.Monto);
+
+                // Balance
+                vm.BalanceFinanciero = vm.TotalIngresos - vm.TotalGastos;
+
+                // ROI solo si está vendido y tiene costo de compra
+                if (animal.Estado == "Vendido" && animal.CostoCompra.HasValue && animal.CostoCompra > 0)
+                {
+                    var ganancia = vm.BalanceFinanciero;
+                    vm.ROI = (ganancia / animal.CostoCompra.Value) * 100;
+                }
+
+                // ========================================
+                // 7️⃣ INDICADORES DE RENDIMIENTO DEL LOTE
+                // ========================================
+                if (animal.LoteAnimalId.HasValue)
+                {
+                    vm.Lote = animal.LoteAnimal;
+
+                    // Contar animales en el lote
+                    vm.AnimalesEnLote = await _context.Animals
+                        .Where(a => a.LoteAnimalId == animal.LoteAnimalId &&
+                                   a.Estado == "Activo" &&
+                                   a.FincaId == fincaId)
+                        .CountAsync();
+
+                    // Calcular GDP promedio del lote
+                    var animalesLote = await _context.Animals
+                        .Where(a => a.LoteAnimalId == animal.LoteAnimalId &&
+                                   a.Estado == "Activo" &&
+                                   a.FincaId == fincaId)
+                        .Include(a => a.Pesajes.OrderBy(p => p.Fecha))
+                        .ToListAsync();
+
+                    var gdpsLote = new List<decimal>();
+
+                    foreach (var animalLote in animalesLote)
+                    {
+                        if (animalLote.Pesajes.Count >= 2)
+                        {
+                            var primerPesaje = animalLote.Pesajes.First();
+                            var ultimoPesaje = animalLote.Pesajes.Last();
+                            var diasTranscurridos = (ultimoPesaje.Fecha - primerPesaje.Fecha).Days;
+
+                            if (diasTranscurridos > 0)
+                            {
+                                var ganancia = ultimoPesaje.PesoKg - primerPesaje.PesoKg;
+                                var gdp = ganancia / diasTranscurridos;
+                                gdpsLote.Add(gdp);
+                            }
+                        }
+                    }
+
+                    if (gdpsLote.Any())
+                    {
+                        vm.PromedioLote = gdpsLote.Average();
+
+                        // Comparativa
+                        if (vm.GananciaDiariaPromedio.HasValue && vm.PromedioLote.HasValue)
+                        {
+                            var diferencia = vm.GananciaDiariaPromedio.Value - vm.PromedioLote.Value;
+                            var porcentajeDiferencia = (diferencia / vm.PromedioLote.Value) * 100;
+
+                            if (porcentajeDiferencia > 10)
+                            {
+                                vm.ComparativaLote = $"Por encima del promedio ({porcentajeDiferencia:N1}%)";
+                            }
+                            else if (porcentajeDiferencia < -10)
+                            {
+                                vm.ComparativaLote = $"Por debajo del promedio ({Math.Abs(porcentajeDiferencia):N1}%)";
+                                vm.TieneAlertaBajoRendimiento = true;
+                                vm.MensajeAlerta = $"Este animal está ganando {Math.Abs(porcentajeDiferencia):N1}% menos peso que el promedio del lote.";
+                            }
+                            else
+                            {
+                                vm.ComparativaLote = "Dentro del rango normal del lote";
+                            }
+                        }
+                    }
+
+                    // Peso promedio del lote
+                    var pesosActuales = new List<decimal>();
+                    foreach (var animalLote in animalesLote)
+                    {
+                        var ultimoPeso = animalLote.Pesajes.OrderByDescending(p => p.Fecha).FirstOrDefault()?.PesoKg;
+                        if (ultimoPeso.HasValue)
+                        {
+                            pesosActuales.Add(ultimoPeso.Value);
+                        }
+                    }
+
+                    if (pesosActuales.Any())
+                    {
+                        vm.PesoPromedioLote = pesosActuales.Average();
+                    }
+                }
+
+                // ========================================
+                // 8️⃣ GENEALOGÍA Y CRÍAS
+                // ========================================
+                vm.Madre = animal.Madre;
+                vm.Padre = animal.Padre;
+
+                // Si es hembra, buscar sus crías
+                if (animal.Sexo == "H")
+                {
+                    vm.Crias = await _context.Animals
+                        .Where(a => a.MadreId == id && a.FincaId == fincaId)
+                        .Include(a => a.Raza)
+                        .OrderByDescending(a => a.FechaNacimiento)
+                        .Take(10)
+                        .ToListAsync();
+
+                    vm.TotalCrias = vm.Crias.Count;
+                }
+                // Si es macho, buscar sus crías
+                else if (animal.Sexo == "M")
+                {
+                    vm.Crias = await _context.Animals
+                        .Where(a => a.PadreId == id && a.FincaId == fincaId)
+                        .Include(a => a.Raza)
+                        .OrderByDescending(a => a.FechaNacimiento)
+                        .Take(10)
+                        .ToListAsync();
+
+                    vm.TotalCrias = vm.Crias.Count;
+                }
+
+                // ========================================
+                // 9️⃣ ALERTA DE BAJO RENDIMIENTO (adicional)
+                // ========================================
+                if (!vm.TieneAlertaBajoRendimiento && vm.GananciaDiariaPromedio.HasValue)
+                {
+                    // Alerta si GDP es menor a 0.5 kg/día (ajustar según necesidad)
+                    if (vm.GananciaDiariaPromedio.Value < 0.5m)
+                    {
+                        vm.TieneAlertaBajoRendimiento = true;
+                        vm.MensajeAlerta = $"Ganancia diaria promedio baja ({vm.GananciaDiariaPromedio.Value:N2} kg/día). Se recomienda revisar alimentación y salud.";
+                    }
+                }
+
+                return View(vm);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogWarning(ex, "Acceso no autorizado en AnimalesController.Historial");
+                return RedirectToAction("Login", "Account", new { area = "Identity" });
+            }
         }
     }
 }

@@ -29,21 +29,41 @@ namespace AgroTechApp.Controllers
         // ============================================================
         // GET: Tratamientos (solo finca del usuario)
         // ============================================================
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? pagina)
         {
             try
             {
                 long fincaId = GetFincaId();
 
-                var tratamientos = await _context.Tratamientos
-                    .Where(t => t.FincaId == fincaId)      // 🔒 MULTI-TENANT
+                var query = _context.Tratamientos
+                    .Where(t => t.FincaId == fincaId)      // MULTI-TENANT
                     .Include(t => t.Animal)
                     .Include(t => t.TipoTrat)
                     .Include(t => t.Insumo)
                     .Include(t => t.Lote)
                     .Include(t => t.LoteAnimal)
-                    .OrderByDescending(t => t.Fecha)
+                    .AsQueryable();
+
+                // Contar total antes de paginar
+                var totalRegistros = await query.CountAsync();
+
+                // Más recientes primero (por TratamientoId descendente)
+                query = query.OrderByDescending(t => t.TratamientoId);
+
+                // PAGINACIÓN
+                int registrosPorPagina = 10;
+                int paginaActual = pagina ?? 1;
+                int totalPaginas = (int)Math.Ceiling(totalRegistros / (double)registrosPorPagina);
+
+                var tratamientos = await query
+                    .Skip((paginaActual - 1) * registrosPorPagina)
+                    .Take(registrosPorPagina)
                     .ToListAsync();
+
+                // ViewBags para la vista
+                ViewBag.PaginaActual = paginaActual;
+                ViewBag.TotalPaginas = totalPaginas;
+                ViewBag.TotalRegistros = totalRegistros;
 
                 return View(tratamientos);
             }
@@ -112,7 +132,7 @@ namespace AgroTechApp.Controllers
                 long fincaId = GetFincaId();
                 t.FincaId = fincaId; // 🔒 No permitir manipular finca desde el cliente
 
-                // ✅ CORRECCIÓN: Remover validaciones de navegación
+                // Remover validaciones de navegación
                 ModelState.Remove("FincaId");
                 ModelState.Remove("Finca");
                 ModelState.Remove("Animal");
@@ -121,16 +141,22 @@ namespace AgroTechApp.Controllers
                 ModelState.Remove("LoteAnimal");
                 ModelState.Remove("Lote");
 
-                // VALIDAR ANIMAL
+                // 🔒 VALIDAR ANIMAL
                 if (!await _context.Animals.AnyAsync(a => a.AnimalId == t.AnimalId && a.FincaId == fincaId))
+                {
                     ModelState.AddModelError("AnimalId", "El animal no pertenece a su finca.");
+                    _logger.LogWarning($"Intento de crear tratamiento con animal {t.AnimalId} que no pertenece a finca {fincaId}");
+                }
 
-                // VALIDAR INSUMO
+                // 🔒 VALIDAR INSUMO (si está presente)
                 if (t.InsumoId.HasValue &&
                     !await _context.Insumos.AnyAsync(i => i.InsumoId == t.InsumoId && i.FincaId == fincaId))
+                {
                     ModelState.AddModelError("InsumoId", "El insumo no pertenece a su finca.");
+                    _logger.LogWarning($"Intento de crear tratamiento con insumo {t.InsumoId} que no pertenece a finca {fincaId}");
+                }
 
-                // ✅ NUEVA VALIDACIÓN: Stock disponible si hay insumo
+                // 🔒 VALIDAR STOCK disponible si hay insumo Y dosis
                 if (t.InsumoId.HasValue && !string.IsNullOrWhiteSpace(t.Dosis))
                 {
                     // Intentar parsear la cantidad de la dosis
@@ -151,17 +177,21 @@ namespace AgroTechApp.Controllers
                     }
                 }
 
-                // VALIDAR LOTE DE INSUMO
+                // 🔒 VALIDAR LOTE DE INSUMO (si está presente)
                 if (t.LoteId.HasValue &&
                     !await _context.InsumoLotes
                         .Include(l => l.Insumo)
                         .AnyAsync(l => l.LoteId == t.LoteId && l.Insumo.FincaId == fincaId))
+                {
                     ModelState.AddModelError("LoteId", "El lote no pertenece a su finca.");
+                }
 
-                // VALIDAR LOTE ANIMAL
+                // 🔒 VALIDAR LOTE ANIMAL (si está presente)
                 if (t.LoteAnimalId.HasValue &&
                     !await _context.LoteAnimals.AnyAsync(l => l.LoteAnimalId == t.LoteAnimalId && l.FincaId == fincaId))
+                {
                     ModelState.AddModelError("LoteAnimalId", "El lote animal no pertenece a su finca.");
+                }
 
                 if (!ModelState.IsValid)
                 {
@@ -173,21 +203,15 @@ namespace AgroTechApp.Controllers
 
                 try
                 {
-                    // ✅ PASO 1: Crear el tratamiento
+                    // Crear el tratamiento
                     _context.Add(t);
                     await _context.SaveChangesAsync();
 
-                    // ✅ PASO 2: Si hay insumo, procesar consumo y gasto
+                    // SI HAY INSUMO Y DOSIS → Procesar consumo y gasto solo entrar aquí si REALMENTE hay insumo
                     if (t.InsumoId.HasValue && !string.IsNullOrWhiteSpace(t.Dosis))
                     {
                         // Parsear cantidad de la dosis
-                        decimal cantidad = 0;
-                        if (decimal.TryParse(t.Dosis.Split(' ')[0], out decimal parsedCantidad))
-                        {
-                            cantidad = parsedCantidad;
-                        }
-
-                        if (cantidad > 0)
+                        if (decimal.TryParse(t.Dosis.Split(' ')[0], out decimal cantidad) && cantidad > 0)
                         {
                             var insumo = await _context.Insumos
                                 .Include(i => i.Unidad)
@@ -195,7 +219,7 @@ namespace AgroTechApp.Controllers
 
                             if (insumo != null)
                             {
-                                // Registrar consumo de inventario
+                                // REGISTRAR CONSUMO DE INVENTARIO
                                 await _inventarioService.RegistrarConsumoAsync(
                                     fincaId: fincaId,
                                     insumoId: t.InsumoId.Value,
@@ -205,58 +229,65 @@ namespace AgroTechApp.Controllers
                                     fecha: t.Fecha
                                 );
 
-                                // Obtener el movimiento recién creado
-                                var movimiento = await _context.MovimientoInventarios
-                                    .Where(m => m.FincaId == fincaId &&
-                                                m.InsumoId == t.InsumoId.Value &&
-                                                m.TipoId == FinanzasConstants.TiposMovimientoInventario.CONSUMO)
-                                    .OrderByDescending(m => m.MovId)
-                                    .FirstOrDefaultAsync();
+                                // CALCULAR COSTO Y REGISTRAR GASTO
+                                var costoPromedio = await _finanzasService.CalcularCostoPromedioInsumo(t.InsumoId.Value);
+                                var costoTotal = cantidad * costoPromedio;
 
-                                if (movimiento != null)
-                                {
-                                    // Calcular costo promedio del insumo
-                                    var costoPromedio = await _finanzasService.CalcularCostoPromedioInsumo(t.InsumoId.Value);
-                                    var costoTotal = cantidad * costoPromedio;
+                                var tipoTrat = await _context.TipoTratamientos
+                                    .FirstOrDefaultAsync(tt => tt.TipoTratId == t.TipoTratId);
 
-                                    // Registrar gasto automático
-                                    var tipoTrat = await _context.TipoTratamientos
-                                        .FirstOrDefaultAsync(tt => tt.TipoTratId == t.TipoTratId);
+                                await _finanzasService.RegistrarGastoTratamiento(
+                                    fincaId: fincaId,
+                                    tratamientoId: t.TratamientoId,
+                                    animalId: t.AnimalId,
+                                    insumoId: t.InsumoId,
+                                    nombreInsumo: insumo.Nombre,
+                                    tipoTratamiento: tipoTrat?.Nombre ?? "Tratamiento",
+                                    costoTratamiento: costoTotal,
+                                    fecha: t.Fecha
+                                );
 
-                                    await _finanzasService.RegistrarGastoTratamiento(
-                                        fincaId: fincaId,
-                                        tratamientoId: t.TratamientoId,
-                                        animalId: t.AnimalId,
-                                        insumoId: t.InsumoId,
-                                        nombreInsumo: insumo.Nombre,
-                                        tipoTratamiento: tipoTrat?.Nombre ?? "Tratamiento",
-                                        costoTratamiento: costoTotal,
-                                        fecha: t.Fecha
-                                    );
-
-                                    _logger.LogInformation(
-                                        "Tratamiento registrado con consumo automático: {TratamientoId}, Insumo: {Insumo}, Costo: {Costo}",
-                                        t.TratamientoId, insumo.Nombre, costoTotal);
-                                }
+                                _logger.LogInformation(
+                                    "Tratamiento {TratamientoId} con insumo: Consumo e inventario actualizados. Costo: {Costo:C}",
+                                    t.TratamientoId, costoTotal);
                             }
                         }
                     }
+                    else
+                    {
+                        // TRATAMIENTO SIN INSUMO - No se registra gasto
+                        _logger.LogInformation(
+                            "Tratamiento {TratamientoId} registrado SIN INSUMO. No se generó gasto.",
+                            t.TratamientoId);
+                    }
 
                     await tx.CommitAsync();
-                    MostrarExito("Tratamiento registrado correctamente. Inventario y gasto actualizados automáticamente.");
+
+                    // Mensaje diferenciado según si hubo insumo o no
+                    if (t.InsumoId.HasValue)
+                    {
+                        MostrarExito("Tratamiento registrado. Inventario y gasto actualizados automáticamente.");
+                    }
+                    else
+                    {
+                        MostrarExito("Tratamiento registrado correctamente (sin insumo asociado).");
+                    }
+
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
                     await tx.RollbackAsync();
-                    _logger.LogError(ex, "Error al registrar tratamiento");
+                    _logger.LogError(ex, "Error al registrar tratamiento {TratamientoId}", t.TratamientoId);
                     ModelState.AddModelError(string.Empty, "Ocurrió un error al registrar el tratamiento.");
                     await CargarCombos(fincaId);
                     return View(t);
                 }
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException ex)
             {
+                _logger.LogWarning(ex, "Acceso no autorizado en Tratamientos/Create");
+                MostrarError("Debe iniciar sesión para acceder.");
                 return RedirectToAction("Login", "Account", new { area = "Identity" });
             }
         }
@@ -404,10 +435,10 @@ namespace AgroTechApp.Controllers
 
                 try
                 {
-                    // ✅ PASO 1: Eliminar gasto automático asociado (si existe)
+                    // Eliminar gasto automático asociado (si existe)
                     await _finanzasService.EliminarGastoDeTratamiento(id);
 
-                    // ✅ PASO 2: Eliminar el tratamiento
+                    // Eliminar el tratamiento
                     _context.Tratamientos.Remove(tratamiento);
                     await _context.SaveChangesAsync();
 
@@ -468,10 +499,9 @@ namespace AgroTechApp.Controllers
         // ============================================================
         // HELPERS
         // ============================================================
-        // REEMPLAZAR método completo:
         private async Task CargarCombos(long fincaId)
         {
-            // ✅ ANIMALES: Solo activos, ordenados
+            // Solo activos, ordenados
             ViewBag.AnimalId = new SelectList(
                 await _context.Animals
                     .Where(a => a.FincaId == fincaId &&

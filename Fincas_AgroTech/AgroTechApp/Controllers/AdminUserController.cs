@@ -32,18 +32,34 @@ namespace AgroTechApp.Controllers
         // ============================================================================
         // GET: AdminUsers/Index - Lista de todos los usuarios
         // ============================================================================
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? pagina)
         {
             try
             {
-                var users = await _userManager.Users.ToListAsync();
+                int registrosPorPagina = 10;
+                int paginaActual = pagina ?? 1;
+
+                // Query base (NO materializar todavía)
+                var usersQuery = _userManager.Users
+                    .OrderBy(u => u.UserName)
+                    .AsQueryable();
+
+                // Total usuarios (para stats y paginación)
+                int totalUsuarios = await usersQuery.CountAsync();
+                int totalPaginas = (int)Math.Ceiling(totalUsuarios / (double)registrosPorPagina);
+
+                // Usuarios de la página actual
+                var usersPagina = await usersQuery
+                    .Skip((paginaActual - 1) * registrosPorPagina)
+                    .Take(registrosPorPagina)
+                    .ToListAsync();
+
                 var userViewModels = new List<AdminUserListItemVM>();
 
-                foreach (var user in users)
+                foreach (var user in usersPagina)
                 {
                     var roles = await _userManager.GetRolesAsync(user);
 
-                    // Obtener fincas asignadas
                     var fincas = await _agroContext.UserFincas
                         .Where(uf => uf.AspNetUserId == user.Id)
                         .Include(uf => uf.Finca)
@@ -64,10 +80,14 @@ namespace AgroTechApp.Controllers
                     });
                 }
 
-                // Estadísticas para el dashboard
-                ViewBag.TotalUsuarios = userViewModels.Count;
-                ViewBag.UsuariosActivos = userViewModels.Count(u => u.EmailConfirmed);
-                ViewBag.UsuariosInactivos = userViewModels.Count(u => !u.EmailConfirmed);
+                // ViewBags de paginación
+                ViewBag.PaginaActual = paginaActual;
+                ViewBag.TotalPaginas = totalPaginas;
+                ViewBag.TotalUsuarios = totalUsuarios;
+
+                // Estadísticas globales (NO de la página)
+                ViewBag.UsuariosActivos = await _userManager.Users.CountAsync(u => u.EmailConfirmed);
+                ViewBag.UsuariosInactivos = await _userManager.Users.CountAsync(u => !u.EmailConfirmed);
                 ViewBag.TotalRoles = await _roleManager.Roles.CountAsync();
 
                 return View(userViewModels);
@@ -79,6 +99,7 @@ namespace AgroTechApp.Controllers
                 return View(new List<AdminUserListItemVM>());
             }
         }
+
 
         // ============================================================================
         // GET: AdminUsers/Details/id - Ver detalles de un usuario

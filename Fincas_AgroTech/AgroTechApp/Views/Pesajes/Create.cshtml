@@ -143,41 +143,44 @@
                 });
             }
 
-            // Simulación de carga del último pesaje (en una aplicación real, esto haría una llamada AJAX)
+            // visualizar ultimo pesaje
             if (animalSelect) {
-                animalSelect.addEventListener('change', function() {
-                    const animalId = this.value;
+                                animalSelect.addEventListener('change', async function () {
+            const animalId = this.value;
 
-                    if (animalId) {
-                        // Simular carga de datos del animal
-                        ultimoPesajeInfo.innerHTML = '<span style="color: var(--primary);">🔄 Cargando información del animal...</span>';
+            if (!animalId) return;
 
-                        // Simular delay de red
-                        setTimeout(() => {
-                            // En una aplicación real, aquí harías una llamada AJAX al servidor
-                            const pesosEjemplo = {
-                                '1': 'Último peso: 420.5 kg (registrado el 15/11/2023)',
-                                '2': 'Último peso: 380.2 kg (registrado el 10/11/2023)',
-                                '3': 'Último peso: 510.8 kg (registrado el 12/11/2023)',
-                                '4': 'Sin historial de pesajes anteriores'
-                            };
+            const response = await fetch(`/Pesajes/ObtenerUltimoPesaje?animalId=${animalId}`);
+            const data = await response.json();
 
-                            const info = pesosEjemplo[animalId] || 'Sin historial de pesajes anteriores';
-                            ultimoPesajeInfo.innerHTML = `<span style="color: var(--primary);">📊 ${info}</span>`;
+            if (!data) {
+                ultimoPesajeInfo.innerHTML = '📭 Sin historial de pesajes';
+                return;
+            }
 
-                            // Sugerir peso basado en el último registro (ejemplo)
-                            if (animalId in pesosEjemplo && !pesosEjemplo[animalId].includes('Sin historial')) {
-                                const ultimoPeso = pesosEjemplo[animalId].match(/(\d+\.\d+)/);
-                                if (ultimoPeso) {
-                                    pesoInput.placeholder = `Último peso: ${ultimoPeso[0]} kg`;
-                                }
-                            }
-                        }, 800);
-                    } else {
-                        ultimoPesajeInfo.innerHTML = 'Seleccione un animal para ver su último peso registrado';
-                        pesoInput.placeholder = 'Ingrese el peso en kilogramos';
-                    }
-                });
+            ultimoPesajeInfo.innerHTML =
+                `<strong>📊 Último peso:</strong> ${data.peso} kg`;
+
+            pesoInput.placeholder = `Último peso: ${data.peso} kg`;
+
+            // Para calcular si tiene perdida o ganancio respecto al peso anterior.
+            pesoInput.oninput = function () {
+                const nuevoPeso = parseFloat(this.value);
+
+                if (isNaN(nuevoPeso)) return;
+
+                const diferencia = nuevoPeso - data.peso;
+
+                if (diferencia > 0) {
+                    this.title = `📈 Ganancia de ${diferencia.toFixed(2)} kg`;
+                } else if (diferencia < 0) {
+                    this.title = `📉 Pérdida de ${Math.abs(diferencia).toFixed(2)} kg`;
+                } else {
+                    this.title = '⚖️ Sin cambio de peso';
+                }
+            };
+        });
+
             }
 
             // Validación en tiempo real del peso

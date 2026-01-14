@@ -743,87 +743,85 @@
                     </div>
 
                     <!-- Table Footer -->
-                    @if (Model.Any())
-                    {
-                        <div class="table-footer">
-                            <div class="pagination-info">
-                                Mostrando <span id="visibleCount">@Model.Count()</span> de @Model.Count() pesajes
-                            </div>
-                            <div class="export-actions">
-                                <a href="#" class="btn-export" onclick="exportToCSV(); return false;">
-                                    <i class="fas fa-file-export"></i> Exportar CSV
-                                </a>
-                                <a href="#" class="btn-export" onclick="window.print(); return false;">
-                                    <i class="fas fa-print"></i> Imprimir
-                                </a>
-                            </div>
-                        </div>
-                    }
+                    @if (ViewBag.TotalPaginas > 1)
+{
+    <nav style="margin-top: 1.5rem;">
+        <ul class="pagination justify-content-center">
+
+            <!-- Primera -->
+            <li class="page-item @(ViewBag.PaginaActual == 1 ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-pagina="1">
+                    <i class="fas fa-angle-double-left"></i>
+                </a>
+            </li>
+
+            <!-- Anterior -->
+            <li class="page-item @(ViewBag.PaginaActual == 1 ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-pagina="@(ViewBag.PaginaActual - 1)">
+                    <i class="fas fa-angle-left"></i> Anterior
+                </a>
+            </li>
+
+            @{
+                int startPage = Math.Max(1, ViewBag.PaginaActual - 2);
+                int endPage = Math.Min(ViewBag.TotalPaginas, ViewBag.PaginaActual + 2);
+            }
+
+            @if (startPage > 1)
+            {
+                <li class="page-item disabled">
+                    <span class="page-link">…</span>
+                </li>
+            }
+
+            @for (int i = startPage; i <= endPage; i++)
+            {
+                <li class="page-item @(ViewBag.PaginaActual == i ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="Index"
+                       asp-route-pagina="@i">@i</a>
+                </li>
+            }
+
+            @if (endPage < ViewBag.TotalPaginas)
+            {
+                <li class="page-item disabled">
+                    <span class="page-link">…</span>
+                </li>
+            }
+
+            <!-- Siguiente -->
+            <li class="page-item @(ViewBag.PaginaActual >= ViewBag.TotalPaginas ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-pagina="@(ViewBag.PaginaActual + 1)">
+                    Siguiente <i class="fas fa-angle-right"></i>
+                </a>
+            </li>
+
+            <!-- Última -->
+            <li class="page-item @(ViewBag.PaginaActual >= ViewBag.TotalPaginas ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="Index"
+                   asp-route-pagina="@ViewBag.TotalPaginas">
+                    <i class="fas fa-angle-double-right"></i>
+                </a>
+            </li>
+
+        </ul>
+    </nav>
+}
+
                 </div>
+
+
             </div>
         </div>
 
-        <!-- Sidebar Sections (para filtros y actividad) -->
-        <div style="display: grid; grid-template-columns: 1fr 350px; gap: 2rem; margin-top: 2rem;">
-            @if (Model.Any())
-            {
-                <div></div> <!-- Espacio para mantener la estructura -->
-                <div>
-                    <!-- Filtros -->
-                    <div class="sidebar-section">
-                        <h3 class="sidebar-title">
-                            <i class="fas fa-filter"></i> Filtros
-                        </h3>
-                        <div class="filter-group">
-                            <label for="sidebarDateFilter">Fecha</label>
-                            <select id="sidebarDateFilter" class="filter-select">
-                                <option value="">Todos los tiempos</option>
-                                <option value="today">Hoy</option>
-                                <option value="week">Esta semana</option>
-                                <option value="month">Este mes</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="sidebarWeightFilter">Peso</label>
-                            <select id="sidebarWeightFilter" class="filter-select">
-                                <option value="">Todos los pesos</option>
-                                <option value="light">Menos de 300 kg</option>
-                                <option value="medium">300 - 500 kg</option>
-                                <option value="heavy">Más de 500 kg</option>
-                            </select>
-                        </div>
-                        <button class="btn btn-primary" style="width: 100%;" id="applyFilters">
-                            <i class="fas fa-search"></i> Aplicar Filtros
-                        </button>
-                    </div>
-
-                    <!-- Actividad Reciente -->
-                    <div class="sidebar-section">
-                        <h3 class="sidebar-title">
-                            <i class="fas fa-history"></i> Actividad Reciente
-                        </h3>
-                        <div class="activity-list">
-                            @{
-                                var recentPesajes = Model.OrderByDescending(p => p.Fecha).Take(4);
-                            }
-                            @foreach (var item in recentPesajes)
-                            {
-                                <div class="activity-item">
-                                    <div class="activity-icon">
-                                        <i class="fas fa-weight-hanging"></i>
-                                    </div>
-                                    <div class="activity-info">
-                                        <h4>Pesaje registrado</h4>
-                                        <p>Animal #@item.Animal.AnimalId - @item.PesoKg kg</p>
-                                        <p>@item.Fecha.ToString("dd MMM, yyyy")</p>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
     </div>
 
     <script>

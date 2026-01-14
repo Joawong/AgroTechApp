@@ -8,6 +8,11 @@
     var porAcabarse = ViewBag.PorAcabarse ?? 0;
     var agotados = ViewBag.Agotados ?? 0;
     var categorias = ViewBag.Categorias ?? 0;
+
+    // Filtros actuales
+    var categoriaFiltro = ViewBag.CategoriaIdFiltro;
+    var estadoFiltro = ViewBag.EstadoFiltro ?? "";
+    var qFiltro = ViewBag.QFiltro ?? "";
 }
 
 <!DOCTYPE html>
@@ -63,15 +68,18 @@
         }
 
         @@keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
+            from
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
         }
 
         .admin-header {
@@ -167,7 +175,6 @@
             .btn-primary:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 8px 20px rgba(46, 139, 87, 0.3);
-                background: linear-gradient(135deg, var(--primary-dark), var(--primary));
             }
 
         .btn-success {
@@ -318,6 +325,22 @@
                 box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
             }
 
+        .btn-filter {
+            padding: 0.85rem 1.5rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+            .btn-filter:hover {
+                background: var(--primary-dark);
+                transform: translateY(-2px);
+            }
+
         .table-wrapper {
             background: var(--white);
             border-radius: 15px;
@@ -421,32 +444,76 @@
             font-weight: 500;
         }
 
-        .export-actions {
+        /* ESTILOS DE PAGINACIÓN */
+        .pagination {
             display: flex;
-            gap: 0.8rem;
+            list-style: none;
+            gap: 0.5rem;
+            padding: 0;
+            margin: 0;
+            flex-wrap: wrap;
         }
 
-        .btn-export {
-            padding: 0.6rem 1.2rem;
-            background: var(--white);
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            color: var(--gray);
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
+        .page-item {
+            display: inline-block;
+        }
+
+        .page-link {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
+            gap: 0.3rem;
+            padding: 0.6rem 0.9rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--primary);
             text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: var(--white);
+            cursor: pointer;
+            min-width: 40px;
+            justify-content: center;
         }
 
-            .btn-export:hover {
+            .page-link:hover:not(.page-item.disabled .page-link) {
+                background: var(--primary);
+                color: white;
                 border-color: var(--primary);
-                color: var(--primary);
                 transform: translateY(-2px);
             }
+
+        .page-item.active .page-link {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
+        }
+
+        .page-item.disabled .page-link {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+            background: #f8f9fa;
+            color: var(--gray);
+        }
+
+        .stock-number {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .stock-low {
+            color: var(--warning);
+        }
+
+        .stock-ok {
+            color: var(--success);
+        }
+
+        .stock-zero {
+            color: var(--danger);
+        }
 
         .empty-state {
             text-align: center;
@@ -475,48 +542,44 @@
             font-size: 1rem;
         }
 
-        .stock-number {
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-
-        .stock-low {
-            color: var(--warning);
-        }
-
-        .stock-ok {
-            color: var(--success);
-        }
-
-        .stock-zero {
-            color: var(--danger);
-        }
-
         @@media (max-width: 768px) {
-            .admin-header h1 {
-                font-size: 1.8rem;
+            .admin-header h1
+
+        {
+            font-size: 1.8rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .header-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-row {
+            flex-direction: column;
+        }
+
+            .filter-row > * {
+                width: 100%;
             }
 
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
+        .table-container {
+            overflow-x: scroll;
+        }
 
-            .header-actions {
-                flex-direction: column;
-                align-items: stretch;
-            }
+        .table-footer {
+            flex-direction: column;
+            align-items: flex-start;
+        }
 
-            .filter-row {
-                flex-direction: column;
-            }
+        .pagination {
+            width: 100%;
+            justify-content: center;
+        }
 
-                .filter-row > * {
-                    width: 100%;
-                }
-
-            .table-container {
-                overflow-x: scroll;
-            }
         }
     </style>
 </head>
@@ -537,7 +600,7 @@
                 <div class="header-actions">
                     <div class="header-title">
                         <h2>Lista de Insumos</h2>
-                        <p id="totalCount">Total: @Model.Count() insumos registrados</p>
+                        <p>Total: @ViewBag.TotalRegistros insumos registrados</p>
                     </div>
                     <a asp-action="Create" class="btn btn-primary">
                         <i class="fas fa-plus-circle"></i>
@@ -573,38 +636,38 @@
                 </div>
 
                 <!-- Search & Filters -->
-                <div class="search-filter-container">
+                <form asp-action="Index" method="get" class="search-filter-container">
                     <div class="filter-row">
                         <input type="text"
-                               id="searchInput"
+                               name="q"
+                               value="@qFiltro"
                                class="search-input"
                                placeholder="Buscar por nombre...">
 
-                        <select id="categoriaFilter" class="filter-select">
+                        <select name="categoriaId" class="filter-select">
                             <option value="">Todas las categorías</option>
                             @if (ViewBag.CategoriaId != null)
                             {
                                 @foreach (var cat in ViewBag.CategoriaId as SelectList)
                                 {
-                                    <option value="@cat.Value">@cat.Text</option>
+                                    <option value="@cat.Value" selected="@(cat.Value == categoriaFiltro?.ToString())">@cat.Text</option>
                                 }
                             }
                         </select>
 
-                        <select id="stockFilter" class="filter-select">
-                            <option value="">Todos los stocks</option>
-                            <option value="ok">✅ Stock OK</option>
-                            <option value="bajo">⚠️ Stock Bajo</option>
-                            <option value="agotado">❌ Agotado</option>
+                        <select name="estado" class="filter-select">
+                            <option value="">Todos los estados</option>
+                            <option value="activo" selected="@(estadoFiltro == "activo")">✅ Activos</option>
+                            <option value="inactivo" selected="@(estadoFiltro == "inactivo")">⭕ Inactivos</option>
+                            <option value="bajo" selected="@(estadoFiltro == "bajo")">⚠️ Stock Bajo</option>
+                            <option value="agotado" selected="@(estadoFiltro == "agotado")">❌ Agotado</option>
                         </select>
 
-                        <select id="estadoFilter" class="filter-select">
-                            <option value="">Todos los estados</option>
-                            <option value="activo">✅ Activos</option>
-                            <option value="inactivo">⭕ Inactivos</option>
-                        </select>
+                        <button type="submit" class="btn-filter">
+                            <i class="fas fa-search"></i> Filtrar
+                        </button>
                     </div>
-                </div>
+                </form>
 
                 <!-- Table -->
                 <div class="table-wrapper">
@@ -624,27 +687,19 @@
                                         <th><i class="fas fa-cogs"></i> Acciones</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tableBody">
+                                <tbody>
                                     @foreach (var item in Model)
                                     {
                                         var stockActual = S(item.InsumoId);
                                         var estadoStock = stockActual == 0 ? "agotado" :
                                         stockActual < item.StockMinimo ? "bajo" : "ok";
-                                        var estadoActivo = item.Activo ? "activo" : "inactivo";
 
-                                        <tr class="item-row"
-                                            data-nombre="@item.Nombre.ToLower()"
-                                            data-categoria="@item.CategoriaId"
-                                            data-stock="@estadoStock"
-                                            data-estado="@estadoActivo">
-
+                                        <tr>
                                             <td><strong>@item.Nombre</strong></td>
                                             <td>@(item.Categoria?.Nombre ?? "-")</td>
                                             <td>@(item.Unidad?.Nombre ?? "-")</td>
                                             <td>
-                                                <span class="stock-number
-                                                                    @(estadoStock == "ok" ? "stock-ok" :
-                                                                                                                                                                  estadoStock == "bajo" ? "stock-low" : "stock-zero")">
+                                                <span class="stock-number @(estadoStock == "ok" ? "stock-ok" : estadoStock == "bajo" ? "stock-low" : "stock-zero")">
                                                     @stockActual.ToString("N2")
                                                 </span>
                                             </td>
@@ -719,126 +774,107 @@
                         }
                     </div>
 
-                    <!-- Table Footer -->
+                    <!-- ============================================ -->
+                    <!-- PIE DE TABLA CON PAGINACIÓN -->
+                    <!-- ============================================ -->
                     @if (Model.Any())
                     {
                         <div class="table-footer">
+                            <!-- Información de registros -->
                             <div class="pagination-info">
-                                Mostrando <span id="visibleCount">@Model.Count()</span> de @Model.Count() insumos
+                                Mostrando @((ViewBag.PaginaActual - 1) * 10 + 1)-@(Math.Min(ViewBag.PaginaActual * 10, ViewBag.TotalRegistros)) de @ViewBag.TotalRegistros insumos
                             </div>
-                            <div class="export-actions">
-                                <a href="#" class="btn-export" onclick="exportToCSV(); return false;">
-                                    <i class="fas fa-file-export"></i> Exportar CSV
-                                </a>
-                                <a href="#" class="btn-export" onclick="window.print(); return false;">
-                                    <i class="fas fa-print"></i> Imprimir
-                                </a>
-                            </div>
+
+                            <!-- Controles de paginación -->
+                            @if (ViewBag.TotalPaginas > 1)
+                            {
+                                <nav>
+                                    <ul class="pagination">
+                                        <!-- Primera página -->
+                                        <li class="page-item @(ViewBag.PaginaActual == 1 ? "disabled" : "")">
+                                            <a class="page-link"
+                                               asp-action="Index"
+                                               asp-route-pagina="1"
+                                               asp-route-categoriaId="@categoriaFiltro"
+                                               asp-route-estado="@estadoFiltro"
+                                               asp-route-q="@qFiltro">
+                                                <i class="fas fa-angle-double-left"></i>
+                                            </a>
+                                        </li>
+
+                                        <!-- Anterior -->
+                                        <li class="page-item @(ViewBag.PaginaActual == 1 ? "disabled" : "")">
+                                            <a class="page-link"
+                                               asp-action="Index"
+                                               asp-route-pagina="@(ViewBag.PaginaActual - 1)"
+                                               asp-route-categoriaId="@categoriaFiltro"
+                                               asp-route-estado="@estadoFiltro"
+                                               asp-route-q="@qFiltro">
+                                                <i class="fas fa-angle-left"></i> Anterior
+                                            </a>
+                                        </li>
+
+                                        <!-- Números de página -->
+                                        @{
+                                            int startPage = Math.Max(1, ViewBag.PaginaActual - 2);
+                                            int endPage = Math.Min(ViewBag.TotalPaginas, ViewBag.PaginaActual + 2);
+                                        }
+
+                                        @if (startPage > 1)
+                                        {
+                                            <li class="page-item"><span class="page-link">...</span></li>
+                                        }
+
+                                        @for (int i = startPage; i <= endPage; i++)
+                                        {
+                                            <li class="page-item @(ViewBag.PaginaActual == i ? "active" : "")">
+                                                <a class="page-link"
+                                                   asp-action="Index"
+                                                   asp-route-pagina="@i"
+                                                   asp-route-categoriaId="@categoriaFiltro"
+                                                   asp-route-estado="@estadoFiltro"
+                                                   asp-route-q="@qFiltro">
+                                                    @i
+                                                </a>
+                                            </li>
+                                        }
+
+                                        @if (endPage < ViewBag.TotalPaginas)
+                                        {
+                                            <li class="page-item"><span class="page-link">...</span></li>
+                                        }
+
+                                        <!-- Siguiente -->
+                                        <li class="page-item @(ViewBag.PaginaActual >= ViewBag.TotalPaginas ? "disabled" : "")">
+                                            <a class="page-link"
+                                               asp-action="Index"
+                                               asp-route-pagina="@(ViewBag.PaginaActual + 1)"
+                                               asp-route-categoriaId="@categoriaFiltro"
+                                               asp-route-estado="@estadoFiltro"
+                                               asp-route-q="@qFiltro">
+                                                Siguiente <i class="fas fa-angle-right"></i>
+                                            </a>
+                                        </li>
+
+                                        <!-- Última página -->
+                                        <li class="page-item @(ViewBag.PaginaActual >= ViewBag.TotalPaginas ? "disabled" : "")">
+                                            <a class="page-link"
+                                               asp-action="Index"
+                                               asp-route-pagina="@ViewBag.TotalPaginas"
+                                               asp-route-categoriaId="@categoriaFiltro"
+                                               asp-route-estado="@estadoFiltro"
+                                               asp-route-q="@qFiltro">
+                                                <i class="fas fa-angle-double-right"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            }
                         </div>
                     }
                 </div>
             </div>
         </div>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const searchInput = document.getElementById('searchInput');
-            const categoriaFilter = document.getElementById('categoriaFilter');
-            const stockFilter = document.getElementById('stockFilter');
-            const estadoFilter = document.getElementById('estadoFilter');
-            const rows = document.querySelectorAll('.item-row');
-            const totalCount = document.getElementById('totalCount');
-            const visibleCount = document.getElementById('visibleCount');
-
-            function filterTable() {
-                const searchTerm = searchInput.value.toLowerCase();
-                const categoriaValue = categoriaFilter.value;
-                const stockValue = stockFilter.value;
-                const estadoValue = estadoFilter.value;
-
-                let visible = 0;
-
-                rows.forEach(row => {
-                    const nombre = row.getAttribute('data-nombre') || '';
-                    const categoria = row.getAttribute('data-categoria') || '';
-                    const stock = row.getAttribute('data-stock') || '';
-                    const estado = row.getAttribute('data-estado') || '';
-
-                    const matchesSearch = !searchTerm || nombre.includes(searchTerm);
-                    const matchesCategoria = !categoriaValue || categoria === categoriaValue;
-                    const matchesStock = !stockValue || stock === stockValue;
-                    const matchesEstado = !estadoValue || estado === estadoValue;
-
-                    if (matchesSearch && matchesCategoria && matchesStock && matchesEstado) {
-                        row.style.display = '';
-                        visible++;
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-
-                // Actualizar contadores
-                if (totalCount) {
-                    totalCount.textContent = `Mostrando ${visible} de ${rows.length} insumos`;
-                }
-                if (visibleCount) {
-                    visibleCount.textContent = visible;
-                }
-            }
-
-            // Event listeners
-            searchInput.addEventListener('input', filterTable);
-            categoriaFilter.addEventListener('change', filterTable);
-            stockFilter.addEventListener('change', filterTable);
-            estadoFilter.addEventListener('change', filterTable);
-
-            // Efectos hover en las filas
-            rows.forEach(row => {
-                row.addEventListener('mouseenter', function () {
-                    this.style.transform = 'translateX(5px)';
-                });
-
-                row.addEventListener('mouseleave', function () {
-                    this.style.transform = 'translateX(0)';
-                });
-            });
-
-            // Inicializar filtros
-            filterTable();
-        });
-
-        // Función para exportar a CSV
-        function exportToCSV() {
-            const rows = document.querySelectorAll('.item-row:not([style*="display: none"])');
-            let csvContent = "data:text/csv;charset=utf-8,";
-
-            // Encabezados
-            csvContent += "Nombre,Categoría,Unidad,Stock Actual,Stock Mínimo,Estado Stock,Activo\n";
-
-            // Datos
-            rows.forEach(row => {
-                const cells = row.querySelectorAll('td');
-                const nombre = cells[0].textContent.trim();
-                const categoria = cells[1].textContent.trim();
-                const unidad = cells[2].textContent.trim();
-                const stockActual = cells[3].textContent.trim();
-                const stockMinimo = cells[4].textContent.trim();
-                const estadoStock = cells[5].textContent.trim();
-                const activo = cells[6].textContent.trim();
-
-                csvContent += `"${nombre}","${categoria}","${unidad}","${stockActual}","${stockMinimo}","${estadoStock}","${activo}"\n`;
-            });
-
-            // Descargar archivo
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "insumos_agrotech.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-    </script>
 </body>
 </html>

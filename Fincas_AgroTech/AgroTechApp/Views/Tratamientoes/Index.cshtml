@@ -3,8 +3,8 @@
 @{
     ViewData["Title"] = "Gestión de Tratamientos";
 
-    // Calcular estadísticas
-    var totalTratamientos = Model.Count();
+    // Calcular estadísticas SOLO de la página actual
+    var totalTratamientos = ViewBag.TotalRegistros ?? Model.Count();
     var tratamientosConInsumo = Model.Count(t => t.InsumoId.HasValue);
     var tratamientosSinInsumo = Model.Count(t => !t.InsumoId.HasValue);
     var animalesUnicos = Model.Select(t => t.AnimalId).Distinct().Count();
@@ -268,56 +268,6 @@
             font-weight: 500;
         }
 
-        .search-filter-container {
-            background: var(--white);
-            padding: 1.5rem;
-            border-radius: 15px;
-            margin-bottom: 2rem;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
-        }
-
-        .filter-row {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .search-input {
-            flex: 1;
-            min-width: 250px;
-            padding: 0.85rem 1.2rem;
-            padding-left: 2.8rem;
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            font-size: 0.95rem;
-            transition: all 0.3s ease;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="%236c757d" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>') no-repeat 1rem center;
-        }
-
-            .search-input:focus {
-                outline: none;
-                border-color: var(--primary);
-                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
-            }
-
-        .filter-select {
-            padding: 0.85rem 1.2rem;
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            font-size: 0.95rem;
-            min-width: 180px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: var(--white);
-        }
-
-            .filter-select:focus {
-                outline: none;
-                border-color: var(--primary);
-                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
-            }
-
         .table-wrapper {
             background: var(--white);
             border-radius: 15px;
@@ -423,32 +373,62 @@
             font-weight: 500;
         }
 
-        .export-actions {
+        /* ===================================== */
+        /* ESTILOS DE PAGINACIÓN */
+        /* ===================================== */
+        .pagination {
             display: flex;
-            gap: 0.8rem;
+            list-style: none;
+            gap: 0.5rem;
+            padding: 0;
+            margin: 0;
+            flex-wrap: wrap;
         }
 
-        .btn-export {
-            padding: 0.6rem 1.2rem;
-            background: var(--white);
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            color: var(--gray);
-            font-size: 0.85rem;
-            font-weight: 600;
-            cursor: pointer;
+        .page-item {
+            display: inline-block;
+        }
+
+        .page-link {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
+            gap: 0.3rem;
+            padding: 0.6rem 0.9rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            color: var(--primary);
             text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: var(--white);
+            cursor: pointer;
+            min-width: 40px;
+            justify-content: center;
         }
 
-            .btn-export:hover {
+            .page-link:hover:not(.page-item.disabled .page-link) {
+                background: var(--primary);
+                color: white;
                 border-color: var(--primary);
-                color: var(--primary);
                 transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(46, 139, 87, 0.2);
             }
+
+        .page-item.active .page-link {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
+        }
+
+        .page-item.disabled .page-link {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+            background: #f8f9fa;
+            color: var(--gray);
+        }
 
         .empty-state {
             text-align: center;
@@ -537,16 +517,23 @@
                 align-items: stretch;
             }
 
-            .filter-row {
-                flex-direction: column;
-            }
-
-                .filter-row > * {
-                    width: 100%;
-                }
-
             .table-container {
                 overflow-x: scroll;
+            }
+
+            .table-footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .pagination {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .pagination-info {
+                width: 100%;
+                text-align: center;
             }
         }
     </style>
@@ -584,7 +571,7 @@
                 <div class="header-actions">
                     <div class="header-title">
                         <h2>Lista de Tratamientos</h2>
-                        <p id="tratamientoCount">Total: @totalTratamientos tratamientos registrados</p>
+                        <p>Total: @totalTratamientos tratamientos registrados</p>
                     </div>
                     <a asp-action="Create" class="btn btn-primary">
                         <i class="fas fa-plus-circle"></i>
@@ -603,46 +590,19 @@
                     <div class="stat-card stat-con-insumo">
                         <i class="fas fa-flask stat-icon icon-con-insumo"></i>
                         <div class="stat-number" style="color: var(--info);">@tratamientosConInsumo</div>
-                        <div class="stat-label">Con Insumo</div>
+                        <div class="stat-label">Con Insumo (Pág. actual)</div>
                     </div>
 
                     <div class="stat-card stat-sin-insumo">
                         <i class="fas fa-hand-paper stat-icon icon-sin-insumo"></i>
                         <div class="stat-number" style="color: var(--warning);">@tratamientosSinInsumo</div>
-                        <div class="stat-label">Sin Insumo</div>
+                        <div class="stat-label">Sin Insumo (Pág. actual)</div>
                     </div>
 
                     <div class="stat-card stat-animales">
                         <i class="fas fa-paw stat-icon icon-animales"></i>
                         <div class="stat-number" style="color: var(--success);">@animalesUnicos</div>
-                        <div class="stat-label">Animales Tratados</div>
-                    </div>
-                </div>
-
-                <!-- Search & Filters -->
-                <div class="search-filter-container">
-                    <div class="filter-row">
-                        <input type="text"
-                               id="searchInput"
-                               class="search-input"
-                               placeholder="Buscar por animal, tipo o responsable...">
-
-                        <select id="tipoFilter" class="filter-select">
-                            <option value="">Todos los tipos</option>
-                            @if (Model != null && Model.Any())
-                            {
-                                @foreach (var tipo in Model.Select(t => t.TipoTrat?.Nombre).Distinct().Where(t => t != null))
-                                {
-                                    <option value="@tipo">@tipo</option>
-                                }
-                            }
-                        </select>
-
-                        <select id="insumoFilter" class="filter-select">
-                            <option value="">Todos</option>
-                            <option value="con-insumo">Con Insumo</option>
-                            <option value="sin-insumo">Sin Insumo</option>
-                        </select>
+                        <div class="stat-label">Animales (Pág. actual)</div>
                     </div>
                 </div>
 
@@ -664,16 +624,10 @@
                                         <th><i class="fas fa-cogs"></i> Acciones</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tratamientosTableBody">
+                                <tbody>
                                     @foreach (var tratamiento in Model)
                                     {
-                                        var searchData = $"{tratamiento.Animal?.Arete} {tratamiento.Animal?.Nombre} {tratamiento.TipoTrat?.Nombre} {tratamiento.Responsable}".ToLower();
-                                        var tieneInsumo = tratamiento.InsumoId.HasValue ? "con-insumo" : "sin-insumo";
-
-                                        <tr class="tratamiento-row"
-                                            data-search="@searchData"
-                                            data-tipo="@tratamiento.TipoTrat?.Nombre"
-                                            data-insumo="@tieneInsumo">
+                                        <tr>
                                             <td>
                                                 <strong>@tratamiento.Fecha.ToString("dd/MM/yyyy")</strong>
                                                 <br />
@@ -782,21 +736,75 @@
                         }
                     </div>
 
-                    <!-- Table Footer -->
+                    <!-- ============================================ -->
+                    <!-- PIE DE TABLA CON PAGINACIÓN -->
+                    <!-- ============================================ -->
                     @if (Model != null && Model.Any())
                     {
                         <div class="table-footer">
+                            <!-- Información de registros -->
                             <div class="pagination-info">
-                                Mostrando <span id="visibleCount">@Model.Count()</span> de @Model.Count() tratamientos
+                                Mostrando @((ViewBag.PaginaActual - 1) * 10 + 1)-@(Math.Min(ViewBag.PaginaActual * 10, ViewBag.TotalRegistros)) de @ViewBag.TotalRegistros tratamientos
                             </div>
-                            <div class="export-actions">
-                                <a href="#" class="btn-export" onclick="exportToCSV(); return false;">
-                                    <i class="fas fa-file-export"></i> Exportar CSV
-                                </a>
-                                <a href="#" class="btn-export" onclick="window.print(); return false;">
-                                    <i class="fas fa-print"></i> Imprimir
-                                </a>
-                            </div>
+
+                            <!-- Controles de paginación -->
+                            @if (ViewBag.TotalPaginas > 1)
+                            {
+                                <nav>
+                                    <ul class="pagination">
+                                        <!-- Primera página -->
+                                        <li class="page-item @(ViewBag.PaginaActual == 1 ? "disabled" : "")">
+                                            <a class="page-link" asp-action="Index" asp-route-pagina="1">
+                                                <i class="fas fa-angle-double-left"></i>
+                                            </a>
+                                        </li>
+
+                                        <!-- Anterior -->
+                                        <li class="page-item @(ViewBag.PaginaActual == 1 ? "disabled" : "")">
+                                            <a class="page-link" asp-action="Index" asp-route-pagina="@(ViewBag.PaginaActual - 1)">
+                                                <i class="fas fa-angle-left"></i> Anterior
+                                            </a>
+                                        </li>
+
+                                        <!-- Números de página -->
+                                        @{
+                                            int startPage = Math.Max(1, ViewBag.PaginaActual - 2);
+                                            int endPage = Math.Min(ViewBag.TotalPaginas, ViewBag.PaginaActual + 2);
+                                        }
+
+                                        @if (startPage > 1)
+                                        {
+                                            <li class="page-item"><span class="page-link">...</span></li>
+                                        }
+
+                                        @for (int i = startPage; i <= endPage; i++)
+                                        {
+                                            <li class="page-item @(ViewBag.PaginaActual == i ? "active" : "")">
+                                                <a class="page-link" asp-action="Index" asp-route-pagina="@i">@i</a>
+                                            </li>
+                                        }
+
+                                        @if (endPage < ViewBag.TotalPaginas)
+                                        {
+                                            <li class="page-item"><span class="page-link">...</span></li>
+                                        }
+
+                                        <!-- Siguiente -->
+                                        <li class="page-item @(ViewBag.PaginaActual >= ViewBag.TotalPaginas ? "disabled" : "")">
+                                            <a class="page-link" asp-action="Index" asp-route-pagina="@(ViewBag.PaginaActual + 1)">
+                                                Siguiente <i class="fas fa-angle-right"></i>
+                                            </a>
+                                        </li>
+
+                                        <!-- Última página -->
+                                        <li class="page-item @(ViewBag.PaginaActual >= ViewBag.TotalPaginas ? "disabled" : "")">
+                                            <a class="page-link" asp-action="Index" asp-route-pagina="@ViewBag.TotalPaginas">
+                                                <i class="fas fa-angle-double-right"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            }
                         </div>
                     }
                 </div>
@@ -806,62 +814,6 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const searchInput = document.getElementById('searchInput');
-            const tipoFilter = document.getElementById('tipoFilter');
-            const insumoFilter = document.getElementById('insumoFilter');
-            const tratamientoRows = document.querySelectorAll('.tratamiento-row');
-            const tratamientoCount = document.getElementById('tratamientoCount');
-            const visibleCount = document.getElementById('visibleCount');
-
-            function filterTable() {
-                const searchTerm = searchInput.value.toLowerCase();
-                const tipoValue = tipoFilter.value;
-                const insumoValue = insumoFilter.value;
-
-                let visible = 0;
-
-                tratamientoRows.forEach(row => {
-                    const searchData = row.getAttribute('data-search') || '';
-                    const tipo = row.getAttribute('data-tipo');
-                    const insumo = row.getAttribute('data-insumo');
-
-                    const matchesSearch = !searchTerm || searchData.includes(searchTerm);
-                    const matchesTipo = !tipoValue || tipo === tipoValue;
-                    const matchesInsumo = !insumoValue || insumo === insumoValue;
-
-                    if (matchesSearch && matchesTipo && matchesInsumo) {
-                        row.style.display = '';
-                        visible++;
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-
-                // Actualizar contadores
-                if (tratamientoCount) {
-                    tratamientoCount.textContent = `Mostrando ${visible} de ${tratamientoRows.length} tratamientos`;
-                }
-                if (visibleCount) {
-                    visibleCount.textContent = visible;
-                }
-            }
-
-            // Event listeners
-            searchInput.addEventListener('input', filterTable);
-            tipoFilter.addEventListener('change', filterTable);
-            insumoFilter.addEventListener('change', filterTable);
-
-            // Efectos hover en las filas
-            tratamientoRows.forEach(row => {
-                row.addEventListener('mouseenter', function () {
-                    this.style.transform = 'translateX(5px)';
-                });
-
-                row.addEventListener('mouseleave', function () {
-                    this.style.transform = 'translateX(0)';
-                });
-            });
-
             // Auto-hide alerts
             setTimeout(() => {
                 const alerts = document.querySelectorAll('.alert-custom');
@@ -872,43 +824,7 @@
                     setTimeout(() => alert.remove(), 500);
                 });
             }, 5000);
-
-            // Inicializar filtros
-            filterTable();
         });
-
-        // Función para exportar a CSV
-        function exportToCSV() {
-            const rows = document.querySelectorAll('.tratamiento-row:not([style*="display: none"])');
-            let csvContent = "data:text/csv;charset=utf-8,";
-
-            // Encabezados
-            csvContent += "Fecha,Hora,Animal,Tipo,Insumo,Dosis,Via,Responsable,Estado\n";
-
-            // Datos
-            rows.forEach(row => {
-                const cells = row.querySelectorAll('td');
-                const fecha = cells[0].querySelector('strong').textContent.trim();
-                const hora = cells[0].querySelector('small').textContent.trim();
-                const animal = cells[1].querySelector('strong').textContent.trim();
-                const tipo = cells[2].textContent.trim();
-                const insumo = cells[3].textContent.trim();
-                const dosis = cells[4].textContent.trim();
-                const responsable = cells[5].textContent.trim();
-                const estado = row.getAttribute('data-insumo') === 'con-insumo' ? 'Con Insumo' : 'Sin Insumo';
-
-                csvContent += `"${fecha}","${hora}","${animal}","${tipo}","${insumo}","${dosis}","${responsable}","${estado}"\n`;
-            });
-
-            // Descargar archivo
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "tratamientos_agrotech.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
     </script>
 </body>
 </html>

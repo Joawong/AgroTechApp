@@ -1,8 +1,9 @@
 ﻿using AgroTechApp.Models.DB;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
 
 namespace AgroTechApp.Controllers
 {
@@ -19,17 +20,37 @@ namespace AgroTechApp.Controllers
         // ============================
         // GET: Pesajes
         // ============================
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? pagina)
         {
             try
             {
                 var fincaId = GetFincaId();
 
-                var pesajes = await _context.Pesajes
+                var query = _context.Pesajes
                     .Include(p => p.Animal)
-                    .Where(p => p.Animal.FincaId == fincaId) // 🔒 MULTI-TENANT
-                    .OrderByDescending(p => p.Fecha)
+                    .Where(p => p.Animal.FincaId == fincaId) // MULTI-TENANT
+                    .AsQueryable();
+
+                // Contar total antes de paginar
+                var totalRegistros = await query.CountAsync();
+
+                // Más recientes primero (por PesajeId descendente)
+                query = query.OrderByDescending(p => p.PesajeId);
+
+                // PAGINACIÓN
+                int registrosPorPagina = 10;
+                int paginaActual = pagina ?? 1;
+                int totalPaginas = (int)Math.Ceiling(totalRegistros / (double)registrosPorPagina);
+
+                var pesajes = await query
+                    .Skip((paginaActual - 1) * registrosPorPagina)
+                    .Take(registrosPorPagina)
                     .ToListAsync();
+
+                // ViewBags para la vista
+                ViewBag.PaginaActual = paginaActual;
+                ViewBag.TotalPaginas = totalPaginas;
+                ViewBag.TotalRegistros = totalRegistros;
 
                 return View(pesajes);
             }
@@ -42,27 +63,31 @@ namespace AgroTechApp.Controllers
         // ============================
         // GET: Pesajes/Create
         // ============================
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             try
             {
                 var fincaId = GetFincaId();
 
-                var animales = _context.Animals
-                    .Where(a => a.FincaId == fincaId) // 🔒 solo animales de la finca
-                    .Select(a => new
-                    {
-                        a.AnimalId,
-                        Texto = a.Arete + " - " + (a.Nombre ?? "(sin nombre)")
-                    })
-                    .ToList();
+                // SOLO ANIMALES ACTIVOS
+                ViewBag.AnimalId = new SelectList(
+                    await _context.Animals
+                        .Where(a => a.FincaId == fincaId && a.Estado == "Activo")
+                        .OrderBy(a => a.Arete)
+                        .Select(a => new
+                        {
+                            a.AnimalId,
+                            Display = $"{a.Arete} - {a.Nombre ?? "Sin nombre"}"
+                        })
+                        .ToListAsync(),
+                    "AnimalId",
+                    "Display");
 
-                ViewData["AnimalId"] = new SelectList(animales, "AnimalId", "Texto");
-
-                return View(new Pesaje { Fecha = DateTime.Today });
+                return View();
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException ex)
             {
+                _logger.LogWarning(ex, "Acceso no autorizado");
                 return RedirectToAction("Login", "Account", new { area = "Identity" });
             }
         }
@@ -80,7 +105,7 @@ namespace AgroTechApp.Controllers
 
                 ModelState.Remove("Animal");
 
-                // 🔒 Validar que el animal pertenezca a la finca del usuario
+                // Validar que el animal pertenezca a la finca del usuario
                 var animal = await _context.Animals
                     .FirstOrDefaultAsync(a => a.AnimalId == pesaje.AnimalId && a.FincaId == fincaId);
 
@@ -91,15 +116,20 @@ namespace AgroTechApp.Controllers
 
                 if (!ModelState.IsValid)
                 {
-                    var animales = _context.Animals
-                        .Where(a => a.FincaId == fincaId)
-                        .Select(a => new
-                        {
-                            a.AnimalId,
-                            Texto = a.Arete + " - " + (a.Nombre ?? "(sin nombre)")
-                        }).ToList();
+                    ViewBag.AnimalId = new SelectList(
+                        await _context.Animals
+                            .Where(a => a.FincaId == fincaId && a.Estado == "Activo") 
+                            .OrderBy(a => a.Arete)
+                            .Select(a => new
+                            {
+                                a.AnimalId,
+                                Display = $"{a.Arete} - {a.Nombre ?? "Sin nombre"}"
+                            })
+                            .ToListAsync(),
+                        "AnimalId",
+                        "Display",
+                        pesaje.AnimalId);
 
-                    ViewData["AnimalId"] = new SelectList(animales, "AnimalId", "Texto", pesaje.AnimalId);
                     return View(pesaje);
                 }
 
@@ -127,7 +157,7 @@ namespace AgroTechApp.Controllers
 
                 var pesaje = await _context.Pesajes
                     .Include(p => p.Animal)
-                    .FirstOrDefaultAsync(p => p.PesajeId == id && p.Animal.FincaId == fincaId); // 🔒 filtro
+                    .FirstOrDefaultAsync(p => p.PesajeId == id && p.Animal.FincaId == fincaId); // filtro
 
                 if (pesaje == null) return NotFound();
 
@@ -164,21 +194,26 @@ namespace AgroTechApp.Controllers
 
                 if (pesaje == null) return NotFound();
 
-                var animales = await _context.Animals
-                    .Where(a => a.FincaId == fincaId)
-                    .Select(a => new
-                    {
-                        a.AnimalId,
-                        Texto = a.Arete + " - " + (a.Nombre ?? "(sin nombre)")
-                    })
-                    .ToListAsync();
-
-                ViewData["AnimalId"] = new SelectList(animales, "AnimalId", "Texto", pesaje.AnimalId);
+                // SOLO ANIMALES ACTIVOS 
+                ViewBag.AnimalId = new SelectList(
+                    await _context.Animals
+                        .Where(a => a.FincaId == fincaId && a.Estado == "Activo")
+                        .OrderBy(a => a.Arete)
+                        .Select(a => new
+                        {
+                            a.AnimalId,
+                            Display = $"{a.Arete} - {a.Nombre ?? "Sin nombre"}"
+                        })
+                        .ToListAsync(),
+                    "AnimalId",
+                    "Display",
+                    pesaje.AnimalId);
 
                 return View(pesaje);
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException ex)
             {
+                _logger.LogWarning(ex, "Acceso no autorizado");
                 return RedirectToAction("Login", "Account", new { area = "Identity" });
             }
         }
@@ -205,15 +240,20 @@ namespace AgroTechApp.Controllers
 
                 if (!ModelState.IsValid)
                 {
-                    var animales = await _context.Animals
-                        .Where(a => a.FincaId == fincaId)
-                        .Select(a => new
-                        {
-                            a.AnimalId,
-                            Texto = a.Arete + " - " + (a.Nombre ?? "(sin nombre)")
-                        }).ToListAsync();
+                    ViewBag.AnimalId = new SelectList(
+                        await _context.Animals
+                            .Where(a => a.FincaId == fincaId && a.Estado == "Activo") 
+                            .OrderBy(a => a.Arete)
+                            .Select(a => new
+                            {
+                                a.AnimalId,
+                                Display = $"{a.Arete} - {a.Nombre ?? "Sin nombre"}"
+                            })
+                            .ToListAsync(),
+                        "AnimalId",
+                        "Display",
+                        pesaje.AnimalId);
 
-                    ViewData["AnimalId"] = new SelectList(animales, "AnimalId", "Texto", pesaje.AnimalId);
                     return View(pesaje);
                 }
 
@@ -287,5 +327,43 @@ namespace AgroTechApp.Controllers
                 return RedirectToAction("Login", "Account", new { area = "Identity" });
             }
         }
+
+
+
+        [HttpGet]
+        public async Task<IActionResult> ObtenerUltimoPesaje(long animalId)
+        {
+            try
+            {
+                var fincaId = GetFincaId();
+
+                // Validar animal pertenece a la finca
+                var pertenece = await _context.Animals
+                    .AnyAsync(a => a.AnimalId == animalId && a.FincaId == fincaId);
+
+                if (!pertenece)
+                    return Unauthorized();
+
+                var ultimoPesaje = await _context.Pesajes
+                    .Where(p => p.AnimalId == animalId)
+                    .OrderByDescending(p => p.Fecha)
+                    .Select(p => new
+                    {
+                        peso = p.PesoKg,
+                        fecha = p.Fecha
+                    })
+                    .FirstOrDefaultAsync();
+
+                if (ultimoPesaje == null)
+                    return Json(null);
+
+                return Json(ultimoPesaje);
+            }
+            catch
+            {
+                return StatusCode(500);
+            }
+        }
+
     }
 }

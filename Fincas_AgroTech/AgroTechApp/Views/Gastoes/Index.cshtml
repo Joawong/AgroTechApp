@@ -3,11 +3,11 @@
 @{
     ViewData["Title"] = "Gestión de Gastos";
 
-    // Calcular estadísticas
-    var totalGastos = Model.Sum(g => g.Monto);
-    var totalRegistros = Model.Count();
-    var gastosAutomaticos = Model.Count(g => g.EsAutomatico);
-    var gastosManuales = Model.Count(g => !g.EsAutomatico);
+    // Calcular estadísticas de la PÁGINA ACTUAL
+    var totalGastosPagina = Model.Sum(g => g.Monto);
+    var registrosPagina = Model.Count();
+    var gastosAutomaticosPagina = Model.Count(g => g.EsAutomatico);
+    var gastosManualesPagina = Model.Count(g => !g.EsAutomatico);
 }
 
 <style>
@@ -48,15 +48,18 @@
     }
 
     @@keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
+        from
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
     }
 
     .admin-header {
@@ -204,49 +207,6 @@
         color: var(--dark);
         font-size: 0.95rem;
         font-weight: 600;
-    }
-
-    .search-section {
-        background: linear-gradient(to right, rgba(46, 139, 87, 0.05), rgba(244, 164, 96, 0.05));
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        border: 2px solid var(--border);
-    }
-
-    .search-container {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-
-    .search-box {
-        flex: 1;
-        min-width: 300px;
-        padding: 1rem 1.5rem;
-        border: 2px solid var(--border);
-        border-radius: 12px;
-        font-size: 1rem;
-        background: var(--white);
-        transition: all 0.3s ease;
-    }
-
-        .search-box:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
-            transform: translateY(-1px);
-        }
-
-    .filter-select {
-        padding: 1rem 1.5rem;
-        border: 2px solid var(--border);
-        border-radius: 12px;
-        background: var(--white);
-        font-size: 1rem;
-        min-width: 150px;
-        cursor: pointer;
     }
 
     .table-container {
@@ -439,6 +399,60 @@
         font-weight: 500;
     }
 
+    /* ESTILOS DE PAGINACIÓN */
+    .pagination {
+        display: flex;
+        list-style: none;
+        gap: 0.5rem;
+        padding: 0;
+        margin: 0;
+        flex-wrap: wrap;
+    }
+
+    .page-item {
+        display: inline-block;
+    }
+
+    .page-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.6rem 0.9rem;
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        background: var(--white);
+        cursor: pointer;
+        min-width: 40px;
+        justify-content: center;
+    }
+
+        .page-link:hover:not(.page-item.disabled .page-link) {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+    .page-item.active .page-link {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color: white;
+        border-color: var(--primary);
+        box-shadow: 0 4px 12px rgba(46, 139, 87, 0.3);
+    }
+
+    .page-item.disabled .page-link {
+        opacity: 0.5;
+        cursor: not-allowed;
+        pointer-events: none;
+        background: #f8f9fa;
+        color: var(--gray);
+    }
+
     .alert-custom {
         padding: 1rem 1.5rem;
         border-radius: 12px;
@@ -450,15 +464,18 @@
     }
 
     @@keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
+        from
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
     }
 
     .alert-success {
@@ -474,31 +491,47 @@
     }
 
     @@media (max-width: 1200px) {
-        .table-container {
-            overflow-x: auto;
-        }
+        .table-container
 
-        .table-custom {
-            min-width: 1000px;
-        }
+    {
+        overflow-x: auto;
+    }
+
+    .table-custom {
+        min-width: 1000px;
+    }
+
     }
 
     @@media (max-width: 768px) {
-        .admin-header {
-            padding: 2rem;
-        }
+        .admin-header
 
-            .admin-header h1 {
-                font-size: 2rem;
-            }
+    {
+        padding: 2rem;
+    }
 
-        .admin-body {
-            padding: 1.5rem;
-        }
+    .admin-header h1 {
+        font-size: 2rem;
+    }
 
-        .stats-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
+    .admin-body {
+        padding: 1.5rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .table-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .pagination {
+        width: 100%;
+        justify-content: center;
+    }
+
     }
 </style>
 
@@ -534,64 +567,42 @@
         <div class="header-actions">
             <div class="header-title">
                 <h2>Lista de Gastos</h2>
-                <p id="gastoCount">Total de gastos registrados: @totalRegistros</p>
+                <p>Total registrado hasta la fecha: ₡@totalGastosPagina.ToString("N2")</p>
             </div>
             <a asp-action="Create" class="btn-custom btn-primary-custom">
                 <i class="fas fa-plus"></i> Nuevo Gasto
             </a>
         </div>
 
-        <!-- Estadísticas -->
+        <!-- Estadísticas (Página Actual) -->
         <div class="stats-grid">
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-receipt"></i>
                 </div>
-                <div class="stat-number">@totalRegistros</div>
-                <div class="stat-label">Total Registros</div>
+                <div class="stat-number">@registrosPagina</div>
+                <div class="stat-label">Registros (Pág. actual)</div>
             </div>
             <div class="stat-card" style="border-left-color: var(--danger);">
                 <div class="stat-icon">
                     <i class="fas fa-dollar-sign"></i>
                 </div>
-                <div class="stat-number">₡@totalGastos.ToString("N2")</div>
-                <div class="stat-label">Total Gastado</div>
+                <div class="stat-number">₡@totalGastosPagina.ToString("N2")</div>
+                <div class="stat-label">Total (Pág. actual)</div>
             </div>
             <div class="stat-card" style="border-left-color: var(--info);">
                 <div class="stat-icon">
                     <i class="fas fa-robot"></i>
                 </div>
-                <div class="stat-number">@gastosAutomaticos</div>
-                <div class="stat-label">Gastos Automáticos</div>
+                <div class="stat-number">@gastosAutomaticosPagina</div>
+                <div class="stat-label">Automáticos</div>
             </div>
             <div class="stat-card" style="border-left-color: var(--gray);">
                 <div class="stat-icon">
                     <i class="fas fa-hand-paper"></i>
                 </div>
-                <div class="stat-number">@gastosManuales</div>
-                <div class="stat-label">Gastos Manuales</div>
-            </div>
-        </div>
-
-        <!-- Búsqueda y Filtros -->
-        <div class="search-section">
-            <div class="search-container">
-                <input type="text" class="search-box" placeholder="🔍 Buscar por descripción..." id="searchInput">
-                <select class="filter-select" id="tipoFilter">
-                    <option value="">Todos los tipos</option>
-                    <option value="automatico">Automáticos</option>
-                    <option value="manual">Manuales</option>
-                </select>
-                <select class="filter-select" id="rubroFilter">
-                    <option value="">Todos los rubros</option>
-                    @if (Model != null && Model.Any())
-                    {
-                        @foreach (var rubro in Model.Select(g => g.RubroGasto?.Nombre).Distinct().Where(r => r != null))
-                        {
-                            <option value="@rubro">@rubro</option>
-                        }
-                    }
-                </select>
+                <div class="stat-number">@gastosManualesPagina</div>
+                <div class="stat-label">Manuales</div>
             </div>
         </div>
 
@@ -611,13 +622,10 @@
                             <th>Acciones</th>
                         </tr>
                     </thead>
-                    <tbody id="gastosTableBody">
+                    <tbody>
                         @foreach (var gasto in Model)
                         {
-                            <tr class="gasto-row"
-                                data-descripcion="@gasto.Descripcion?.ToLower()"
-                                data-tipo="@(gasto.EsAutomatico ? "automatico" : "manual")"
-                                data-rubro="@gasto.RubroGasto?.Nombre">
+                            <tr>
                                 <td>
                                     <strong>@gasto.Fecha.ToString("dd/MM/yyyy")</strong>
                                 </td>
@@ -715,10 +723,88 @@
 
                 <!-- Pie de tabla -->
                 <div class="table-footer">
-                    <div class="pagination-info" id="paginationInfo">
-                        Mostrando @Model.Count() de @Model.Count() gastos
+                    <div class="pagination-info">
+                        Mostrando
+                        @((ViewBag.PaginaActual - 1) * 10 + 1)
+                        -
+                        @(Math.Min(ViewBag.PaginaActual * 10, ViewBag.TotalRegistros))
+                        de @ViewBag.TotalRegistros gastos
                     </div>
+
+                    @if (ViewBag.TotalPaginas > 1)
+                    {
+                        <nav>
+                            <ul class="pagination">
+
+                                <!-- Primera -->
+                                <li class="page-item @(ViewBag.PaginaActual == 1 ? "disabled" : "")">
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-pagina="1">
+                                        <i class="fas fa-angle-double-left"></i>
+                                    </a>
+                                </li>
+
+                                <!-- Anterior -->
+                                <li class="page-item @(ViewBag.PaginaActual == 1 ? "disabled" : "")">
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-pagina="@(ViewBag.PaginaActual - 1)">
+                                        <i class="fas fa-angle-left"></i>
+                                    </a>
+                                </li>
+
+                                @{
+                                    int startPage = Math.Max(1, ViewBag.PaginaActual - 2);
+                                    int endPage = Math.Min(ViewBag.TotalPaginas, ViewBag.PaginaActual + 2);
+                                }
+
+                                @if (startPage > 1)
+                                {
+                                    <li class="page-item disabled">
+                                        <span class="page-link">…</span>
+                                    </li>
+                                }
+
+                                @for (int i = startPage; i <= endPage; i++)
+                                {
+                                    <li class="page-item @(ViewBag.PaginaActual == i ? "active" : "")">
+                                        <a class="page-link"
+                                           asp-action="Index"
+                                           asp-route-pagina="@i">@i</a>
+                                    </li>
+                                }
+
+                                @if (endPage < ViewBag.TotalPaginas)
+                                {
+                                    <li class="page-item disabled">
+                                        <span class="page-link">…</span>
+                                    </li>
+                                }
+
+                                <!-- Siguiente -->
+                                <li class="page-item @(ViewBag.PaginaActual >= ViewBag.TotalPaginas ? "disabled" : "")">
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-pagina="@(ViewBag.PaginaActual + 1)">
+                                        <i class="fas fa-angle-right"></i>
+                                    </a>
+                                </li>
+
+                                <!-- Última -->
+                                <li class="page-item @(ViewBag.PaginaActual >= ViewBag.TotalPaginas ? "disabled" : "")">
+                                    <a class="page-link"
+                                       asp-action="Index"
+                                       asp-route-pagina="@ViewBag.TotalPaginas">
+                                        <i class="fas fa-angle-double-right"></i>
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </nav>
+                    }
                 </div>
+
             }
             else
             {
@@ -737,59 +823,17 @@
     </div>
 </div>
 
-@section Scripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const searchInput = document.getElementById('searchInput');
-            const tipoFilter = document.getElementById('tipoFilter');
-            const rubroFilter = document.getElementById('rubroFilter');
-            const gastoRows = document.querySelectorAll('.gasto-row');
-            const totalGastos = @totalRegistros;
-
-            function filterTable() {
-                const searchTerm = searchInput.value.toLowerCase();
-                const tipoValue = tipoFilter.value;
-                const rubroValue = rubroFilter.value;
-
-                let visibleCount = 0;
-
-                gastoRows.forEach(row => {
-                    const descripcion = row.getAttribute('data-descripcion') || '';
-                    const tipo = row.getAttribute('data-tipo');
-                    const rubro = row.getAttribute('data-rubro');
-
-                    const matchesSearch = !searchTerm || descripcion.includes(searchTerm);
-                    const matchesTipo = !tipoValue || tipo === tipoValue;
-                    const matchesRubro = !rubroValue || rubro === rubroValue;
-
-                    if (matchesSearch && matchesTipo && matchesRubro) {
-                        row.style.display = '';
-                        visibleCount++;
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-
-                // Actualizar contadores
-                document.getElementById('gastoCount').textContent = `Mostrando ${visibleCount} de ${totalGastos} gastos`;
-                document.getElementById('paginationInfo').textContent = `Mostrando ${visibleCount} de ${totalGastos} gastos`;
-            }
-
-            // Event listeners
-            searchInput.addEventListener('input', filterTable);
-            tipoFilter.addEventListener('change', filterTable);
-            rubroFilter.addEventListener('change', filterTable);
-
-            // Auto-hide alerts
-            setTimeout(() => {
-                const alerts = document.querySelectorAll('.alert-custom');
-                alerts.forEach(alert => {
-                    alert.style.transition = 'opacity 0.5s, transform 0.5s';
-                    alert.style.opacity = '0';
-                    alert.style.transform = 'translateY(-10px)';
-                    setTimeout(() => alert.remove(), 500);
-                });
-            }, 5000);
-        });
-    </script>
-}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Auto-hide alerts
+        setTimeout(() => {
+            const alerts = document.querySelectorAll('.alert-custom');
+            alerts.forEach(alert => {
+                alert.style.transition = 'opacity 0.5s, transform 0.5s';
+                alert.style.opacity = '0';
+                alert.style.transform = 'translateY(-10px)';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000);
+    });
+</script>

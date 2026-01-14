@@ -1,28 +1,31 @@
 ﻿@model AgroTechApp.ViewModels.ConsumoVM
+
 @{
-    ViewData["Title"] = "Registrar Consumo";
+    ViewData["Title"] = "Registrar Consumo de Insumo";
+    var insumoPreseleccionado = Model.InsumoId > 0;
 }
 
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="utf-8" />
     <title>@ViewData["Title"] - AgroTech</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #dc3545;
-            --primary-dark: #c82333;
-            --primary-light: #e4606d;
-            --light: #f8f9fa;
-            --dark: #2C3E50;
-            --gray: #6c757d;
-            --border: #dee2e6;
-            --shadow: rgba(0,0,0,.08);
+            --primary: #2E8B57;
+            --primary-light: #3CB371;
+            --primary-dark: #1E6B47;
             --success: #28a745;
             --warning: #ffc107;
             --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #ffffff;
+            --border: #e1e5e9;
+            --shadow: rgba(46, 139, 87, 0.1);
+            --gray: #6c757d;
         }
 
         * {
@@ -32,311 +35,703 @@
         }
 
         body {
-            background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
-            color: var(--dark);
-            font-family: Inter, Segoe UI, Arial, sans-serif;
-            min-height: 100vh;
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             padding: 20px;
+            min-height: 100vh;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
         .form-card {
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 8px 30px var(--shadow);
-            padding: 2rem;
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px var(--shadow);
+            overflow: hidden;
+            border: 1px solid #e1e5e9;
+            animation: fadeIn 0.5s ease-out;
         }
 
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header con gradiente ROJO para Consumo */
         .form-header {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .form-header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -50%;
+                width: 100%;
+                height: 200%;
+                background: rgba(255, 255, 255, 0.1);
+                transform: rotate(30deg);
+            }
+
+            .form-header h1 {
+                font-size: 2.2rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+                position: relative;
+                z-index: 1;
+            }
+
+            .form-header p {
+                font-size: 1rem;
+                opacity: 0.9;
+                position: relative;
+                z-index: 1;
+            }
+
+        .form-header-icon {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            opacity: 0.2;
+            z-index: 0;
+        }
+
+        .form-body {
+            padding: 2.5rem;
+        }
+
+        .breadcrumb {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            padding: 0.8rem 1.2rem;
+            background: var(--light);
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+            .breadcrumb a {
+                color: var(--primary);
+                text-decoration: none;
+                font-weight: 500;
+            }
+
+                .breadcrumb a:hover {
+                    text-decoration: underline;
+                }
+
+            .breadcrumb span {
+                color: var(--gray);
+            }
+
+        /* KPI de Stock Actual - Rojo para consumo */
+        .stock-kpi {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid var(--light);
+            box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);
+            animation: pulse 2s infinite;
         }
 
-        .form-title {
-            font-size: 1.6rem;
+        @@keyframes pulse {
+            0%, 100% { box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3); }
+            50% { box-shadow: 0 8px 30px rgba(220, 53, 69, 0.5); }
+        }
+
+        .stock-kpi-icon {
+            font-size: 3rem;
+            opacity: 0.3;
+        }
+
+        .stock-kpi-content {
+            flex: 1;
+            text-align: left;
+            margin-left: 1.5rem;
+        }
+
+        .stock-kpi-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 0.3rem;
+        }
+
+        .stock-kpi-value {
+            font-size: 2.5rem;
             font-weight: 700;
-            display: flex;
-            gap: 12px;
-            align-items: center;
         }
 
-            .form-title i {
-                background: linear-gradient(135deg, var(--primary), var(--primary-light));
-                color: #fff;
-                width: 44px;
-                height: 44px;
-                border-radius: 10px;
+        /* Alerta de stock bajo */
+        .stock-warning {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border-left: 5px solid #ffc107;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            display: none;
+            align-items: center;
+            gap: 1rem;
+        }
+
+            .stock-warning i {
+                font-size: 1.8rem;
+                color: #856404;
+            }
+
+            .stock-warning.show {
+                display: flex;
+            }
+
+        .stock-warning-text {
+            flex: 1;
+            color: #856404;
+        }
+
+            .stock-warning-text strong {
+                display: block;
+                font-size: 1.1rem;
+                margin-bottom: 0.3rem;
+            }
+
+        .form-sections {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        .form-section {
+            background: var(--light);
+            padding: 2rem;
+            border-radius: 15px;
+            border-left: 5px solid var(--primary);
+        }
+
+            .form-section h3 {
+                color: var(--primary);
+                margin-bottom: 1.5rem;
+                font-size: 1.3rem;
                 display: flex;
                 align-items: center;
-                justify-content: center;
+                gap: 0.5rem;
             }
-
-        .stock-badge {
-            background: linear-gradient(135deg, var(--success), #20c997);
-            color: #fff;
-            padding: 0.6rem 1.2rem;
-            border-radius: 10px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-            .stock-badge.warning {
-                background: linear-gradient(135deg, var(--warning), #fd7e14);
-                color: #212529;
-            }
-
-            .stock-badge.danger {
-                background: linear-gradient(135deg, var(--danger), #c82333);
-            }
-
-        .finca-info {
-            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 600;
-            color: #2E7D32;
-        }
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.2rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
         }
 
         .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
+            margin-bottom: 1.5rem;
         }
 
-            .form-group.full {
-                grid-column: 1 / -1;
-            }
-
         label {
+            display: block;
             font-weight: 600;
             color: var(--dark);
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            margin-bottom: 0.6rem;
+            font-size: 0.95rem;
         }
 
             label i {
                 color: var(--primary);
-                font-size: 0.9rem;
+                margin-right: 0.4rem;
             }
 
-        input, select, textarea {
-            padding: 0.75rem 1rem;
+        .form-control {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
             border: 2px solid var(--border);
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1rem;
-            transition: all 0.2s;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            background: var(--white);
         }
 
-            input:focus, select:focus, textarea:focus {
+            .form-control:focus {
                 outline: none;
                 border-color: var(--primary);
-                box-shadow: 0 0 0 3px rgba(220,53,69,0.1);
+                box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
             }
 
-        textarea {
-            resize: vertical;
-            min-height: 80px;
+            .form-control:disabled {
+                background-color: #e9ecef;
+                cursor: not-allowed;
+                opacity: 0.7;
+            }
+
+        select.form-control {
+            cursor: pointer;
         }
 
-        .hint {
+            select.form-control:disabled {
+                cursor: not-allowed;
+            }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .text-danger {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 0.4rem;
+            display: block;
+        }
+
+        .form-help {
             font-size: 0.85rem;
             color: var(--gray);
-            margin-top: 4px;
+            margin-top: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
         }
 
-        .actions {
+        .form-actions {
             display: flex;
             gap: 1rem;
-            margin-top: 1.5rem;
-            padding-top: 1.5rem;
+            margin-top: 2.5rem;
+            padding-top: 2rem;
             border-top: 2px solid var(--light);
         }
 
         .btn {
-            padding: 0.8rem 1.5rem;
+            padding: 0.9rem 2rem;
             border: none;
-            border-radius: 8px;
-            font-weight: 700;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 0.7rem;
+            transition: all 0.3s ease;
             text-decoration: none;
-            transition: all 0.2s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: #fff;
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: var(--white);
         }
 
-            .btn-primary:hover {
+            .btn-danger:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(220,53,69,0.3);
+                box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);
+                background: linear-gradient(135deg, #c82333, #bd2130);
             }
 
         .btn-secondary {
-            background: var(--light);
+            background: var(--white);
             color: var(--dark);
             border: 2px solid var(--border);
+            box-shadow: none;
         }
 
             .btn-secondary:hover {
-                background: var(--border);
+                background: var(--light);
+                border-color: var(--dark);
             }
 
-        .validation-summary-errors {
-            background: #fff5f5;
-            border: 1px solid #ffcdd2;
-            border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            color: var(--danger);
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+            color: var(--primary);
+        }
+
+            .loading i {
+                animation: spin 1s linear infinite;
+                font-size: 2rem;
+            }
+
+        @@keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .input-validation-error {
+            border-color: var(--danger) !important;
+            background-color: rgba(220, 53, 69, 0.05);
         }
 
         .field-validation-error {
             color: var(--danger);
             font-size: 0.85rem;
+            margin-top: 0.4rem;
+            display: block;
         }
 
-        @@media (max-width: 600px) {
+        .validation-summary-errors {
+            background: rgba(220, 53, 69, 0.1);
+            border: 2px solid var(--danger);
+            border-radius: 12px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+            .validation-summary-errors ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+
+            .validation-summary-errors li {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                color: var(--danger);
+                margin-bottom: 0.5rem;
+            }
+
+        @@media (max-width: 768px) {
+            .form-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .form-body {
+                padding: 1.5rem;
+            }
+
             .form-grid {
                 grid-template-columns: 1fr;
             }
 
-            .form-header {
+            .form-actions {
                 flex-direction: column;
-                gap: 1rem;
-                align-items: flex-start;
+            }
+
+                .form-actions .btn {
+                    width: 100%;
+                    justify-content: center;
+                }
+
+            .stock-kpi {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .stock-kpi-icon {
+                font-size: 2rem;
+            }
+
+            .stock-kpi-content {
+                margin-left: 0;
+                margin-top: 1rem;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="form-card">
+            <!-- Header ROJO para consumo -->
             <div class="form-header">
-                <div class="form-title">
-                    <i class="fas fa-arrow-up-from-bracket"></i>
-                    <span>Registrar Consumo</span>
-                </div>
-                <div class="stock-badge" id="stockBadge">
-                    <i class="fas fa-boxes-stacked"></i>
-                    <span>Stock: <strong id="stockValue">@(Model.StockDisponible?.ToString("N2") ?? "—")</strong></span>
-                </div>
+                <i class="fas fa-arrow-up form-header-icon"></i>
+                <h1><i class="fas fa-minus-circle"></i> Registrar Consumo de Insumo</h1>
+                <p>Complete el formulario para descontar existencias del inventario</p>
             </div>
 
-            <form asp-action="Consumo" method="post" id="consumoForm">
-                @Html.AntiForgeryToken()
-                <input type="hidden" asp-for="FincaId" />
+            <!-- Body -->
+            <div class="form-body">
+                <!-- Breadcrumb -->
+                <div class="breadcrumb">
+                    <a asp-controller="Insumoes" asp-action="Index">
+                        <i class="fas fa-boxes"></i> Inventario de Insumos
+                    </a>
+                    <span>/</span>
+                    <span><strong>Registrar Consumo</strong></span>
+                </div>
 
-                @if (!ViewData.ModelState.IsValid)
+                <!-- KPI Stock Actual (ROJO) -->
+                <div class="stock-kpi">
+                    <i class="fas fa-box-open stock-kpi-icon"></i>
+                    <div class="stock-kpi-content">
+                        <div class="stock-kpi-label">Stock Disponible</div>
+                        <div class="stock-kpi-value" id="stockActual">
+                            @if (ViewBag.StockActual != null)
+                            {
+                                @(((decimal)ViewBag.StockActual).ToString("N2"))
+                            }
+                            else
+                            {
+                                @:—
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alerta de Stock Bajo -->
+                <div class="stock-warning" id="stockWarning" style="@(ViewBag.StockActual != null && (decimal)ViewBag.StockActual <= 10 ? "display: flex;" : "")">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div class="stock-warning-text">
+                        <strong>⚠️ Stock bajo</strong>
+                        <p>El stock disponible es limitado. Verifique la cantidad antes de registrar el consumo.</p>
+                    </div>
+                </div>
+
+                <!-- Validation Summary -->
+                @if (ViewData.ModelState.ErrorCount > 0)
                 {
                     <div class="validation-summary-errors">
-                        <div asp-validation-summary="All"></div>
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     </div>
                 }
 
-                <div class="finca-info">
-                    <i class="fas fa-warehouse"></i>
-                    <span>Finca: @ViewData["FincaNombre"]</span>
+                <!-- Loading Indicator -->
+                <div class="loading" id="loadingIndicator">
+                    <i class="fas fa-spinner"></i>
+                    <p>Cargando información...</p>
                 </div>
 
-                <div class="form-grid">
-                    <div class="form-group full">
-                        <label asp-for="InsumoId"><i class="fas fa-box"></i> Insumo</label>
-                        <select asp-for="InsumoId" asp-items="ViewBag.InsumoSelect" id="insumoSelect">
-                            <option value="">-- Seleccione un insumo --</option>
-                        </select>
-                        <span asp-validation-for="InsumoId" class="field-validation-error"></span>
-                        <div class="hint">Solo se muestran insumos activos con stock disponible</div>
+                <!-- Form -->
+                <form asp-action="Consumo" method="post" id="consumoForm">
+                    @Html.AntiForgeryToken()
+
+                    <div class="form-sections">
+                        <!-- Selección de Insumo -->
+                        <div class="form-section">
+                            <h3>
+                                <i class="fas fa-box"></i>
+                                Insumo Seleccionado
+                            </h3>
+
+                            <div class="form-group">
+                                <label asp-for="InsumoId">
+                                    <i class="fas fa-boxes-stacked"></i>
+                                    Insumo
+                                    <span style="color: var(--danger);">*</span>
+                                </label>
+
+                                @if (insumoPreseleccionado)
+                                {
+                                    <!-- Dropdown bloqueado (solo visual) -->
+                                    <select class="form-control" disabled>
+                                        <option selected>@ViewBag.InsumoNombre</option>
+                                    </select>
+
+                                    <!-- Hidden input con el valor real -->
+                                    <input type="hidden" asp-for="InsumoId" />
+
+                                    <small class="form-help">
+                                        <i class="fas fa-lock"></i>
+                                        El insumo fue preseleccionado desde el inventario
+                                    </small>
+                                }
+                                else
+                                {
+                                    <!-- Dropdown activo (si no viene insumoId) -->
+                                    <select asp-for="InsumoId"
+                                            id="insumoSelect"
+                                            class="form-control"
+                                            asp-items="ViewBag.InsumoSelect"
+                                            required>
+                                        <option value="">Seleccione un insumo</option>
+                                    </select>
+
+                                    <span asp-validation-for="InsumoId" class="text-danger"></span>
+
+                                    <small class="form-help">
+                                        <i class="fas fa-info-circle"></i>
+                                        Seleccione el insumo del cual desea descontar existencias
+                                    </small>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Datos del Consumo -->
+                        <div class="form-section">
+                            <h3>
+                                <i class="fas fa-clipboard-list"></i>
+                                Datos del Consumo
+                            </h3>
+                            <div class="form-grid">
+                                <!-- Cantidad -->
+                                <div class="form-group">
+                                    <label asp-for="Cantidad">
+                                        <i class="fas fa-balance-scale"></i>
+                                        Cantidad Consumida
+                                        <span style="color: var(--danger);">*</span>
+                                    </label>
+                                    <input asp-for="Cantidad"
+                                           type="number"
+                                           step="0.01"
+                                           min="0.01"
+                                           max="@(ViewBag.StockActual ?? 99999)"
+                                           class="form-control"
+                                           placeholder="Ej: 50"
+                                           required />
+                                    <span asp-validation-for="Cantidad" class="text-danger"></span>
+                                    <small class="form-help">
+                                        <i class="fas fa-info-circle"></i>
+                                        Cantidad que será descontada del inventario
+                                    </small>
+                                </div>
+
+                                <!-- Fecha -->
+                                <div class="form-group">
+                                    <label asp-for="Fecha">
+                                        <i class="fas fa-calendar"></i>
+                                        Fecha del Consumo
+                                        <span style="color: var(--danger);">*</span>
+                                    </label>
+                                    <input asp-for="Fecha"
+                                           type="date"
+                                           id="Fecha"
+                                           class="form-control"
+                                           required />
+                                    <span asp-validation-for="Fecha" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Observaciones -->
+                        <div class="form-section">
+                            <h3>
+                                <i class="fas fa-comment-dots"></i>
+                                Observaciones
+                            </h3>
+                            <div class="form-group">
+                                <label asp-for="Observaciones">
+                                    <i class="fas fa-sticky-note"></i>
+                                    Observaciones Adicionales
+                                </label>
+                                <textarea asp-for="Observaciones"
+                                          class="form-control"
+                                          rows="4"
+                                          placeholder="Ej: Aplicado en tratamiento del lote norte, consumo preventivo, etc..."></textarea>
+                                <span asp-validation-for="Observaciones" class="text-danger"></span>
+                                <small class="form-help">
+                                    <i class="fas fa-info-circle"></i>
+                                    Opcional - Agregue detalles sobre el uso del insumo
+                                </small>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label asp-for="Cantidad"><i class="fas fa-balance-scale"></i> Cantidad</label>
-                        <input asp-for="Cantidad" type="number" step="1" min="1" placeholder="Ejemplo. 5" />
-
-                        <span asp-validation-for="Cantidad" class="field-validation-error"></span>
+                    <!-- Actions -->
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-check"></i>
+                            Registrar Consumo
+                        </button>
+                        <a asp-controller="Insumoes" asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-times"></i>
+                            Cancelar
+                        </a>
                     </div>
-
-                    <div class="form-group">
-                        <label asp-for="Fecha"><i class="fas fa-calendar"></i> Fecha</label>
-                        <input asp-for="Fecha" type="date" />
-                        <span asp-validation-for="Fecha" class="field-validation-error"></span>
-                    </div>
-
-                    <div class="form-group full">
-                        <label asp-for="Observaciones"><i class="fas fa-comment"></i> Observaciones</label>
-                        <textarea asp-for="Observaciones" placeholder="Ej. Aplicado al lote norte, tratamiento preventivo..."></textarea>
-                        <span asp-validation-for="Observaciones" class="field-validation-error"></span>
-                    </div>
-                </div>
-
-                <div class="actions">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-check"></i> Registrar Consumo
-                    </button>
-                    <a asp-controller="Insumoes" asp-action="Index" class="btn btn-secondary">
-                        <i class="fas fa-arrow-left"></i> Cancelar
-                    </a>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const fechaInput = document.getElementById('Fecha');
-            if (fechaInput && !fechaInput.value) {
-                const today = new Date().toISOString().split('T')[0];
-                fechaInput.value = today;
-            }
+    @section Scripts {
+        <partial name="_ValidationScriptsPartial" />
+        <script>
+            (function () {
+                const fechaInput = document.getElementById('Fecha');
+                const cantidadInput = document.querySelector('input[name="Cantidad"]');
+                const stockActual = document.getElementById('stockActual');
+                const stockWarning = document.getElementById('stockWarning');
+                const loadingIndicator = document.getElementById('loadingIndicator');
 
-            const insumoSelect = document.getElementById('insumoSelect');
-            const stockBadge = document.getElementById('stockBadge');
-            const stockValue = document.getElementById('stockValue');
-
-            insumoSelect.addEventListener('change', async function() {
-                const insumoId = this.value;
-                if (!insumoId) {
-                    stockValue.textContent = '—';
-                    return;
+                // Fecha por defecto: hoy
+                if (fechaInput && !fechaInput.value) {
+                    const today = new Date();
+                    fechaInput.value = today.toISOString().split('T')[0];
                 }
-                try {
-                    const res = await fetch(`/Inventario/Stock?insumoId=${insumoId}`);
-                    const data = await res.json();
-                    const stock = data.stock || 0;
-                    stockValue.textContent = stock.toLocaleString('es-ES', {minimumFractionDigits: 2});
 
-                    stockBadge.classList.remove('warning', 'danger');
-                    if (stock === 0) stockBadge.classList.add('danger');
-                    else if (stock < 10) stockBadge.classList.add('warning');
-                } catch (e) {
-                    stockValue.textContent = 'Error';
+                // Validar cantidad vs stock
+                if (cantidadInput) {
+                    cantidadInput.addEventListener('input', function () {
+                        const cantidad = parseFloat(this.value);
+                        const stock = parseFloat(stockActual.textContent.replace(/,/g, ''));
+
+                        if (!isNaN(cantidad) && !isNaN(stock) && cantidad > stock) {
+                            this.setCustomValidity('La cantidad no puede exceder el stock disponible');
+                        } else {
+                            this.setCustomValidity('');
+                        }
+                    });
                 }
-            });
-        });
-    </script>
+
+                // 👉 SOLO si el insumo NO está preseleccionado
+                if (!insumoPreseleccionado) {
+
+                    const insumoSelect = document.getElementById('insumoSelect');
+
+                    if (!insumoSelect) return;
+
+                    function showLoading(show) {
+                        loadingIndicator.style.display = show ? 'block' : 'none';
+                    }
+
+                    insumoSelect.addEventListener('change', async function () {
+                        const insumoId = this.value;
+
+                        if (!insumoId) {
+                            stockActual.textContent = '—';
+                            stockWarning.classList.remove('show');
+                            return;
+                        }
+
+                        showLoading(true);
+
+                        try {
+                            const res = await fetch(`/Inventario/Stock?insumoId=${insumoId}`);
+                            const data = await res.json();
+                            const stock = data.stock ?? 0;
+
+                            stockActual.textContent = stock.toLocaleString('es-ES', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            });
+
+                            if (stock <= 10) {
+                                stockWarning.classList.add('show');
+                            } else {
+                                stockWarning.classList.remove('show');
+                            }
+
+                            if (cantidadInput) {
+                                cantidadInput.setAttribute('max', stock);
+                            }
+
+                        } catch (error) {
+                            console.error(error);
+                            stockActual.textContent = 'Error';
+                            stockWarning.classList.remove('show');
+                        } finally {
+                            showLoading(false);
+                        }
+                    });
+                }
+            })();
+        </script>
+    }
 </body>
 </html>

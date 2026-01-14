@@ -2,47 +2,68 @@
 
 @{
     ViewData["Title"] = "Gestión de Usuarios";
-    var totalUsuarios = ViewBag.TotalUsuarios ?? 0;
-    var usuariosActivos = ViewBag.UsuariosActivos ?? 0;
-    var usuariosInactivos = ViewBag.UsuariosInactivos ?? 0;
-    var totalRoles = ViewBag.TotalRoles ?? 0;
+    var totalUsuarios = ViewBag.TotalUsuarios ?? Model.Count();
+    var usuariosActivos = ViewBag.UsuariosActivos ?? Model.Count(u => u.EmailConfirmed);
+    var usuariosInactivos = ViewBag.UsuariosInactivos ?? Model.Count(u => !u.EmailConfirmed);
+    var totalRoles = ViewBag.TotalRoles ?? Model.SelectMany(u => u.Roles).Distinct().Count();
 }
 
-<style>
-    :root {
-        --primary: #2E8B57;
-        --primary-light: #3CB371;
-        --primary-dark: #1E6B47;
-        --secondary: #F4A460;
-        --secondary-light: #FFB366;
-        --success: #28a745;
-        --warning: #ffc107;
-        --danger: #dc3545;
-        --info: #17a2b8;
-        --light: #f8f9fa;
-        --dark: #343a40;
-        --white: #ffffff;
-        --border: #e1e5e9;
-        --shadow: rgba(46, 139, 87, 0.1);
-        --gray: #6c757d;
-    }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --primary-light: #3CB371;
+            --primary-dark: #1E6B47;
+            --secondary: #F4A460;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #ffffff;
+            --border: #e1e5e9;
+            --shadow: rgba(46, 139, 87, 0.1);
+            --gray: #6c757d;
+        }
 
-    * {
-        box-sizing: border-box;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-    .admin-card {
-        background: var(--white);
-        border-radius: 20px;
-        box-shadow: 0 15px 40px var(--shadow);
-        overflow: hidden;
-        border: 1px solid #e1e5e9;
-        animation: fadeIn 0.5s ease-out;
-        margin-bottom: 2rem;
-    }
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
 
-    @@keyframes fadeIn {
-        from {
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .admin-card {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px var(--shadow);
+            overflow: hidden;
+            border: 1px solid #e1e5e9;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @@keyframes fadeIn {
+            from
+
+        {
             opacity: 0;
             transform: translateY(10px);
         }
@@ -51,426 +72,413 @@
             opacity: 1;
             transform: translateY(0);
         }
-    }
 
-    .admin-header {
-        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-        color: white;
-        padding: 2.5rem;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-    }
-
-        .admin-header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 100%;
-            height: 200%;
-            background: rgba(255, 255, 255, 0.1);
-            transform: rotate(30deg);
         }
 
-        .admin-header h1 {
+        .admin-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .admin-header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -50%;
+                width: 100%;
+                height: 200%;
+                background: rgba(255, 255, 255, 0.1);
+                transform: rotate(30deg);
+            }
+
+            .admin-header h1 {
+                font-size: 2.5rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+                position: relative;
+                z-index: 1;
+            }
+
+            .admin-header p {
+                font-size: 1.1rem;
+                opacity: 0.9;
+                position: relative;
+                z-index: 1;
+            }
+
+        .admin-header-icon {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 4rem;
+            opacity: 0.2;
+            z-index: 0;
+        }
+
+        .admin-body {
+            padding: 2.5rem;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-title h2 {
+            color: var(--dark);
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-title p {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        .btn {
+            padding: 0.85rem 1.8rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(46, 139, 87, 0.3);
+                background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #34ce57);
+            color: var(--white);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #ffd351);
+            color: var(--dark);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #e4606d);
+            color: var(--white);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, var(--info), #36b9cc);
+            color: var(--white);
+        }
+
+        .btn-sm {
+            padding: 0.6rem 1.2rem;
+            font-size: 0.85rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 1.8rem;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            border-left: 5px solid var(--primary);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .stat-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            }
+
+            .stat-card.stat-success {
+                border-left-color: var(--success);
+            }
+
+            .stat-card.stat-danger {
+                border-left-color: var(--danger);
+            }
+
+            .stat-card.stat-info {
+                border-left-color: var(--info);
+            }
+
+        .stat-icon {
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            opacity: 0.15;
+        }
+
+            .stat-icon.icon-primary {
+                color: var(--primary);
+            }
+
+            .stat-icon.icon-success {
+                color: var(--success);
+            }
+
+            .stat-icon.icon-danger {
+                color: var(--danger);
+            }
+
+            .stat-icon.icon-info {
+                color: var(--info);
+            }
+
+        .stat-number {
             font-size: 2.5rem;
             font-weight: 700;
-            margin-bottom: 0.5rem;
-            position: relative;
-            z-index: 1;
+            color: var(--primary);
+            margin-bottom: 0.3rem;
         }
 
-        .admin-header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-            position: relative;
-            z-index: 1;
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-weight: 500;
         }
 
-    .admin-header-icon {
-        position: absolute;
-        right: 2rem;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 3rem;
-        opacity: 0.2;
-        z-index: 0;
-    }
-
-    .admin-body {
-        padding: 2.5rem;
-    }
-
-    .header-actions {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2.5rem;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-
-    .header-title h2 {
-        color: var(--dark);
-        font-size: 1.8rem;
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-    }
-
-    .header-title p {
-        color: var(--gray);
-        font-size: 0.95rem;
-    }
-
-    .btn-custom {
-        padding: 0.85rem 1.8rem;
-        border: none;
-        border-radius: 12px;
-        font-size: 1rem;
-        font-weight: 600;
-        cursor: pointer;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.7rem;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .btn-primary-custom {
-        background: linear-gradient(135deg, var(--primary), var(--primary-light));
-        color: var(--white);
-    }
-
-        .btn-primary-custom:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(46, 139, 87, 0.3);
-            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-            color: white;
+        .table-wrapper {
+            background: var(--white);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
         }
 
-    .btn-sm {
-        padding: 0.6rem 1.2rem;
-        font-size: 0.85rem;
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2.5rem;
-    }
-
-    .stat-card {
-        background: var(--white);
-        padding: 1.8rem;
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        border-left: 5px solid var(--primary);
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
-    }
-
-        .stat-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        .table-container {
+            overflow-x: auto;
         }
 
-    .stat-icon {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        font-size: 2.5rem;
-        opacity: 0.2;
-        color: var(--primary);
-    }
-
-    .stat-number {
-        font-size: 2.2rem;
-        font-weight: 700;
-        color: var(--primary);
-        margin-bottom: 0.5rem;
-    }
-
-    .stat-label {
-        color: var(--dark);
-        font-size: 0.95rem;
-        font-weight: 600;
-    }
-
-    .search-section {
-        background: linear-gradient(to right, rgba(46, 139, 87, 0.05), rgba(244, 164, 96, 0.05));
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        border: 2px solid #e1e5e9;
-    }
-
-    .search-container {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-
-    .search-box {
-        flex: 1;
-        min-width: 300px;
-        padding: 1rem 1.5rem;
-        border: 2px solid #e1e5e9;
-        border-radius: 12px;
-        font-size: 1rem;
-        background: var(--white);
-        transition: all 0.3s ease;
-    }
-
-        .search-box:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
-            transform: translateY(-1px);
+        table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
-    .filter-select {
-        padding: 1rem 1.5rem;
-        border: 2px solid #e1e5e9;
-        border-radius: 12px;
-        background: var(--white);
-        font-size: 1rem;
-        min-width: 150px;
-        cursor: pointer;
-    }
-
-    .table-container {
-        background: var(--white);
-        border-radius: 15px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
-        margin-top: 1rem;
-    }
-
-    .table-custom {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 0;
-    }
-
-        .table-custom thead {
+        thead {
             background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: white;
+            color: var(--white);
         }
 
-        .table-custom th {
+        th {
             padding: 1.2rem 1rem;
             text-align: left;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            position: relative;
+            white-space: nowrap;
         }
 
-            .table-custom th::after {
-                content: '';
-                position: absolute;
-                right: 0;
-                top: 25%;
-                height: 50%;
-                width: 1px;
-                background: rgba(255, 255, 255, 0.2);
-            }
-
-            .table-custom th:last-child::after {
-                display: none;
-            }
-
-        .table-custom td {
-            padding: 1.2rem 1rem;
-            border-bottom: 1px solid #e1e5e9;
-            vertical-align: middle;
-            transition: all 0.3s ease;
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.95rem;
         }
 
-        .table-custom tbody tr {
-            transition: all 0.3s ease;
+        tbody tr {
+            transition: all 0.2s ease;
         }
 
-            .table-custom tbody tr:hover {
-                background: linear-gradient(to right, rgba(46, 139, 87, 0.03), rgba(244, 164, 96, 0.03));
-                transform: translateX(5px);
+            tbody tr:hover {
+                background-color: #f8fffe;
+                transform: scale(1.002);
             }
 
-                .table-custom tbody tr:hover td {
-                    border-color: rgba(46, 139, 87, 0.2);
-                }
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
 
-    .user-avatar {
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--primary), var(--secondary));
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: 1.2rem;
-    }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
 
-    .user-info {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-    }
+        .user-details {
+            display: flex;
+            flex-direction: column;
+        }
 
-    .user-details {
-        display: flex;
-        flex-direction: column;
-    }
+        .user-name {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 1rem;
+        }
 
-    .user-name {
-        font-weight: 600;
-        color: var(--dark);
-        font-size: 1rem;
-    }
+        .user-email {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
 
-    .user-email {
-        font-size: 0.85rem;
-        color: var(--gray);
-    }
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
 
-    .status-badge {
-        padding: 0.4rem 1rem;
-        border-radius: 50px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
+        .status-active {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: var(--success);
+        }
 
-    .status-active {
-        background: linear-gradient(135deg, #d4edda, #c3e6cb);
-        color: var(--success);
-        border-left: 3px solid var(--success);
-    }
+        .status-inactive {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: var(--danger);
+        }
 
-    .status-inactive {
-        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
-        color: var(--danger);
-        border-left: 3px solid var(--danger);
-    }
+        .role-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+            color: var(--info);
+            margin: 0.2rem;
+        }
 
-    .role-badge {
-        padding: 0.4rem 1rem;
-        border-radius: 50px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        background: linear-gradient(135deg, #d1ecf1, #bee5eb);
-        color: var(--info);
-        border-left: 3px solid var(--info);
-        display: inline-flex;
-        align-items: center;
-        gap: 0.3rem;
-    }
+        .fincas-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            color: #856404;
+        }
 
-    .fincas-badge {
-        padding: 0.4rem 1rem;
-        border-radius: 50px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
-        color: #856404;
-        border-left: 3px solid var(--warning);
-        display: inline-flex;
-        align-items: center;
-        gap: 0.3rem;
-    }
+        .fincas-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.5rem;
+        }
 
-    .fincas-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.4rem;
-        margin-top: 0.5rem;
-    }
+        .finca-pill {
+            background: #e9ecef;
+            padding: 0.25rem 0.7rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            color: #495057;
+        }
 
-    .finca-pill {
-        background: #e9ecef;
-        padding: 0.25rem 0.7rem;
-        border-radius: 12px;
-        font-size: 0.75rem;
-        color: #495057;
-    }
+        .actions-column {
+            white-space: nowrap;
+        }
 
-    .actions-column {
-        white-space: nowrap;
-    }
+        .actions-group {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-start;
+        }
 
-    .actions-group {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
 
-    .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        color: var(--gray);
-    }
+        .pagination-info {
+            color: var(--gray);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
 
-    .empty-state-icon {
-        font-size: 5rem;
-        margin-bottom: 1.5rem;
-        opacity: 0.3;
-        color: var(--primary);
-    }
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--gray);
+        }
 
-    .empty-state h3 {
-        font-size: 1.5rem;
-        margin-bottom: 0.5rem;
-        color: var(--dark);
-    }
+        .empty-state-icon {
+            font-size: 5rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.5;
+        }
 
-    .empty-state p {
-        margin-bottom: 2rem;
-        max-width: 400px;
-        margin-left: auto;
-        margin-right: auto;
-    }
+            .empty-state-icon i {
+                color: var(--primary);
+            }
 
-    .table-footer {
-        padding: 1.5rem;
-        background: var(--light);
-        border-top: 1px solid #e1e5e9;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
+        .empty-state h3 {
+            color: var(--dark);
+            margin-bottom: 0.8rem;
+            font-size: 1.5rem;
+        }
 
-    .pagination-info {
-        color: var(--gray);
-        font-size: 0.9rem;
-        font-weight: 500;
-    }
+        .empty-state p {
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
 
-    /* Alert Messages */
-    .alert-custom {
-        padding: 1rem 1.5rem;
-        border-radius: 12px;
-        margin-bottom: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        animation: slideDown 0.3s ease-out;
-    }
+        .alert-custom {
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            animation: slideDown 0.3s ease-out;
+        }
 
-    @@keyframes slideDown {
-        from {
+        @@keyframes slideDown {
+            from
+
+        {
             opacity: 0;
             transform: translateY(-10px);
         }
@@ -479,42 +487,30 @@
             opacity: 1;
             transform: translateY(0);
         }
-    }
 
-    .alert-success {
-        background: linear-gradient(135deg, #d4edda, #c3e6cb);
-        border-left: 4px solid var(--success);
-        color: #155724;
-    }
-
-    .alert-danger {
-        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
-        border-left: 4px solid var(--danger);
-        color: #721c24;
-    }
-
-    /* Responsive */
-    @@media (max-width: 1200px) {
-        .table-container {
-            overflow-x: auto;
         }
 
-        .table-custom {
-            min-width: 1000px;
-        }
-    }
-
-    @@media (max-width: 768px) {
-        .admin-header {
-            padding: 2rem;
+        .alert-success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-left: 4px solid var(--success);
+            color: #155724;
         }
 
-            .admin-header h1 {
-                font-size: 2rem;
-            }
+        .alert-danger {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border-left: 4px solid var(--danger);
+            color: #721c24;
+        }
 
-        .admin-body {
-            padding: 1.5rem;
+        @@media (max-width: 768px) {
+            .admin-header h1
+
+        {
+            font-size: 1.8rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
         }
 
         .header-actions {
@@ -522,324 +518,299 @@
             align-items: stretch;
         }
 
-        .stats-grid {
-            grid-template-columns: repeat(2, 1fr);
+        .table-container {
+            overflow-x: scroll;
         }
 
-        .search-container {
-            flex-direction: column;
         }
+    </style>
+</head>
 
-        .search-box {
-            min-width: 100%;
-        }
-
-        .actions-group {
-            flex-direction: column;
-        }
-    }
-
-    @@media (max-width: 480px) {
-        .admin-header h1 {
-            font-size: 1.8rem;
-        }
-
-        .admin-body {
-            padding: 1rem;
-        }
-
-        .stats-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
-
-<div class="admin-card">
-    <!-- Encabezado -->
-    <div class="admin-header">
-        <div class="admin-header-icon">
-            <i class="fas fa-users-cog"></i>
-        </div>
-        <h1>👥 Gestión de Usuarios</h1>
-        <p>Administre todos los usuarios del sistema AgroTech</p>
-    </div>
-
-    <!-- Cuerpo Principal -->
-    <div class="admin-body">
-        <!-- Alerts -->
-        @if (TempData["Success"] != null)
-        {
-            <div class="alert-custom alert-success">
-                <i class="fas fa-check-circle" style="font-size: 1.5rem;"></i>
-                <span>@TempData["Success"]</span>
+<body>
+    <div class="container">
+        <div class="admin-card">
+            <!-- Header -->
+            <div class="admin-header">
+                <i class="fas fa-users-cog admin-header-icon"></i>
+                <h1><i class="fas fa-users"></i> Gestión de Usuarios</h1>
+                <p>Administre todos los usuarios del sistema AgroTech</p>
             </div>
-        }
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert-custom alert-danger">
-                <i class="fas fa-exclamation-circle" style="font-size: 1.5rem;"></i>
-                <span>@TempData["Error"]</span>
-            </div>
-        }
 
-        <!-- Encabezado con acciones -->
-        <div class="header-actions">
-            <div class="header-title">
-                <h2>Lista de Usuarios</h2>
-                <p id="userCount">Total de usuarios registrados: @totalUsuarios</p>
-            </div>
-            <a asp-action="Create" class="btn-custom btn-primary-custom">
-                <i class="fas fa-user-plus"></i> Nuevo Usuario
-            </a>
-        </div>
-
-        <!-- Estadísticas -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div class="stat-number">@totalUsuarios</div>
-                <div class="stat-label">Total Usuarios</div>
-            </div>
-            <div class="stat-card" style="border-left-color: var(--success);">
-                <div class="stat-icon">
-                    <i class="fas fa-user-check"></i>
-                </div>
-                <div class="stat-number">@usuariosActivos</div>
-                <div class="stat-label">Usuarios Activos</div>
-            </div>
-            <div class="stat-card" style="border-left-color: var(--danger);">
-                <div class="stat-icon">
-                    <i class="fas fa-user-times"></i>
-                </div>
-                <div class="stat-number">@usuariosInactivos</div>
-                <div class="stat-label">Usuarios Inactivos</div>
-            </div>
-            <div class="stat-card" style="border-left-color: var(--info);">
-                <div class="stat-icon">
-                    <i class="fas fa-user-shield"></i>
-                </div>
-                <div class="stat-number">@totalRoles</div>
-                <div class="stat-label">Roles del Sistema</div>
-            </div>
-        </div>
-
-        <!-- Búsqueda y Filtros -->
-        <div class="search-section">
-            <div class="search-container">
-                <input type="text" class="search-box" placeholder="🔍 Buscar por nombre o email..." id="searchInput">
-                <select class="filter-select" id="statusFilter">
-                    <option value="">Todos los estados</option>
-                    <option value="active">Activos</option>
-                    <option value="inactive">Inactivos</option>
-                </select>
-                <select class="filter-select" id="roleFilter">
-                    <option value="">Todos los roles</option>
-                    @if (Model != null && Model.Any())
-                    {
-                        @foreach (var role in Model.SelectMany(u => u.Roles).Distinct())
-                        {
-                            <option value="@role">@role</option>
-                        }
-                    }
-                </select>
-            </div>
-        </div>
-
-        <!-- Tabla de Usuarios -->
-        <div class="table-container">
-            @if (Model != null && Model.Any())
-            {
-                <table class="table-custom">
-                    <thead>
-                        <tr>
-                            <th>Usuario</th>
-                            <th>Rol</th>
-                            <th>Estado</th>
-                            <th>Fincas Asignadas</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersTableBody">
-                        @foreach (var user in Model)
-                        {
-                            <tr class="user-row"
-                                data-username="@user.UserName.ToLower()"
-                                data-email="@user.Email.ToLower()"
-                                data-active="@user.EmailConfirmed.ToString().ToLower()"
-                                data-role="@string.Join(",", user.Roles).ToLower()">
-                                <td>
-                                    <div class="user-info">
-                                        <div class="user-avatar">
-                                            @(user.UserName?.Substring(0, 1).ToUpper() ?? "U")
-                                        </div>
-                                        <div class="user-details">
-                                            <div class="user-name">@user.UserName</div>
-                                            <div class="user-email"><i class="fas fa-envelope"></i> @user.Email</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    @if (user.Roles.Any())
-                                    {
-                                        @foreach (var role in user.Roles)
-                                        {
-                                            <span class="role-badge">
-                                                <i class="fas fa-user-shield"></i> @role
-                                            </span>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <span class="role-badge" style="background: #f8d7da; color: var(--danger);">
-                                            <i class="fas fa-exclamation-triangle"></i> Sin rol
-                                        </span>
-                                    }
-                                </td>
-                                <td>
-                                    @if (user.EmailConfirmed)
-                                    {
-                                        <span class="status-badge status-active">
-                                            <i class="fas fa-check-circle"></i> Activo
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="status-badge status-inactive">
-                                            <i class="fas fa-times-circle"></i> Inactivo
-                                        </span>
-                                    }
-                                    @if (user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.Now)
-                                    {
-                                        <br />
-                                        <span class="status-badge status-inactive" style="margin-top: 0.5rem;">
-                                            <i class="fas fa-lock"></i> Bloqueado
-                                        </span>
-                                    }
-                                </td>
-                                <td>
-                                    @if (user.CantidadFincas > 0)
-                                    {
-                                        <span class="fincas-badge">
-                                            <i class="fas fa-map-marked-alt"></i> @user.CantidadFincas Finca@(user.CantidadFincas > 1 ? "s" : "")
-                                        </span>
-                                        @if (user.NombresFincas.Any())
-                                        {
-                                            <div class="fincas-list">
-                                                @foreach (var finca in user.NombresFincas.Take(3))
-                                                {
-                                                    <span class="finca-pill">@finca</span>
-                                                }
-                                                @if (user.NombresFincas.Count > 3)
-                                                {
-                                                    <span class="finca-pill">+@(user.NombresFincas.Count - 3) más</span>
-                                                }
-                                            </div>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <span class="fincas-badge" style="background: #f8d7da; color: var(--danger);">
-                                            <i class="fas fa-exclamation-triangle"></i> Sin fincas
-                                        </span>
-                                    }
-                                </td>
-                                <td class="actions-column">
-                                    <div class="actions-group">
-                                        <a asp-action="Details" asp-route-id="@user.UserId" class="btn btn-success btn-sm" title="Detalles">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a asp-action="Edit" asp-route-id="@user.UserId" class="btn btn-warning btn-sm" title="Editar">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <a asp-action="AssignFincas" asp-route-id="@user.UserId" class="btn btn-info btn-sm" title="Asignar fincas">
-                                            <i class="fas fa-map-marked-alt"></i>
-                                        </a>
-                                        <a asp-action="Delete" asp-route-id="@user.UserId" class="btn btn-danger btn-sm" title="Eliminar">
-                                            <i class="fas fa-trash"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-
-                <!-- Pie de tabla -->
-                <div class="table-footer">
-                    <div class="pagination-info" id="paginationInfo">
-                        Mostrando @Model.Count() de @Model.Count() usuarios
+            <!-- Body -->
+            <div class="admin-body">
+                <!-- Alerts -->
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert-custom alert-success">
+                        <i class="fas fa-check-circle" style="font-size: 1.5rem;"></i>
+                        <span>@TempData["Success"]</span>
                     </div>
-                </div>
-            }
-            else
-            {
-                <div class="empty-state">
-                    <div class="empty-state-icon">
-                        <i class="fas fa-users"></i>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert-custom alert-danger">
+                        <i class="fas fa-exclamation-circle" style="font-size: 1.5rem;"></i>
+                        <span>@TempData["Error"]</span>
                     </div>
-                    <h3>No hay usuarios registrados</h3>
-                    <p>Comience registrando el primer usuario en el sistema.</p>
-                    <a asp-action="Create" class="btn-custom btn-primary-custom">
-                        <i class="fas fa-user-plus"></i> Registrar Primer Usuario
+                }
+
+                <!-- Header Actions -->
+                <div class="header-actions">
+                    <div class="header-title">
+                        <h2>Lista de Usuarios</h2>
+                        <p>Total: @totalUsuarios usuarios registrados</p>
+                    </div>
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i>
+                        Nuevo Usuario
                     </a>
                 </div>
-            }
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-users stat-icon icon-primary"></i>
+                        <div class="stat-number">@totalUsuarios</div>
+                        <div class="stat-label">Total Usuarios</div>
+                    </div>
+
+                    <div class="stat-card stat-success">
+                        <i class="fas fa-user-check stat-icon icon-success"></i>
+                        <div class="stat-number" style="color: var(--success);">@usuariosActivos</div>
+                        <div class="stat-label">Usuarios Activos</div>
+                    </div>
+
+                    <div class="stat-card stat-danger">
+                        <i class="fas fa-user-times stat-icon icon-danger"></i>
+                        <div class="stat-number" style="color: var(--danger);">@usuariosInactivos</div>
+                        <div class="stat-label">Usuarios Inactivos</div>
+                    </div>
+
+                    <div class="stat-card stat-info">
+                        <i class="fas fa-user-shield stat-icon icon-info"></i>
+                        <div class="stat-number" style="color: var(--info);">@totalRoles</div>
+                        <div class="stat-label">Roles del Sistema</div>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="table-wrapper">
+                    <div class="table-container">
+                        @if (Model != null && Model.Any())
+                        {
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th><i class="fas fa-user"></i> Usuario</th>
+                                        <th><i class="fas fa-user-shield"></i> Rol</th>
+                                        <th><i class="fas fa-toggle-on"></i> Estado</th>
+                                        <th><i class="fas fa-map-marked-alt"></i> Fincas</th>
+                                        <th><i class="fas fa-cogs"></i> Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var user in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div class="user-info">
+                                                    <div class="user-avatar">
+                                                        @(user.UserName?.Substring(0, 1).ToUpper() ?? "U")
+                                                    </div>
+                                                    <div class="user-details">
+                                                        <div class="user-name">@user.UserName</div>
+                                                        <div class="user-email">
+                                                            <i class="fas fa-envelope"></i> @user.Email
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @if (user.Roles.Any())
+                                                {
+                                                    @foreach (var role in user.Roles)
+                                                    {
+                                                        <span class="role-badge">
+                                                            <i class="fas fa-shield-alt"></i> @role
+                                                        </span>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span class="role-badge" style="background: #f8d7da; color: var(--danger);">
+                                                        <i class="fas fa-exclamation-triangle"></i> Sin rol
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (user.EmailConfirmed)
+                                                {
+                                                    <span class="status-badge status-active">
+                                                        <i class="fas fa-check-circle"></i> Activo
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="status-badge status-inactive">
+                                                        <i class="fas fa-times-circle"></i> Inactivo
+                                                    </span>
+                                                }
+                                                @if (user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.Now)
+                                                {
+                                                    <br />
+                                                    <span class="status-badge status-inactive" style="margin-top: 0.5rem;">
+                                                        <i class="fas fa-lock"></i> Bloqueado
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (user.CantidadFincas > 0)
+                                                {
+                                                    <span class="fincas-badge">
+                                                        <i class="fas fa-map-marked-alt"></i>
+                                                        @user.CantidadFincas Finca@(user.CantidadFincas > 1 ? "s" : "")
+                                                    </span>
+                                                    @if (user.NombresFincas.Any())
+                                                    {
+                                                        <div class="fincas-list">
+                                                            @foreach (var finca in user.NombresFincas.Take(3))
+                                                            {
+                                                                <span class="finca-pill">@finca</span>
+                                                            }
+                                                            @if (user.NombresFincas.Count > 3)
+                                                            {
+                                                                <span class="finca-pill">+@(user.NombresFincas.Count - 3) más</span>
+                                                            }
+                                                        </div>
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    <span class="fincas-badge" style="background: #f8d7da; color: var(--danger);">
+                                                        <i class="fas fa-exclamation-triangle"></i> Sin fincas
+                                                    </span>
+                                                }
+                                            </td>
+                                            <td class="actions-column">
+                                                <div class="actions-group">
+                                                    <a asp-action="Details" asp-route-id="@user.UserId"
+                                                       class="btn btn-info btn-sm" title="Ver detalles">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a asp-action="Edit" asp-route-id="@user.UserId"
+                                                       class="btn btn-warning btn-sm" title="Editar">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a asp-action="AssignFincas" asp-route-id="@user.UserId"
+                                                       class="btn btn-success btn-sm" title="Asignar fincas">
+                                                        <i class="fas fa-map-marked-alt"></i>
+                                                    </a>
+                                                    <a asp-action="Delete" asp-route-id="@user.UserId"
+                                                       class="btn btn-danger btn-sm" title="Eliminar">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="empty-state">
+                                <div class="empty-state-icon">
+                                    <i class="fas fa-users"></i>
+                                </div>
+                                <h3>No hay usuarios registrados</h3>
+                                <p>Comience registrando el primer usuario en el sistema.</p>
+                                <a asp-action="Create" class="btn btn-primary">
+                                    <i class="fas fa-user-plus"></i> Registrar Primer Usuario
+                                </a>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Table Footer CON NOTA -->
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="table-footer">
+                            <div class="pagination-info">
+                                Mostrando
+                                @((ViewBag.PaginaActual - 1) * 10 + 1)
+                                -
+                                @(Math.Min(ViewBag.PaginaActual * 10, ViewBag.TotalUsuarios))
+                                de @ViewBag.TotalUsuarios usuarios
+                            </div>
+
+                            @if (ViewBag.TotalPaginas > 1)
+                            {
+                                <nav>
+                                    <ul class="pagination">
+
+                                        <!-- Primera -->
+                                        <li class="page-item @(ViewBag.PaginaActual == 1 ? "disabled" : "")">
+                                            <a class="page-link" asp-action="Index" asp-route-pagina="1">
+                                                <i class="fas fa-angle-double-left"></i>
+                                            </a>
+                                        </li>
+
+                                        <!-- Anterior -->
+                                        <li class="page-item @(ViewBag.PaginaActual == 1 ? "disabled" : "")">
+                                            <a class="page-link" asp-action="Index" asp-route-pagina="@(ViewBag.PaginaActual - 1)">
+                                                <i class="fas fa-angle-left"></i>
+                                            </a>
+                                        </li>
+
+                                        @{
+                                            int startPage = Math.Max(1, ViewBag.PaginaActual - 2);
+                                            int endPage = Math.Min(ViewBag.TotalPaginas, ViewBag.PaginaActual + 2);
+                                        }
+
+                                        @if (startPage > 1)
+                                        {
+                                            <li class="page-item disabled"><span class="page-link">…</span></li>
+                                        }
+
+                                        @for (int i = startPage; i <= endPage; i++)
+                                        {
+                                            <li class="page-item @(ViewBag.PaginaActual == i ? "active" : "")">
+                                                <a class="page-link" asp-action="Index" asp-route-pagina="@i">@i</a>
+                                            </li>
+                                        }
+
+                                        @if (endPage < ViewBag.TotalPaginas)
+                                        {
+                                            <li class="page-item disabled"><span class="page-link">…</span></li>
+                                        }
+
+                                        <!-- Siguiente -->
+                                        <li class="page-item @(ViewBag.PaginaActual >= ViewBag.TotalPaginas ? "disabled" : "")">
+                                            <a class="page-link" asp-action="Index" asp-route-pagina="@(ViewBag.PaginaActual + 1)">
+                                                <i class="fas fa-angle-right"></i>
+                                            </a>
+                                        </li>
+
+                                        <!-- Última -->
+                                        <li class="page-item @(ViewBag.PaginaActual >= ViewBag.TotalPaginas ? "disabled" : "")">
+                                            <a class="page-link" asp-action="Index" asp-route-pagina="@ViewBag.TotalPaginas">
+                                                <i class="fas fa-angle-double-right"></i>
+                                            </a>
+                                        </li>
+
+                                    </ul>
+                                </nav>
+                            }
+                        </div>
+                    }
+
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
-@section Scripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const searchInput = document.getElementById('searchInput');
-            const statusFilter = document.getElementById('statusFilter');
-            const roleFilter = document.getElementById('roleFilter');
-            const userRows = document.querySelectorAll('.user-row');
-            const totalUsers = @totalUsuarios;
-
-            function filterTable() {
-                const searchTerm = searchInput.value.toLowerCase();
-                const statusValue = statusFilter.value;
-                const roleValue = roleFilter.value.toLowerCase();
-
-                let visibleCount = 0;
-
-                userRows.forEach(row => {
-                    const username = row.getAttribute('data-username');
-                    const email = row.getAttribute('data-email');
-                    const active = row.getAttribute('data-active');
-                    const roles = row.getAttribute('data-role');
-
-                    const matchesSearch = !searchTerm ||
-                        username.includes(searchTerm) ||
-                        email.includes(searchTerm);
-
-                    const matchesStatus = !statusValue ||
-                        (statusValue === 'active' && active === 'true') ||
-                        (statusValue === 'inactive' && active === 'false');
-
-                    const matchesRole = !roleValue || roles.includes(roleValue);
-
-                    if (matchesSearch && matchesStatus && matchesRole) {
-                        row.style.display = '';
-                        visibleCount++;
-                    } else {
-                        row.style.display = 'none';
-                    }
-                });
-
-                // Actualizar contadores
-                document.getElementById('userCount').textContent = `Mostrando ${visibleCount} de ${totalUsers} usuarios`;
-                document.getElementById('paginationInfo').textContent = `Mostrando ${visibleCount} de ${totalUsers} usuarios`;
-            }
-
-            // Event listeners
-            searchInput.addEventListener('input', filterTable);
-            statusFilter.addEventListener('change', filterTable);
-            roleFilter.addEventListener('change', filterTable);
-
             // Auto-hide alerts
             setTimeout(() => {
                 const alerts = document.querySelectorAll('.alert-custom');
@@ -852,4 +823,5 @@
             }, 5000);
         });
     </script>
-}
+</body>
+</html>

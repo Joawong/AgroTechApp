@@ -375,18 +375,25 @@
                     <input type="hidden" asp-for="AnimalId" />
                     <input type="hidden" asp-for="FincaId" />
 
-                    <!-- MISMO CONTENIDO DE FORM QUE CREATE -->
-                    <!-- Copiar todas las secciones de Create.cshtml aquí -->
-                    <!-- Campos estarán prellenados con asp-for -->
-
                     <div class="form-sections">
                         <!-- Información Básica -->
                         <div class="form-section">
                             <h3><i class="fas fa-info-circle"></i> Información Básica</h3>
                             <div class="form-grid">
                                 <div class="form-group">
-                                    <input asp-for="Arete" class="form-control" readonly style="background-color: #e9ecef; cursor: not-allowed;" />
+                                    <label asp-for="Arete">
+                                        <i class="fas fa-tag"></i>
+                                        Número de Arete
+                                    </label>
+                                    <input asp-for="Arete"
+                                           class="form-control"
+                                           readonly
+                                           style="background-color: #e9ecef; cursor: not-allowed;" />
                                     <input type="hidden" asp-for="Arete" />
+                                    <small class="form-help">
+                                        <i class="fas fa-lock"></i>
+                                        El arete no se puede modificar para mantener trazabilidad
+                                    </small>
                                 </div>
                                 <div class="form-group">
                                     <label asp-for="Nombre"><i class="fas fa-signature"></i> Nombre</label>

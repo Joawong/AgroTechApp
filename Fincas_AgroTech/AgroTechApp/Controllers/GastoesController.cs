@@ -18,29 +18,40 @@ namespace AgroTechApp.Controllers
         }
 
         // GET: Gastoes
-        public async Task<IActionResult> Index()
+        // En GastoesController.cs
+        public async Task<IActionResult> Index(int? pagina)
         {
-            try
-            {
-                var fincaId = GetFincaId();
+            var fincaId = GetFincaId();
 
-                var gastos = await _context.Gastos
-                    .Where(g => g.FincaId == fincaId)
-                    .Include(g => g.Animal)
-                    .Include(g => g.Finca)
-                    .Include(g => g.Insumo)
-                    .Include(g => g.Potrero)
-                    .Include(g => g.RubroGasto)
-                    .OrderByDescending(g => g.Fecha)
-                    .ToListAsync();
+            var query = _context.Gastos
+                .Where(g => g.FincaId == fincaId)
+                .Include(g => g.Animal)
+                .Include(g => g.RubroGasto)
+                .Include(g => g.Insumo)
+                .AsQueryable();
 
-                return View(gastos);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                _logger.LogWarning(ex, "Acceso no autorizado");
-                return RedirectToAction("Login", "Account", new { area = "Identity" });
-            }
+            // Contar total
+            var totalRegistros = await query.CountAsync();
+
+            // Ordenar
+            query = query.OrderByDescending(g => g.Fecha);
+
+            // PAGINACIÓN
+            int registrosPorPagina = 10;
+            int paginaActual = pagina ?? 1;
+            int totalPaginas = (int)Math.Ceiling(totalRegistros / (double)registrosPorPagina);
+
+            var gastos = await query
+                .Skip((paginaActual - 1) * registrosPorPagina)
+                .Take(registrosPorPagina)
+                .ToListAsync();
+
+            // ViewBags
+            ViewBag.PaginaActual = paginaActual;
+            ViewBag.TotalPaginas = totalPaginas;
+            ViewBag.TotalRegistros = totalRegistros;
+
+            return View(gastos);
         }
 
         // GET: Gastoes/Details/5
@@ -88,14 +99,19 @@ namespace AgroTechApp.Controllers
                 // ViewBag para dropdowns (requerido por las vistas)
                 ViewBag.RubroGastoId = new SelectList(_context.RubroGastos, "RubroGastoId", "Nombre");
                 ViewBag.AnimalId = new SelectList(
-                    _context.Animals.Where(a => a.FincaId == fincaId),
-                    "AnimalId", "Arete");
-                ViewBag.PotreroId = new SelectList(
-                    _context.Potreros.Where(p => p.FincaId == fincaId),
-                    "PotreroId", "Nombre");
+                    _context.Animals
+                        .Where(a => a.FincaId == fincaId && a.Estado == "Activo")
+                        .OrderBy(a => a.Arete)
+                        .ToList(),
+                    "AnimalId",
+                    "Arete");
                 ViewBag.InsumoId = new SelectList(
-                    _context.Insumos.Where(i => i.FincaId == fincaId),
-                    "InsumoId", "Nombre");
+                    _context.Insumos
+                        .Where(i => i.FincaId == fincaId && i.Activo == true)
+                        .OrderBy(i => i.Nombre)
+                        .ToList(),
+                    "InsumoId",
+                    "Nombre");
 
                 return View();
             }
@@ -170,13 +186,17 @@ namespace AgroTechApp.Controllers
                 // Recargar dropdowns
                 ViewBag.RubroGastoId = new SelectList(_context.RubroGastos, "RubroGastoId", "Nombre", gasto.RubroGastoId);
                 ViewBag.AnimalId = new SelectList(
-                    _context.Animals.Where(a => a.FincaId == fincaId),
+                    _context.Animals
+                        .Where(a => a.FincaId == fincaId && a.Estado == "Activo") 
+                        .OrderBy(a => a.Arete)
+                        .ToList(),
                     "AnimalId", "Arete", gasto.AnimalId);
-                ViewBag.PotreroId = new SelectList(
-                    _context.Potreros.Where(p => p.FincaId == fincaId),
-                    "PotreroId", "Nombre", gasto.PotreroId);
+
                 ViewBag.InsumoId = new SelectList(
-                    _context.Insumos.Where(i => i.FincaId == fincaId),
+                    _context.Insumos
+                        .Where(i => i.FincaId == fincaId && i.Activo == true)  
+                        .OrderBy(i => i.Nombre)
+                        .ToList(),
                     "InsumoId", "Nombre", gasto.InsumoId);
 
                 return View(gasto);
@@ -191,10 +211,7 @@ namespace AgroTechApp.Controllers
         // GET: Gastoes/Edit/5
         public async Task<IActionResult> Edit(long? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             try
             {
@@ -204,28 +221,49 @@ namespace AgroTechApp.Controllers
                     .Where(g => g.FincaId == fincaId && g.GastoId == id)
                     .FirstOrDefaultAsync();
 
-                if (gasto == null)
-                {
-                    return NotFound();
-                }
+                if (gasto == null) return NotFound();
 
                 // No permitir editar registros automáticos
                 if (gasto.EsAutomatico)
                 {
-                    MostrarError("No se pueden editar registros automáticos generados por el sistema. Use el módulo correspondiente para hacer cambios.");
+                    MostrarError("No se pueden editar registros automáticos generados por el sistema.");
                     return RedirectToAction(nameof(Details), new { id });
                 }
 
-                ViewBag.RubroGastoId = new SelectList(_context.RubroGastos, "RubroGastoId", "Nombre", gasto.RubroGastoId);
+                ViewBag.RubroGastoId = new SelectList(
+                    _context.RubroGastos,
+                    "RubroGastoId",
+                    "Nombre",
+                    gasto.RubroGastoId);
+
+                // SOLO ANIMALES ACTIVOS
                 ViewBag.AnimalId = new SelectList(
-                    _context.Animals.Where(a => a.FincaId == fincaId),
-                    "AnimalId", "Arete", gasto.AnimalId);
+                    _context.Animals
+                        .Where(a => a.FincaId == fincaId && a.Estado == "Activo")
+                        .OrderBy(a => a.Arete)
+                        .ToList(),
+                    "AnimalId",
+                    "Arete",
+                    gasto.AnimalId);
+
                 ViewBag.PotreroId = new SelectList(
-                    _context.Potreros.Where(p => p.FincaId == fincaId),
-                    "PotreroId", "Nombre", gasto.PotreroId);
+                    _context.Potreros
+                        .Where(p => p.FincaId == fincaId)
+                        .OrderBy(p => p.Nombre)
+                        .ToList(),
+                    "PotreroId",
+                    "Nombre",
+                    gasto.PotreroId);
+
+                // SOLO INSUMOS ACTIVOS
                 ViewBag.InsumoId = new SelectList(
-                    _context.Insumos.Where(i => i.FincaId == fincaId),
-                    "InsumoId", "Nombre", gasto.InsumoId);
+                    _context.Insumos
+                        .Where(i => i.FincaId == fincaId && i.Activo == true)
+                        .OrderBy(i => i.Nombre)
+                        .ToList(),
+                    "InsumoId",
+                    "Nombre",
+                    gasto.InsumoId);
 
                 return View(gasto);
             }

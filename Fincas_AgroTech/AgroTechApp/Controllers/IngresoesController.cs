@@ -18,19 +18,39 @@ namespace AgroTechApp.Controllers
         }
 
         // GET: Ingresoes
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? pagina)
         {
             try
             {
                 var fincaId = GetFincaId();
 
-                var ingresos = await _context.Ingresos
+                var query = _context.Ingresos
                     .Where(i => i.FincaId == fincaId)
                     .Include(i => i.Animal)
                     .Include(i => i.Finca)
                     .Include(i => i.RubroIngreso)
-                    .OrderByDescending(i => i.IngresoId)
+                    .AsQueryable();
+
+                // Contar total
+                var totalRegistros = await query.CountAsync();
+
+                // Ordenar: Más recientes primero
+                query = query.OrderByDescending(i => i.IngresoId);
+
+                // Paginación
+                int registrosPorPagina = 10;
+                int paginaActual = pagina ?? 1;
+                int totalPaginas = (int)Math.Ceiling(totalRegistros / (double)registrosPorPagina);
+
+                var ingresos = await query
+                    .Skip((paginaActual - 1) * registrosPorPagina)
+                    .Take(registrosPorPagina)
                     .ToListAsync();
+
+                // ViewBags
+                ViewBag.PaginaActual = paginaActual;
+                ViewBag.TotalPaginas = totalPaginas;
+                ViewBag.TotalRegistros = totalRegistros;
 
                 return View(ingresos);
             }

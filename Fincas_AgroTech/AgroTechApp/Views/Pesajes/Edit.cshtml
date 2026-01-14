@@ -55,20 +55,24 @@
         }
 
         @@keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
+            from
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        {
+            opacity: 0;
+            transform: translateY(10px);
         }
 
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+
+        /* ✅ HEADER VERDE PROFESIONAL (no amarillo) */
         .form-header {
-            background: linear-gradient(135deg, var(--warning), #ffd351);
-            color: var(--dark);
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: var(--white);
             padding: 2.5rem;
             text-align: center;
             position: relative;
@@ -82,7 +86,7 @@
                 right: -50%;
                 width: 100%;
                 height: 200%;
-                background: rgba(255, 255, 255, 0.2);
+                background: rgba(255, 255, 255, 0.1);
                 transform: rotate(30deg);
             }
 
@@ -139,20 +143,21 @@
                 color: var(--gray);
             }
 
+        /* ✅ INFO BANNER MEJORADO */
         .info-banner {
-            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-            border-left: 5px solid #2196f3;
-            padding: 1.2rem;
-            border-radius: 10px;
+            background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+            border-left: 5px solid var(--success);
+            padding: 1.5rem;
+            border-radius: 12px;
             margin-bottom: 2rem;
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 1.2rem;
         }
 
             .info-banner i {
-                font-size: 1.5rem;
-                color: #1976d2;
+                font-size: 2rem;
+                color: var(--success);
             }
 
             .info-banner div {
@@ -162,13 +167,36 @@
             .info-banner strong {
                 display: block;
                 color: var(--dark);
-                margin-bottom: 0.3rem;
+                margin-bottom: 0.5rem;
+                font-size: 1.1rem;
             }
 
             .info-banner p {
                 margin: 0;
                 color: var(--gray);
-                font-size: 0.9rem;
+                font-size: 0.95rem;
+            }
+
+        /* ✅ PESO ACTUAL DESTACADO */
+        .current-weight {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--white);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            margin-top: 0.5rem;
+            border: 2px solid var(--success);
+        }
+
+            .current-weight i {
+                color: var(--success);
+            }
+
+            .current-weight .weight-value {
+                font-size: 1.2rem;
+                font-weight: 700;
+                color: var(--primary);
             }
 
         .form-section {
@@ -248,6 +276,9 @@
             font-size: 0.85rem;
             color: var(--gray);
             margin-top: 0.4rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
         }
 
         .form-actions {
@@ -306,58 +337,33 @@
             transform: translateY(-50%);
             color: var(--gray);
             font-weight: 600;
-            background: var(--white);
-            padding: 0 5px;
-        }
-
-        .current-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .detail-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        }
-
-        .detail-label {
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .detail-value {
-            color: #555;
+            pointer-events: none;
         }
 
         @@media (max-width: 768px) {
-            .form-header h1 {
-                font-size: 1.8rem;
+            .form-header h1
+
+        {
+            font-size: 1.8rem;
+        }
+
+        .form-body {
+            padding: 1.5rem;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+            .form-actions .btn {
+                width: 100%;
+                justify-content: center;
             }
 
-            .form-body {
-                padding: 1.5rem;
-            }
-
-            .form-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .form-actions {
-                flex-direction: column;
-            }
-
-                .form-actions .btn {
-                    width: 100%;
-                    justify-content: center;
-                }
-
-            .current-details {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
 </head>
@@ -369,7 +375,7 @@
             <div class="form-header">
                 <i class="fas fa-weight-hanging form-header-icon"></i>
                 <h1><i class="fas fa-edit"></i> Editar Pesaje</h1>
-                <p>Actualice la información del registro de pesaje existente</p>
+                <p>Actualice la información del registro de peso del animal</p>
             </div>
 
             <!-- Body -->
@@ -385,10 +391,15 @@
 
                 <!-- Info Banner -->
                 <div class="info-banner">
-                    <i class="fas fa-info-circle"></i>
+                    <i class="fas fa-cow"></i>
                     <div>
-                        <strong>Editando: Pesaje #@Model.PesajeId</strong>
-                        <p>Animal: @(Model.Animal?.Arete ?? "N/A") - @(Model.Animal?.Nombre ?? "Sin nombre") | Fecha: @Model.Fecha.ToString("dd/MM/yyyy")</p>
+                        <strong>@(Model.Animal?.Arete ?? "N/A") - @(Model.Animal?.Nombre ?? "Sin nombre")</strong>
+                        <p>Fecha del pesaje: @Model.Fecha.ToString("dd/MM/yyyy HH:mm")</p>
+                        <div class="current-weight">
+                            <i class="fas fa-weight-hanging"></i>
+                            <span>Peso actual:</span>
+                            <span class="weight-value">@Model.PesoKg.ToString("N1") kg</span>
+                        </div>
                     </div>
                 </div>
 
@@ -404,29 +415,57 @@
                         <h3><i class="fas fa-weight-hanging"></i> Información del Pesaje</h3>
                         <div class="form-grid">
                             <div class="form-group">
-                                <label asp-for="AnimalId"><i class="fas fa-cow"></i> Animal <span style="color: var(--danger);">*</span></label>
+                                <label asp-for="AnimalId">
+                                    <i class="fas fa-cow"></i>
+                                    Animal
+                                    <span style="color: var(--danger);">*</span>
+                                </label>
                                 <select asp-for="AnimalId" class="form-control" asp-items="ViewBag.AnimalId" required>
                                     <option value="">Seleccione un animal</option>
                                 </select>
                                 <span asp-validation-for="AnimalId" class="text-danger"></span>
-                                <div class="form-help">Seleccione el animal al que pertenece este pesaje</div>
+                                <small class="form-help">
+                                    <i class="fas fa-info-circle"></i>
+                                    Seleccione el animal al que pertenece este pesaje
+                                </small>
                             </div>
 
                             <div class="form-group">
-                                <label asp-for="Fecha"><i class="fas fa-calendar"></i> Fecha de Pesaje <span style="color: var(--danger);">*</span></label>
-                                <input asp-for="Fecha" type="datetime-local" class="form-control" required />
+                                <label asp-for="Fecha">
+                                    <i class="fas fa-calendar"></i>
+                                    Fecha de Pesaje
+                                    <span style="color: var(--danger);">*</span>
+                                </label>
+                                <input asp-for="Fecha" type="date" class="form-control" required />
                                 <span asp-validation-for="Fecha" class="text-danger"></span>
-                                <div class="form-help">Fecha y hora en que se realizó el pesaje</div>
+                                <small class="form-help">
+                                    <i class="fas fa-info-circle"></i>
+                                    Fecha en que se realizó el pesaje
+                                </small>
                             </div>
 
                             <div class="form-group">
-                                <label asp-for="PesoKg"><i class="fas fa-weight"></i> Peso (kg) <span style="color: var(--danger);">*</span></label>
+                                <label asp-for="PesoKg">
+                                    <i class="fas fa-weight"></i>
+                                    Peso (kg)
+                                    <span style="color: var(--danger);">*</span>
+                                </label>
                                 <div class="weight-input-container">
-                                    <input asp-for="PesoKg" type="number" step="0.1" class="form-control" min="1" max="2000" required />
+                                    <input asp-for="PesoKg"
+                                           type="number"
+                                           step="0.1"
+                                           class="form-control"
+                                           min="1"
+                                           max="2000"
+                                           required
+                                           placeholder="Ej: 245.5" />
                                     <span class="weight-unit">kg</span>
                                 </div>
                                 <span asp-validation-for="PesoKg" class="text-danger"></span>
-                                <div class="form-help">El peso debe estar entre 1 y 2000 kg</div>
+                                <small class="form-help">
+                                    <i class="fas fa-info-circle"></i>
+                                    El peso debe estar entre 1 y 2000 kg
+                                </small>
                             </div>
                         </div>
                     </div>
@@ -435,29 +474,19 @@
                     <div class="form-section">
                         <h3><i class="fas fa-comment-medical"></i> Observaciones</h3>
                         <div class="form-group">
-                            <label asp-for="Observacion"><i class="fas fa-sticky-note"></i> Observaciones</label>
-                            <textarea asp-for="Observacion" class="form-control" rows="4" placeholder="Ingrese observaciones relevantes sobre el pesaje..."></textarea>
+                            <label asp-for="Observacion">
+                                <i class="fas fa-sticky-note"></i>
+                                Observaciones Adicionales
+                            </label>
+                            <textarea asp-for="Observacion"
+                                      class="form-control"
+                                      rows="4"
+                                      placeholder="Ingrese observaciones relevantes sobre el pesaje (opcional)..."></textarea>
                             <span asp-validation-for="Observacion" class="text-danger"></span>
-                            <div class="form-help">Observaciones adicionales sobre el pesaje (opcional)</div>
-                        </div>
-                    </div>
-
-                    <!-- Información Actual -->
-                    <div class="form-section">
-                        <h3><i class="fas fa-info-circle"></i> Información Actual</h3>
-                        <div class="current-details">
-                            <div class="detail-item">
-                                <span class="detail-label">Animal:</span>
-                                <span class="detail-value">@(Model.Animal?.Arete ?? "N/A") - @(Model.Animal?.Nombre ?? "Sin nombre")</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Fecha:</span>
-                                <span class="detail-value">@Model.Fecha.ToString("dd/MM/yyyy HH:mm")</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Peso Actual:</span>
-                                <span class="detail-value" style="color: var(--primary); font-weight: 600;">@Model.PesoKg kg</span>
-                            </div>
+                            <small class="form-help">
+                                <i class="fas fa-info-circle"></i>
+                                Puede incluir condiciones del animal, clima, etc.
+                            </small>
                         </div>
                     </div>
 
@@ -483,4 +512,4 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-}   
+}
