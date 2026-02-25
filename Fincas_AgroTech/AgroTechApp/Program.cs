@@ -64,11 +64,22 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapRazorPages();
 
+// Un solo bloque que hace ambas cosas
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    var connection = dbContext.Database.GetDbConnection();
-    Console.WriteLine($"?? ApplicationDbContext se conectó a la base de datos: {connection.Database} en {connection.DataSource}");
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var connection = db.Database.GetDbConnection();
+    Console.WriteLine($"✅ Conectado a: {connection.Database} en {connection.DataSource}");
+
+    // Solo aplica migraciones si la base de datos puede aceptarlas
+    try
+    {
+        db.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"⚠️ Migrate() falló (probablemente las tablas ya existen): {ex.Message}");
+    }
 }
 
 app.Run();
