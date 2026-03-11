@@ -99,6 +99,12 @@ namespace AgroTechApp.Controllers
 
                 if (finca == null) return NotFound();
                 ViewBag.FincaActualId = GetFincaId();
+                ViewBag.TotalAnimales = await _context.Animals
+                    .Where(a => a.FincaId == id && a.Estado == "Activo")
+                    .CountAsync();
+                ViewBag.TotalInsumos = await _context.Insumos
+                    .Where(i => i.FincaId == id)
+                    .CountAsync();
                 return View(finca);
             }
             catch (Exception ex)
