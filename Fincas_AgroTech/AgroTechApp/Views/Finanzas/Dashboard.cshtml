@@ -3,83 +3,74 @@
 @{
     ViewData["Title"] = "Panel Financiero";
 
-    // KPIs principales
     decimal totalIngresos = ViewBag.TotalIngresos ?? 0;
     decimal totalGastos = ViewBag.TotalGastos ?? 0;
     decimal utilidadNeta = totalIngresos - totalGastos;
     decimal margenUtilidad = totalIngresos > 0 ? (utilidadNeta / totalIngresos) * 100 : 0;
 
-    // Período actual
     string periodoTexto = ViewBag.PeriodoTexto ?? "Este mes";
 }
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="utf-8" />
-    <title>@ViewData["Title"] - AgroTech</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <style>
-
-    :root {
-        --primary: #2E8B57;
-        --primary-light: #3CB371;
-        --primary-dark: #1E6B47;
-        --secondary: #F4A460;
-        --success: #28a745;
-        --warning: #ffc107;
-        --danger: #dc3545;
-        --info: #17a2b8;
+<style>
+    /* ============================================================
+           PALETA — Slate & Emerald (Stripe style)
+           Ingresos  : #10b981  esmeralda
+           Gastos    : #f59e0b  ámbar
+           Utilidad  : #3b82f6  azul medio
+           Margen    : #8b5cf6  violeta suave
+           Crítico   : #ef4444  rojo (solo pérdidas / alertas graves)
+        ============================================================ */
+    .fin-page {
+        --ing: #10b981;
+        --ing-light: #34d399;
+        --ing-dark: #059669;
+        --gasto: #f59e0b;
+        --gasto-light: #fbbf24;
+        --gasto-dark: #d97706;
+        --util: #3b82f6;
+        --util-light: #60a5fa;
+        --util-dark: #2563eb;
+        --margen: #8b5cf6;
+        --margen-light: #a78bfa;
+        --margen-dark: #7c3aed;
+        --danger: #ef4444; /* solo para pérdidas/críticos */
         --light: #f8f9fa;
-        --dark: #343a40;
+        --dark: #1e293b;
         --white: #ffffff;
-        --border: #e1e5e9;
-        --shadow: rgba(46, 139, 87, 0.1);
-        --gray: #6c757d;
-    }
-
-    * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-    }
-
-    body {
-        font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        --border: #e2e8f0;
+        --gray: #64748b;
+        --shadow: rgba(16,185,129,0.08);
         padding: 20px;
-        min-height: 100vh;
+        font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: var(--dark);
     }
 
-    .container {
+    .fin-card {
         max-width: 1600px;
         margin: 0 auto;
-    }
-
-    .admin-card {
         background: var(--white);
         border-radius: 20px;
         box-shadow: 0 15px 40px var(--shadow);
         overflow: hidden;
-        border: 1px solid #e1e5e9;
-        animation: fadeIn 0.5s ease-out;
+        border: 1px solid var(--border);
+        animation: fin-fadeIn .5s ease-out;
     }
 
-    @@keyframes fadeIn {
+    @@keyframes fin-fadeIn {
         from {
             opacity: 0;
             transform: translateY(10px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
         }
     }
 
-    .admin-header {
-        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    /* ---- Header (esmeralda) ---- */
+    .fin-header {
+        background: linear-gradient(135deg, #059669, #047857);
         color: white;
         padding: 2.5rem;
         text-align: center;
@@ -87,48 +78,48 @@
         overflow: hidden;
     }
 
-    .admin-header::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -50%;
-        width: 100%;
-        height: 200%;
-        background: rgba(255, 255, 255, 0.1);
-        transform: rotate(30deg);
-    }
+        .fin-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: rgba(255,255,255,.08);
+            transform: rotate(30deg);
+        }
 
-    .admin-header h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        position: relative;
-        z-index: 1;
-    }
+        .fin-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: .5rem;
+            position: relative;
+            z-index: 1;
+        }
 
-    .admin-header p {
-        font-size: 1.1rem;
-        opacity: 0.9;
-        position: relative;
-        z-index: 1;
-    }
+        .fin-header p {
+            font-size: 1.1rem;
+            opacity: .9;
+            position: relative;
+            z-index: 1;
+        }
 
-    .admin-header-icon {
+    .fin-header-icon {
         position: absolute;
         right: 2rem;
         top: 50%;
         transform: translateY(-50%);
         font-size: 4rem;
-        opacity: 0.2;
-        z-index: 0;
+        opacity: .15;
     }
 
-    .admin-body {
+    .fin-body {
         padding: 2.5rem;
     }
 
-    .btn {
-        padding: 0.85rem 1.8rem;
+    /* ---- Botones ---- */
+    .fin-btn {
+        padding: .85rem 1.8rem;
         border: none;
         border-radius: 12px;
         font-size: 1rem;
@@ -136,264 +127,63 @@
         cursor: pointer;
         display: inline-flex;
         align-items: center;
-        gap: 0.7rem;
-        transition: all 0.3s ease;
+        gap: .7rem;
+        transition: all .3s;
         text-decoration: none;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        font-family: 'Poppins', sans-serif;
+        box-shadow: 0 4px 12px rgba(0,0,0,.08);
+        font-family: inherit;
     }
 
-    .btn-primary {
-        background: linear-gradient(135deg, var(--primary), var(--primary-light));
-        color: var(--white);
+    .fin-btn-ing {
+        background: linear-gradient(135deg,var(--ing),var(--ing-light));
+        color: white;
     }
 
-    .btn-primary:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(46, 139, 87, 0.3);
+        .fin-btn-ing:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16,185,129,.35);
+            color: white;
+        }
+
+    .fin-btn-gasto {
+        background: linear-gradient(135deg,var(--gasto-dark),var(--gasto));
+        color: white;
     }
 
-    .btn-success {
-        background: linear-gradient(135deg, var(--success), #34ce57);
-        color: var(--white);
+        .fin-btn-gasto:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(245,158,11,.35);
+            color: white;
+        }
+
+    .fin-btn-util {
+        background: linear-gradient(135deg,var(--util-dark),var(--util));
+        color: white;
     }
 
-    .btn-secondary {
-        background: linear-gradient(135deg, var(--gray), #7d8590);
-        color: var(--white);
+        .fin-btn-util:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59,130,246,.35);
+            color: white;
+        }
+
+    .fin-btn-sec {
+        background: linear-gradient(135deg,#475569,#64748b);
+        color: white;
     }
 
-    .btn-warning {
-        background: linear-gradient(135deg, var(--warning), #ffd351);
-        color: var(--dark);
-    }
+        .fin-btn-sec:hover {
+            transform: translateY(-2px);
+            color: white;
+        }
 
-    .btn-danger {
-        background: linear-gradient(135deg, var(--danger), #e4606d);
-        color: var(--white);
-    }
-
-    .btn-info {
-        background: linear-gradient(135deg, var(--info), #36b9cc);
-        color: var(--white);
-    }
-
-    .filter-select {
-        padding: 0.85rem 1.2rem;
-        border: 2px solid var(--border);
-        border-radius: 10px;
-        font-size: 0.95rem;
-        min-width: 180px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        background: var(--white);
-        font-family: 'Poppins', sans-serif;
-    }
-
-    .filter-select:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(46, 139, 87, 0.1);
-    }
-
-    /* ============ ESTILOS DEL DASHBOARD ============ */
-
-    .financial-summary {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .finance-card {
-        background: var(--white);
-        border-radius: 15px;
-        padding: 1.8rem;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-        position: relative;
-        overflow: hidden;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .finance-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    }
-
-    .finance-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 1rem;
-    }
-
-    .finance-card-title {
-        font-size: 0.9rem;
-        color: var(--gray);
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .finance-card-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-    }
-
-    .finance-card-amount {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-    }
-
-    .finance-card-subtitle {
-        font-size: 0.85rem;
-        color: var(--gray);
-    }
-
-    .finance-card.ingresos {
-        border-left: 5px solid #28a745;
-    }
-
-    .finance-card.ingresos .finance-card-icon {
-        background: rgba(40, 167, 69, 0.1);
-        color: #28a745;
-    }
-
-    .finance-card.gastos {
-        border-left: 5px solid #dc3545;
-    }
-
-    .finance-card.gastos .finance-card-icon {
-        background: rgba(220, 53, 69, 0.1);
-        color: #dc3545;
-    }
-
-    .finance-card.utilidad {
-        border-left: 5px solid #17a2b8;
-    }
-
-    .finance-card.utilidad .finance-card-icon {
-        background: rgba(23, 162, 184, 0.1);
-        color: #17a2b8;
-    }
-
-    .finance-card.margen {
-        border-left: 5px solid #ffc107;
-    }
-
-    .finance-card.margen .finance-card-icon {
-        background: rgba(255, 193, 7, 0.1);
-        color: #ffc107;
-    }
-
-    /* Gráficos */
-    .charts-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-        gap: 2rem;
-        margin-bottom: 2rem;
-    }
-
-    .chart-card {
-        background: var(--white);
-        border-radius: 15px;
-        padding: 1.5rem;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-    }
-
-    .chart-card h3 {
-        margin-bottom: 1.5rem;
-        color: var(--dark);
-        font-size: 1.2rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .chart-container {
-        position: relative;
-        height: 300px;
-    }
-
-    /* Tablas de desglose */
-    .breakdown-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-        gap: 2rem;
-        margin-bottom: 2rem;
-    }
-
-    .breakdown-card {
-        background: var(--white);
-        border-radius: 15px;
-        padding: 1.5rem;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-    }
-
-    .breakdown-card h3 {
-        margin-bottom: 1rem;
-        color: var(--dark);
-        font-size: 1.1rem;
-        font-weight: 600;
-    }
-
-    .breakdown-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.8rem 0;
-        border-bottom: 1px solid var(--border);
-    }
-
-    .breakdown-item:last-child {
-        border-bottom: none;
-    }
-
-    .breakdown-item > div:first-child {
-        flex: 1;
-    }
-
-    .breakdown-label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-weight: 500;
-    }
-
-    .breakdown-amount {
-        font-weight: 700;
-        font-size: 1.05rem;
-    }
-
-    .breakdown-bar {
-        width: 100%;
-        height: 6px;
-        background: var(--light);
-        border-radius: 3px;
-        margin-top: 0.5rem;
-        overflow: hidden;
-    }
-
-    .breakdown-bar-fill {
-        height: 100%;
-        border-radius: 3px;
-        transition: width 0.5s ease;
-    }
-
-    /* Filtros de período */
-    .period-filters {
+    /* ---- Filtros de período ---- */
+    .fin-period-bar {
         background: var(--white);
         border-radius: 15px;
         padding: 1.5rem;
         margin-bottom: 2rem;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 5px 15px rgba(0,0,0,.06);
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -401,652 +191,851 @@
         gap: 1rem;
     }
 
-    .period-buttons {
+    .fin-period-btns {
         display: flex;
-        gap: 0.5rem;
+        gap: .5rem;
         flex-wrap: wrap;
     }
 
-    .period-btn {
-        padding: 0.6rem 1.2rem;
+    .fin-period-btn {
+        padding: .6rem 1.2rem;
         border: 2px solid var(--border);
         border-radius: 8px;
         background: var(--white);
         color: var(--dark);
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: all .3s;
         text-decoration: none;
-        font-family: 'Poppins', sans-serif;
+        font-family: inherit;
     }
 
-    .period-btn:hover {
-        background: var(--light);
-        border-color: var(--primary);
-        color: var(--primary);
-    }
+        .fin-period-btn:hover {
+            background: var(--light);
+            border-color: var(--ing);
+            color: var(--ing);
+        }
 
-    .period-btn.active {
-        background: linear-gradient(135deg, var(--primary), var(--primary-light));
-        color: var(--white);
-        border-color: var(--primary);
-    }
+        .fin-period-btn.active {
+            background: linear-gradient(135deg,var(--ing-dark),var(--ing));
+            color: white;
+            border-color: var(--ing);
+        }
 
-    .custom-period {
+    .fin-custom-period {
         display: flex;
-        gap: 0.5rem;
+        gap: .5rem;
         align-items: center;
     }
 
-    .custom-period input[type="date"] {
-        padding: 0.6rem;
-        border: 2px solid var(--border);
-        border-radius: 8px;
-        font-family: 'Poppins', sans-serif;
-        font-size: 0.95rem;
+        .fin-custom-period input[type="date"] {
+            padding: .6rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: .95rem;
+        }
+
+            .fin-custom-period input[type="date"]:focus {
+                outline: none;
+                border-color: var(--ing);
+            }
+
+    /* ---- KPI cards ---- */
+    .fin-kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
     }
 
-    /* Alertas */
-    .alert-section {
+    .fin-kpi {
+        background: var(--white);
+        border-radius: 16px;
+        padding: 1.8rem;
+        box-shadow: 0 4px 16px rgba(0,0,0,.07);
+        transition: transform .3s, box-shadow .3s;
+        overflow: hidden;
+        position: relative;
+    }
+
+        .fin-kpi:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 28px rgba(0,0,0,.12);
+        }
+
+    .fin-kpi-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: .8rem;
+    }
+
+    .fin-kpi-title {
+        font-size: .82rem;
+        color: var(--gray);
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: .8px;
+    }
+
+    .fin-kpi-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+    }
+
+    .fin-kpi-amount {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: .4rem;
+        line-height: 1;
+    }
+
+    .fin-kpi-sub {
+        font-size: .83rem;
+        color: var(--gray);
+    }
+
+    /* colores KPI */
+    .fin-kpi.ing {
+        border-left: 4px solid var(--ing);
+    }
+
+        .fin-kpi.ing .fin-kpi-icon {
+            background: rgba(16,185,129,.12);
+            color: var(--ing);
+        }
+
+        .fin-kpi.ing .fin-kpi-amount {
+            color: var(--ing);
+        }
+
+    .fin-kpi.gasto {
+        border-left: 4px solid var(--gasto);
+    }
+
+        .fin-kpi.gasto .fin-kpi-icon {
+            background: rgba(245,158,11,.12);
+            color: var(--gasto-dark);
+        }
+
+        .fin-kpi.gasto .fin-kpi-amount {
+            color: var(--gasto-dark);
+        }
+
+    .fin-kpi.util {
+        border-left: 4px solid var(--util);
+    }
+
+        .fin-kpi.util .fin-kpi-icon {
+            background: rgba(59,130,246,.12);
+            color: var(--util);
+        }
+
+    .fin-kpi.margen {
+        border-left: 4px solid var(--margen);
+    }
+
+        .fin-kpi.margen .fin-kpi-icon {
+            background: rgba(139,92,246,.12);
+            color: var(--margen);
+        }
+
+        .fin-kpi.margen .fin-kpi-amount {
+            color: var(--margen);
+        }
+
+    /* ---- Comparación ---- */
+    .fin-compare {
         background: var(--white);
         border-radius: 15px;
         padding: 1.5rem;
         margin-bottom: 2rem;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 5px 15px rgba(0,0,0,.06);
     }
 
-    .alert-item {
+        .fin-compare h3 {
+            margin-bottom: 1rem;
+            color: var(--dark);
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+    .fin-compare-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
+        gap: 1.5rem;
+    }
+
+    .fin-cmp-ing {
+        padding: 1.2rem;
+        background: linear-gradient(135deg,#d1fae5,#a7f3d0);
+        border-radius: 12px;
+        border-left: 4px solid var(--ing);
+    }
+
+    .fin-cmp-gasto {
+        padding: 1.2rem;
+        background: linear-gradient(135deg,#fef3c7,#fde68a);
+        border-radius: 12px;
+        border-left: 4px solid var(--gasto);
+    }
+
+    .fin-cmp-inner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    /* ---- Alertas ---- */
+    .fin-alerts {
+        background: var(--white);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,.06);
+    }
+
+    .fin-alert-item {
         display: flex;
         align-items: center;
         gap: 1rem;
         padding: 1rem;
         border-radius: 10px;
-        margin-bottom: 0.8rem;
+        margin-bottom: .8rem;
     }
 
-    .alert-item:last-child {
-        margin-bottom: 0;
+        .fin-alert-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .fin-alert-item.warning {
+            background: #fef3c7;
+            border-left: 4px solid var(--gasto);
+        }
+
+        .fin-alert-item.danger {
+            background: #fee2e2;
+            border-left: 4px solid var(--danger);
+        }
+
+        .fin-alert-item.info {
+            background: #dbeafe;
+            border-left: 4px solid var(--util);
+        }
+
+    /* ---- Gráficos ---- */
+    .fin-charts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit,minmax(400px,1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
     }
 
-    .alert-item.warning {
-        background: #fff3cd;
-        border-left: 4px solid #ffc107;
+    .fin-chart-card {
+        background: var(--white);
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,.06);
     }
 
-    .alert-item.danger {
-        background: #f8d7da;
-        border-left: 4px solid #dc3545;
+        .fin-chart-card h3 {
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+            font-size: 1.15rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+
+    .fin-chart-box {
+        position: relative;
+        height: 300px;
     }
 
-    .alert-item.info {
-        background: #d1ecf1;
-        border-left: 4px solid #17a2b8;
+    /* ---- Desglose ---- */
+    .fin-break-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit,minmax(350px,1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
     }
 
-    .alert-icon {
-        font-size: 1.5rem;
+    .fin-break-card {
+        background: var(--white);
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,.06);
     }
 
-    /* RESPONSIVE */
-    @@media (max-width: 768px) {
-        .admin-header h1 {
+        .fin-break-card h3 {
+            margin-bottom: 1rem;
+            color: var(--dark);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+    .fin-break-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: .8rem 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+        .fin-break-item:last-child {
+            border-bottom: none;
+        }
+
+    .fin-break-label {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        font-weight: 500;
+        font-size: .9rem;
+    }
+
+    .fin-break-amount {
+        font-weight: 700;
+        font-size: 1rem;
+        white-space: nowrap;
+        margin-left: 1rem;
+    }
+
+    .fin-break-bar {
+        width: 100%;
+        height: 5px;
+        background: var(--light);
+        border-radius: 3px;
+        margin-top: .4rem;
+        overflow: hidden;
+    }
+
+    .fin-break-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width .6s;
+    }
+
+    /* ---- Filtros avanzados ---- */
+    .fin-filter-select {
+        padding: .85rem 1.2rem;
+        border: 2px solid var(--border);
+        border-radius: 10px;
+        font-size: .95rem;
+        min-width: 180px;
+        cursor: pointer;
+        transition: all .3s;
+        background: var(--white);
+        font-family: inherit;
+    }
+
+        .fin-filter-select:focus {
+            outline: none;
+            border-color: var(--ing);
+            box-shadow: 0 0 0 3px rgba(16,185,129,.1);
+        }
+
+    /* ---- Gastos por origen ---- */
+    .fin-origen-card {
+        background: var(--white);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,.06);
+    }
+
+    /* ---- Acciones rápidas ---- */
+    .fin-actions {
+        background: var(--white);
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 5px 15px rgba(0,0,0,.06);
+    }
+
+        .fin-actions h3 {
+            margin-bottom: 1rem;
+            color: var(--dark);
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+    .fin-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
+        gap: 1rem;
+    }
+
+    /* ---- Responsive ---- */
+    @@media(max-width:768px) {
+        .fin-header h1 {
             font-size: 1.8rem;
         }
 
-        .financial-summary {
+        .fin-body {
+            padding: 1.5rem;
+        }
+
+        .fin-kpi-grid {
             grid-template-columns: 1fr;
         }
 
-        .charts-grid {
+        .fin-charts-grid {
             grid-template-columns: 1fr;
         }
 
-        .breakdown-grid {
+        .fin-break-grid {
             grid-template-columns: 1fr;
         }
 
-        .period-filters {
+        .fin-period-bar {
             flex-direction: column;
             align-items: stretch;
         }
 
-        .period-buttons {
-            width: 100%;
-            justify-content: center;
-        }
-
-        .custom-period {
-            width: 100%;
-        }
-
-        .custom-period input[type="date"] {
+        .fin-custom-period input {
             flex: 1;
         }
-    }
-        </style>
-    </head>
 
-<body>
-    <div class="container">
-        <div class="admin-card">
-            <!-- Header -->
-            <div class="admin-header">
-                <i class="fas fa-chart-line admin-header-icon"></i>
-                <h1><i class="fas fa-chart-line"></i> Panel Financiero</h1>
-                <p>Análisis completo de ingresos, gastos y rentabilidad de la finca</p>
+        .fin-actions-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="fin-page">
+    <div class="fin-card">
+
+        @* ===== HEADER ===== *@
+        <div class="fin-header">
+            <i class="fas fa-chart-line fin-header-icon"></i>
+            <h1><i class="fas fa-chart-line"></i> Panel Financiero</h1>
+            <p>Análisis completo de ingresos, gastos y rentabilidad de la finca</p>
+        </div>
+
+        <div class="fin-body">
+
+            @* ===== FILTROS DE PERÍODO ===== *@
+            <div class="fin-period-bar">
+                <h3 style="margin:0; color:var(--dark); font-size:1rem;">
+                    <i class="fas fa-calendar" style="color:var(--ing)"></i>
+                    Período: <strong>@periodoTexto</strong>
+                </h3>
+
+                <div class="fin-period-btns">
+                    <a asp-action="Dashboard" asp-route-periodo="hoy"
+                       class="fin-period-btn @(ViewBag.PeriodoActual == "hoy" ? "active" : "")">Hoy</a>
+                    <a asp-action="Dashboard" asp-route-periodo="semana"
+                       class="fin-period-btn @(ViewBag.PeriodoActual == "semana" ? "active" : "")">Esta Semana</a>
+                    <a asp-action="Dashboard" asp-route-periodo="mes"
+                       class="fin-period-btn @(ViewBag.PeriodoActual == "mes" ? "active" : "")">Este Mes</a>
+                    <a asp-action="Dashboard" asp-route-periodo="trimestre"
+                       class="fin-period-btn @(ViewBag.PeriodoActual == "trimestre" ? "active" : "")">Trimestre</a>
+                    <a asp-action="Dashboard" asp-route-periodo="anio"
+                       class="fin-period-btn @(ViewBag.PeriodoActual == "anio" ? "active" : "")">Este Año</a>
+                </div>
+
+                <form method="get" asp-action="Dashboard" class="fin-custom-period">
+                    <input type="date" name="fechaDesde" value="@ViewBag.FechaDesde" required />
+                    <input type="date" name="fechaHasta" value="@ViewBag.FechaHasta" required />
+                    <button type="submit" class="fin-btn fin-btn-ing">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </form>
             </div>
 
-            <!-- Body -->
-            <!-- Body -->
-            <div class="admin-body">
+            @* ===== KPIs ===== *@
+            <div class="fin-kpi-grid">
 
-                <!-- ========================================== -->
-                <!--      FILTROS DE PERÍODO (Arriba de todo)   -->
-                <!-- ========================================== -->
-                <div class="period-filters">
-                    <div>
-                        <h3 style="margin: 0 0 0.5rem 0; color: var(--dark);">
-                            <i class="fas fa-calendar"></i> Período: <strong>@periodoTexto</strong>
-                        </h3>
+                @* Ingresos — esmeralda *@
+                <div class="fin-kpi ing">
+                    <div class="fin-kpi-head">
+                        <div class="fin-kpi-title">Total Ingresos</div>
+                        <div class="fin-kpi-icon"><i class="fas fa-arrow-trend-up"></i></div>
                     </div>
-
-                    <div class="period-buttons">
-                        <a asp-action="Dashboard" asp-route-periodo="hoy"
-                           class="period-btn @(ViewBag.PeriodoActual == "hoy" ? "active" : "")">
-                            Hoy
-                        </a>
-                        <a asp-action="Dashboard" asp-route-periodo="semana"
-                           class="period-btn @(ViewBag.PeriodoActual == "semana" ? "active" : "")">
-                            Esta Semana
-                        </a>
-                        <a asp-action="Dashboard" asp-route-periodo="mes"
-                           class="period-btn @(ViewBag.PeriodoActual == "mes" ? "active" : "")">
-                            Este Mes
-                        </a>
-                        <a asp-action="Dashboard" asp-route-periodo="trimestre"
-                           class="period-btn @(ViewBag.PeriodoActual == "trimestre" ? "active" : "")">
-                            Trimestre
-                        </a>
-                        <a asp-action="Dashboard" asp-route-periodo="anio"
-                           class="period-btn @(ViewBag.PeriodoActual == "anio" ? "active" : "")">
-                            Este Año
-                        </a>
-                    </div>
-
-                    <form method="get" asp-action="Dashboard" class="custom-period">
-                        <input type="date" name="fechaDesde" value="@ViewBag.FechaDesde" required />
-                        <input type="date" name="fechaHasta" value="@ViewBag.FechaHasta" required />
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </form>
+                    <div class="fin-kpi-amount">₡@totalIngresos.ToString("N0")</div>
+                    <div class="fin-kpi-sub"><i class="fas fa-receipt"></i> @ViewBag.CantidadIngresos registros</div>
                 </div>
 
-                <!-- ========================================== -->
-                <!--     KPIs PRINCIPALES                       -->
-                <!-- ========================================== -->
-                <div class="financial-summary">
-                    <!-- Total Ingresos -->
-                    <div class="finance-card ingresos">
-                        <div class="finance-card-header">
+                @* Gastos — ámbar *@
+                <div class="fin-kpi gasto">
+                    <div class="fin-kpi-head">
+                        <div class="fin-kpi-title">Total Gastos</div>
+                        <div class="fin-kpi-icon"><i class="fas fa-arrow-trend-down"></i></div>
+                    </div>
+                    <div class="fin-kpi-amount">₡@totalGastos.ToString("N0")</div>
+                    <div class="fin-kpi-sub"><i class="fas fa-receipt"></i> @ViewBag.CantidadGastos registros</div>
+                </div>
+
+                @* Utilidad — azul (rojo solo si es pérdida) *@
+                <div class="fin-kpi util">
+                    <div class="fin-kpi-head">
+                        <div class="fin-kpi-title">Utilidad Neta</div>
+                        <div class="fin-kpi-icon"><i class="fas fa-scale-balanced"></i></div>
+                    </div>
+                    <div class="fin-kpi-amount" style="color:@(utilidadNeta >= 0 ? "var(--util)" : "var(--danger)");">
+                        ₡@utilidadNeta.ToString("N0")
+                    </div>
+                    <div class="fin-kpi-sub">
+                        @if (utilidadNeta >= 0)
+                        {
+                            <span style="color:var(--ing)"><i class="fas fa-check-circle"></i> Ganancia del período</span>
+                        }
+                        else
+                        {
+                            <span style="color:var(--danger)"><i class="fas fa-triangle-exclamation"></i> Pérdida del período</span>
+                        }
+                    </div>
+                </div>
+
+                @* Margen — violeta (rojo solo si es bajo crítico) *@
+                <div class="fin-kpi margen">
+                    <div class="fin-kpi-head">
+                        <div class="fin-kpi-title">Margen de Utilidad</div>
+                        <div class="fin-kpi-icon"><i class="fas fa-percent"></i></div>
+                    </div>
+                    <div class="fin-kpi-amount" style="color:@(margenUtilidad >= 10 ? "var(--margen)" : "var(--danger)");">
+                        @margenUtilidad.ToString("N1")%
+                    </div>
+                    <div class="fin-kpi-sub">
+                        @if (margenUtilidad >= 20)
+                        {
+                            <span style="color:var(--ing)"><i class="fas fa-circle-check"></i> Excelente</span>
+                        }
+                        else if (margenUtilidad >= 10)
+                        {
+                            <span style="color:var(--gasto-dark)"><i class="fas fa-circle-exclamation"></i> Aceptable</span>
+                        }
+                        else
+                        {
+                            <span style="color:var(--danger)"><i class="fas fa-circle-xmark"></i> Crítico</span>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            @* ===== COMPARACIÓN PERÍODO ANTERIOR ===== *@
+            <div class="fin-compare">
+                <h3><i class="fas fa-chart-bar" style="color:var(--util)"></i> Comparación con Período Anterior</h3>
+                <div class="fin-compare-grid">
+
+                    @* Ingresos *@
+                    <div class="fin-cmp-ing">
+                        <div class="fin-cmp-inner">
                             <div>
-                                <div class="finance-card-title">Total Ingresos</div>
-                                <div class="finance-card-amount" style="color: #28a745;">
-                                    ₡@totalIngresos.ToString("N0")
+                                <small style="color:#065f46; font-weight:700; font-size:.8rem; text-transform:uppercase;">Ingresos</small>
+                                <div style="font-size:1.5rem; font-weight:800; color:var(--ing-dark); margin:.5rem 0;">
+                                    ₡@ViewBag.TotalIngresos.ToString("N0")
                                 </div>
-                                <div class="finance-card-subtitle">
-                                    <i class="fas fa-receipt"></i> @ViewBag.CantidadIngresos registros
-                                </div>
+                                <small style="color:#065f46;">vs ₡@ViewBag.TotalIngresosAnterior.ToString("N0")</small>
                             </div>
-                            <div class="finance-card-icon">
-                                <i class="fas fa-arrow-down"></i>
+                            <div style="text-align:right;">
+                                @{
+                                    var varIng = (decimal)ViewBag.VariacionIngresos;
+                                    var colIng = varIng >= 0 ? "var(--ing-dark)" : "var(--danger)";
+                                    var iconoIng = varIng >= 0 ? "arrow-up" : "arrow-down";
+                                }
+                                <div style="font-size:1.3rem; font-weight:800; color:@colIng;">
+                                    <i class="fas fa-@iconoIng"></i> @Math.Abs(varIng).ToString("N1")%
+                                </div>
+                                <small style="color:@colIng; font-weight:600;">@(varIng >= 0 ? "Incremento" : "Disminución")</small>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Total Gastos -->
-                    <div class="finance-card gastos">
-                        <div class="finance-card-header">
+                    @* Gastos *@
+                    <div class="fin-cmp-gasto">
+                        <div class="fin-cmp-inner">
                             <div>
-                                <div class="finance-card-title">Total Gastos</div>
-                                <div class="finance-card-amount" style="color: #dc3545;">
-                                    ₡@totalGastos.ToString("N0")
+                                <small style="color:#92400e; font-weight:700; font-size:.8rem; text-transform:uppercase;">Gastos</small>
+                                <div style="font-size:1.5rem; font-weight:800; color:var(--gasto-dark); margin:.5rem 0;">
+                                    ₡@ViewBag.TotalGastos.ToString("N0")
                                 </div>
-                                <div class="finance-card-subtitle">
-                                    <i class="fas fa-receipt"></i> @ViewBag.CantidadGastos registros
-                                </div>
+                                <small style="color:#92400e;">vs ₡@ViewBag.TotalGastosAnterior.ToString("N0")</small>
                             </div>
-                            <div class="finance-card-icon">
-                                <i class="fas fa-arrow-up"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Utilidad Neta -->
-                    <div class="finance-card utilidad">
-                        <div class="finance-card-header">
-                            <div>
-                                <div class="finance-card-title">Utilidad Neta</div>
-                                <div class="finance-card-amount" style="color: @(utilidadNeta >= 0 ? "#17a2b8" : "#dc3545");">
-                                    ₡@utilidadNeta.ToString("N0")
+                            <div style="text-align:right;">
+                                @{
+                                    var varGas = (decimal)ViewBag.VariacionGastos;
+                                    var colGas = varGas <= 0 ? "var(--ing-dark)" : "var(--danger)";
+                                    var iconoGas = varGas >= 0 ? "arrow-up" : "arrow-down";
+                                }
+                                <div style="font-size:1.3rem; font-weight:800; color:@colGas;">
+                                    <i class="fas fa-@iconoGas"></i> @Math.Abs(varGas).ToString("N1")%
                                 </div>
-                                <div class="finance-card-subtitle">
-                                    @(utilidadNeta >= 0 ? "Ganancia" : "Pérdida") del período
-                                </div>
-                            </div>
-                            <div class="finance-card-icon">
-                                <i class="fas fa-@(utilidadNeta >= 0 ? "chart-line" : "chart-line-down")"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Margen de Utilidad -->
-                    <div class="finance-card margen">
-                        <div class="finance-card-header">
-                            <div>
-                                <div class="finance-card-title">Margen de Utilidad</div>
-                                <div class="finance-card-amount" style="color: @(margenUtilidad >= 20 ? "#28a745" : margenUtilidad >= 10 ? "#ffc107" : "#dc3545");">
-                                    @margenUtilidad.ToString("N1")%
-                                </div>
-                                <div class="finance-card-subtitle">
-                                    @if (margenUtilidad >= 20)
-                                    {
-                                        <span style="color: #28a745;"><i class="fas fa-check-circle"></i> Excelente</span>
-                                    }
-                                    else if (margenUtilidad >= 10)
-                                    {
-                                        <span style="color: #ffc107;"><i class="fas fa-exclamation-triangle"></i> Aceptable</span>
-                                    }
-                                    else
-                                    {
-                                        <span style="color: #dc3545;"><i class="fas fa-times-circle"></i> Bajo</span>
-                                    }
-                                </div>
-                            </div>
-                            <div class="finance-card-icon">
-                                <i class="fas fa-percentage"></i>
+                                <small style="color:@colGas; font-weight:600;">@(varGas <= 0 ? "Mejora" : "Aumento")</small>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- ========================================== -->
-                <!--     COMPARACIÓN CON PERÍODO ANTERIOR       -->
-                <!-- ========================================== -->
-                <div style="background: var(--white); border-radius: 15px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);">
-                    <h3 style="margin-bottom: 1rem; color: var(--dark);">
-                        <i class="fas fa-chart-bar"></i> Comparación con Período Anterior
+            @* ===== ALERTAS ===== *@
+            @if (ViewBag.Alertas != null && ((List<dynamic>)ViewBag.Alertas).Any())
+            {
+                <div class="fin-alerts">
+                    <h3 style="margin-bottom:1rem; color:var(--dark);">
+                        <i class="fas fa-bell" style="color:var(--gasto)"></i> Alertas Importantes
                     </h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
-                        <!-- Ingresos -->
-                        <div style="padding: 1rem; background: linear-gradient(135deg, #d4edda, #c3e6cb); border-radius: 10px; border-left: 4px solid #28a745;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <small style="color: #155724; font-weight: 600;">Ingresos</small>
-                                    <div style="font-size: 1.5rem; font-weight: 700; color: #28a745; margin: 0.5rem 0;">
-                                        ₡@ViewBag.TotalIngresos.ToString("N0")
+                    @foreach (var alerta in (List<dynamic>)ViewBag.Alertas)
+                    {
+                        <div class="fin-alert-item @alerta.Tipo">
+                            <i class="fas fa-@alerta.Icono" style="font-size:1.5rem;"></i>
+                            <div style="flex:1;">
+                                <strong>@alerta.Titulo</strong>
+                                <p style="margin:0; font-size:.9rem;">@alerta.Mensaje</p>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+            @* ===== GRÁFICOS ===== *@
+            <div class="fin-charts-grid">
+                <div class="fin-chart-card" style="grid-column:span 2;">
+                    <h3>
+                        <i class="fas fa-chart-area" style="color:var(--util)"></i>
+                        Tendencia de Ingresos y Gastos
+                    </h3>
+                    <div class="fin-chart-box"><canvas id="trendChart"></canvas></div>
+                </div>
+                <div class="fin-chart-card">
+                    <h3>
+                        <i class="fas fa-chart-pie" style="color:var(--gasto)"></i>
+                        Gastos por Rubro
+                    </h3>
+                    <div class="fin-chart-box"><canvas id="gastosChart"></canvas></div>
+                </div>
+                <div class="fin-chart-card">
+                    <h3>
+                        <i class="fas fa-chart-pie" style="color:var(--ing)"></i>
+                        Ingresos por Rubro
+                    </h3>
+                    <div class="fin-chart-box"><canvas id="ingresosChart"></canvas></div>
+                </div>
+            </div>
+
+            @* ===== DESGLOSE TOP 10 ===== *@
+            <div class="fin-break-grid">
+
+                <div class="fin-break-card">
+                    <h3><i class="fas fa-list-ol" style="color:var(--gasto)"></i> Top Gastos por Rubro</h3>
+                    @if (ViewBag.TopGastos != null && ViewBag.TopGastos.Count > 0)
+                    {
+                        @foreach (var item in ViewBag.TopGastos)
+                        {
+                            <div class="fin-break-item">
+                                <div style="flex:1;">
+                                    <div class="fin-break-label">
+                                        <i class="fas fa-circle" style="color:var(--gasto); font-size:.45rem;"></i>
+                                        @item.Rubro
                                     </div>
-                                    <small style="color: #155724;">vs ₡@ViewBag.TotalIngresosAnterior.ToString("N0")</small>
+                                    <div class="fin-break-bar">
+                                        <div class="fin-break-fill" style="width:@item.Porcentaje%; background:linear-gradient(90deg,var(--gasto-dark),var(--gasto-light));"></div>
+                                    </div>
                                 </div>
-                                <div style="text-align: right;">
-                                    @{
-                                        var varIngresos = (decimal)ViewBag.VariacionIngresos;
-                                        var colorIngresos = varIngresos >= 0 ? "#28a745" : "#dc3545";
-                                        var iconoIngresos = varIngresos >= 0 ? "arrow-up" : "arrow-down";
+                                <div class="fin-break-amount" style="color:var(--gasto-dark);">₡@item.Monto.ToString("N0")</div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p style="text-align:center; color:var(--gray); padding:2rem 0;">
+                            <i class="fas fa-inbox"></i> No hay gastos en este período
+                        </p>
+                    }
+                </div>
+
+                <div class="fin-break-card">
+                    <h3><i class="fas fa-list-ol" style="color:var(--ing)"></i> Top Ingresos por Rubro</h3>
+                    @if (ViewBag.TopIngresos != null && ViewBag.TopIngresos.Count > 0)
+                    {
+                        @foreach (var item in ViewBag.TopIngresos)
+                        {
+                            <div class="fin-break-item">
+                                <div style="flex:1;">
+                                    <div class="fin-break-label">
+                                        <i class="fas fa-circle" style="color:var(--ing); font-size:.45rem;"></i>
+                                        @item.Rubro
+                                    </div>
+                                    <div class="fin-break-bar">
+                                        <div class="fin-break-fill" style="width:@item.Porcentaje%; background:linear-gradient(90deg,var(--ing-dark),var(--ing-light));"></div>
+                                    </div>
+                                </div>
+                                <div class="fin-break-amount" style="color:var(--ing-dark);">₡@item.Monto.ToString("N0")</div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p style="text-align:center; color:var(--gray); padding:2rem 0;">
+                            <i class="fas fa-inbox"></i> No hay ingresos en este período
+                        </p>
+                    }
+                </div>
+            </div>
+
+            @* ===== GASTOS POR ORIGEN ===== *@
+            @if (ViewBag.GastosPorOrigen != null && ViewBag.GastosPorOrigen.Count > 0)
+            {
+                <div class="fin-origen-card">
+                    <h3 style="margin-bottom:1rem; color:var(--dark); font-size:1.1rem; font-weight:600;">
+                        <i class="fas fa-code-branch" style="color:var(--util)"></i> Gastos por Origen
+                        <small style="color:var(--gray); font-size:.8rem; font-weight:400;">(Manual vs Automático)</small>
+                    </h3>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem;">
+                        @foreach (var origen in ViewBag.GastosPorOrigen)
+                        {
+                            <div style="padding:1rem; background:var(--light); border-radius:12px; text-align:center; border-left:3px solid var(--gasto);">
+                                <div style="font-size:.85rem; color:var(--gray); font-weight:600; margin-bottom:.5rem;">
+                                    <i class="fas fa-tag"></i> @origen.Origen
+                                </div>
+                                <div style="font-size:1.3rem; font-weight:700; color:var(--gasto-dark); margin-bottom:.3rem;">
+                                    ₡@origen.Monto.ToString("N0")
+                                </div>
+                                <div style="font-size:.8rem; color:var(--gray);">@origen.Cantidad registros</div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @* ===== FILTROS AVANZADOS ===== *@
+            <details style="margin-bottom:2rem;"
+                     @(ViewBag.AnimalIdFiltro != null || ViewBag.PotreroIdFiltro != null || ViewBag.CategoriaIdFiltro != null ? "open" : "")>
+                <summary style="background:var(--white); border-radius:15px; padding:1.5rem; box-shadow:0 5px 15px rgba(0,0,0,.06); cursor:pointer; list-style:none; user-select:none;">
+                    <h3 style="display:inline-flex; align-items:center; gap:.5rem; color:var(--dark); margin:0; font-size:1rem;">
+                        <i class="fas fa-sliders" style="color:var(--util)"></i> Análisis por Categoría
+                        <i class="fas fa-chevron-down" style="font-size:.75rem; color:var(--gray);"></i>
+                    </h3>
+                    @if (ViewBag.AnimalIdFiltro != null || ViewBag.PotreroIdFiltro != null || ViewBag.CategoriaIdFiltro != null)
+                    {
+                        <span style="margin-left:.5rem; padding:.3rem .8rem; background:var(--ing); color:white; border-radius:20px; font-size:.8rem; font-weight:600;">
+                            Filtros activos
+                        </span>
+                    }
+                </summary>
+
+                <div style="background:var(--white); border-radius:0 0 15px 15px; padding:0 1.5rem 1.5rem; box-shadow:0 5px 15px rgba(0,0,0,.06); margin-top:-10px;">
+                    <form method="get" asp-action="Dashboard" style="display:flex; gap:1rem; flex-wrap:wrap; align-items:end; padding-top:1rem;">
+                        <input type="hidden" name="periodo" value="@ViewBag.PeriodoActual" />
+                        <input type="hidden" name="fechaDesde" value="@ViewBag.FechaDesde" />
+                        <input type="hidden" name="fechaHasta" value="@ViewBag.FechaHasta" />
+
+                        <div style="flex:1; min-width:200px;">
+                            <label style="display:block; margin-bottom:.3rem; font-weight:600; color:var(--gray); font-size:.85rem;">
+                                <i class="fas fa-cow"></i> Animal
+                            </label>
+                            <select name="animalId" class="fin-filter-select" style="width:100%;">
+                                <option value="">Todos los animales</option>
+                                @if (ViewBag.AnimalesDropdown != null)
+                                {
+                                    foreach (var animal in ViewBag.AnimalesDropdown)
+                                    {
+                                        <option value="@animal.AnimalId" selected="@(ViewBag.AnimalIdFiltro == animal.AnimalId)">@animal.Display</option>
                                     }
-                                    <div style="font-size: 1.2rem; font-weight: 700; color: @colorIngresos;">
-                                        <i class="fas fa-@iconoIngresos"></i>
-                                        @Math.Abs(varIngresos).ToString("N1")%
-                                    </div>
-                                    <small style="color: @colorIngresos;">
-                                        @(varIngresos >= 0 ? "Incremento" : "Disminución")
-                                    </small>
-                                </div>
-                            </div>
+                                }
+                            </select>
                         </div>
 
-                        <!-- Gastos -->
-                        <div style="padding: 1rem; background: linear-gradient(135deg, #f8d7da, #f5c6cb); border-radius: 10px; border-left: 4px solid #dc3545;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <small style="color: #721c24; font-weight: 600;">Gastos</small>
-                                    <div style="font-size: 1.5rem; font-weight: 700; color: #dc3545; margin: 0.5rem 0;">
-                                        ₡@ViewBag.TotalGastos.ToString("N0")
-                                    </div>
-                                    <small style="color: #721c24;">vs ₡@ViewBag.TotalGastosAnterior.ToString("N0")</small>
-                                </div>
-                                <div style="text-align: right;">
-                                    @{
-                                        var varGastos = (decimal)ViewBag.VariacionGastos;
-                                        var colorGastos = varGastos <= 0 ? "#28a745" : "#dc3545";
-                                        var iconoGastos = varGastos >= 0 ? "arrow-up" : "arrow-down";
+                        <div style="flex:1; min-width:200px;">
+                            <label style="display:block; margin-bottom:.3rem; font-weight:600; color:var(--gray); font-size:.85rem;">
+                                <i class="fas fa-map-marked-alt"></i> Potrero
+                            </label>
+                            <select name="potreroId" class="fin-filter-select" style="width:100%;">
+                                <option value="">Todos los potreros</option>
+                                @if (ViewBag.PotrerosDropdown != null)
+                                {
+                                    foreach (var p in ViewBag.PotrerosDropdown)
+                                    {
+                                        <option value="@p.PotreroId" selected="@(ViewBag.PotreroIdFiltro == p.PotreroId)">@p.Nombre</option>
                                     }
-                                    <div style="font-size: 1.2rem; font-weight: 700; color: @colorGastos;">
-                                        <i class="fas fa-@iconoGastos"></i>
-                                        @Math.Abs(varGastos).ToString("N1")%
-                                    </div>
-                                    <small style="color: @colorGastos;">
-                                        @(varGastos <= 0 ? "Mejor" : "Peor")
-                                    </small>
-                                </div>
-                            </div>
+                                }
+                            </select>
                         </div>
-                    </div>
-                </div>
 
-                <!-- ========================================== -->
-                <!--     ALERTAS (Si existen)                   -->
-                <!-- ========================================== -->
-                @if (ViewBag.Alertas != null && ((List<dynamic>)ViewBag.Alertas).Any())
-                {
-                    <div class="alert-section">
-                        <h3 style="margin-bottom: 1rem; color: var(--dark);">
-                            <i class="fas fa-bell"></i> Alertas Importantes
-                        </h3>
-                        @foreach (var alerta in (List<dynamic>)ViewBag.Alertas)
-                        {
-                            <div class="alert-item @alerta.Tipo">
-                                <i class="fas fa-@alerta.Icono alert-icon"></i>
-                                <div style="flex: 1;">
-                                    <strong>@alerta.Titulo</strong>
-                                    <p style="margin: 0; font-size: 0.9rem;">@alerta.Mensaje</p>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                }
-
-                <!-- ========================================== -->
-                <!--     GRÁFICOS DE TENDENCIAS                 -->
-                <!-- ========================================== -->
-                <div class="charts-grid">
-                    <!-- Gráfico de Tendencia (GRANDE - ocupa 2 columnas) -->
-                    <div class="chart-card" style="grid-column: span 2;">
-                        <h3>
-                            <i class="fas fa-chart-area"></i>
-                            Tendencia de Ingresos y Gastos
-                        </h3>
-                        <div class="chart-container">
-                            <canvas id="trendChart"></canvas>
+                        <div style="flex:1; min-width:200px;">
+                            <label style="display:block; margin-bottom:.3rem; font-weight:600; color:var(--gray); font-size:.85rem;">
+                                <i class="fas fa-folder"></i> Rubro de Gasto
+                            </label>
+                            <select name="categoriaId" class="fin-filter-select" style="width:100%;">
+                                <option value="">Todos los rubros</option>
+                                @if (ViewBag.RubrosGastoDropdown != null)
+                                {
+                                    foreach (var r in ViewBag.RubrosGastoDropdown)
+                                    {
+                                        <option value="@r.RubroGastoId" selected="@(ViewBag.CategoriaIdFiltro == r.RubroGastoId)">@r.Nombre</option>
+                                    }
+                                }
+                            </select>
                         </div>
-                    </div>
 
-                    <!-- Gráfico de Gastos por Rubro -->
-                    <div class="chart-card">
-                        <h3>
-                            <i class="fas fa-chart-pie"></i>
-                            Gastos por Rubro
-                        </h3>
-                        <div class="chart-container">
-                            <canvas id="gastosChart"></canvas>
+                        <div>
+                            <button type="submit" class="fin-btn fin-btn-ing">
+                                <i class="fas fa-filter"></i> Aplicar
+                            </button>
                         </div>
-                    </div>
 
-                    <!-- Gráfico de Ingresos por Rubro -->
-                    <div class="chart-card">
-                        <h3>
-                            <i class="fas fa-chart-pie"></i>
-                            Ingresos por Rubro
-                        </h3>
-                        <div class="chart-container">
-                            <canvas id="ingresosChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ========================================== -->
-                <!--     DESGLOSE TOP 10                        -->
-                <!-- ========================================== -->
-                <div class="breakdown-grid">
-                    <!-- Top Gastos -->
-                    <div class="breakdown-card">
-                        <h3>
-                            <i class="fas fa-list-ol" style="color: #dc3545;"></i>
-                            Top Gastos por Rubro
-                        </h3>
-                        @if (ViewBag.TopGastos != null && ViewBag.TopGastos.Count > 0)
-                        {
-                            @foreach (var item in ViewBag.TopGastos)
-                            {
-                                <div class="breakdown-item">
-                                    <div>
-                                        <div class="breakdown-label">
-                                            <i class="fas fa-circle" style="color: #dc3545; font-size: 0.5rem;"></i>
-                                            @item.Rubro
-                                        </div>
-                                        <div class="breakdown-bar">
-                                            <div class="breakdown-bar-fill"
-                                                 style="width: @item.Porcentaje%; background: #dc3545;"></div>
-                                        </div>
-                                    </div>
-                                    <div class="breakdown-amount" style="color: #dc3545;">
-                                        ₡@item.Monto.ToString("N0")
-                                    </div>
-                                </div>
-                            }
-                        }
-                        else
-                        {
-                            <p style="text-align: center; color: var(--gray); padding: 2rem 0;">
-                                <i class="fas fa-info-circle"></i> No hay gastos registrados en este período
-                            </p>
-                        }
-                    </div>
-
-                    <!-- Top Ingresos -->
-                    <div class="breakdown-card">
-                        <h3>
-                            <i class="fas fa-list-ol" style="color: #28a745;"></i>
-                            Top Ingresos por Rubro
-                        </h3>
-                        @if (ViewBag.TopIngresos != null && ViewBag.TopIngresos.Count > 0)
-                        {
-                            @foreach (var item in ViewBag.TopIngresos)
-                            {
-                                <div class="breakdown-item">
-                                    <div>
-                                        <div class="breakdown-label">
-                                            <i class="fas fa-circle" style="color: #28a745; font-size: 0.5rem;"></i>
-                                            @item.Rubro
-                                        </div>
-                                        <div class="breakdown-bar">
-                                            <div class="breakdown-bar-fill"
-                                                 style="width: @item.Porcentaje%; background: #28a745;"></div>
-                                        </div>
-                                    </div>
-                                    <div class="breakdown-amount" style="color: #28a745;">
-                                        ₡@item.Monto.ToString("N0")
-                                    </div>
-                                </div>
-                            }
-                        }
-                        else
-                        {
-                            <p style="text-align: center; color: var(--gray); padding: 2rem 0;">
-                                <i class="fas fa-info-circle"></i> No hay ingresos registrados en este período
-                            </p>
-                        }
-                    </div>
-                </div>
-
-                <!-- ========================================== -->
-                <!--     GASTOS POR ORIGEN (Si existen)         -->
-                <!-- ========================================== -->
-                @if (ViewBag.GastosPorOrigen != null && ViewBag.GastosPorOrigen.Count > 0)
-                {
-                    <div style="background: var(--white); border-radius: 15px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);">
-                        <h3 style="margin-bottom: 1rem; color: var(--dark);">
-                            <i class="fas fa-code-branch"></i> Gastos por Origen
-                            <small style="color: var(--gray); font-size: 0.8rem; font-weight: 400;">(Manual vs Automático)</small>
-                        </h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
-                            @foreach (var origen in ViewBag.GastosPorOrigen)
-                            {
-                                <div style="padding: 1rem; background: var(--light); border-radius: 10px; text-align: center; border-left: 3px solid #dc3545;">
-                                    <div style="font-size: 0.85rem; color: var(--gray); font-weight: 600; margin-bottom: 0.5rem;">
-                                        <i class="fas fa-tag"></i> @origen.Origen
-                                    </div>
-                                    <div style="font-size: 1.3rem; font-weight: 700; color: #dc3545; margin-bottom: 0.3rem;">
-                                        ₡@origen.Monto.ToString("N0")
-                                    </div>
-                                    <div style="font-size: 0.8rem; color: var(--gray);">
-                                        @origen.Cantidad registros
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                }
-
-                <!-- ========================================== -->
-                <!--     FILTROS AVANZADOS (Colapsable)         -->
-                <!-- ========================================== -->
-                <details style="margin-bottom: 2rem;" @(ViewBag.AnimalIdFiltro != null || ViewBag.PotreroIdFiltro != null || ViewBag.CategoriaIdFiltro != null ? "open" : "")>
-                    <summary style="background: var(--white); border-radius: 15px; padding: 1.5rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); cursor: pointer; list-style: none; user-select: none;">
-                        <h3 style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--dark); margin: 0;">
-                            <i class="fas fa-filter"></i> Análisis por Categoría
-                            <i class="fas fa-chevron-down" style="font-size: 0.8rem; color: var(--gray);"></i>
-                        </h3>
                         @if (ViewBag.AnimalIdFiltro != null || ViewBag.PotreroIdFiltro != null || ViewBag.CategoriaIdFiltro != null)
                         {
-                            <span style="margin-left: 0.5rem; padding: 0.3rem 0.8rem; background: var(--primary); color: white; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
-                                Filtros activos
-                            </span>
-                        }
-                    </summary>
-
-                    <div style="background: var(--white); border-radius: 0 0 15px 15px; padding: 0 1.5rem 1.5rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); margin-top: -10px;">
-                        <form method="get" asp-action="Dashboard" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: end; padding-top: 1rem;">
-                            <input type="hidden" name="periodo" value="@ViewBag.PeriodoActual" />
-                            <input type="hidden" name="fechaDesde" value="@ViewBag.FechaDesde" />
-                            <input type="hidden" name="fechaHasta" value="@ViewBag.FechaHasta" />
-
-                            <div style="flex: 1; min-width: 200px;">
-                                <label style="display: block; margin-bottom: 0.3rem; font-weight: 600; color: var(--gray); font-size: 0.9rem;">
-                                    <i class="fas fa-cow"></i> Animal
-                                </label>
-                                <select name="animalId" class="filter-select" style="width: 100%;">
-                                    <option value="">Todos los animales</option>
-                                    @if (ViewBag.AnimalesDropdown != null)
-                                    {
-                                        foreach (var animal in ViewBag.AnimalesDropdown)
-                                        {
-                                            <option value="@animal.AnimalId" selected="@(ViewBag.AnimalIdFiltro == animal.AnimalId)">
-                                                @animal.Display
-                                            </option>
-                                        }
-                                    }
-                                </select>
-                            </div>
-
-                            <div style="flex: 1; min-width: 200px;">
-                                <label style="display: block; margin-bottom: 0.3rem; font-weight: 600; color: var(--gray); font-size: 0.9rem;">
-                                    <i class="fas fa-map-marked-alt"></i> Potrero
-                                </label>
-                                <select name="potreroId" class="filter-select" style="width: 100%;">
-                                    <option value="">Todos los potreros</option>
-                                    @if (ViewBag.PotrerosDropdown != null)
-                                    {
-                                        foreach (var potrero in ViewBag.PotrerosDropdown)
-                                        {
-                                            <option value="@potrero.PotreroId" selected="@(ViewBag.PotreroIdFiltro == potrero.PotreroId)">
-                                                @potrero.Nombre
-                                            </option>
-                                        }
-                                    }
-                                </select>
-                            </div>
-
-                            <div style="flex: 1; min-width: 200px;">
-                                <label style="display: block; margin-bottom: 0.3rem; font-weight: 600; color: var(--gray); font-size: 0.9rem;">
-                                    <i class="fas fa-folder"></i> Rubro de Gasto
-                                </label>
-                                <select name="categoriaId" class="filter-select" style="width: 100%;">
-                                    <option value="">Todos los rubros</option>
-                                    @if (ViewBag.RubrosGastoDropdown != null)
-                                    {
-                                        foreach (var rubro in ViewBag.RubrosGastoDropdown)
-                                        {
-                                            <option value="@rubro.RubroGastoId" selected="@(ViewBag.CategoriaIdFiltro == rubro.RubroGastoId)">
-                                                @rubro.Nombre
-                                            </option>
-                                        }
-                                    }
-                                </select>
-                            </div>
-
                             <div>
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-filter"></i> Aplicar
-                                </button>
+                                <a asp-action="Dashboard"
+                                   asp-route-periodo="@ViewBag.PeriodoActual"
+                                   asp-route-fechaDesde="@ViewBag.FechaDesde"
+                                   asp-route-fechaHasta="@ViewBag.FechaHasta"
+                                   class="fin-btn fin-btn-sec">
+                                    <i class="fas fa-times"></i> Limpiar
+                                </a>
                             </div>
-
-                            @if (ViewBag.AnimalIdFiltro != null || ViewBag.PotreroIdFiltro != null || ViewBag.CategoriaIdFiltro != null)
-                            {
-                                <div>
-                                    <a asp-action="Dashboard"
-                                       asp-route-periodo="@ViewBag.PeriodoActual"
-                                       asp-route-fechaDesde="@ViewBag.FechaDesde"
-                                       asp-route-fechaHasta="@ViewBag.FechaHasta"
-                                       class="btn btn-secondary">
-                                        <i class="fas fa-times"></i> Limpiar
-                                    </a>
-                                </div>
-                            }
-                        </form>
-                    </div>
-                </details>
-
-                <!-- ========================================== -->
-                <!--  ACCIONES RÁPIDA                           -->
-                <!-- ========================================== -->
-                <div style="background: var(--white); border-radius: 15px; padding: 1.5rem; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);">
-                    <h3 style="margin-bottom: 1rem; color: var(--dark);">
-                        <i class="fas fa-bolt"></i> Acciones Rápidas
-                    </h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                        <a asp-controller="Gastoes" asp-action="Create" class="btn btn-danger" style="justify-content: center;">
-                            <i class="fas fa-plus-circle"></i> Registrar Gasto
-                        </a>
-                        <a asp-controller="Ingresoes" asp-action="Create" class="btn btn-success" style="justify-content: center;">
-                            <i class="fas fa-plus-circle"></i> Registrar Ingreso
-                        </a>
-                        <a asp-controller="Gastoes" asp-action="Index" class="btn btn-secondary" style="justify-content: center;">
-                            <i class="fas fa-list"></i> Ver Gastos
-                        </a>
-                        <a asp-controller="Ingresoes" asp-action="Index" class="btn btn-secondary" style="justify-content: center;">
-                            <i class="fas fa-list"></i> Ver Ingresos
-                        </a>
-                        <a asp-action="ExportarExcel"
-                           asp-route-periodo="@ViewBag.PeriodoActual"
-                           asp-route-fechaDesde="@ViewBag.FechaDesde"
-                           asp-route-fechaHasta="@ViewBag.FechaHasta"
-                           class="btn btn-success" style="justify-content: center;">
-                            <i class="fas fa-file-excel"></i> Exportar Excel
-                        </a>
-                    </div>
+                        }
+                    </form>
                 </div>
+            </details>
 
+            @* ===== ACCIONES RÁPIDAS ===== *@
+            <div class="fin-actions">
+                <h3><i class="fas fa-bolt" style="color:var(--margen)"></i> Acciones Rápidas</h3>
+                <div class="fin-actions-grid">
+                    <a asp-controller="Gastoes" asp-action="Create" class="fin-btn fin-btn-gasto" style="justify-content:center;">
+                        <i class="fas fa-plus-circle"></i> Registrar Gasto
+                    </a>
+                    <a asp-controller="Ingresoes" asp-action="Create" class="fin-btn fin-btn-ing" style="justify-content:center;">
+                        <i class="fas fa-plus-circle"></i> Registrar Ingreso
+                    </a>
+                    <a asp-controller="Gastoes" asp-action="Index" class="fin-btn fin-btn-sec" style="justify-content:center;">
+                        <i class="fas fa-list"></i> Ver Gastos
+                    </a>
+                    <a asp-controller="Ingresoes" asp-action="Index" class="fin-btn fin-btn-sec" style="justify-content:center;">
+                        <i class="fas fa-list"></i> Ver Ingresos
+                    </a>
+                    <a asp-action="ExportarExcel"
+                       asp-route-periodo="@ViewBag.PeriodoActual"
+                       asp-route-fechaDesde="@ViewBag.FechaDesde"
+                       asp-route-fechaHasta="@ViewBag.FechaHasta"
+                       class="fin-btn fin-btn-util" style="justify-content:center;">
+                        <i class="fas fa-file-excel"></i> Exportar Excel
+                    </a>
+                </div>
             </div>
+
         </div>
     </div>
+</div>
 
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script>
-        // Datos para graficos (pasados desde el controlador)
-        const tendenciaData = @Html.Raw(ViewBag.TendenciaJson ?? "{}");
-        const gastosRubroData = @Html.Raw(ViewBag.GastosRubroJson ?? "{}");
+        const tendenciaData     = @Html.Raw(ViewBag.TendenciaJson ?? "{}");
+        const gastosRubroData   = @Html.Raw(ViewBag.GastosRubroJson ?? "{}");
         const ingresosRubroData = @Html.Raw(ViewBag.IngresosRubroJson ?? "{}");
 
-        // Configuracion de colores
-        const colors = {
-            ingreso: '#28a745',
-            gasto: '#dc3545',
-            utilidad: '#17a2b8'
-        };
-
-        // Gráfico de Tendencia (Líneas)
-        const trendCtx = document.getElementById('trendChart').getContext('2d');
-        new Chart(trendCtx, {
+        // ---- Tendencia (líneas) ----
+        new Chart(document.getElementById('trendChart').getContext('2d'), {
             type: 'line',
             data: {
                 labels: tendenciaData.labels || [],
@@ -1054,92 +1043,63 @@
                     {
                         label: 'Ingresos',
                         data: tendenciaData.ingresos || [],
-                        borderColor: colors.ingreso,
-                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
-                        tension: 0.4,
-                        fill: true
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16,185,129,0.08)',
+                        borderWidth: 2.5,
+                        tension: 0.4, fill: true, pointRadius: 4
                     },
                     {
                         label: 'Gastos',
                         data: tendenciaData.gastos || [],
-                        borderColor: colors.gasto,
-                        backgroundColor: 'rgba(220, 53, 69, 0.1)',
-                        tension: 0.4,
-                        fill: true
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245,158,11,0.08)',
+                        borderWidth: 2.5,
+                        tension: 0.4, fill: true, pointRadius: 4
                     }
                 ]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    }
-                },
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { display: true, position: 'top' } },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        ticks: {
-                            callback: function(value) {
-                                return '₡' + value.toLocaleString('es-CR');
-                            }
-                        }
+                        ticks: { callback: v => '₡' + v.toLocaleString('es-CR') }
                     }
                 }
             }
         });
 
-        // Gráfico de Gastos por Rubro (Dona)
-        const gastosCtx = document.getElementById('gastosChart').getContext('2d');
-        new Chart(gastosCtx, {
+        // ---- Gastos por rubro (dona ámbar) ----
+        new Chart(document.getElementById('gastosChart').getContext('2d'), {
             type: 'doughnut',
             data: {
                 labels: gastosRubroData.labels || [],
                 datasets: [{
                     data: gastosRubroData.valores || [],
-                    backgroundColor: [
-                        '#dc3545', '#ff6384', '#ff8fa3', '#ffb3c1',
-                        '#ffc8d4', '#ffd6e0', '#ffe4ec', '#fff0f4'
-                    ]
+                    backgroundColor: ['#d97706','#f59e0b','#fbbf24','#fcd34d','#fde68a','#fef3c7','#fffbeb','#fff9f0']
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
             }
         });
 
-        // Gráfico de Ingresos por Rubro (Dona)
-        const ingresosCtx = document.getElementById('ingresosChart').getContext('2d');
-        new Chart(ingresosCtx, {
+        // ---- Ingresos por rubro (dona esmeralda) ----
+        new Chart(document.getElementById('ingresosChart').getContext('2d'), {
             type: 'doughnut',
             data: {
                 labels: ingresosRubroData.labels || [],
                 datasets: [{
                     data: ingresosRubroData.valores || [],
-                    backgroundColor: [
-                        '#28a745', '#48c774', '#68d391', '#88e0a8',
-                        '#a8edbf', '#c8f9d6', '#e0ffe8', '#f0fff4'
-                    ]
+                    backgroundColor: ['#059669','#10b981','#34d399','#6ee7b7','#a7f3d0','#d1fae5','#ecfdf5','#f0fdf8']
                 }]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom'
-                    }
-                }
+                responsive: true, maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
             }
         });
     </script>
-</body>
-</html>
+}
