@@ -4,374 +4,582 @@
     ViewData["Title"] = "Desactivar Finca";
 }
 
-<div class="container mt-4">
-    <!-- Vista normal de detalles -->
-    <div class="card shadow border-0 mb-4">
-        <div class="card-header bg-gradient-warning text-white py-4">
-            <div class="d-flex align-items-center">
-                <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
-                <div>
-                    <h1 class="h3 mb-0">Finca: @Model.Nombre</h1>
-                    <p class="mb-0 opacity-75">Información completa de la finca</p>
-                </div>
-            </div>
-        </div>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --primary-light: #3CB371;
+            --primary-dark: #1E6B47;
+            --success: #28a745;
+            --warning: #ffc107;
+            --warning-dark: #e0a800;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #ffffff;
+            --border: #e1e5e9;
+            --shadow: rgba(255, 193, 7, 0.15);
+            --gray: #6c757d;
+        }
 
-        <div class="card-body p-5">
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="bg-light p-3 rounded-circle me-3">
-                            <i class="fas fa-signature fa-2x text-primary"></i>
-                        </div>
-                        <div>
-                            <h3 class="h5 text-dark fw-bold mb-1">Nombre</h3>
-                            <p class="lead mb-0">@Model.Nombre</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="bg-light p-3 rounded-circle me-3">
-                            <i class="fas fa-map-marker-alt fa-2x text-info"></i>
-                        </div>
-                        <div>
-                            <h3 class="h5 text-dark fw-bold mb-1">Ubicación</h3>
-                            <p class="lead mb-0">@Model.Ubicacion</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
 
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="bg-light p-3 rounded-circle me-3">
-                            <i class="fas fa-power-off fa-2x text-warning"></i>
-                        </div>
-                        <div>
-                            <h3 class="h5 text-dark fw-bold mb-1">Estado Actual</h3>
-                            <span class="badge @(Model.Activa ? "bg-success" : "bg-danger") px-3 py-2 fs-6">
-                                @if (Model.Activa)
-                                {
-                                    <i class="fas fa-check-circle me-1"></i>
-                                }
-                                else
-                                {
-                                    <i class="fas fa-times-circle me-1"></i>
-                                }
-                                @(Model.Activa ? "Activa" : "Inactiva")
-                            </span>
-                            @if (!Model.Activa)
-                            {
-                                <div class="mt-2">
-                                    <span class="badge bg-secondary">
-                                        <i class="fas fa-info-circle me-1"></i>Esta finca ya está desactivada
-                                    </span>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
-            </div>
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
 
-            <div class="row mb-4">
-                <div class="col-md-12">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="bg-light p-3 rounded-circle me-3">
-                            <i class="fas fa-calendar-alt fa-2x text-secondary"></i>
-                        </div>
-                        <div>
-                            <h3 class="h5 text-dark fw-bold mb-1">Fecha de Creación</h3>
-                            <p class="lead mb-0">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        .details-card {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px var(--shadow);
+            overflow: hidden;
+            border: 1px solid #e1e5e9;
+            animation: fadeIn 0.5s ease-out;
+        }
 
-            <div class="d-flex justify-content-between align-items-center mt-5 pt-4 border-top">
-                <!-- Botón Editar -->
-                <a asp-action="Edit" asp-route-id="@Model.FincaId" class="btn btn-warning btn-lg px-4 py-3 fw-bold">
-                    <i class="fas fa-edit me-2"></i>Editar Finca
-                </a>
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
 
-                <!-- Botón Desactivar (más llamativo) -->
-                @if (Model.Activa)
-                {
-                    <button type="button" class="btn btn-danger btn-lg px-4 py-3 fw-bold" 
-                            data-bs-toggle="modal" data-bs-target="#deactivateModal">
-                        <i class="fas fa-power-off me-2"></i>Desactivar Finca
-                    </button>
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header amarillo — igual que Edit */
+        .details-header {
+            background: linear-gradient(135deg, var(--warning), #ffd351);
+            color: var(--dark);
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+            .details-header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -50%;
+                width: 100%;
+                height: 200%;
+                background: rgba(255, 255, 255, 0.2);
+                transform: rotate(30deg);
+            }
+
+            .details-header h1 {
+                font-size: 2.2rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+                position: relative;
+                z-index: 1;
+            }
+
+            .details-header p {
+                font-size: 1rem;
+                opacity: 0.85;
+                position: relative;
+                z-index: 1;
+            }
+
+        .details-header-icon {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            opacity: 0.2;
+            z-index: 0;
+        }
+
+        .details-body {
+            padding: 2.5rem;
+        }
+
+        .breadcrumb {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            padding: 0.8rem 1.2rem;
+            background: var(--light);
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+            .breadcrumb a {
+                color: var(--primary);
+                text-decoration: none;
+                font-weight: 500;
+            }
+
+                .breadcrumb a:hover {
+                    text-decoration: underline;
                 }
-                else
-                {
-                    <button type="button" class="btn btn-secondary btn-lg px-4 py-3 fw-bold" disabled>
-                        <i class="fas fa-ban me-2"></i>Ya Desactivada
-                    </button>
+
+            .breadcrumb span {
+                color: var(--gray);
+            }
+
+        /* Banner advertencia */
+        .warning-banner {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border-left: 5px solid var(--warning);
+            padding: 1.2rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+            .warning-banner i {
+                font-size: 1.5rem;
+                color: #856404;
+                margin-top: 0.1rem;
+                flex-shrink: 0;
+            }
+
+            .warning-banner div {
+                flex: 1;
+            }
+
+            .warning-banner strong {
+                display: block;
+                color: var(--dark);
+                margin-bottom: 0.4rem;
+            }
+
+            .warning-banner ul {
+                color: #856404;
+                font-size: 0.9rem;
+                padding-left: 1.2rem;
+                margin: 0;
+            }
+
+                .warning-banner ul li {
+                    margin-bottom: 0.3rem;
                 }
 
-                <!-- Botón Volver -->
-                <a asp-action="Index" class="btn btn-danger px-4 py-3 fw-bold">
-                    <i class="fas fa-arrow-left me-2"></i>Volver al Listado
-                </a>
+        /* Banner ya desactivada */
+        .already-inactive {
+            background: linear-gradient(135deg, #e2e3e5, #d6d8db);
+            border-left: 5px solid var(--gray);
+            padding: 1.2rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        /* Info card acento warning */
+        .info-card {
+            background: var(--light);
+            padding: 2rem;
+            border-radius: 15px;
+            border-left: 5px solid var(--warning);
+            margin-bottom: 1.5rem;
+        }
+
+            .info-card h3 {
+                color: var(--warning-dark);
+                margin-bottom: 1.5rem;
+                font-size: 1.3rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+            .info-row:last-child {
+                border-bottom: none;
+            }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 1rem;
+            text-align: right;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: var(--success);
+        }
+
+        .status-inactive {
+            background: linear-gradient(135deg, #e2e3e5, #d6d8db);
+            color: var(--gray);
+        }
+
+        /* Botones */
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--light);
+        }
+
+        .btn {
+            padding: 0.9rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-confirm {
+            background: linear-gradient(135deg, var(--warning), #ffd351);
+            color: var(--dark);
+        }
+
+            .btn-confirm:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(255, 193, 7, 0.4);
+                color: var(--dark);
+            }
+
+        .btn-edit {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+        }
+
+            .btn-edit:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(46, 139, 87, 0.3);
+                color: var(--white);
+            }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--dark);
+            border: 2px solid var(--border);
+            box-shadow: none;
+        }
+
+            .btn-secondary:hover {
+                background: var(--dark);
+                border-color: var(--dark);
+                color: var(--white);
+            }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .modal-overlay.show {
+                display: flex;
+            }
+
+        .modal-box {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+            animation: modalIn 0.3s ease-out;
+            text-align: center;
+        }
+
+        @@keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-icon {
+            font-size: 3.5rem;
+            color: var(--warning);
+            margin-bottom: 1rem;
+        }
+
+        .modal-box h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.8rem;
+        }
+
+        .modal-box p {
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .finca-name-highlight {
+            font-weight: 700;
+            color: var(--warning-dark);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        @@media (max-width: 768px) {
+            .details-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .details-body {
+                padding: 1.5rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+                .form-actions .btn {
+                    width: 100%;
+                    justify-content: center;
+                }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+                .modal-actions .btn {
+                    width: 100%;
+                    justify-content: center;
+                }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="details-card">
+
+            <!-- Header -->
+            <div class="details-header">
+                <i class="fas fa-power-off details-header-icon"></i>
+                <h1><i class="fas fa-exclamation-triangle"></i> Desactivar Finca</h1>
+                <p>Revise la información antes de continuar</p>
             </div>
-        </div>
-    </div>
-</div>
 
-<!-- Modal de Confirmación de Desactivación -->
-<div class="modal fade" id="deactivateModal" tabindex="-1" aria-labelledby="deactivateModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-gradient-warning text-white">
-                <h5 class="modal-title" id="deactivateModalLabel">
-                    <i class="fas fa-power-off me-2"></i>Confirmar Desactivación
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
+            <!-- Body -->
+            <div class="details-body">
 
-            <div class="modal-body p-4">
-                <div class="text-center mb-4">
-                    <div class="bg-warning bg-opacity-10 p-4 rounded-circle d-inline-block">
-                        <i class="fas fa-toggle-off fa-3x text-warning"></i>
-                    </div>
-                </div>
-
-                <h4 class="text-center text-dark fw-bold mb-3">¿Desactivar esta finca?</h4>
-
-                <div class="alert alert-warning" role="alert">
-                    <div class="d-flex">
-                        <i class="fas fa-exclamation-triangle me-2 mt-1"></i>
-                        <div>
-                            <strong>Importante:</strong> Al desactivar la finca "@Model.Nombre":
-                            <ul class="mb-0 mt-2">
-                                <li>No aparecerá en los listados activos</li>
-                                <li>No podrá asignársele nuevos cultivos</li>
-                                <li>La información se mantendrá para consultas históricas</li>
-                                <li>Puede reactivarla posteriormente si es necesario</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card border-warning mb-3">
-                    <div class="card-body">
-                        <h6 class="card-title text-warning">
-                            <i class="fas fa-info-circle me-2"></i>Finca a desactivar:
-                        </h6>
-                        <ul class="list-unstyled mb-0">
-                            <li class="mb-2"><i class="fas fa-farm me-2 text-primary"></i><strong>Nombre:</strong> @Model.Nombre</li>
-                            <li class="mb-2"><i class="fas fa-map-pin me-2 text-info"></i><strong>Ubicación:</strong> @Model.Ubicacion</li>
-                            <li class="mb-2">
-                                <i class="fas fa-power-off me-2 text-success"></i>
-                                <strong>Estado actual:</strong>
-                                <span class="badge bg-success">Activa</span>
-                                <i class="fas fa-arrow-right mx-2 text-muted"></i>
-                                <span class="badge bg-danger">Inactiva</span>
-                            </li>
-                            <li><i class="fas fa-calendar me-2 text-secondary"></i><strong>Fecha creación:</strong> @Model.FechaCreacion.ToString("dd/MM/yyyy")</li>
-                        </ul>
-                    </div>
+                <!-- Breadcrumb -->
+                <div class="breadcrumb">
+                    <a asp-action="Index"><i class="fas fa-list"></i> Lista de Fincas</a>
+                    <span>/</span>
+                    <span><strong>@Model.Nombre</strong></span>
+                    <span>/</span>
+                    <span><strong>Desactivar</strong></span>
                 </div>
 
                 @if (!Model.Activa)
                 {
-                    <div class="alert alert-info" role="alert">
-                        <i class="fas fa-info-circle me-2"></i>
-                        <strong>Nota:</strong> Esta finca ya se encuentra desactivada. Puede reactivarla desde la opción de edición.
+                    <div class="already-inactive">
+                        <i class="fas fa-info-circle fa-lg"></i>
+                        <span>Esta finca ya se encuentra desactivada. Puede reactivarla desde el listado.</span>
                     </div>
                 }
-            </div>
+                else
+                {
+                    <div class="warning-banner">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <strong>Importante — Consecuencias de desactivar esta finca:</strong>
+                            <ul>
+                                <li>No aparecerá en los listados activos del sistema</li>
+                                <li>No podrán asignársele nuevos registros</li>
+                                <li>La información histórica se mantendrá para consultas</li>
+                                <li>Puede reactivarla desde el listado de fincas cuando lo necesite</li>
+                            </ul>
+                        </div>
+                    </div>
+                }
 
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">
-                    <i class="fas fa-times me-2"></i>Cancelar
-                </button>
+                <!-- Info -->
+                <div class="info-card">
+                    <h3><i class="fas fa-tractor"></i> Información de la Finca</h3>
 
-                <!-- Formulario de desactivación dentro del modal -->
-                <form asp-action="Delete" method="post" class="d-inline">
-                    <input type="hidden" asp-for="FincaId" />
-                    <button type="submit" class="btn btn-warning px-4" @(Model.Activa ? "" : "disabled")>
-                        <i class="fas fa-power-off me-2"></i>@(Model.Activa ? "Sí, Desactivar Finca" : "Ya está desactivada")
-                    </button>
-                </form>
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-hashtag"></i> ID:</span>
+                        <span class="info-value"><strong>#@Model.FincaId</strong></span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-signature"></i> Nombre:</span>
+                        <span class="info-value"><strong>@Model.Nombre</strong></span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-map-marker-alt"></i> Ubicación:</span>
+                        <span class="info-value">@(Model.Ubicacion ?? "-")</span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-calendar-alt"></i> Fecha de creación:</span>
+                        <span class="info-value">@Model.FechaCreacion.ToString("dd/MM/yyyy")</span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-heartbeat"></i> Estado actual:</span>
+                        <span class="info-value">
+                            @if (Model.Activa)
+                            {
+                                <span class="status-badge status-active">
+                                    <i class="fas fa-check-circle"></i> Activa
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="status-badge status-inactive">
+                                    <i class="fas fa-times-circle"></i> Inactiva
+                                </span>
+                            }
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Acciones -->
+                <div class="form-actions">
+                    @if (Model.Activa)
+                    {
+                        <button type="button" class="btn btn-confirm" onclick="abrirModal()">
+                            <i class="fas fa-power-off"></i> Confirmar Desactivación
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-confirm" disabled>
+                            <i class="fas fa-ban"></i> Ya está desactivada
+                        </button>
+                    }
+
+
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver al Listado
+                    </a>
+                </div>
+
             </div>
         </div>
     </div>
-</div>
+
+    <!-- Modal -->
+    @if (Model.Activa)
+    {
+        <div class="modal-overlay" id="modalDesactivar">
+            <div class="modal-box">
+                <div class="modal-icon">
+                    <i class="fas fa-power-off"></i>
+                </div>
+                <h3>¿Desactivar esta finca?</h3>
+                <p>
+                    Está a punto de desactivar
+                    <span class="finca-name-highlight">@Model.Nombre</span>.
+                    Esta acción puede revertirse desde el listado de fincas.
+                </p>
+                <div class="modal-actions">
+                    <form asp-action="Delete" method="post" style="display: inline;">
+                        <input type="hidden" asp-for="FincaId" />
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-confirm">
+                            <i class="fas fa-power-off"></i> Sí, desactivar
+                        </button>
+                    </form>
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModal()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function abrirModal()  { document.getElementById('modalDesactivar').classList.add('show'); }
+            function cerrarModal() { document.getElementById('modalDesactivar').classList.remove('show'); }
+
+            document.getElementById('modalDesactivar').addEventListener('click', function(e) {
+                if (e.target === this) cerrarModal();
+            });
+        </script>
+    }
+</body>
+</html>
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-
-    <!-- Bootstrap JS para modales -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Font Awesome para iconos -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-
-    <style>
-        .bg-gradient-warning {
-            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
-        }
-
-        .card {
-            border-radius: 15px;
-            overflow: hidden;
-        }
-
-        .rounded-circle {
-            border-radius: 50% !important;
-        }
-
-        .bg-light {
-            background-color: #f8f9fa !important;
-        }
-
-        .modal-content {
-            border-radius: 15px;
-            overflow: hidden;
-        }
-
-        .btn-warning {
-            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
-            border: none;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            color: #212529;
-        }
-
-            .btn-warning:hover:not(:disabled) {
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(255, 193, 7, 0.3);
-                color: #212529;
-            }
-
-            .btn-warning:disabled {
-                opacity: 0.5;
-                cursor: not-allowed;
-            }
-
-        .btn-outline-warning {
-            border-radius: 10px;
-            padding: 0.75rem 1.5rem;
-            border-width: 2px;
-            color: #ffc107;
-            border-color: #ffc107;
-        }
-
-            .btn-outline-warning:hover {
-                background-color: #ffc107;
-                color: #212529;
-            }
-
-        /* Botón de desactivar más llamativo */
-        .btn-danger {
-            background: linear-gradient(135deg, #dc3545 0%, #ff4757 100%);
-            border: none;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            color: white;
-            position: relative;
-            overflow: hidden;
-        }
-
-            .btn-danger:hover {
-                transform: translateY(-2px) scale(1.05);
-                box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4);
-                background: linear-gradient(135deg, #ff4757 0%, #dc3545 100%);
-                color: white;
-            }
-
-            .btn-danger::after {
-                content: '';
-                position: absolute;
-                top: -50%;
-                left: -50%;
-                width: 200%;
-                height: 200%;
-                background: rgba(255, 255, 255, 0.1);
-                transform: rotate(45deg);
-                transition: all 0.5s ease;
-                opacity: 0;
-            }
-
-            .btn-danger:hover::after {
-                opacity: 1;
-                transform: rotate(45deg) translate(50%, 50%);
-            }
-
-        /* Efecto de pulsación para atención */
-        @@keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(220, 53, 69, 0);
-            }
-        }
-
-        /* Botón Volver al Listado (mismo color pero sin efectos especiales) */
-        a[href*="Index"].btn-danger {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
-            animation: none;
-        }
-
-            a[href*="Index"].btn-danger:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
-                background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
-            }
-
-        /* Aplicar pulso solo al botón de desactivar cuando la finca está activa */
-        @if (Model.Activa)
-        {
-            <text>
-            .btn-danger[data-bs-target="#deactivateModal"] {
-                animation: pulse 2s infinite;
-            }
-            </text>
-        }
-
-        .badge {
-            border-radius: 20px;
-            font-size: 1rem;
-            padding: 0.5rem 1.5rem;
-        }
-
-            .badge.bg-success {
-                background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
-            }
-
-            .badge.bg-danger {
-                background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
-            }
-
-        .modal-backdrop {
-            backdrop-filter: blur(5px);
-        }
-
-        .btn-close-white {
-            filter: invert(1) grayscale(100%) brightness(200%);
-        }
-
-        .alert-warning {
-            border-left: 4px solid #ffc107;
-        }
-
-        .alert-info {
-            border-left: 4px solid #17a2b8;
-        }
-
-        .card-border-warning {
-            border: 1px solid #ffc107;
-        }
-    </style>
 }

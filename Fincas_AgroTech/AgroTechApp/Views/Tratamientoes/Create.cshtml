@@ -362,7 +362,10 @@
                                 Fecha del Tratamiento
                                 <span class="required">*</span>
                             </label>
-                            <input asp-for="Fecha" type="datetime-local" class="form-control" />
+                            <input asp-for="Fecha"
+                                   type="datetime-local"
+                                   class="form-control"
+                                   max="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
                             <span asp-validation-for="Fecha" class="text-danger"></span>
                         </div>
 

@@ -98,7 +98,7 @@ namespace AgroTechApp.Controllers
                     .FirstOrDefaultAsync(f => f.FincaId == id);
 
                 if (finca == null) return NotFound();
-
+                ViewBag.FincaActualId = GetFincaId();
                 return View(finca);
             }
             catch (Exception ex)

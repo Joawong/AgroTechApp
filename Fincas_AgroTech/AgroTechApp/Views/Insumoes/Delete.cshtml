@@ -1,7 +1,7 @@
-﻿@model AgroTechApp.Models.DB.Insumo
+﻿@model AgroTechApp.Models.DB.Finca
 
 @{
-    ViewData["Title"] = "Eliminar Insumo";
+    ViewData["Title"] = "Desactivar Finca";
 }
 
 <!DOCTYPE html>
@@ -14,13 +14,17 @@
     <style>
         :root {
             --primary: #2E8B57;
+            --primary-light: #3CB371;
+            --primary-dark: #1E6B47;
             --success: #28a745;
             --warning: #ffc107;
+            --warning-dark: #e0a800;
             --danger: #dc3545;
             --light: #f8f9fa;
             --dark: #343a40;
             --white: #ffffff;
             --border: #e1e5e9;
+            --shadow: rgba(255, 193, 7, 0.15);
             --gray: #6c757d;
         }
 
@@ -42,12 +46,12 @@
             margin: 0 auto;
         }
 
-        .delete-card {
+        .details-card {
             background: var(--white);
             border-radius: 20px;
-            box-shadow: 0 15px 40px rgba(220, 53, 69, 0.15);
+            box-shadow: 0 15px 40px var(--shadow);
             overflow: hidden;
-            border: 2px solid #f8d7da;
+            border: 1px solid #e1e5e9;
             animation: fadeIn 0.5s ease-out;
         }
 
@@ -63,27 +67,28 @@
             }
         }
 
-        .delete-header {
-            background: linear-gradient(135deg, var(--danger), #e4606d);
-            color: white;
+        /* Header amarillo — igual que Edit */
+        .details-header {
+            background: linear-gradient(135deg, var(--warning), #ffd351);
+            color: var(--dark);
             padding: 2.5rem;
             text-align: center;
             position: relative;
             overflow: hidden;
         }
 
-            .delete-header::before {
+            .details-header::before {
                 content: '';
                 position: absolute;
                 top: -50%;
                 right: -50%;
                 width: 100%;
                 height: 200%;
-                background: rgba(255, 255, 255, 0.1);
+                background: rgba(255, 255, 255, 0.2);
                 transform: rotate(30deg);
             }
 
-            .delete-header h1 {
+            .details-header h1 {
                 font-size: 2.2rem;
                 font-weight: 700;
                 margin-bottom: 0.5rem;
@@ -91,24 +96,24 @@
                 z-index: 1;
             }
 
-            .delete-header p {
+            .details-header p {
                 font-size: 1rem;
-                opacity: 0.95;
+                opacity: 0.85;
                 position: relative;
                 z-index: 1;
             }
 
-        .delete-header-icon {
+        .details-header-icon {
             position: absolute;
             right: 2rem;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 3.5rem;
+            font-size: 3rem;
             opacity: 0.2;
             z-index: 0;
         }
 
-        .delete-body {
+        .details-body {
             padding: 2.5rem;
         }
 
@@ -136,123 +141,130 @@
                 color: var(--gray);
             }
 
+        /* Banner advertencia */
         .warning-banner {
-            background: linear-gradient(135deg, #fff3cd, #ffe69c);
-            border: 2px solid var(--warning);
-            border-radius: 15px;
-            padding: 1.5rem;
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border-left: 5px solid var(--warning);
+            padding: 1.2rem 1.5rem;
+            border-radius: 10px;
             margin-bottom: 2rem;
             display: flex;
-            align-items: flex-start;
             gap: 1rem;
-            animation: pulse 2s ease-in-out infinite;
+            align-items: flex-start;
         }
 
-        @@keyframes pulse {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
-            }
-
-            50% {
-                box-shadow: 0 0 0 10px rgba(255, 193, 7, 0);
-            }
-        }
-
-        .warning-banner i {
-            font-size: 2rem;
-            color: #856404;
-            flex-shrink: 0;
-        }
-
-        .warning-content {
-            flex: 1;
-        }
-
-            .warning-content h3 {
+            .warning-banner i {
+                font-size: 1.5rem;
                 color: #856404;
-                margin-bottom: 0.5rem;
-                font-size: 1.2rem;
+                margin-top: 0.1rem;
+                flex-shrink: 0;
             }
 
-            .warning-content p {
-                color: #856404;
-                margin: 0;
-                line-height: 1.6;
+            .warning-banner div {
+                flex: 1;
             }
 
-        .info-section {
-            background: var(--white);
-            border: 2px solid var(--border);
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-
-            .info-section h3 {
+            .warning-banner strong {
+                display: block;
                 color: var(--dark);
+                margin-bottom: 0.4rem;
+            }
+
+            .warning-banner ul {
+                color: #856404;
+                font-size: 0.9rem;
+                padding-left: 1.2rem;
+                margin: 0;
+            }
+
+                .warning-banner ul li {
+                    margin-bottom: 0.3rem;
+                }
+
+        /* Banner ya desactivada */
+        .already-inactive {
+            background: linear-gradient(135deg, #e2e3e5, #d6d8db);
+            border-left: 5px solid var(--gray);
+            padding: 1.2rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--gray);
+            font-weight: 500;
+        }
+
+        /* Info card acento warning */
+        .info-card {
+            background: var(--light);
+            padding: 2rem;
+            border-radius: 15px;
+            border-left: 5px solid var(--warning);
+            margin-bottom: 1.5rem;
+        }
+
+            .info-card h3 {
+                color: var(--warning-dark);
                 margin-bottom: 1.5rem;
+                font-size: 1.3rem;
                 display: flex;
                 align-items: center;
                 gap: 0.5rem;
-                font-size: 1.3rem;
             }
 
-                .info-section h3 i {
-                    color: var(--primary);
-                }
-
-        .insumo-card {
+        .info-row {
             display: flex;
-            gap: 1.5rem;
-            background: linear-gradient(135deg, #fff5f5, #ffe6e6);
-            border-radius: 15px;
-            padding: 2rem;
-            border-left: 6px solid var(--danger);
-            margin-bottom: 2rem;
-        }
-
-        .insumo-icon {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--danger), #e4606d);
-            color: white;
-            display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            font-size: 2.5rem;
-            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+            padding: 0.8rem 0;
+            border-bottom: 1px solid var(--border);
         }
 
-        .details-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1rem;
+            .info-row:last-child {
+                border-bottom: none;
+            }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--gray);
+            font-size: 0.9rem;
         }
 
-        .detail-card {
-            background: var(--light);
-            padding: 1.2rem;
-            border-radius: 10px;
-            border-left: 4px solid var(--primary);
+        .info-value {
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 1rem;
+            text-align: right;
         }
 
-        .warning-section {
-            background: #fff3cd;
-            padding: 1.2rem;
-            border-radius: 10px;
-            border: 2px solid #ffeaa7;
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: var(--success);
+        }
+
+        .status-inactive {
+            background: linear-gradient(135deg, #e2e3e5, #d6d8db);
+            color: var(--gray);
+        }
+
+        /* Botones */
+        .form-actions {
             display: flex;
             gap: 1rem;
             margin-top: 2rem;
-        }
-
-        .btn-group {
-            margin-top: 2rem;
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
+            padding-top: 2rem;
+            border-top: 2px solid var(--light);
         }
 
         .btn {
@@ -268,17 +280,29 @@
             transition: all 0.3s ease;
             text-decoration: none;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            font-family: 'Poppins', sans-serif;
         }
 
-        .btn-danger {
-            background: linear-gradient(135deg, var(--danger), #e4606d);
+        .btn-confirm {
+            background: linear-gradient(135deg, var(--warning), #ffd351);
+            color: var(--dark);
+        }
+
+            .btn-confirm:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(255, 193, 7, 0.4);
+                color: var(--dark);
+            }
+
+        .btn-edit {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
             color: var(--white);
         }
 
-            .btn-danger:hover {
+            .btn-edit:hover {
                 transform: translateY(-2px);
-                box-shadow: 0 8px 20px rgba(220, 53, 69, 0.4);
-                background: linear-gradient(135deg, #c82333, var(--danger));
+                box-shadow: 0 8px 20px rgba(46, 139, 87, 0.3);
+                color: var(--white);
             }
 
         .btn-secondary {
@@ -289,29 +313,109 @@
         }
 
             .btn-secondary:hover {
-                background: var(--light);
+                background: var(--dark);
                 border-color: var(--dark);
+                color: var(--white);
             }
 
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .modal-overlay.show {
+                display: flex;
+            }
+
+        .modal-box {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+            animation: modalIn 0.3s ease-out;
+            text-align: center;
+        }
+
+        @@keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-icon {
+            font-size: 3.5rem;
+            color: var(--warning);
+            margin-bottom: 1rem;
+        }
+
+        .modal-box h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.8rem;
+        }
+
+        .modal-box p {
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .finca-name-highlight {
+            font-weight: 700;
+            color: var(--warning-dark);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
         @@media (max-width: 768px) {
-            .delete-header h1 {
+            .details-header h1 {
                 font-size: 1.8rem;
             }
 
-            .delete-body {
+            .details-body {
                 padding: 1.5rem;
             }
 
-            .details-grid {
-                grid-template-columns: 1fr;
-                gap: 0.8rem;
-            }
-
-            .btn-group {
+            .form-actions {
                 flex-direction: column;
             }
 
-                .btn-group .btn {
+                .form-actions .btn {
+                    width: 100%;
+                    justify-content: center;
+                }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+                .modal-actions .btn {
                     width: 100%;
                     justify-content: center;
                 }
@@ -321,138 +425,164 @@
 
 <body>
     <div class="container">
-        <div class="delete-card">
-            <div class="delete-header">
-                <i class="fas fa-exclamation-triangle delete-header-icon"></i>
-                <h1><i class="fas fa-trash-alt"></i> Eliminar Insumo</h1>
-                <p>Esta acción no se puede deshacer. Proceda con precaución.</p>
+        <div class="details-card">
+
+            <!-- Header -->
+            <div class="details-header">
+                <i class="fas fa-power-off details-header-icon"></i>
+                <h1><i class="fas fa-exclamation-triangle"></i> Desactivar Finca</h1>
+                <p>Revise la información antes de continuar</p>
             </div>
 
-            <div class="delete-body">
+            <!-- Body -->
+            <div class="details-body">
+
+                <!-- Breadcrumb -->
                 <div class="breadcrumb">
-                    <a asp-action="Index"><i class="fas fa-list"></i> Inventario de Insumos</a>
+                    <a asp-action="Index"><i class="fas fa-list"></i> Lista de Fincas</a>
                     <span>/</span>
-                    <a asp-action="Details" asp-route-id="@Model.InsumoId">
-                        <i class="fas fa-info-circle"></i> @Model.Nombre
-                    </a>
+                    <span><strong>@Model.Nombre</strong></span>
                     <span>/</span>
-                    <span><strong>Eliminar</strong></span>
+                    <span><strong>Desactivar</strong></span>
                 </div>
 
-                <div class="warning-banner">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <div class="warning-content">
-                        <h3>¡Atención! Acción Crítica</h3>
-                        <p>
-                            Está a punto de eliminar permanentemente este insumo del sistema.
-                            Esta acción eliminará todos los registros asociados (movimientos, entradas, salidas)
-                            y NO se puede deshacer.
-                        </p>
+                @if (!Model.Activa)
+                {
+                    <div class="already-inactive">
+                        <i class="fas fa-info-circle fa-lg"></i>
+                        <span>Esta finca ya se encuentra desactivada. Puede reactivarla desde el listado.</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="warning-banner">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <strong>Importante — Consecuencias de desactivar esta finca:</strong>
+                            <ul>
+                                <li>No aparecerá en los listados activos del sistema</li>
+                                <li>No podrán asignársele nuevos registros</li>
+                                <li>La información histórica se mantendrá para consultas</li>
+                                <li>Puede reactivarla desde el listado de fincas cuando lo necesite</li>
+                            </ul>
+                        </div>
+                    </div>
+                }
+
+                <!-- Info -->
+                <div class="info-card">
+                    <h3><i class="fas fa-tractor"></i> Información de la Finca</h3>
+
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-hashtag"></i> ID:</span>
+                        <span class="info-value"><strong>#@Model.FincaId</strong></span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-signature"></i> Nombre:</span>
+                        <span class="info-value"><strong>@Model.Nombre</strong></span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-map-marker-alt"></i> Ubicación:</span>
+                        <span class="info-value">@(Model.Ubicacion ?? "-")</span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-calendar-alt"></i> Fecha de creación:</span>
+                        <span class="info-value">@Model.FechaCreacion.ToString("dd/MM/yyyy")</span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-heartbeat"></i> Estado actual:</span>
+                        <span class="info-value">
+                            @if (Model.Activa)
+                            {
+                                <span class="status-badge status-active">
+                                    <i class="fas fa-check-circle"></i> Activa
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="status-badge status-inactive">
+                                    <i class="fas fa-times-circle"></i> Inactiva
+                                </span>
+                            }
+                        </span>
                     </div>
                 </div>
 
-                <div class="insumo-card">
-                    <div class="insumo-icon">
-                        <i class="fas fa-seedling"></i>
-                    </div>
+                <!-- Acciones -->
+                <div class="form-actions">
+                    @if (Model.Activa)
+                    {
+                        <button type="button" class="btn btn-confirm" onclick="abrirModal()">
+                            <i class="fas fa-power-off"></i> Confirmar Desactivación
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-confirm" disabled>
+                            <i class="fas fa-ban"></i> Ya está desactivada
+                        </button>
+                    }
 
-                    <div class="insumo-info">
-                        <h2 class="insumo-name">@Model.Nombre</h2>
-                        <span class="insumo-id">ID: @Model.InsumoId</span>
-                        <p class="insumo-description">
-                            Categoría: <strong>@Model.Categoria?.Nombre</strong><br />
-                            Unidad: <strong>@Model.Unidad?.Nombre</strong>
-                        </p>
-                    </div>
-                </div>
-
-                <div class="details-grid">
-                    <div class="detail-card">
-                        <strong>Stock Actual:</strong><br />
-                        @ViewBag.StockActual unidades
-                    </div>
-
-                    <div class="detail-card">
-                        <strong>Categoría:</strong><br />
-                        @Model.Categoria?.Nombre
-                    </div>
-
-                    <div class="detail-card">
-                        <strong>Unidad:</strong><br />
-                        @Model.Unidad?.Nombre
-                    </div>
-
-                    <div class="detail-card">
-                        <strong>Finca:</strong><br />
-                        @Model.Finca?.Nombre
-                    </div>
-                </div>
-
-                <div class="warning-section">
-                    <i class="fas fa-radiation-alt"></i>
-                    <div>
-                        <h3>Advertencia Crítica</h3>
-                        <p>Se eliminará el insumo y todos sus movimientos asociados. Esta acción es irreversible.</p>
-                    </div>
-                </div>
-
-                <div class="btn-group">
-                    <a asp-action="Edit" asp-route-id="@Model.InsumoId"
-                       class="btn btn-secondary">
-                        <i class="fas fa-edit"></i> Editar
+                    <a asp-action="Edit" asp-route-id="@Model.FincaId" class="btn btn-edit">
+                        <i class="fas fa-edit"></i> Editar Finca
                     </a>
 
                     <a asp-action="Index" class="btn btn-secondary">
-                        <i class="fas fa-times"></i> Cancelar
+                        <i class="fas fa-arrow-left"></i> Volver al Listado
                     </a>
-
-                    <button type="button" class="btn btn-danger" id="deleteBtn">
-                        <i class="fas fa-trash"></i> Eliminar Permanentemente
-                    </button>
                 </div>
 
-                <form id="deleteForm" asp-action="Delete" method="post" style="display:none;">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" asp-for="InsumoId" />
-                </form>
             </div>
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const deleteBtn = document.getElementById('deleteBtn');
+    <!-- Modal -->
+    @if (Model.Activa)
+    {
+        <div class="modal-overlay" id="modalDesactivar">
+            <div class="modal-box">
+                <div class="modal-icon">
+                    <i class="fas fa-power-off"></i>
+                </div>
+                <h3>¿Desactivar esta finca?</h3>
+                <p>
+                    Está a punto de desactivar
+                    <span class="finca-name-highlight">@Model.Nombre</span>.
+                    Esta acción puede revertirse desde el listado de fincas.
+                </p>
+                <div class="modal-actions">
+                    <form asp-action="Delete" method="post" style="display: inline;">
+                        <input type="hidden" asp-for="FincaId" />
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-confirm">
+                            <i class="fas fa-power-off"></i> Sí, desactivar
+                        </button>
+                    </form>
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModal()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
 
-            deleteBtn.addEventListener('click', function () {
-                const nombre = "@Model.Nombre";
-                const stock = "@ViewBag.StockActual";
-                const id = "@Model.InsumoId";
+        <script>
+            function abrirModal()  { document.getElementById('modalDesactivar').classList.add('show'); }
+            function cerrarModal() { document.getElementById('modalDesactivar').classList.remove('show'); }
 
-                const confirmed = confirm(
-                    `¿Está COMPLETAMENTE seguro de eliminar el insumo "${nombre}"?\n\n` +
-                    `ID: ${id}\n` +
-                    `Stock Actual: ${stock}\n\n` +
-                    `Esta acción es PERMANENTE y eliminará todos los movimientos asociados.`
-                );
-
-                if (confirmed) {
-                    // Mostrar spinner
-                    deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
-                    deleteBtn.disabled = true;
-
-                    document.getElementById("deleteForm").submit();
-                }
+            document.getElementById('modalDesactivar').addEventListener('click', function(e) {
+                if (e.target === this) cerrarModal();
             });
-
-            // Prevenir navegación accidental
-            window.addEventListener('beforeunload', function (e) {
-                const deleteBtn = document.getElementById('deleteBtn');
-                if (deleteBtn && deleteBtn.disabled) {
-                    e.preventDefault();
-                    e.returnValue = 'Está en proceso de eliminación. ¿Seguro que quiere salir?';
-                }
-            });
-        });
-    </script>
+        </script>
+    }
 </body>
 </html>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

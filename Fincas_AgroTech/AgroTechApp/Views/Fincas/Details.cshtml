@@ -2,29 +2,630 @@
 
 @{
     ViewData["Title"] = "Detalles de Finca";
+    bool esFincaActiva = ViewBag.FincaActualId != null && (long)ViewBag.FincaActualId == Model.FincaId;
 }
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewData["Title"] - AgroTech</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2E8B57;
+            --primary-light: #3CB371;
+            --primary-dark: #1E6B47;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+            --light: #f8f9fa;
+            --dark: #343a40;
+            --white: #ffffff;
+            --border: #e1e5e9;
+            --shadow: rgba(46, 139, 87, 0.1);
+            --gray: #6c757d;
+        }
 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
-<div class="container mt-4">
+        body {
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
 
-    <h1 class="fw-bold text-success mb-4">Detalles de Finca</h1>
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
 
-    <div class="card p-4 shadow-sm" style="border-radius:15px;">
-        <h3>@Model.Nombre</h3>
-        <p><strong>Ubicación:</strong> @Model.Ubicacion</p>
+        .details-card {
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px var(--shadow);
+            overflow: hidden;
+            border: 1px solid #e1e5e9;
+            animation: fadeIn 0.5s ease-out;
+        }
 
-        <span class="badge @(Model.Activa ? "bg-success" : "bg-danger")">
-            @(Model.Activa ? "Activa" : "Inactiva")
-        </span>
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
 
-        <hr />
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
-        <a asp-action="Edit" asp-route-id="@Model.FincaId" class="btn btn-warning">
-            <i class="bi bi-pencil"></i> Editar
-        </a>
+        /* Header verde (activa) o gris (inactiva) */
+        .details-header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
 
-        <a asp-action="Index" class="btn btn-secondary ms-2">Volver</a>
+            .details-header.inactiva {
+                background: linear-gradient(135deg, #6c757d, #495057);
+            }
+
+            .details-header::before {
+                content: '';
+                position: absolute;
+                top: -50%;
+                right: -50%;
+                width: 100%;
+                height: 200%;
+                background: rgba(255,255,255,0.1);
+                transform: rotate(30deg);
+            }
+
+            .details-header h1 {
+                font-size: 2.2rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+                position: relative;
+                z-index: 1;
+            }
+
+            .details-header p {
+                font-size: 1rem;
+                opacity: 0.9;
+                position: relative;
+                z-index: 1;
+            }
+
+        .details-header-icon {
+            position: absolute;
+            right: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 3rem;
+            opacity: 0.2;
+            z-index: 0;
+        }
+
+        /* Badge "Finca Activa" en el header */
+        .active-badge-header {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.4rem 1rem;
+            background: rgba(255,255,255,0.25);
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 0.8rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .details-body {
+            padding: 2.5rem;
+        }
+
+        /* Breadcrumb */
+        .breadcrumb {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            padding: 0.8rem 1.2rem;
+            background: var(--light);
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+            .breadcrumb a {
+                color: var(--primary);
+                text-decoration: none;
+                font-weight: 500;
+            }
+
+                .breadcrumb a:hover {
+                    text-decoration: underline;
+                }
+
+            .breadcrumb span {
+                color: var(--gray);
+            }
+
+        /* Botones de acción */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.85rem 1.8rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: var(--white);
+        }
+
+            .btn-primary:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(46,139,87,0.3);
+                color: var(--white);
+            }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), #ffd351);
+            color: var(--dark);
+        }
+
+            .btn-warning:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 20px rgba(255, 193, 7, 0.3);
+                color: var(--dark);
+            }
+
+        .btn-secondary {
+            background: var(--white);
+            color: var(--dark);
+            border: 2px solid var(--border);
+            box-shadow: none;
+        }
+
+            .btn-secondary:hover {
+                background: var(--dark);
+                border-color: var(--dark);
+                color: var(--white);
+            }
+
+        /* Botón finanzas deshabilitado visualmente */
+        .btn-finanzas-disabled {
+            background: linear-gradient(135deg, #adb5bd, #868e96);
+            color: var(--white);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* Info card */
+        .info-card {
+            background: var(--light);
+            padding: 2rem;
+            border-radius: 15px;
+            border-left: 5px solid var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+            .info-card h3 {
+                color: var(--primary);
+                margin-bottom: 1.5rem;
+                font-size: 1.3rem;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+            .info-row:last-child {
+                border-bottom: none;
+            }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 1rem;
+            text-align: right;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            color: var(--success);
+        }
+
+        .status-inactive {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            color: var(--danger);
+        }
+
+        /* Stats cards (animales / insumos) */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-mini {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.2rem 1rem;
+            text-align: center;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+            .stat-mini:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+            }
+
+        .stat-mini-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-mini-label {
+            font-size: 0.8rem;
+            color: var(--gray);
+            font-weight: 500;
+            margin-top: 0.2rem;
+        }
+
+        /* ========== MODAL ========== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .modal-overlay.show {
+                display: flex;
+            }
+
+        .modal-box {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 480px;
+            width: 90%;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+            animation: modalIn 0.3s ease-out;
+            text-align: center;
+        }
+
+        @@keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9) translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .modal-icon {
+            font-size: 3rem;
+            color: var(--warning);
+            margin-bottom: 1rem;
+        }
+
+        .modal-box h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.8rem;
+        }
+
+        .modal-box p {
+            color: var(--gray);
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .modal-box .finca-name-highlight {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        @@media (max-width: 768px) {
+            .details-header h1 {
+                font-size: 1.8rem;
+            }
+
+            .details-body {
+                padding: 1.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+                .action-buttons .btn {
+                    width: 100%;
+                    justify-content: center;
+                }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+                .modal-actions .btn {
+                    width: 100%;
+                    justify-content: center;
+                }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="details-card">
+
+            <!-- Header -->
+            <div class="details-header @(Model.Activa ? "" : "inactiva")">
+                <i class="fas fa-tractor details-header-icon"></i>
+                <h1><i class="fas fa-home"></i> @Model.Nombre</h1>
+                <p>@(Model.Ubicacion ?? "Sin ubicación registrada")</p>
+
+                @if (esFincaActiva)
+                {
+                    <div>
+                        <span class="active-badge-header">
+                            <i class="fas fa-check-circle"></i> Finca activa actualmente
+                        </span>
+                    </div>
+                }
+            </div>
+
+            <!-- Body -->
+            <div class="details-body">
+
+                <!-- Breadcrumb -->
+                <div class="breadcrumb">
+                    <a asp-action="Index"><i class="fas fa-list"></i> Lista de Fincas</a>
+                    <span>/</span>
+                    <span><strong>@Model.Nombre</strong></span>
+                </div>
+
+                <!-- Stats mini -->
+                <div class="stats-row">
+                    <div class="stat-mini">
+                        <div class="stat-mini-number">@(ViewBag.TotalAnimales ?? 0)</div>
+                        <div class="stat-mini-label"><i class="fas fa-cow"></i> Animales activos</div>
+                    </div>
+                    <div class="stat-mini" style="border-left-color: #17a2b8;">
+                        <div class="stat-mini-number" style="color: #17a2b8;">@(ViewBag.TotalInsumos ?? 0)</div>
+                        <div class="stat-mini-label"><i class="fas fa-seedling"></i> Insumos</div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+
+                    @if (esFincaActiva)
+                    {
+                        <!-- Ya es la activa: ir directo a Finanzas -->
+                        <a asp-controller="Finanzas" asp-action="Dashboard" class="btn btn-primary">
+                            <i class="fas fa-chart-line"></i> Ver Finanzas
+                        </a>
+                    }
+                    else
+                    {
+                        <!-- No es la activa: abrir modal de confirmación -->
+                        <button type="button" class="btn btn-primary" onclick="abrirModalFinanzas()">
+                            <i class="fas fa-chart-line"></i> Ver Finanzas
+                        </button>
+                    }
+
+                    <a asp-action="Edit" asp-route-id="@Model.FincaId" class="btn btn-warning">
+                        <i class="fas fa-edit"></i> Editar Finca
+                    </a>
+
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Volver al Listado
+                    </a>
+                </div>
+
+                <!-- Info Card -->
+                <div class="info-card">
+                    <h3><i class="fas fa-info-circle"></i> Información de la Finca</h3>
+
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-hashtag"></i> ID:</span>
+                        <span class="info-value"><strong>#@Model.FincaId</strong></span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-signature"></i> Nombre:</span>
+                        <span class="info-value"><strong>@Model.Nombre</strong></span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-map-marker-alt"></i> Ubicación:</span>
+                        <span class="info-value">@(Model.Ubicacion ?? "-")</span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-heartbeat"></i> Estado:</span>
+                        <span class="info-value">
+                            @if (Model.Activa)
+                            {
+                                <span class="status-badge status-active">
+                                    <i class="fas fa-check-circle"></i> Activa
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="status-badge status-inactive">
+                                    <i class="fas fa-times-circle"></i> Inactiva
+                                </span>
+                            }
+                        </span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="info-label"><i class="fas fa-star"></i> Finca activa:</span>
+                        <span class="info-value">
+                            @if (esFincaActiva)
+                            {
+                                <span class="status-badge status-active">
+                                    <i class="fas fa-check-circle"></i> Sí, es la actual
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="status-badge" style="background: #e9ecef; color: var(--gray);">
+                                    <i class="fas fa-times-circle"></i> No es la activa
+                                </span>
+                            }
+                        </span>
+                    </div>
+
+                </div>
+            </div>
+        </div>
     </div>
 
-</div>
+    <!-- ========== MODAL: Cambiar finca activa ========== -->
+    @if (!esFincaActiva)
+    {
+        <div class="modal-overlay" id="modalCambiarFinca">
+            <div class="modal-box">
+                <div class="modal-icon">
+                    <i class="fas fa-exchange-alt"></i>
+                </div>
+                <h3>¿Cambiar finca activa?</h3>
+                <p>
+                    Para ver las finanzas de
+                    <span class="finca-name-highlight">@Model.Nombre</span>,
+                    primero necesita establecerla como su finca activa.
+                    Esto reemplazará su selección actual en todos los módulos.
+                </p>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-primary" onclick="cambiarYRedirigir()">
+                        <i class="fas fa-check"></i> Sí, cambiar y continuar
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModal()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <form id="formCambiarFinca" method="post" action="@Url.Action("CambiarFinca", "Fincas", new { id = Model.FincaId })" style="display:none;">
+            @Html.AntiForgeryToken()
+        </form>
+    }
+
+    <script>
+        function abrirModalFinanzas() {
+            document.getElementById('modalCambiarFinca').classList.add('show');
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalCambiarFinca').classList.remove('show');
+        }
+
+        function cambiarYRedirigir() {
+            // Enviar el POST para cambiar la finca activa,
+            // luego redirigir al Dashboard de Finanzas
+            fetch('@Url.Action("CambiarFinca", "Home")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: 'fincaId=@Model.FincaId'
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '@Url.Action("Dashboard", "Finanzas")';
+                } else {
+                    alert('No se pudo cambiar la finca: ' + data.message);
+                    cerrarModal();
+                }
+            })
+            .catch(() => {
+                alert('Error al cambiar la finca activa.');
+                cerrarModal();
+            });
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('modalCambiarFinca')?.addEventListener('click', function(e) {
+            if (e.target === this) cerrarModal();
+        });
+    </script>
+</body>
+</html>

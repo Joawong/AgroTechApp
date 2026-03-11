@@ -639,35 +639,10 @@
                                         }
                                     </div>
                                 </div>
+
                             </div>
                         </div>
 
-                        <!-- Stock Information -->
-                        <div class="stock-info">
-                            <div class="stock-value">@stockActual.ToString("N2") @Model.Unidad.Nombre</div>
-                            <div class="stock-label">Stock Actual Disponible</div>
-
-                            <div class="progress-container">
-                                <div class="progress-label">
-                                    <span>Nivel de Stock vs. Mínimo</span>
-                                    <span>@porcentajeStock.ToString("F0")%</span>
-                                </div>
-                                <div class="progress-bar">
-                                    <div class="progress-fill @progressClase" style="width: @porcentajeStock%"></div>
-                                </div>
-                            </div>
-
-                            @if (ultimoMovimiento.HasValue)
-                            {
-                                <div class="detail-group" style="text-align: center; margin-top: 1rem;">
-                                    <div class="detail-label" style="justify-content: center;">
-                                        <i class="fas fa-clock"></i>
-                                        Último Movimiento
-                                    </div>
-                                    <div class="detail-value">@ultimoMovimiento.Value.ToString("dd/MM/yyyy HH:mm")</div>
-                                </div>
-                            }
-                        </div>
 
                         <!-- Action Buttons -->
                         <div class="action-buttons">
@@ -687,10 +662,8 @@
                                 <i class="fas fa-history"></i>
                                 Ver Historial
                             </a>
-                            <a asp-action="Delete" asp-route-id="@Model.InsumoId" class="btn btn-danger">
-                                <i class="fas fa-trash"></i>
-                                Eliminar
-                            </a>
+
+                           
                         </div>
                     </div>
                 </div>
@@ -720,59 +693,8 @@
                     </div>
                 </div>
 
-                <!-- Recent Activity -->
-                @if (actividadReciente != null && actividadReciente.Count > 0)
-                {
-                    <div class="sidebar-card fade-in">
-                        <h3 class="sidebar-title">
-                            <i class="fas fa-history"></i>
-                            Actividad Reciente
-                        </h3>
-                        <ul class="history-list">
-                            @foreach (var item in actividadReciente.Take(5))
-                            {
-                                <li class="history-item">
-                                    <div class="history-icon">
-                                        @if (item.Tipo == "Entrada" || item.Tipo == "Compra")
-                                        {
-                                            <i class="fas fa-arrow-down" style="color: var(--success);"></i>
-                                        }
-                                        else
-                                        {
-                                            <i class="fas fa-arrow-up" style="color: var(--danger);"></i>
-                                        }
-                                    </div>
-                                    <div class="history-content">
-                                        <div class="history-title">@item.Tipo</div>
-                                        <div class="history-date">@item.Fecha.ToString("dd/MM/yyyy HH:mm")</div>
-                                        <div class="history-detail">
-                                            @(item.Tipo == "Entrada" || item.Tipo == "Compra" ? "+" : "-")@item.Cantidad.ToString("N2") @Model.Unidad.Nombre
-                                        </div>
-                                    </div>
-                                </li>
-                            }
-                        </ul>
-                        <a asp-controller="Inventario" asp-action="Historial" asp-route-insumoId="@Model.InsumoId"
-                           class="btn btn-outline" style="width: 100%; margin-top: 1rem;">
-                            <i class="fas fa-list"></i>
-                            Ver Historial Completo
-                        </a>
-                    </div>
-                }
-                else
-                {
-                    <div class="sidebar-card fade-in">
-                        <h3 class="sidebar-title">
-                            <i class="fas fa-history"></i>
-                            Actividad Reciente
-                        </h3>
-                        <div style="text-align: center; padding: 2rem; color: var(--gray);">
-                            <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-                            <p>No hay movimientos registrados</p>
-                        </div>
-                    </div>
-                }
-            </div>
+                         
+                </div>
         </div>
     </div>
 

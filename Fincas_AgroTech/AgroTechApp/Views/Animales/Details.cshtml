@@ -173,6 +173,7 @@
             .btn-warning:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 8px 20px rgba(255, 193, 7, 0.3);
+                color: var(--dark);
             }
 
         .btn-success {
@@ -190,10 +191,11 @@
             color: var(--white);
         }
 
-            .btn-danger:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 20px rgba(220, 53, 69, 0.3);
-            }
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 193, 7, 0.3);
+            color: var(--dark); 
+        }
 
         .btn-secondary {
             background: var(--white);
@@ -203,8 +205,9 @@
         }
 
             .btn-secondary:hover {
-                background: var(--light);
+                background: var(--dark);
                 border-color: var(--dark);
+                color: var(--white); 
             }
 
         .info-cards-grid {
@@ -402,10 +405,7 @@
                             Vender Animal
                         </a>
                     }
-                    <a asp-action="Delete" asp-route-id="@Model.AnimalId" class="btn btn-danger">
-                        <i class="fas fa-trash"></i>
-                        Eliminar
-                    </a>
+                    
                     <a asp-action="Index" class="btn btn-secondary">
                         <i class="fas fa-arrow-left"></i>
                         Volver al Listado

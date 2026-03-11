@@ -411,7 +411,8 @@
                                     </label>
                                     <input asp-for="FechaNacimiento"
                                            type="date"
-                                           class="form-control" />
+                                           class="form-control"
+                                           max="@DateTime.Now.ToString("yyyy-MM-dd")" />
                                     <span asp-validation-for="FechaNacimiento" class="text-danger"></span>
                                 </div>
 

@@ -6,455 +6,404 @@
     var secondaryColor = "#F4A460";
     var accentColor = "#4cc9f0";
 
-    // Obtener todos los pesajes del animal (esto debe venir del controller)
     var historialPesajes = ViewBag.HistorialPesajes as List<AgroTechApp.Models.DB.Pesaje> ?? new List<AgroTechApp.Models.DB.Pesaje>();
 }
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalles del Pesaje - AgroTech</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+<style>
+    /* ===== Scope: solo afecta al contenido de esta vista ===== */
+
+    .pesaje-page {
+        --primary: #2E8B57;
+        --primary-dark: #26734d;
+        --secondary: #F4A460;
+        --accent: #4cc9f0;
+        --success: #28a745;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --dark: #1e293b;
+        --light: #f8fafc;
+        --gray: #64748b;
+        --border: #e2e8f0;
+        padding: 20px;
+        color: var(--dark);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .pesaje-card {
+        max-width: 1400px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 40px rgba(0,0,0,.1);
+        overflow: hidden;
+        animation: pz-fadeIn .6s ease-out;
+    }
+
+    @@keyframes pz-fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
         }
 
-        :root {
-            --primary: @primaryColor;
-            --primary-dark: #26734d;
-            --secondary: @secondaryColor;
-            --accent: @accentColor;
-            --success: #28a745;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --dark: #1e293b;
-            --light: #f8fafc;
-            --gray: #64748b;
-            --border: #e2e8f0;
+        to {
+            opacity: 1;
+            transform: translateY(0);
         }
+    }
 
-        body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: var(--dark);
-        }
+    /* ---- Header ---- */
+    .pz-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        padding: 2.5rem;
+        position: relative;
+        overflow: hidden;
+    }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            animation: fadeIn 0.6s ease-out;
-        }
+    .pz-header-content {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1.5rem;
+    }
 
-        @@keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
+    .pz-header-text h1 {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: .5rem;
+    }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+    .pz-header-text p {
+        font-size: 1.1rem;
+        opacity: .9;
+    }
 
-        /* Header */
-        .header {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    .pz-back-btn {
+        background: rgba(255,255,255,.2);
+        color: white;
+        border: 2px solid rgba(255,255,255,.3);
+        padding: .875rem 1.5rem;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        transition: all .3s;
+    }
+
+        .pz-back-btn:hover {
+            background: rgba(255,255,255,.3);
             color: white;
-            padding: 2.5rem;
-            position: relative;
-            overflow: hidden;
+            transform: translateX(-5px);
         }
 
-        .header-content {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1.5rem;
+    /* ---- Stats ---- */
+    .pz-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+        gap: 1.5rem;
+        padding: 2rem;
+        background: var(--light);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .pz-stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        border-left: 4px solid var(--primary);
+        box-shadow: 0 2px 8px rgba(0,0,0,.05);
+    }
+
+    .pz-stat-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .pz-stat-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    .pz-stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--primary);
+        margin-bottom: .25rem;
+    }
+
+    .pz-stat-label {
+        color: var(--gray);
+        font-size: .9rem;
+        font-weight: 600;
+    }
+
+    .pz-stat-change {
+        margin-top: .5rem;
+        padding: .35rem .75rem;
+        border-radius: 50px;
+        font-size: .85rem;
+        font-weight: 600;
+        display: inline-block;
+    }
+
+        .pz-stat-change.positive {
+            background: rgba(40,167,69,.15);
+            color: var(--success);
         }
 
-        .header-text h1 {
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
+        .pz-stat-change.negative {
+            background: rgba(239,68,68,.15);
+            color: var(--danger);
         }
 
-        .header-text p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
+    /* ---- Tabs ---- */
+    .pz-tabs-container {
+        border-bottom: 1px solid var(--border);
+    }
 
-        .back-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            padding: 0.875rem 1.5rem;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-        }
+    .pz-tabs {
+        display: flex;
+        gap: 0;
+        flex-wrap: wrap;
+        padding: 0 2rem;
+    }
 
-            .back-btn:hover {
-                background: rgba(255, 255, 255, 0.3);
-                transform: translateX(-5px);
-            }
+    .pz-tab {
+        padding: 1.25rem 2rem;
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--gray);
+        border-bottom: 3px solid transparent;
+        transition: all .3s;
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        user-select: none;
+    }
 
-        /* Stats Cards */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            padding: 2rem;
-            background: var(--light);
-            border-bottom: 1px solid var(--border);
-        }
-
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            border-left: 4px solid var(--primary);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-
-        .stat-header {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .stat-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5rem;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 800;
+        .pz-tab.active {
             color: var(--primary);
-            margin-bottom: 0.25rem;
+            border-bottom-color: var(--primary);
+            background: rgba(46,139,87,.05);
         }
 
-        .stat-label {
-            color: var(--gray);
-            font-size: 0.9rem;
+        .pz-tab:hover:not(.active) {
+            color: var(--dark);
+            background: var(--light);
+        }
+
+    /* ---- Tab content ---- */
+    .pz-tab-content {
+        display: none;
+        padding: 2.5rem;
+    }
+
+        .pz-tab-content.active {
+            display: block;
+            animation: pz-fadeIn .4s ease-out;
+        }
+
+    /* ---- Panel interno ---- */
+    .pz-panel {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border);
+    }
+
+    .pz-panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .pz-panel-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--dark);
+    }
+
+    /* ---- Tabla historial ---- */
+    .pz-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+    }
+
+        .pz-table th {
+            background: var(--light);
+            padding: 1rem;
+            text-align: left;
             font-weight: 600;
+            color: var(--dark);
+            border-bottom: 2px solid var(--border);
         }
 
-        .stat-change {
-            margin-top: 0.5rem;
-            padding: 0.35rem 0.75rem;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-            .stat-change.positive {
-                background: rgba(40, 167, 69, 0.15);
-                color: var(--success);
-            }
-
-            .stat-change.negative {
-                background: rgba(239, 68, 68, 0.15);
-                color: var(--danger);
-            }
-
-        /* Tabs */
-        .tabs-container {
+        .pz-table td {
+            padding: 1rem;
             border-bottom: 1px solid var(--border);
         }
 
-        .tabs {
-            display: flex;
-            gap: 0;
-            flex-wrap: wrap;
-            padding: 0 2rem;
+        .pz-table tbody tr:hover {
+            background: rgba(46,139,87,.05);
         }
 
-        .tab {
-            padding: 1.25rem 2rem;
-            cursor: pointer;
-            font-weight: 600;
-            color: var(--gray);
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
+    .pz-peso-badge {
+        background: linear-gradient(135deg, var(--primary), var(--accent));
+        color: white;
+        padding: .3rem .7rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: .85rem;
+        margin-left: .4rem;
+    }
+
+    .pz-ganancia {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        font-weight: 600;
+    }
+
+        .pz-ganancia.positiva {
+            color: var(--success);
         }
 
-            .tab.active {
-                color: var(--primary);
-                border-bottom: 3px solid var(--primary);
-                background: rgba(46, 139, 87, 0.05);
-            }
-
-            .tab:hover:not(.active) {
-                color: var(--dark);
-                background: var(--light);
-            }
-
-        /* Tab Content */
-        .tab-content {
-            display: none;
-            padding: 2.5rem;
+        .pz-ganancia.negativa {
+            color: var(--danger);
         }
 
-            .tab-content.active {
-                display: block;
-                animation: fadeIn 0.4s ease-out;
-            }
+    /* ---- Empty ---- */
+    .pz-empty {
+        text-align: center;
+        padding: 3rem;
+        color: var(--gray);
+    }
 
-        /* Chart Container */
-        .chart-container {
-            background: white;
-            border-radius: 15px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            border: 1px solid var(--border);
+        .pz-empty i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: .5;
+            display: block;
         }
 
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
+    /* ---- Footer de acciones ---- */
+    .pz-footer {
+        background: linear-gradient(135deg, #f8fafc, #eef2f7);
+        border-top: 1px solid var(--border);
+        padding: 1.5rem 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
 
-        .chart-title {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: var(--dark);
-        }
+    .pz-btn {
+        padding: .875rem 1.5rem;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        transition: all .3s;
+        cursor: pointer;
+        font-family: inherit;
+    }
 
-        /* Historial Table */
-        .historial-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
+    .pz-btn-primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+    }
 
-            .historial-table th {
-                background: var(--light);
-                padding: 1rem;
-                text-align: left;
-                font-weight: 600;
-                color: var(--dark);
-                border-bottom: 2px solid var(--border);
-            }
-
-            .historial-table td {
-                padding: 1rem;
-                border-bottom: 1px solid var(--border);
-            }
-
-            .historial-table tbody tr:hover {
-                background: rgba(46, 139, 87, 0.05);
-            }
-
-        .peso-actual {
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            color: white;
-            padding: 0.35rem 0.75rem;
-            border-radius: 50px;
-            font-weight: 600;
-        }
-
-        .ganancia {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            font-weight: 600;
-        }
-
-            .ganancia.positiva {
-                color: var(--success);
-            }
-
-            .ganancia.negativa {
-                color: var(--danger);
-            }
-
-        /* Actions */
-        .actions-section {
-            background: var(--light);
-            padding: 2rem 2.5rem;
-            border-top: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-        }
-
-        .btn {
-            padding: 0.875rem 1.5rem;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        .pz-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(46,139,87,.4);
             color: white;
         }
 
-            .btn-primary:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 20px rgba(46, 139, 87, 0.4);
-            }
+    .pz-btn-secondary {
+        background: white;
+        color: var(--dark);
+        border: 2px solid var(--border);
+    }
 
-        .btn-danger {
-            background: linear-gradient(135deg, var(--danger), #dc2626);
+        .pz-btn-secondary:hover {
+            background: var(--dark);
+            border-color: var(--dark);
             color: white;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            color: var(--gray);
-        }
-
-            .empty-state i {
-                font-size: 4rem;
-                margin-bottom: 1rem;
-                opacity: 0.5;
-            }
-
-        /* Responsive general */
-        @@media (max-width: 768px) {
-            .container
-
-        {
-            margin: 10px;
-        }
-
-        .stats-grid {
+    /* ---- Responsive ---- */
+    @@media(max-width:768px) {
+        .pz-stats-grid {
             grid-template-columns: 1fr;
         }
 
-        .tabs {
-            flex-direction: column;
+        .pz-tabs {
             padding: 0;
+            flex-direction: column;
         }
 
-        .tab-content {
+        .pz-tab-content {
             padding: 1.5rem;
         }
 
-        .historial-table {
-            font-size: 0.85rem;
+        .pz-table {
+            font-size: .85rem;
         }
 
-        }
-
-        /* ===== Footer Detalles ===== */
-        .details-footer {
-            background: linear-gradient(135deg, #f8fafc, #eef2f7);
-            border-top: 1px solid var(--border);
-            padding: 2rem 2.5rem;
-        }
-
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-        }
-
-        .footer-info {
-            color: var(--gray);
-            font-size: 0.95rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .footer-actions {
-            display: flex;
-            gap: 1rem;
-        }
-
-        /* Responsive footer */
-        @@media (max-width: 768px) {
-            .footer-content
-
-        {
-            flex-direction: column;
-            text-align: center;
-        }
-
-        .footer-actions {
+        .pz-footer {
             justify-content: center;
-            width: 100%;
         }
+    }
+</style>
 
-        }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <div class="header-content">
-                <div class="header-text">
+<div class="pesaje-page">
+    <div class="pesaje-card">
+
+        @* ===== HEADER ===== *@
+        <div class="pz-header">
+            <div class="pz-header-content">
+                <div class="pz-header-text">
                     <h1>📊 Análisis de Pesaje</h1>
                     <p>Animal: @(Model.Animal?.Nombre ?? "Sin nombre") (@Model.Animal?.Arete)</p>
                 </div>
-                <a asp-action="Index" class="back-btn">
-                    <i class="fas fa-arrow-left"></i>
-                    Volver
+                <a asp-action="Index" class="pz-back-btn">
+                    <i class="fas fa-arrow-left"></i> Volver
                 </a>
             </div>
         </div>
 
-        <!-- Stats Cards -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon">
-                        <i class="fas fa-weight-hanging"></i>
-                    </div>
+        @* ===== STATS ===== *@
+        <div class="pz-stats-grid">
+
+            @* Peso actual *@
+            <div class="pz-stat-card">
+                <div class="pz-stat-header">
+                    <div class="pz-stat-icon"><i class="fas fa-weight-hanging"></i></div>
                 </div>
-                <div class="stat-value">@Model.PesoKg kg</div>
-                <div class="stat-label">Peso Actual</div>
+                <div class="pz-stat-value">@Model.PesoKg kg</div>
+                <div class="pz-stat-label">Peso Actual</div>
                 @if (historialPesajes.Count > 1)
                 {
                     var pesajeAnterior = historialPesajes.OrderByDescending(p => p.Fecha).Skip(1).FirstOrDefault();
@@ -463,16 +412,15 @@
                         var diferencia = Model.PesoKg - pesajeAnterior.PesoKg;
                         var clase = diferencia >= 0 ? "positive" : "negative";
                         var icono = diferencia >= 0 ? "▲" : "▼";
-                        <span class="stat-change @clase">
-                            @icono @Math.Abs(diferencia).ToString("0.0") kg
-                        </span>
+                        <span class="pz-stat-change @clase">@icono @Math.Abs(diferencia).ToString("0.0") kg</span>
                     }
                 }
             </div>
 
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, var(--success), #22c55e);">
+            @* Ganancia total *@
+            <div class="pz-stat-card">
+                <div class="pz-stat-header">
+                    <div class="pz-stat-icon" style="background:linear-gradient(135deg,#28a745,#22c55e)">
                         <i class="fas fa-chart-line"></i>
                     </div>
                 </div>
@@ -480,19 +428,20 @@
                 {
                     var primerPesaje = historialPesajes.OrderBy(p => p.Fecha).First();
                     var gananciaTotal = Model.PesoKg - primerPesaje.PesoKg;
-                    <div class="stat-value">@gananciaTotal.ToString("+0.0;-0.0") kg</div>
-                    <div class="stat-label">Ganancia Total</div>
+                    <div class="pz-stat-value">@gananciaTotal.ToString("+0.0;-0.0") kg</div>
+                    <div class="pz-stat-label">Ganancia Total</div>
                 }
                 else
                 {
-                    <div class="stat-value">--</div>
-                    <div class="stat-label">Ganancia Total</div>
+                    <div class="pz-stat-value">--</div>
+                    <div class="pz-stat-label">Ganancia Total</div>
                 }
             </div>
 
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, var(--warning), #f59e0b);">
+            @* GDP *@
+            <div class="pz-stat-card">
+                <div class="pz-stat-header">
+                    <div class="pz-stat-icon" style="background:linear-gradient(135deg,#f59e0b,#fbbf24)">
                         <i class="fas fa-calendar-day"></i>
                     </div>
                 </div>
@@ -502,64 +451,62 @@
                     var ultimoPesaje = historialPesajes.OrderByDescending(p => p.Fecha).First();
                     var diasTranscurridos = (ultimoPesaje.Fecha - primerPesaje.Fecha).Days;
                     var gdp = diasTranscurridos > 0 ? (ultimoPesaje.PesoKg - primerPesaje.PesoKg) / diasTranscurridos : 0;
-                    <div class="stat-value">@gdp.ToString("0.000")</div>
-                    <div class="stat-label">GDP (kg/día)</div>
+                    <div class="pz-stat-value">@gdp.ToString("0.000")</div>
+                    <div class="pz-stat-label">GDP (kg/día)</div>
                 }
                 else
                 {
-                    <div class="stat-value">--</div>
-                    <div class="stat-label">GDP (kg/día)</div>
+                    <div class="pz-stat-value">--</div>
+                    <div class="pz-stat-label">GDP (kg/día)</div>
                 }
             </div>
 
-            <div class="stat-card">
-                <div class="stat-header">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, var(--accent), #06b6d4);">
+            @* Total pesajes *@
+            <div class="pz-stat-card">
+                <div class="pz-stat-header">
+                    <div class="pz-stat-icon" style="background:linear-gradient(135deg,#4cc9f0,#06b6d4)">
                         <i class="fas fa-history"></i>
                     </div>
                 </div>
-                <div class="stat-value">@historialPesajes.Count</div>
-                <div class="stat-label">Total Pesajes</div>
+                <div class="pz-stat-value">@historialPesajes.Count</div>
+                <div class="pz-stat-label">Total Pesajes</div>
             </div>
         </div>
 
-        <!-- Tabs -->
-        <div class="tabs-container">
-            <div class="tabs">
-                <div class="tab active" data-tab="grafica">
-                    <i class="fas fa-chart-area"></i>
-                    Gráfica de Evolución
+        @* ===== TABS ===== *@
+        <div class="pz-tabs-container">
+            <div class="pz-tabs">
+                <div class="pz-tab active" data-pztab="pz-grafica">
+                    <i class="fas fa-chart-area"></i> Gráfica de Evolución
                 </div>
-                <div class="tab" data-tab="historial">
-                    <i class="fas fa-history"></i>
-                    Historial Completo
+                <div class="pz-tab" data-pztab="pz-historial">
+                    <i class="fas fa-history"></i> Historial Completo
                 </div>
-                <div class="tab" data-tab="detalles">
-                    <i class="fas fa-info-circle"></i>
-                    Detalles del Pesaje
+                <div class="pz-tab" data-pztab="pz-detalles">
+                    <i class="fas fa-info-circle"></i> Detalles del Pesaje
                 </div>
             </div>
         </div>
 
-        <!-- Tab: Gráfica -->
-        <div class="tab-content active" id="grafica">
-            <div class="chart-container">
-                <div class="chart-header">
-                    <div class="chart-title">📈 Evolución del Peso</div>
+        @* ---- Tab: Gráfica ---- *@
+        <div class="pz-tab-content active" id="pz-grafica">
+            <div class="pz-panel">
+                <div class="pz-panel-header">
+                    <div class="pz-panel-title">📈 Evolución del Peso</div>
                 </div>
-                <canvas id="pesoChart" style="max-height: 400px;"></canvas>
+                <canvas id="pesoChart" style="max-height:400px;"></canvas>
             </div>
         </div>
 
-        <!-- Tab: Historial -->
-        <div class="tab-content" id="historial">
-            <div class="chart-container">
-                <div class="chart-header">
-                    <div class="chart-title">📋 Historial de Pesajes</div>
+        @* ---- Tab: Historial ---- *@
+        <div class="pz-tab-content" id="pz-historial">
+            <div class="pz-panel">
+                <div class="pz-panel-header">
+                    <div class="pz-panel-title">📋 Historial de Pesajes</div>
                 </div>
                 @if (historialPesajes.Any())
                 {
-                    <table class="historial-table">
+                    <table class="pz-table">
                         <thead>
                             <tr>
                                 <th>Fecha</th>
@@ -590,40 +537,30 @@
                                         gdp = dias > 0 ? ganancia / dias : 0;
                                     }
 
-                                    <tr style="@(esActual ? "background: rgba(46, 139, 87, 0.1);" : "")">
+                                    <tr style="@(esActual ? "background:rgba(46,139,87,.1);" : "")">
                                         <td>
                                             @pesaje.Fecha.ToString("dd/MM/yyyy HH:mm")
                                             @if (esActual)
                                             {
-                                                <span class="peso-actual">Actual</span>
+                                                <span class="pz-peso-badge">Actual</span>
                                             }
                                         </td>
-                                        <td>
-                                            <strong style="color: var(--primary);">@pesaje.PesoKg kg</strong>
-                                        </td>
+                                        <td><strong style="color:#2E8B57">@pesaje.PesoKg kg</strong></td>
                                         <td>
                                             @if (ganancia.HasValue)
                                             {
                                                 var clase = ganancia >= 0 ? "positiva" : "negativa";
                                                 var icono = ganancia >= 0 ? "▲" : "▼";
-                                                <span class="ganancia @clase">
-                                                    @icono @Math.Abs(ganancia.Value).ToString("0.0") kg
-                                                </span>
+                                                <span class="pz-ganancia @clase">@icono @Math.Abs(ganancia.Value).ToString("0.0") kg</span>
                                             }
                                             else
                                             {
-                                                <span style="color: var(--gray);">Primer pesaje</span>
+                                                <span style="color:#64748b">Primer pesaje</span>
                                             }
                                         </td>
-                                        <td>
-                                            @(dias?.ToString() ?? "--") días
-                                        </td>
-                                        <td>
-                                            @(gdp.HasValue? gdp.Value.ToString("0.000") : "--") kg/día
-                                        </td>
-                                        <td>
-                                            @(pesaje.Observacion ?? "-")
-                                        </td>
+                                        <td>@(dias?.ToString() ?? "--") días</td>
+                                        <td>@(gdp.HasValue? gdp.Value.ToString("0.000") : "--") kg/día</td>
+                                        <td>@(pesaje.Observacion ?? "-")</td>
                                     </tr>
                                 }
                             }
@@ -632,7 +569,7 @@
                 }
                 else
                 {
-                    <div class="empty-state">
+                    <div class="pz-empty">
                         <i class="fas fa-weight-hanging"></i>
                         <p>No hay historial de pesajes disponible</p>
                     </div>
@@ -640,86 +577,52 @@
             </div>
         </div>
 
-        <!-- Tab: Detalles -->
-        <div class="tab-content" id="detalles">
-            <div class="chart-container">
-                <div class="chart-header">
-                    <div class="chart-title">ℹ️ Detalles del Pesaje Actual</div>
+        @* ---- Tab: Detalles ---- *@
+        <div class="pz-tab-content" id="pz-detalles">
+            <div class="pz-panel">
+                <div class="pz-panel-header">
+                    <div class="pz-panel-title">ℹ️ Detalles del Pesaje Actual</div>
                 </div>
-                <table class="historial-table">
-                    <tr>
-                        <th>ID del Pesaje</th>
-                        <td>#@Model.PesajeId</td>
-                    </tr>
-                    <tr>
-                        <th>Animal</th>
-                        <td>
-                            <strong>@Model.Animal?.Nombre</strong> (Arete: @Model.Animal?.Arete)
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Fecha y Hora</th>
-                        <td>@Model.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
-                    </tr>
-                    <tr>
-                        <th>Peso Registrado</th>
-                        <td><strong style="color: var(--primary); font-size: 1.2rem;">@Model.PesoKg kg</strong></td>
-                    </tr>
-                    <tr>
-                        <th>Observaciones</th>
-                        <td>@(Model.Observacion ?? "Sin observaciones")</td>
-                    </tr>
+                <table class="pz-table">
+                    <tr><th style="width:200px">ID del Pesaje</th> <td>#@Model.PesajeId</td></tr>
+                    <tr><th>Animal</th>          <td><strong>@Model.Animal?.Nombre</strong> (Arete: @Model.Animal?.Arete)</td></tr>
+                    <tr><th>Fecha y Hora</th>    <td>@Model.Fecha.ToString("dd/MM/yyyy HH:mm")</td></tr>
+                    <tr><th>Peso Registrado</th> <td><strong style="color:#2E8B57;font-size:1.2rem">@Model.PesoKg kg</strong></td></tr>
+                    <tr><th>Observaciones</th>   <td>@(Model.Observacion ?? "Sin observaciones")</td></tr>
                 </table>
             </div>
         </div>
 
-        <!-- Footer Actions -->
-        <div class="details-footer">
-            <div class="footer-content">
-
-                <div class="footer-info">
-                    <i class="fas fa-info-circle"></i>
-                    Acciones disponibles para este pesaje
-                </div>
-
-                <div class="footer-actions">
-                    <a asp-action="Edit"
-                       asp-route-id="@Model.PesajeId"
-                       class="btn btn-primary">
-                        <i class="fas fa-edit"></i>
-                        Editar Pesaje
-                    </a>
-
-                    <a asp-action="Delete"
-                       asp-route-id="@Model.PesajeId"
-                       class="btn btn-danger">
-                        <i class="fas fa-trash"></i>
-                        Eliminar
-                    </a>
-                </div>
-
-            </div>
+        @* ===== FOOTER DE ACCIONES ===== *@
+        <div class="pz-footer">
+            <a asp-action="Edit" asp-route-id="@Model.PesajeId" class="pz-btn pz-btn-primary">
+                <i class="fas fa-edit"></i> Editar Pesaje
+            </a>
+            <a asp-action="Index" class="pz-btn pz-btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver al Listado
+            </a>
         </div>
 
     </div>
+</div>
 
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // Tab functionality
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-
+        // Tabs
+        document.querySelectorAll('.pz-tab').forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.pz-tab').forEach(function(t) { t.classList.remove('active'); });
+                document.querySelectorAll('.pz-tab-content').forEach(function(c) { c.classList.remove('active'); });
                 tab.classList.add('active');
-                document.getElementById(tab.getAttribute('data-tab')).classList.add('active');
+                document.getElementById(tab.getAttribute('data-pztab')).classList.add('active');
             });
         });
 
         // Chart
-        const ctx = document.getElementById('pesoChart').getContext('2d');
-
-        const fechas = @Html.Raw(Json.Serialize(historialPesajes.OrderBy(p => p.Fecha).Select(p => p.Fecha.ToString("dd/MM")).ToList()));
-        const pesos = @Html.Raw(Json.Serialize(historialPesajes.OrderBy(p => p.Fecha).Select(p => p.PesoKg).ToList()));
+        var ctx = document.getElementById('pesoChart').getContext('2d');
+        var fechas = @Html.Raw(Json.Serialize(historialPesajes.OrderBy(p => p.Fecha).Select(p => p.Fecha.ToString("dd/MM")).ToList()));
+        var pesos  = @Html.Raw(Json.Serialize(historialPesajes.OrderBy(p => p.Fecha).Select(p => p.PesoKg).ToList()));
 
         new Chart(ctx, {
             type: 'line',
@@ -729,7 +632,7 @@
                     label: 'Peso (kg)',
                     data: pesos,
                     borderColor: '@primaryColor',
-                    backgroundColor: 'rgba(46, 139, 87, 0.1)',
+                    backgroundColor: 'rgba(46,139,87,0.1)',
                     borderWidth: 3,
                     fill: true,
                     tension: 0.4,
@@ -741,30 +644,20 @@
                 responsive: true,
                 maintainAspectRatio: true,
                 plugins: {
-                    legend: {
-                        display: true,
-                        position: 'top'
-                    },
+                    legend: { display: true, position: 'top' },
                     tooltip: {
                         callbacks: {
-                            label: function(context) {
-                                return 'Peso: ' + context.parsed.y + ' kg';
-                            }
+                            label: function(context) { return 'Peso: ' + context.parsed.y + ' kg'; }
                         }
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: false,
-                        ticks: {
-                            callback: function(value) {
-                                return value + ' kg';
-                            }
-                        }
+                        ticks: { callback: function(value) { return value + ' kg'; } }
                     }
                 }
             }
         });
     </script>
-</body>
-</html>
+}
